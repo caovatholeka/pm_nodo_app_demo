@@ -4,6 +4,7 @@ class AppAssets {
   // images
   static final imgTopBanner = 'assets/images/img_top_bg.jpg';
   static final imgBg2 = 'assets/images/img_bg_2.jpg';
+  static final appBg = 'assets/images/app_bg.jpg';
 
   static final icAttachCamera = 'assets/images/icons/ic_attach_camera.png';
   static final icAttachImage = 'assets/images/icons/ic_attach_image.png';

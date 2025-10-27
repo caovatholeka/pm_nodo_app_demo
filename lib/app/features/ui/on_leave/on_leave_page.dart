@@ -11,6 +11,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       body: Container(
         width: double.infinity,
         height: double.infinity,
