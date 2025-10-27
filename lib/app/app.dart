@@ -1,0 +1,165 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fluro/fluro.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get_it/get_it.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:provider/single_child_widget.dart';
+
+import '../di/di.dart';
+import 'config/app_config.dart';
+import 'core/commons/app_theme.dart';
+import 'core/commons/global_data.dart';
+import 'core/logger/logger.dart';
+import 'core/router/application.dart';
+import 'core/router/routers.dart';
+import 'data/repositories/auth_repository.dart';
+import 'features/bloc/app_cubit.dart';
+import 'features/ui/splash/splash_cubit.dart';
+
+final getIt = GetIt.instance;
+class MyApp extends StatefulWidget {
+  MyApp() {
+    final router = FluroRouter();
+    Routes.configureRoutes(router);
+    Application.router = router;
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  OverlaySupportEntry? _overlaySupportEntry;
+  bool networkEnabled = true;
+
+  final _appCubit = GetIt.I.get<AppCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> initConnectivity() async {
+    late List<ConnectivityResult> result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      logger.d(e.toString());
+      return;
+    }
+
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> results) async {
+    final result = results[0];
+    if (result != ConnectivityResult.wifi &&
+        result != ConnectivityResult.mobile) {
+      if (networkEnabled) {
+        _overlaySupportEntry = showSimpleNotification(
+          SizedBox(
+            child: Text('Mất kết nối, vui lòng kiểm tra lại đường truyền.'),
+          ),
+          leading: Icon(Icons.wifi, color: Colors.white),
+          autoDismiss: false,
+          background: Colors.red,
+        );
+      }
+      networkEnabled = false;
+    } else {
+      networkEnabled = true;
+      _overlaySupportEntry?.dismiss(animate: true);
+    }
+  }
+
+  List<SingleChildWidget> _buildBlocProviders() {
+    return [
+      BlocProvider(create: (context) => sl<AppCubit>()),
+      BlocProvider(create: (context) => sl<SplashCubit>()),
+      // BlocProvider(create: (context) => sl<LogInCubit>()),
+      // BlocProvider(create: (context) => sl<ForgotCubit>()),
+      // BlocProvider(create: (context) => sl<AccountCubit>()),
+      // BlocProvider(create: (context) => sl<HomeCubit>()),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(create: (context) => sl<AuthRepository>()),
+      ],
+      child: MultiBlocProvider(
+        providers: _buildBlocProviders(),
+        child: BlocConsumer<AppCubit, AppState>(
+            listener: (context, state) {},
+            buildWhen: (pre, cur) => pre.locale != cur.locale,
+            builder: (context, state) {
+
+              return OverlaySupport(child: materialApp(state.locale));
+            }),
+      ),
+    );
+  }
+
+  GetMaterialApp materialApp(Locale? locale) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: AppConfig.appName,
+      theme: AppThemes.theme,
+      navigatorKey: GlobalData.instance.navigatorKey,
+      onGenerateRoute: Application.router.generator,
+      initialRoute: Routes.root,
+      locale: locale,
+      // localizationsDelegates: const [
+      //   GlobalMaterialLocalizations.delegate,
+      //   GlobalWidgetsLocalizations.delegate,
+      //   GlobalCupertinoLocalizations.delegate,
+      //   S.delegate,
+      // ],
+      // supportedLocales: S.delegate.supportedLocales,
+      builder: (context, child) {
+        return GestureDetector(
+          onTap: () {
+            hideKeyboard(context);
+          },
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            child: child!,
+          ),
+        );
+      },
+    );
+  }
+
+  void hideKeyboard(BuildContext context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+  }
+}
