@@ -23,4 +23,12 @@ class AppColors {
   static const Color colorNoClockIn = Color(0xFFDA3535);
 
   static const Color loadingIndicator = Color(0xFF00AFA5);
+
+  static const Color newNotification = Color.fromRGBO(15, 150, 135, 1);
+  static const Color subtitle = Color.fromRGBO(81, 89, 120, 1);
+  static const Color searchText = Color.fromRGBO(153, 153, 153, 1);
+  static const Color menuText = Color.fromRGBO(80, 87, 128, 1);
+  static const Color profileContainer = Color.fromRGBO(0, 108, 255, 1);
+  static const Color avatarFrame = Color.fromRGBO(66, 181, 235, 1);
+  static const Color avatarText = Color.fromRGBO(154, 224, 217, 1);
 }
