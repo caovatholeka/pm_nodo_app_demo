@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
+import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
+import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import '../app/core/network/api_client.dart';
 import '../app/core/network/api_util.dart';
 import '../app/data/repositories/auth_repository.dart';
@@ -19,7 +22,10 @@ Future<void> init() async {
           () => AppCubit(authRepository: sl())
   );
   sl.registerLazySingleton<SplashCubit>(() => SplashCubit(authRepository: sl()));
+  sl.registerLazySingleton<OnLeaveCubit>(() => OnLeaveCubit(repository: sl()));
+  sl.registerLazySingleton<CreateOnLeaveCubit>(() => CreateOnLeaveCubit(repository: sl()));
 
   //** Repository */
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<OnLeaveRepository>(() => OnLeaveRepositoryImpl(sl()));
 }

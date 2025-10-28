@@ -7,6 +7,7 @@ class AppColors {
   static const Color themePrimaryDefault = Color(0xFF0088FF);
   static const Color textPrimaryDefault = Color(0xFF1677FF);
   static const Color mainColor = Color(0xFF006CFF);
+  static const Color mainPrimaryColor6 = Color(0xFF006CFF);
 
   static const Color colorPrimary50 = Color(0xFFEAF2FF);
   static const Color themeBlackDefault = Color(0xff000000);
@@ -31,4 +32,14 @@ class AppColors {
   static const Color profileContainer = Color.fromRGBO(0, 108, 255, 1);
   static const Color avatarFrame = Color.fromRGBO(66, 181, 235, 1);
   static const Color avatarText = Color.fromRGBO(154, 224, 217, 1);
+  static const Color textNormal = Color(0xFF61677E);
+  static const Color textRed = Color(0xFFEE1033);
+
+  static const Color bgGray = Color(0xFFF5F6F9);
+
+  // nghi phep
+  static const Color colorPending = Color(0xFFC47600);
+  static const Color colorApproved = Color(0xFF037847);
+  static const Color colorRejected = Color(0xFFD21D0D);
+  static const Color colorCancel = Color(0xFFC47600);
 }

@@ -3,8 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 
-class BasicAppbar extends StatelessWidget implements PreferredSizeWidget {
-  BasicAppbar({
+class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
+  MyAppBar({
     super.key,
     this.actionCallBack,
     this.backAction,
@@ -40,9 +40,11 @@ class BasicAppbar extends StatelessWidget implements PreferredSizeWidget {
           titleAppbar,
           style: TextStyle(
               color: AppColors.whiteColor,
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.w600),
         ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: haveBackButton!
             ? InkWell(
           child: IconButton(
@@ -54,6 +56,7 @@ class BasicAppbar extends StatelessWidget implements PreferredSizeWidget {
               }
             },
             icon: Container(
+              padding: const EdgeInsets.all(6),
               width: 32,
               height: 32,
               decoration: BoxDecoration(
@@ -61,7 +64,7 @@ class BasicAppbar extends StatelessWidget implements PreferredSizeWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: SvgPicture.asset(AppAssets.icBack,width: 18,),
+                child: SvgPicture.asset(AppAssets.icBack,width: 18,color: AppColors.themeBlackDefault,),
               ),
             ),
           ),
