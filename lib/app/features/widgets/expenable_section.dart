@@ -56,10 +56,9 @@ class _ExpandableSectionState extends State<ExpandableSection>
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
-        borderRadius: BorderRadius.circular(16),
       boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -72,10 +71,9 @@ class _ExpandableSectionState extends State<ExpandableSection>
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           childrenPadding:
-              const EdgeInsets.only(left: 0, right: 0, bottom: 8), 
+              const EdgeInsets.only(left: 0, right: 0, bottom: 0), 
           title: Text(
             widget.title,
             style: const TextStyle(

@@ -32,19 +32,19 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           ),
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 120),
               _accountInfo,
-              const SizedBox(height: 24),
+              const SizedBox(height: 10),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
                   children: [
@@ -57,7 +57,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: const Color.fromRGBO(243, 240, 240, 1),
-                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +95,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Color.fromRGBO(243, 240, 240, 1),
-                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +105,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                               SizedBox(height: 12),
                               _InfoRow(
                                   title: "Phòng sản xuất",
-                                  value: "Quản lý sản xuất - Xuân Thưởng"),
+                                  value: "Quản lý sản xuất: Trường"),
                               SizedBox(height: 12),
                               Divider(height: 0.5, color: Color.fromRGBO(206, 214, 222, 1)),
                               SizedBox(height: 12),
@@ -126,10 +124,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                       children: [
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: Color.fromRGBO(243, 240, 240, 1),
-                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
