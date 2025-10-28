@@ -3,6 +3,8 @@ import 'package:flutter_svg/svg.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
+import '../../../core/commons/screen_size.dart';
+import '../../navigation/bottom_navigation.dart';
 import 'noti_state.dart';
 
 class NotificationPage extends StatefulWidget {
@@ -22,8 +24,16 @@ class _NotificationPageState extends State<NotificationPage> {
     notiState = NotiState();
   }
 
+  void _goBack() {
+    Navigator.push(context, 
+    MaterialPageRoute(builder: (context) => BottomNavigation())
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screen = ScreenSize.of(context);
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -36,25 +46,47 @@ class _NotificationPageState extends State<NotificationPage> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image(image: AssetImage(AppAssets.ic_arrowB)),
-                    const Text(
-                      "Thông báo",
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    Image.asset(AppAssets.ic_read_all, width: 36, height: 36 ),
-                  ],
-                ),
+                padding: EdgeInsets.symmetric(
+                horizontal: screen.width * 0.04,
+                vertical: screen.height * 0.015,
+        ),
+               child: Row(
+               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+               children: [
+              GestureDetector(
+                 onTap: () {
+                  _goBack();
+               },
+                child: Image.asset(
+                AppAssets.ic_arrowB,
+                 width: 28,
               ),
+            ),
+
+             const Text(
+             "Thông báo",
+             style: TextStyle(
+             fontSize: 20,
+             fontWeight: FontWeight.bold,
+             color: Colors.white,
+            ),
+          ),
+      GestureDetector(
+        onTap: () {
+          print("No Event Yet");
+        },
+        child: Image.asset(
+          AppAssets.ic_read_all,
+          width: 36,
+          height: 36,
+        ),
+      ),
+    ],
+  ),
+),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                margin: EdgeInsets.symmetric(vertical: screen.height * 0.01),
+                padding: EdgeInsets.symmetric(horizontal: screen.width * 0.02),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -65,10 +97,11 @@ class _NotificationPageState extends State<NotificationPage> {
                   ],
                 ),
               ),
+
               Expanded(
                 child: Container(
-                  margin: const EdgeInsets.all(2),
-                  padding: const EdgeInsets.all(16),
+                  margin: EdgeInsets.all(screen.width * 0.01),
+                  padding: EdgeInsets.all(screen.width * 0.04),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(20),
@@ -78,16 +111,14 @@ class _NotificationPageState extends State<NotificationPage> {
                       const Text("Hôm nay",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: 10),
+                      SizedBox(height: screen.height * 0.01),
                       ...notiState.today.map(_buildNotiItem),
 
-                      const SizedBox(height: 20),
-                      const SizedBox(height: 10),
-
+                      SizedBox(height: screen.height * 0.025),
                       const Text("Hôm qua",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16)),
-                      const SizedBox(height: 10),
+                      SizedBox(height: screen.height * 0.01),
                       ...notiState.yesterday.map(_buildNotiItem),
                     ],
                   ),
@@ -99,6 +130,7 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
   }
+
   Widget _buildTab(String text, int index) {
     final bool isSelected = selectedTab == index;
     return GestureDetector(
@@ -126,111 +158,102 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
   }
-
-Widget _buildNotiItem(NotificationItem item) {
-  return Container(
-    margin: const EdgeInsets.symmetric(vertical: 6),
-    decoration: BoxDecoration(
-      color: item.isUnread ? Colors.white : Colors.grey.shade100,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.shade300,
-          blurRadius: 5,
-          offset: const Offset(2, 2),
-        ),
-      ],
-    ),
-    child: Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 22,
-                child: Image.asset(
-                  item.imagepath,
-                  fit: BoxFit.contain,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            softWrap: true,
-                            overflow: TextOverflow.visible,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          item.time,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      width: double.infinity, 
-                      child: Text(
-                      item.subtitle,
-                      style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.subtitle,
-                      height: 1.4, 
-                    ),
-                  softWrap: true,
-                   overflow: TextOverflow.clip,
-                 ),
-               ),
-                  ],
-                ),
-              ),
-            ],
+  Widget _buildNotiItem(NotificationItem item) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      decoration: BoxDecoration(
+        color: item.isUnread ? Colors.white : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 5,
+            offset: const Offset(2, 2),
           ),
-        ),
-        if (item.isUnread)
-          Positioned(
-            bottom: 8,
-            right: 8,
-            child: Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(
-                color: AppColors.newNotification,
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Text(
-                  "2",
-                  style: TextStyle(
-                    color: AppColors.whiteColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+        ],
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  child: Image.asset(item.imagepath, fit: BoxFit.contain),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.visible,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            item.time,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.subtitle,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.subtitle,
+                          height: 1.4,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.clip,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (item.isUnread)
+            Positioned(
+              bottom: 8,
+              right: 8,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: const BoxDecoration(
+                  color: AppColors.newNotification,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text(
+                    "2",
+                    style: TextStyle(
+                      color: AppColors.whiteColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
-}
-
-
+        ],
+      ),
+    );
+  }
 }

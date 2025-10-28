@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
-
+import '../account/change_languge/change_languge_page.dart';
+import '../account/changepassword/change_password_page.dart';
+import '../account/personal_info/personal_info_page.dart';
+import '../../widgets/primary_button.dart';
+import '../auth/login/login_page.dart';
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
 
@@ -11,9 +15,43 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+
+  void _goLangague() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangeLanguagePage()),
+    );
+  }
+
+  void _goPassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+    );
+  }
+
+  void _goInfo() {
+   Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PersonalInfoPage()),
+    );
+  }
+
+  void _logOut() {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => LoginPage()
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, 
+      appBar: MyAppBar(
+        titleAppbar: "Cá nhân",
+        haveBackButton: true,
+        backAction: () => Navigator.pop(context),
+      ),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -28,25 +66,29 @@ class _AccountPageState extends State<AccountPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 68),
-              _headerWidget,
-              const SizedBox(height: 24),
+              const SizedBox(height: 120), 
               _accountInfo,
               const SizedBox(height: 24),
               _menuItem(
                 icon: AppAssets.ic_user,
                 title: "Thông tin cá nhân",
-                onTap: () {},
+                onTap: () {
+                  _goInfo();
+                },
               ),
               _menuItem(
                 icon: AppAssets.ic_langague,
                 title: "Ngôn ngữ",
-                onTap: () {},
+                onTap: () {
+                  _goLangague();
+                },
               ),
               _menuItem(
                 icon: AppAssets.ic_protect,
                 title: "Đổi mật khẩu",
-                onTap: () {},
+                onTap: () {
+                  _goPassword();
+                },
               ),
               _menuItem(
                 icon: AppAssets.ic_setting,
@@ -62,38 +104,8 @@ class _AccountPageState extends State<AccountPage> {
       ),
     );
   }
-  get _headerWidget {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            padding: const EdgeInsets.all(4),
-            width: 28,
-            height: 28,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.colorPrimary50,
-            ),
-            child: Center(child: Image.asset(AppAssets.ic_arrowB)),
-          ),
-        ),
-        const Spacer(),
-        const Text(
-          "Cá nhân",
-          style: TextStyle(
-            color: AppColors.colorPrimary50,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const Spacer(),
-        const SizedBox(width: 28), 
-      ],
-    );
-  }
-    get _accountInfo {
+
+  get _accountInfo {
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -136,7 +148,7 @@ class _AccountPageState extends State<AccountPage> {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.avatarFrame, width: 3),
               image: DecorationImage(
-                image: AssetImage(AppAssets.img_df_avatar), 
+                image: AssetImage(AppAssets.img_df_avatar),
                 fit: BoxFit.cover,
               ),
             ),
@@ -145,6 +157,7 @@ class _AccountPageState extends State<AccountPage> {
       ],
     );
   }
+
   Widget _menuItem({
     required String icon,
     required String title,
@@ -181,24 +194,12 @@ class _AccountPageState extends State<AccountPage> {
   get _logoutButton {
     return SizedBox(
       width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () => Navigator.pop(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.profileContainer,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-        ),
-        child: const Text(
-          "Đăng xuất",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      child: PrimaryButton(
+        mainText: "Đăng Xuất",
+        callback: () => {
+          _logOut()
+        },
+        )
     );
   }
 }

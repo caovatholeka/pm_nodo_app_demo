@@ -42,4 +42,5 @@ class AppColors {
   static const Color colorApproved = Color(0xFF037847);
   static const Color colorRejected = Color(0xFFD21D0D);
   static const Color colorCancel = Color(0xFFC47600);
+
 }

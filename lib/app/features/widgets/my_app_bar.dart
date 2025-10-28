@@ -36,6 +36,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       canPop: canPop ?? true, // false : dismiss pop
       onPopInvoked: onPopInvoked,
       child: AppBar(
+        centerTitle: true,
         title: Text(
           titleAppbar,
           style: TextStyle(
@@ -55,18 +56,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Navigator.of(context).pop();
               }
             },
-            icon: Container(
-              padding: const EdgeInsets.all(6),
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: AppColors.whiteColor,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: SvgPicture.asset(AppAssets.icBack,width: 18,color: AppColors.themeBlackDefault,),
-              ),
-            ),
+            icon: Image.asset(AppAssets.ic_arrowB)
           ),
         )
             : const SizedBox(),

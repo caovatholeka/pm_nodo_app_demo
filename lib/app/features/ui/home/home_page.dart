@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 
+import '../../widgets/input_text_field.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../core/commons/app_assets.dart';
 
@@ -12,6 +14,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _searchController = TextEditingController();
+
+  void _goNotifi() {
+  Navigator.push(context,
+         MaterialPageRoute(
+        builder:(context) => NotificationPage()
+        ));
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +62,7 @@ class _HomePageState extends State<HomePage> {
 ),
     GestureDetector(
       onTap: () {
-        print("No event yet");         
+         _goNotifi();       
       },
       child: Container(
       decoration: BoxDecoration(
@@ -69,25 +81,22 @@ class _HomePageState extends State<HomePage> {
     )
   ],
     ),
-      const SizedBox(height: 20),
-              TextField(
-                decoration: InputDecoration(
-                  hintText: 'Mã nhân viên, Tên nhân viên',
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Image.asset(AppAssets.ic_search, width: 20, height: 20),
-                  ),
-                  filled: true,
-                  fillColor:AppColors.colorPrimary50,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
+        const SizedBox(height: 20),
+       InputTextField(
+        title: "", 
+        hintText: "Mã nhân viên, Tên nhân viên", 
+        isRequiredField: false,
+        maxLength: 255,
+        controller: _searchController,
+        style: TextStyle(color: AppColors.searchText),
+        bgrColor: true,
+        prefixWidget: Image.asset(
+          AppAssets.ic_search,
+          width: 20,
+          height: 20,
+          ),
+        ),
+        const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
@@ -170,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Chấm công vào/ra: 08:50 - 18:00',
+                      'Chấm công vào/ra: 08:30 - 18:00',
                       style: TextStyle(
                         color: Colors.black45,
                         fontSize: 13,
