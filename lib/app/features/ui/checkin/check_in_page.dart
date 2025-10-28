@@ -124,8 +124,8 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   get _bodyContent{
-    return RefreshIndicator(
-      onRefresh: _onRefresh,
-    );
+    // return RefreshIndicator(
+    //   onRefresh: _onRefresh,
+    // );
   }
 }
