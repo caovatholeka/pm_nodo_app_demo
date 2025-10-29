@@ -105,11 +105,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                               SizedBox(height: 12),
                               _InfoRow(
                                   title: "Phòng sản xuất",
-                                  value: "Quản lý sản xuất: Trường"),
+                                  value: "Quản lý sản xuất: Trần Xuân Trường"),
                               SizedBox(height: 12),
                               Divider(height: 0.5, color: Color.fromRGBO(206, 214, 222, 1)),
                               SizedBox(height: 12),
-                              _InfoRow(title: "Đang làm việc", value: "ALOHUB Hà Nội"),
+                              _InfoRow(title: "Đang làm việc", value: "AUDI Hà Nội"),
                             ],
                           ),
                         ),
@@ -133,7 +133,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                             children: [
                               _InfoRow(
                                   title: "Đã ký hợp đồng",
-                                  value: "Đang hiệu lực"),
+                                  value: "Ngày gia nhập: 02/10/2025"),
                             ],
                           ),
                         ),
