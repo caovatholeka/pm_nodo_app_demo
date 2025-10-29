@@ -22,6 +22,7 @@ import 'core/router/application.dart';
 import 'core/router/routers.dart';
 import 'data/repositories/auth_repository.dart';
 import 'features/bloc/app_cubit.dart';
+import 'features/ui/auth/login/login_cubit.dart';
 import 'features/ui/splash/splash_cubit.dart';
 
 final getIt = GetIt.instance;
@@ -102,7 +103,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<SplashCubit>()),
       BlocProvider(create: (context) => sl<OnLeaveCubit>()),
       BlocProvider(create: (context) => sl<CreateOnLeaveCubit>()),
-      // BlocProvider(create: (context) => sl<LogInCubit>()),
+      BlocProvider(create: (context) => sl<LogInCubit>()),
       // BlocProvider(create: (context) => sl<ForgotCubit>()),
       // BlocProvider(create: (context) => sl<AccountCubit>()),
       // BlocProvider(create: (context) => sl<HomeCubit>()),

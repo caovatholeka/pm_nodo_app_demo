@@ -81,7 +81,7 @@ class _CheckInPageState extends State<CheckInPage> {
         builder: (context,state){
           return Scaffold(
             appBar: MyAppBar(titleAppbar: "Chấm công",
-              haveBackButton: true,
+              // haveBackButton: true,
             ),
             extendBodyBehindAppBar: true,
             body: Container(
@@ -124,6 +124,7 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   get _bodyContent{
+    return Container();
     // return RefreshIndicator(
     //   onRefresh: _onRefresh,
     // );

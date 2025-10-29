@@ -17,14 +17,15 @@ extension EnvironmentExt on Environment {
   }
 
   String get baseUrl {
-    switch (this) {
-      case Environment.dev:
-        return 'https://api-nodo-pm-dev.com/';
-      case Environment.staging:
-        return 'https://api-nodo-pm-staging.vn/';
-      case Environment.prod:
-        return 'https://api.nodo-pm.vn/';
-    }
+    return 'https://pm.nodo.vn/';
+    // switch (this) {
+    //   case Environment.dev:
+    //     return 'https://api-nodo-pm-dev.com/';
+    //   case Environment.staging:
+    //     return 'https://api-nodo-pm-staging.vn/';
+    //   case Environment.prod:
+    //     return 'https://api.nodo-pm.vn/';
+    // }
   }
 
   String get logId {

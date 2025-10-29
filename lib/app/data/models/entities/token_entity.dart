@@ -19,12 +19,20 @@ class TokenEntity {
   @JsonKey()
   int? refreshTokenExpiresIn;
 
+  @JsonKey()
+  int? uid;
+
+  @JsonKey()
+  int? partner_id;
+
   TokenEntity({
     this.accessToken,
     this.id,
     this.refreshToken,
     this.expiresIn,
-    this.refreshTokenExpiresIn
+    this.refreshTokenExpiresIn,
+    this.uid,
+    this.partner_id
   });
 
   TokenEntity copyWith({
@@ -32,14 +40,18 @@ class TokenEntity {
     String? refreshToken,
     String? id,
     int? expiresIn,
-    int? refreshTokenExpiresIn
+    int? refreshTokenExpiresIn,
+    int? uid,
+    int? partner_id
   }) {
     return TokenEntity(
         accessToken: accessToken ?? this.accessToken,
         refreshToken: refreshToken ?? this.refreshToken,
         id: id ?? this.id,
         expiresIn: expiresIn ?? this.expiresIn,
-        refreshTokenExpiresIn: refreshTokenExpiresIn ?? this.refreshTokenExpiresIn
+        refreshTokenExpiresIn: refreshTokenExpiresIn ?? this.refreshTokenExpiresIn,
+      uid: uid ?? this.uid,
+      partner_id: partner_id ?? this.partner_id
     );
   }
 

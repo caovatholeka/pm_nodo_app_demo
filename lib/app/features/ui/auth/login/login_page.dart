@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
+import '../../../../data/models/enums/load_status.dart';
 import '../../../../config/app_config.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/commons/app_colors.dart';
@@ -24,6 +27,8 @@ class _LoginPageState extends State<LoginPage> {
   final _userNameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  final _cubit = GetIt.I.get<LogInCubit>();
+
   @override
   void initState() {
     // remove splash
@@ -37,40 +42,51 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _login(){
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => BottomNavigation()),
-    );
+    _cubit.doLogin(_userNameController.text, _passwordController.text);
+
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AppColors.colorPrimary50,
-      key: _scaffoldKey,
-      body: WillPopScope(
-        onWillPop: () async {
-          return false;
+    return BlocConsumer<LogInCubit,LoginState>(
+        bloc: _cubit,
+        listener: (context,state){
+          if(state.loginStatus == LoadStatus.SUCCESS){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => BottomNavigation()),
+            );
+          }
         },
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                _bannerWidget(),
-              ],
+        builder: (context,state){
+          return Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: AppColors.colorPrimary50,
+            key: _scaffoldKey,
+            body: WillPopScope(
+              onWillPop: () async {
+                return false;
+              },
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      _bannerWidget(),
+                    ],
+                  ),
+                  Positioned(
+                    top: 140,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: _bodyContent(),
+                  ),
+                ],
+              ),
             ),
-            Positioned(
-              top: 140,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _bodyContent(),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
+        });
+
   }
 
   Widget _bannerWidget() {
@@ -129,7 +145,7 @@ class _LoginPageState extends State<LoginPage> {
                   hintText: "",
                   isRequiredField: false,
                   enable: true,
-                  controller: _userNameController,
+                  controller: _passwordController,
                   maxLength: 255,
                   onChange: (value){
                   },

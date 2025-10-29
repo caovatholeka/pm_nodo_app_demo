@@ -12,9 +12,8 @@ abstract class ApiClient {
   factory ApiClient(Dio dio, {required String baseUrl}) = _ApiClient;
 
   /// Auth
-  @POST("/client/api/v1/login")
-  Future<TokenEntity> authLogin(@Body() Map<String, dynamic> body);
-
+  @POST("/users/do_login")
+  Future<CommonResponse> authLogin(@Body() Map<String, dynamic> body);
 
 
   // xin nghi
