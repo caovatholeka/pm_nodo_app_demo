@@ -2,9 +2,6 @@ part of 'on_leave_cubit.dart';
 
 class OnLeaveState extends Equatable {
   final LoadStatus loadStatus;
-  final LoadStatus createStatus;
-  final LoadStatus updateStatus;
-  final LoadStatus deleteStatus;
   String? errMsg;
   String? errStatus;
 
@@ -13,9 +10,6 @@ class OnLeaveState extends Equatable {
 
   OnLeaveState({
     this.loadStatus = LoadStatus.INITIAL,
-    this.createStatus = LoadStatus.INITIAL,
-    this.updateStatus = LoadStatus.INITIAL,
-    this.deleteStatus = LoadStatus.INITIAL,
     this.errMsg,
     this.errStatus,
     this.listLeaveEntities,
@@ -25,9 +19,6 @@ class OnLeaveState extends Equatable {
   OnLeaveState copyWith({
     bool resetDateTime = false,
     LoadStatus? loadStatus,
-    LoadStatus? createStatus,
-    LoadStatus? updateStatus,
-    LoadStatus? deleteStatus,
     String? errMsg,
     String? errStatus,
     List<OnLeaveEntity>? listLeaveEntities,
@@ -35,11 +26,8 @@ class OnLeaveState extends Equatable {
   }) {
     return OnLeaveState(
         loadStatus: loadStatus ?? this.loadStatus,
-        createStatus: createStatus ?? this.createStatus,
-        updateStatus: updateStatus ?? this.updateStatus,
         errMsg: errMsg ?? this.errMsg,
         errStatus: errStatus ?? this.errStatus,
-        deleteStatus: deleteStatus ?? this.deleteStatus,
         listLeaveEntities: listLeaveEntities ?? this.listLeaveEntities,
         detailOnLeave: detailOnLeave ?? this.detailOnLeave,
     );
@@ -48,9 +36,6 @@ class OnLeaveState extends Equatable {
   @override
   List<Object?> get props => [
     loadStatus,
-    createStatus,
-    updateStatus,
-    deleteStatus,
     errMsg,
     errStatus,
     listLeaveEntities,

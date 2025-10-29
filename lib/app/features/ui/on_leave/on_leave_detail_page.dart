@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
+import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
+import 'package:pm_app/app/features/widgets/app_snackbar.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../data/models/entities/on_leave_entity.dart';
 import '../../widgets/custom_dash_view.dart';
 import '../../widgets/my_app_bar.dart';
+import '../../widgets/primary_button.dart';
+import 'bloc/on_leave_cubit.dart';
 
 class OnLeaveDetailPage extends StatefulWidget {
   int? detailId;
@@ -29,6 +36,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
 
   @override
   void initState() {
+    _cubit.getDetailOnLeave(widget.detailId ?? 0);
     super.initState();
   }
 
@@ -91,12 +99,40 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         return "";
     }
   }
+
+  Future<void> doUpdate(BuildContext context) async{
+    final bool? updated = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CreateNewLeavePage(
+        isEdit: true,
+        detailEntity: _cubit.state.detailEntity,
+      )),
+    );
+    if (updated == true) {
+      Navigator.pop(context, true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DetailOnLeaveCubit,DetailOnLeaveState>(
         bloc: _cubit,
         listener: (context,state){
-
+          if(state.loadStatus == LoadStatus.LOADING ||
+            state.deleteStatus == LoadStatus.LOADING){
+            LoadingOverlay.show(context);
+          }
+          else if(state.deleteStatus == LoadStatus.SUCCESS){
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(title: "Thành công",message: "Xoá bản ghi thành công!");
+            Navigator.of(context).pop();
+          }else if(state.deleteStatus == LoadStatus.FAILURE){
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(title: "Lỗi",message: "Không xóa được bản ghi khác nháp!");
+          }
+          else{
+            LoadingOverlay.hide(context);
+          }
         },
         builder: (context,state){
           return Scaffold(
@@ -150,43 +186,43 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
               children: [
                 // nhân viên
                 _buildItem("Nhân viên",
-                    "Nguyễn Đăng Huy(NV00034)")
+                    _cubit.state.detailEntity?.employeeName ?? "")
                     .paddingOnly(bottom: 8),
                 CustomDashView(),
 
                 // phòng ban
                 _buildItem("Phòng ban",
-                    "")
+                    _cubit.state.detailEntity?.departmentName ??"")
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
                 // số phép còn lại
                 _buildItem("Số phép còn lại",
-                    "")
+                    (_cubit.state.detailEntity?.remainLeave ?? 0).toString())
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
                 // loại nghỉ
                 _buildItem("Loại nghỉ",
-                    "")
+                    _cubit.state.detailEntity?.holidayStatus ?? "")
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
                 // từ ngày
                 _buildItem("Từ ngày",
-                    "")
+                    AppDateUtils.changeIso8601StringToDateTimeString(_cubit.state.detailEntity?.dateFrom))
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
                 // đến ngày
                 _buildItem("Đến ngày",
-                    "")
+                    AppDateUtils.changeIso8601StringToDateTimeString(_cubit.state.detailEntity?.dateTo))
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
                 // lý do nghỉ
                 _buildItem("Lý do nghỉ",
-                    "")
+                    _cubit.state.detailEntity?.description ?? "")
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
@@ -204,12 +240,63 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
-
+                const SizedBox(height: 30,),
+                _bottomSheet,
+                const SizedBox(height: 30,),
               ],
             );
           }),
 
     );
+  }
+
+  get _bottomSheet{
+    return BlocBuilder<DetailOnLeaveCubit,DetailOnLeaveState>(
+        bloc: _cubit,
+        buildWhen: (prev,cur) => prev.detailEntity != cur.detailEntity,
+        builder: (context,state){
+          return Container(
+            padding: const EdgeInsets.fromLTRB(32, 10, 32, 15),
+            child: SafeArea(
+              bottom: true,
+              top: false,
+              child: Row(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: PrimaryButton(
+                        callback:(){
+                          doUpdate(context);
+                        },
+                        mainText: "Cập nhật",//context.loc.update,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.whiteColor
+                        ),
+                      )),
+                  const SizedBox(width: 10,),
+                  Expanded(
+                      flex: 1,
+                      child: PrimaryButton(
+                        callback: (){
+                          // logger.d(_cubit.state.detailOnLeave?.id ?? 0);
+                          // show dialog
+                          showDeleteConfirmDialog(context);
+                        },
+                        mainText: "Xoá",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.whiteColor
+                        ),
+                      )),
+                ],
+              )
+            ),
+          );
+        });
+
   }
 
   Widget _buildItem(String title, String value){
@@ -281,5 +368,98 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         ),
       ],
     ).paddingOnly(bottom: 8,top: 8);
+  }
+
+  void showDeleteConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Xác nhận",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                fontStyle: FontStyle.normal,
+                color: AppColors.themeBlackDefault,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Bạn chắc muốn xoá",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                fontStyle: FontStyle.normal,
+                color: AppColors.themeBlackDefault,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.whiteColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: Text(
+                      "Huỷ",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        fontStyle: FontStyle.normal,
+                        color: AppColors.themeBlackDefault,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width:24,),
+                SizedBox(
+                  width: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // call cubit change password
+                      _cubit.deleteOnLeave(_cubit.state.detailEntity?.id ?? 0);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.themePrimaryDefault,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: Text(
+                      "Xác nhận",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        fontStyle: FontStyle.normal,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

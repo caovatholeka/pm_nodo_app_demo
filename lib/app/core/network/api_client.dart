@@ -22,7 +22,7 @@ abstract class ApiClient {
 
 
   // xin nghi
-  @POST("/leave/get_hr_leave")
+  @GET("/leave/get_hr_leave")
   Future<CommonResponse> getListTimeOnLeaves(
       @Query("limit") int? limit,
       @Query("offset") int? offset,
@@ -30,4 +30,7 @@ abstract class ApiClient {
 
   @GET("/leave/hr_leave/{id}")
   Future<OnLeaveEntity> getDetailOnLeave( @Path('id') int id);
+
+  @DELETE("/leave/hr_leave/{id}")
+  Future<dynamic> deleteDetailOnLeave( @Path('id') int id);
 }
