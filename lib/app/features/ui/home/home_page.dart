@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 
 import '../../widgets/input_text_field.dart';
@@ -14,7 +16,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _appCubit = GetIt.I<AppCubit>();
+
   final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    _appCubit.getProfile();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   void _goNotifi() {
   Navigator.push(context,

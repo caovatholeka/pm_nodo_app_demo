@@ -4,11 +4,13 @@ class AppState extends Equatable {
   final TokenEntity? token;
   final LoadStatus? signOutStatus;
   final Locale? locale;
+  ProfileEntity? userProfile;
 
   AppState({
     this.token,
     this.signOutStatus,
     this.locale,
+    this.userProfile
   });
 
   AppState copyWith({
@@ -16,11 +18,13 @@ class AppState extends Equatable {
     LoadStatus? signOutStatus,
     bool? isShownAlertLogOut,
     Locale? locale,
+    ProfileEntity? userProfile,
   }) {
     return AppState(
       token: token ?? this.token,
       signOutStatus: signOutStatus ?? this.signOutStatus,
       locale: locale ?? this.locale,
+      userProfile: userProfile ?? this.userProfile
     );
   }
 
@@ -29,5 +33,6 @@ class AppState extends Equatable {
     token,
     signOutStatus,
     locale,
+    userProfile
   ];
 }

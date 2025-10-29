@@ -7,22 +7,87 @@ class OnLeaveEntity {
   @JsonKey()
   int? id;
 
+  @JsonKey(name:"employee_id")
+  int? employeeId;
+
+  @JsonKey(name: "employee_name")
+  String? employeeName;
+
+  @JsonKey(name:"department_id")
+  int? departmentId;
+
+  @JsonKey(name:"department_name")
+  String? departmentName;
+
+  @JsonKey(name:"date_from")
+  String? dateFrom;
+
+  @JsonKey(name:"date_to")
+  String? dateTo;
+
+  @JsonKey(name:"holiday_status")
+  String? holidayStatus;
+
+  @JsonKey()
+  String? description;
+
+  @JsonKey(name:"duration_display")
+  String? durationDisplay;
+
+  @JsonKey(name:"remain_leave")
+  int? remainLeave;
+
+  @JsonKey()
+  String? state;
+
   @JsonKey()
   int? status;
 
   OnLeaveEntity({
     this.id,
-    this.status,});
+    this.employeeId,
+    this.employeeName,
+    this.departmentId,
+    this.departmentName,
+    this.dateFrom,
+    this.dateTo,
+    this.holidayStatus,
+    this.description,
+    this.durationDisplay,
+    this.remainLeave,
+    this.state,
+    this.status
+  });
 
   OnLeaveEntity copyWith({
     int? id,
-    int? status,
-
+    int? employeeId,
+    String? employeeName,
+    int? departmentId,
+    String? departmentName,
+    String? dateFrom,
+    String? dateTo,
+    String? holidayStatus,
+    String? description,
+    String? durationDisplay,
+    int? remainLeave,
+    String? state,
+    int? status
   }) {
     return OnLeaveEntity(
       id: id ?? this.id,
-      status: status ?? this.status,
-
+      employeeId: employeeId ?? this.employeeId,
+      employeeName: employeeName ?? this.employeeName,
+      departmentId: departmentId ?? this.departmentId,
+      departmentName: departmentName ?? this.departmentName,
+      dateFrom: dateFrom ?? this.dateFrom,
+      dateTo: dateTo ?? this.dateTo,
+      holidayStatus: holidayStatus ?? this.holidayStatus,
+      description: description ?? this.description,
+      durationDisplay: durationDisplay ?? this.durationDisplay,
+      remainLeave: remainLeave ?? this.remainLeave,
+      state: state ?? this.state,
+      status: status ?? this.status
     );
   }
 

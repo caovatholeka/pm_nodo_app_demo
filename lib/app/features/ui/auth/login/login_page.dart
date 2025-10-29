@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../config/app_config.dart';
@@ -138,6 +139,8 @@ class _LoginPageState extends State<LoginPage> {
                   maxLength: 255,
                   onChange: (value){
                   },
+                  validator: (value)
+                   => Validator.validateEmpty(value, "email"),
                 ),
                 const SizedBox(height: 20,),
                 InputTextField(

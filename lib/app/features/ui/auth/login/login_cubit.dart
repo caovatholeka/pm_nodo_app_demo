@@ -41,8 +41,8 @@ class LogInCubit extends Cubit<LoginState> {
 
     try{
       final param = {
-        "login":"thuanlv@nodo.vn",
-        "password" : "Nodo@123"
+        "login": username,
+        "password" : password
       };
       final result = await authRepository.authLogin(param);
       // await authRepository.saveToken(result);

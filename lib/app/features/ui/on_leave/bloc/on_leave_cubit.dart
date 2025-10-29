@@ -11,4 +11,6 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
   OnLeaveRepository repository;
 
   OnLeaveCubit({required this.repository}) : super(OnLeaveState());
+
+
 }
