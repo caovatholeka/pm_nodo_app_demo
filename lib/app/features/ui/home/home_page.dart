@@ -42,10 +42,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-      child: SingleChildScrollView(
+      child : SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,6 +216,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+      )
     );
   }
 

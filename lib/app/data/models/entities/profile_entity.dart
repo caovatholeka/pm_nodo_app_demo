@@ -19,12 +19,24 @@ class ProfileEntity {
   @JsonKey()
   bool? phone;
 
+  @JsonKey()
+  String? birthdayDate;
+
+  @JsonKey()
+  String? code;
+
+  @JsonKey()
+  String? avatarUrl;
+
   ProfileEntity({
     this.id,
     this.name,
     this.login,
     this.email,
     this.phone,
+    this.birthdayDate,
+    this.code,
+    this.avatarUrl
   });
 
   ProfileEntity copyWith({
@@ -33,6 +45,9 @@ class ProfileEntity {
     String? login,
     String? email,
     bool? phone,
+    String? birthdayDate,
+    String? code,
+    String? avatarUrl
   }) {
     return ProfileEntity(
         id: id ?? this.id,
@@ -40,6 +55,9 @@ class ProfileEntity {
         login: login ?? this.login,
         email: email ?? this.email,
         phone: phone ?? this.phone,
+        birthdayDate: birthdayDate ?? this.birthdayDate,
+        avatarUrl:avatarUrl ?? this.avatarUrl,
+        code: code ?? this.code
     );
   }
 

@@ -20,6 +20,9 @@ abstract class ApiClient {
   @POST("/users/do_login")
   Future<CommonResponse> authLogin(@Body() Map<String, dynamic> body);
 
+  //Đổi mật khẩu
+  @POST("users/change_password")
+  Future<CommonResponse> changePassword(@Body() Map<String,dynamic> body);
 
   // xin nghi
   @POST("/leave/get_hr_leave")

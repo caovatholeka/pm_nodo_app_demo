@@ -24,6 +24,7 @@ import 'data/repositories/auth_repository.dart';
 import 'features/bloc/app_cubit.dart';
 import 'features/ui/auth/login/login_cubit.dart';
 import 'features/ui/splash/splash_cubit.dart';
+import 'features/ui/account/account_cubit.dart';
 
 final getIt = GetIt.instance;
 class MyApp extends StatefulWidget {
@@ -43,7 +44,8 @@ class _MyAppState extends State<MyApp> {
   OverlaySupportEntry? _overlaySupportEntry;
   bool networkEnabled = true;
 
-  final _appCubit = GetIt.I.get<AppCubit>();
+  final _appCubit = sl<AppCubit>();
+
 
   @override
   void initState() {
@@ -105,7 +107,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<CreateOnLeaveCubit>()),
       BlocProvider(create: (context) => sl<LogInCubit>()),
       // BlocProvider(create: (context) => sl<ForgotCubit>()),
-      // BlocProvider(create: (context) => sl<AccountCubit>()),
+      BlocProvider(create: (context) => sl<AccountCubit>()),
       // BlocProvider(create: (context) => sl<HomeCubit>()),
     ];
   }

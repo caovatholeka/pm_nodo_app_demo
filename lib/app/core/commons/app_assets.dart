@@ -59,7 +59,7 @@ class AppAssets {
   static final ic_protect = 'assets/images/icons/ic_protect.png';
   static final ic_user  = 'assets/images/icons/ic_user_circle.png';
   static final ic_langague = 'assets/images/icons/ic_langauge.png';
-  static final img_df_avatar = 'assets/images/img_df_avatar.png';
+  static final img_df_avatar = 'assets/images/img_df_avatar_2.png';
 
   static final icArrowDown = 'assets/images/icons/ic_arrow_down.svg';
   static final icCalendar = 'assets/images/icons/ic_calendar.svg';

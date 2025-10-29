@@ -1,10 +1,12 @@
 
+import 'dart:ffi';
+
 import '../../core/network/api_client.dart';
 import '../models/response/common_response.dart';
 
 abstract class UserRepository {
   Future<CommonResponse> getUserProfile(Map<String, dynamic> body);
-  // Future<dynamic> changeCurrentPass(Map<String, dynamic> body);
+  Future<dynamic> changeCurrentPass(Map<String, dynamic> body);
   // Future<CommonResponse> updateUserProfile(int userId, File file);
   // Future<List<UploadEntity>> getUserAvatar(Map<String, dynamic> body);
 }
@@ -20,5 +22,11 @@ class UserRepositoryImpl extends UserRepository {
   Future<CommonResponse> getUserProfile(Map<String, dynamic> body) async{
     return await _apiClient.getUserProfile(body);
   }
+
+  @override
+  Future<CommonResponse> changeCurrentPass(Map<String, dynamic> body) async {
+      return await _apiClient.changePassword(body);
+  }
+
 
 }

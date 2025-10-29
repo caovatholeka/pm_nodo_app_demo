@@ -12,6 +12,8 @@ import '../app/core/network/api_util.dart';
 import '../app/data/repositories/auth_repository.dart';
 import '../app/features/bloc/app_cubit.dart';
 import '../app/features/ui/splash/splash_cubit.dart';
+import '../app/features/ui/account/account_cubit.dart';
+import '../app/features/ui/account/changepassword/change_password_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -36,4 +38,8 @@ Future<void> init() async {
   sl.registerLazySingleton<OnLeaveRepository>(() => OnLeaveRepositoryImpl(sl()));
   sl.registerLazySingleton<CheckInRepository>(() => CheckInRepositoryImpl(sl()));
   sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(sl()));
+
+  sl.registerFactory<AccountCubit>(() => AccountCubit(sl()));
+  sl.registerFactory<ChangePasswordCubit>(() => ChangePasswordCubit(userRepository: sl()));
+
 }

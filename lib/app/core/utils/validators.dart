@@ -108,4 +108,18 @@ class Validator {
     );
     return vietnameseDiacritics.hasMatch(text);
   }
+
+
+  String? validateConfirmPassword(String? password, String? confirm_password) {
+    if(confirm_password == null || confirm_password.isEmpty) {
+      return "Vui lòng nhập lại mật khẩu";
+    }
+    
+    if(password != confirm_password){
+      return "Mật khẩu không khớp";
+    }
+
+    return null;
+
+  }
 }
