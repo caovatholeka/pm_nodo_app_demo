@@ -15,6 +15,7 @@ class SharedPrefsHelper {
   static const String _appFcmToken = '_app_fcm_token';
   static const String _appDeviceToken = '_app_device_token';
   static const String _appDeviceId = '_app_device_id';
+  static const String _userId = 'app_user_id';
 
   static Future<bool> setIsLoginApp(bool isCheck) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -61,6 +62,17 @@ class SharedPrefsHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String code = prefs.getString(_appLanguagePrefs) ?? 'vi';
     return code;
+  }
+
+  static Future<void> setUserId(int uId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_userId, uId);
+  }
+
+  static Future<int> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int uId = prefs.getInt(_userId) ?? 0;
+    return uId;
   }
 
 

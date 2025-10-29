@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
+import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
@@ -9,6 +10,7 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart'
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_detail_page.dart';
+import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import '../app/core/network/api_client.dart';
 import '../app/core/network/api_util.dart';
 import '../app/data/repositories/auth_repository.dart';
@@ -33,10 +35,12 @@ Future<void> init() async {
   sl.registerLazySingleton<DetailOnLeaveCubit>(() => DetailOnLeaveCubit(repository: sl()));
   sl.registerLazySingleton<CreateOnLeaveCubit>(() => CreateOnLeaveCubit(repository: sl()));
   sl.registerLazySingleton<CheckInCubit>(() => CheckInCubit(checkInRepository: sl()));
+  sl.registerLazySingleton<StaffCubit>(() => StaffCubit(repository: sl()));
 
   //** Repository */
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton<OnLeaveRepository>(() => OnLeaveRepositoryImpl(sl()));
   sl.registerLazySingleton<CheckInRepository>(() => CheckInRepositoryImpl(sl()));
   sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(sl()));
+  sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepositoryImpl(sl()));
 }

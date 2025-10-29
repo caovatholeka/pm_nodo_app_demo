@@ -47,7 +47,7 @@ class LogInCubit extends Cubit<LoginState> {
       final result = await authRepository.authLogin(param);
       TokenEntity? entity = mapObject(result.data, TokenEntity.fromJson);
       if(entity != null){
-        GlobalData.instance.userId = entity.uid;
+        await authRepository.saveUserId(entity.uid ?? 0);
         await authRepository.saveToken(entity);
       }
 

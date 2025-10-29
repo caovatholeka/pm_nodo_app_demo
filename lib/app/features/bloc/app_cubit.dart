@@ -39,8 +39,9 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void getProfile() async {
+    int uId = await SharedPrefsHelper.getUserId();
     final param = {
-      "user_id" : GlobalData.instance.userId,
+      "user_id" : uId,
     };
     try {
       final user = await userRepository.getUserProfile(param);

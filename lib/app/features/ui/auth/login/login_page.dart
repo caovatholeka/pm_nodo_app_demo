@@ -175,12 +175,21 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 20,),
-                PrimaryButton(
-                  mainText:"Đăng Nhập", //S.current.login,
-                  isLoading: false,
-                  callback:(){
-                    _login();
-                  }
+                BlocBuilder<LogInCubit,LoginState>(
+                  bloc: _cubit,
+                  buildWhen: (prev,cur) => prev.loginStatus != cur.loginStatus,
+                  builder: (context,state){
+                    final isLoading = state.loginStatus == LoadStatus.LOADING;
+                    return PrimaryButton(
+                        mainText:"Đăng Nhập", //S.current.login,
+                        isLoading: isLoading,
+                        callback: isLoading
+                          ? null
+                          : () async {
+                          _login();
+                       },
+                    );
+                  },
                 )
               ],
             ),

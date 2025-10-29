@@ -33,4 +33,8 @@ abstract class ApiClient {
 
   @DELETE("/leave/hr_leave/{id}")
   Future<dynamic> deleteDetailOnLeave( @Path('id') int id);
+
+  // employee
+  @GET("/employees/employees")
+  Future<CommonResponse> getListEmployees();
 }

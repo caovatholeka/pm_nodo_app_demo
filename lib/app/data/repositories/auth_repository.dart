@@ -11,7 +11,7 @@ abstract class AuthRepository {
   Future<void> removeToken();
 
   Future<int?> getUserId();
-  Future<void> saveUserId(TokenEntity token);
+  Future<void> saveUserId(int uId);
 }
 
 class AuthRepositoryImpl extends AuthRepository {
@@ -44,11 +44,12 @@ class AuthRepositoryImpl extends AuthRepository {
 
   @override
   Future<int?> getUserId() async{
-    return 0;
+    return SharedPrefsHelper.getUserId();
   }
 
   @override
-  Future<void> saveUserId(TokenEntity token) async {
-
+  Future<void> saveUserId(int uId) async {
+    SharedPrefsHelper.setUserId(uId);
   }
+
 }

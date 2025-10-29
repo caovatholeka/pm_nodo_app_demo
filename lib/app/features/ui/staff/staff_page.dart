@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 
 class StaffPage extends StatefulWidget {
   const StaffPage({super.key});
@@ -54,6 +56,22 @@ class _StaffPageState extends State<StaffPage> {
       "image": AppAssets.img_df_avatar,
     },
   ];
+
+
+  // lay danh sach nhan vien
+  final _cubit = GetIt.I.get<StaffCubit>();
+
+  @override
+  void initState() {
+    _cubit.getListEmployees();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
