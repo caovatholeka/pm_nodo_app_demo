@@ -45,9 +45,13 @@ class LogInCubit extends Cubit<LoginState> {
         "password" : password
       };
       final result = await authRepository.authLogin(param);
-      // await authRepository.saveToken(result);
-      GlobalData.instance.token = mapObject(result.data, TokenEntity.fromJson);
+      TokenEntity? entity = mapObject(result.data, TokenEntity.fromJson);
+      if(entity != null){
+        GlobalData.instance.userId = entity.uid;
+        await authRepository.saveToken(entity);
+      }
 
+      GlobalData.instance.token = mapObject(result.data, TokenEntity.fromJson);
       emit(state.copyWith(loginStatus: LoadStatus.SUCCESS,userName: "",password: ""));
       logger.d("login success :: ${result.toJson()}");
       // navigatorController.sink.add(SignInNavigator.OPEN_HOME);

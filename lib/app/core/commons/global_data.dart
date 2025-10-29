@@ -16,6 +16,7 @@ class GlobalData {
 
   Position? currentLocation;
 
+  int? userId;
 
   ProfileEntity? userProfile;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
@@ -63,15 +64,21 @@ class _HomePageState extends State<HomePage> {
           color: AppColors.themeBlackDefault,
           ),
         ),
-          const SizedBox(height: 4),
-          const Text(
-          'Nguyễn Đăng Huy',
-          style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: AppColors.themeBlackDefault,
-        ),
-      ),
+        const SizedBox(height: 4),
+        BlocBuilder<AppCubit,AppState>(
+            bloc: _appCubit,
+            buildWhen: (prev,cur) => prev.userProfile != cur.userProfile,
+            builder: (context,state){
+              return Text(
+                state.userProfile?.name ?? "",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.themeBlackDefault,
+                ),
+              );
+            })
+
    ],
  ),
 ),

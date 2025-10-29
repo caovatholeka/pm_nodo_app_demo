@@ -7,7 +7,11 @@ abstract class AuthRepository {
   Future<CommonResponse> authLogin(Map<String, dynamic> body);
 
   Future<TokenEntity?> getToken();
+  Future<void> saveToken(TokenEntity token);
   Future<void> removeToken();
+
+  Future<int?> getUserId();
+  Future<void> saveUserId(TokenEntity token);
 }
 
 class AuthRepositoryImpl extends AuthRepository {
@@ -29,7 +33,22 @@ class AuthRepositoryImpl extends AuthRepository {
   }
 
   @override
+  Future<void> saveToken(TokenEntity token) async {
+    SharedPrefsHelper.saveToken(token);
+  }
+
+  @override
   Future<void> removeToken() async {
     SharedPrefsHelper.saveToken(null);
+  }
+
+  @override
+  Future<int?> getUserId() async{
+    return 0;
+  }
+
+  @override
+  Future<void> saveUserId(TokenEntity token) async {
+
   }
 }

@@ -40,16 +40,17 @@ class AppCubit extends Cubit<AppState> {
 
   void getProfile() async {
     final param = {
-      "user_id" : 57,
+      "user_id" : GlobalData.instance.userId,
     };
     try {
       final user = await userRepository.getUserProfile(param);
+      ProfileEntity? userEntity;
       if (user.data != null) {
         GlobalData.instance.userProfile =  mapObject(user.data, ProfileEntity.fromJson);
-        ProfileEntity? userEntity = mapObject(user.data, ProfileEntity.fromJson);
+        userEntity = mapObject(user.data, ProfileEntity.fromJson);
         // getUserAvatar(userEntity?.id ?? 0);
       }
-      // emit(state.copyWith(userProfile: mapObject(user.data, ProfileEntity.fromJson)));
+      emit(state.copyWith(userProfile: userEntity));
     } catch (error) {
       logger.e(error);
     }
