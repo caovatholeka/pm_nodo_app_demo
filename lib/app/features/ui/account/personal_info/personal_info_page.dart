@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/commons/app_colors.dart';
 import '../../../widgets/expenable_section.dart';
 import '../../../widgets/primary_button.dart';
+import 'personal_cubit.dart';
+import 'personal_state.dart';
+import '../../../../data/models/entities/profile_entity.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({super.key});
@@ -13,6 +18,14 @@ class PersonalInfoPage extends StatefulWidget {
 }
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
+  final _cubit = GetIt.I.get<PersonalCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit.fetchUserInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,147 +35,47 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
         haveBackButton: true,
         backAction: () => Navigator.pop(context),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(AppAssets.imgBg2),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 120),
-              _accountInfo,
-              const SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [
-                    ExpandableSection(
-                      title: "Hồ sơ cá nhân",
-                      initiallyExpanded: true,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: const Color.fromRGBO(243, 240, 240, 1),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _InfoRow(
-                                  title: "Tên nhân viên",
-                                  value: "NGUYỄN MINH DŨNG"),
-                              SizedBox(height: 12),
-                              Divider(height: 0.5, color: Color.fromRGBO(206, 214, 222, 1)),
-                              SizedBox(height: 12),
-                              _InfoRow(
-                                  title: "Email",
-                                  value: "dungmn@monoda.com"),
-                              SizedBox(height: 12),
-                              Divider(height: 0.5, color: Color.fromRGBO(206, 214, 222, 1)),
-                              SizedBox(height: 12),
-                              _InfoRow(
-                                title: "Địa chỉ",
-                                value:
-                                    "Liền kề 22 TT03, Khu đô thị Tây Nam Linh Đàm, Hoàng Mai, Hà Nội",
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+      body: BlocBuilder<PersonalCubit, PersonalState>(
+        bloc: _cubit,
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                    const SizedBox(height: 16),
+          final user = state.profile;
+          if (user == null) {
+            return const Center(child: Text("Không thể tải thông tin người dùng"));
+          }
 
-                    ExpandableSection(
-                      title: "Thông tin vị trí công tác",
-                      initiallyExpanded: true,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(243, 240, 240, 1),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _InfoRow(title: "Chức danh", value: "UI/UX Designer"),
-                              SizedBox(height: 12),
-                              Divider(height: 0.5, color: Color.fromRGBO(206, 214, 222, 1)),
-                              SizedBox(height: 12),
-                              _InfoRow(
-                                  title: "Phòng sản xuất",
-                                  value: "Quản lý sản xuất: Trần Xuân Trường"),
-                              SizedBox(height: 12),
-                              Divider(height: 0.5, color: Color.fromRGBO(206, 214, 222, 1)),
-                              SizedBox(height: 12),
-                              _InfoRow(title: "Đang làm việc", value: "AUDI Hà Nội"),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    ExpandableSection(
-                      title: "Khác",
-                      initiallyExpanded: true,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(243, 240, 240, 1),
-                          ),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _InfoRow(
-                                  title: "Đã ký hợp đồng",
-                                  value: "Ngày gia nhập: 02/10/2025"),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    Center(
-                      child: PrimaryButton(
-                        mainText: "Xác nhận",
-                        callback: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppAssets.imgBg2),
+                fit: BoxFit.cover,
               ),
-
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 120),
+                  _accountInfo(user),
+                  const SizedBox(height: 10),
+                  _bodyInfo(user),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  get _accountInfo {
+  Widget _accountInfo(ProfileEntity user) {
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -176,9 +89,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           child: Column(
             children: [
               const SizedBox(height: 40),
-              const Text(
-                "NGUYỄN MINH DŨNG",
-                style: TextStyle(
+              Text(
+                user.name ?? "Chưa có tên",
+                style: const TextStyle(
                   color: AppColors.colorPrimary50,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -187,10 +100,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  _InfoItem(title: "Ngày sinh", value: "03/01/2002"),
-                  _InfoItem(title: "Mã nhân viên", value: "NV33656"),
-                  _InfoItem(title: "Số điện thoại", value: "19001000"),
+                children: [
+                  _InfoItem(title: "Ngày sinh", value: user.birthdayDate ?? "Ko Có :("),
+                  _InfoItem(title: "Mã nhân viên", value: user.code ?? "Ko Có :("),
+                  _InfoItem(title: "Số điện thoại", value: user.phone?.toString() ?? "Ko Có :("),
                 ],
               ),
             ],
@@ -205,13 +118,96 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.avatarFrame, width: 3),
               image: DecorationImage(
-                image: AssetImage(AppAssets.img_df_avatar),
+                image: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                    ? NetworkImage(user.avatarUrl!)
+                    : AssetImage(AppAssets.img_df_avatar) as ImageProvider,
                 fit: BoxFit.cover,
               ),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _bodyInfo(ProfileEntity user) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        children: [
+          ExpandableSection(
+            title: "Hồ sơ cá nhân",
+            initiallyExpanded: true,
+            children: [
+              _infoBox([
+                _InfoRow(title: "Tên nhân viên", value: user.name ?? "Ko phải Nodo :)"),
+                const SizedBox(height: 5),
+                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
+                const SizedBox(height: 5),
+                _InfoRow(title: "Email", value: user.email ?? "Làm gì có mail :)"),
+                                const SizedBox(height: 5),
+                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
+                const SizedBox(height: 5),
+                _InfoRow(title: "Địa chỉ", value: "Hà Nội, Việt Nam"),
+              ]),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ExpandableSection(
+            title: "Thông tin vị trí công tác",
+            initiallyExpanded: true,
+            children: [
+              _infoBox([
+                _InfoRow(title: "Chức danh", value: user.login ?? "-"),
+                const SizedBox(height: 5),
+                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
+                const SizedBox(height: 5),
+                _InfoRow(title: "Phòng ban", value: "Phòng sản xuất"),
+                const SizedBox(height: 5),
+                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
+                const SizedBox(height: 5),
+                _InfoRow(title: "Trạng thái", value: "Đang làm việc"),
+              ]),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ExpandableSection(
+            title: "Khác",
+            initiallyExpanded: true,
+            children: [
+              _infoBox([
+                _InfoRow(title: "Đã ký hợp đồng", value: "Ngày gia nhập: 02/10/2025"),
+              ]),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Center(
+            child: PrimaryButton(
+              mainText: "Xác nhận",
+              callback: () => Navigator.pop(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoBox(List<Widget> children) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: Color.fromRGBO(243, 240, 240, 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
     );
   }
 }

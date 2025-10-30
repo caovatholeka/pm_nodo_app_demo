@@ -6,6 +6,8 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
+import 'package:pm_app/app/features/ui/staff/employee_detail_page.dart';
+
 
 class StaffPage extends StatefulWidget {
   const StaffPage({super.key});
@@ -160,6 +162,14 @@ class _StaffPageState extends State<StaffPage> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                            onTap: () {
+                              Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                              builder: (_) => EmployeeDetailPage(employee: emp),
+                            ),
+                          );
+                        },
                         );
                       },
                     ),

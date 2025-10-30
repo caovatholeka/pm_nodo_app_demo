@@ -1,32 +1,29 @@
 import 'package:equatable/equatable.dart';
+import '../../../../data/models/entities/profile_entity.dart';
 
 class PersonalState extends Equatable {
   final bool isLoading;
-  final String name;
-  final String email;
-  final String address;
+  final String? error;
+  final ProfileEntity? profile;
 
   const PersonalState({
     this.isLoading = false,
-    this.name = '',
-    this.email = '',
-    this.address = '',
+    this.error,
+    this.profile,
   });
 
   PersonalState copyWith({
     bool? isLoading,
-    String? name,
-    String? email,
-    String? address,
+    String? error,
+    ProfileEntity? profile,
   }) {
     return PersonalState(
       isLoading: isLoading ?? this.isLoading,
-      name: name ?? this.name,
-      email: email ?? this.email,
-      address: address ?? this.address,
+      error: error ?? this.error,
+      profile: profile ?? this.profile,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, name, email, address];
+  List<Object?> get props => [isLoading, error, profile];
 }

@@ -10,6 +10,7 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart'
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
+import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
 
 import '../app/core/network/api_client.dart';
 import '../app/core/network/api_util.dart';
@@ -49,5 +50,7 @@ Future<void> init() async {
   //** Account */
   sl.registerLazySingleton<AccountCubit>(() => AccountCubit(sl()));
   sl.registerLazySingleton<ChangePasswordCubit>(() => ChangePasswordCubit(userRepository: sl()));
+  sl.registerFactory<PersonalCubit>(() => PersonalCubit(userRepository: sl()));
+  
 
 }

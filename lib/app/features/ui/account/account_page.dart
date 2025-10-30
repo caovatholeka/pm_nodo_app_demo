@@ -31,7 +31,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   void initState() {
     super.initState();
-    // _cubit.fetchUserProfile();
+    _cubit.fetchUserProfile();
   }
 
   void _goLangague() {
