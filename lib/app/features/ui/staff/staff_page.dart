@@ -307,8 +307,6 @@ class _StaffPageState extends State<StaffPage> {
     );
   }
 
-  // ================== WIDGET HỖ TRỢ ==================
-
   Widget _buildInputField(String label, String hint, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
