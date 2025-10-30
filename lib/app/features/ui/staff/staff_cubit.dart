@@ -54,4 +54,26 @@ class StaffCubit extends Cubit<StaffState> {
       emit(state.copyWith(listEmployees: filtered));
     }
   }
+
+  void filterEmployees({
+  String? name,
+  String? code,
+  String? department,
+  String? jobTitle,
+  String? email,
+  String? status,
+}) {
+  final all = state.listEmployees ?? [];
+  final filtered = all.where((e) {
+    final matchesName = name == null || name.isEmpty || e.name?.toLowerCase().contains(name.toLowerCase()) == true;
+    final matchesCode = code == null || code.isEmpty || e.code?.toLowerCase().contains(code.toLowerCase()) == true;
+    final matchesDept = department == null || department.isEmpty || e.department == department;
+    final matchesJob = jobTitle == null || jobTitle.isEmpty || e.jobTitle == jobTitle;
+    final matchesEmail = email == null || email.isEmpty || e.workEmail?.toLowerCase().contains(email.toLowerCase()) == true;
+    return matchesName && matchesCode && matchesDept && matchesJob && matchesEmail;
+  }).toList();
+
+  emit(state.copyWith(listEmployees: filtered));
+}
+
 }
