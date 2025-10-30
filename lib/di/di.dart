@@ -50,6 +50,4 @@ Future<void> init() async {
   sl.registerLazySingleton<AccountCubit>(() => AccountCubit(sl()));
   sl.registerLazySingleton<ChangePasswordCubit>(() => ChangePasswordCubit(userRepository: sl()));
 
-  //** Staff */
-  sl.registerFactory<StaffCubit>(() => StaffCubit(repository: sl()));
 }

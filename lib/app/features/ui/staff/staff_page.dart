@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 
 class StaffPage extends StatefulWidget {
@@ -13,22 +15,18 @@ class StaffPage extends StatefulWidget {
 }
 
 class _StaffPageState extends State<StaffPage> {
-  final List<Map<String, String>> employees = [
-  ];
-
-
   final _cubit = GetIt.I.get<StaffCubit>();
-
+  final _searchController = TextEditingController(); 
 
   @override
   void initState() {
-    _cubit.getListEmployees();
     super.initState();
+    _cubit.getListEmployees();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -61,14 +59,11 @@ class _StaffPageState extends State<StaffPage> {
       ),
       body: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           children: [
-            // Ô tìm kiếm + filter + nút thêm
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -82,9 +77,11 @@ class _StaffPageState extends State<StaffPage> {
                 children: [
                   const Icon(Icons.search, color: Colors.grey, size: 22),
                   const SizedBox(width: 6),
-                  const Expanded(
+                  Expanded(
                     child: TextField(
-                      decoration: InputDecoration(
+                      controller: _searchController,
+                      onChanged: _cubit.searchEmployees,
+                      decoration: const InputDecoration(
                         hintText: "Mã nhân viên, Tên nhân viên",
                         hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                         border: InputBorder.none,
@@ -98,68 +95,76 @@ class _StaffPageState extends State<StaffPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.tune_rounded, color: Colors.grey, size: 20),
                   ),
                   const SizedBox(width: 8),
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: AppColors.colorPrimary50,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 22),
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 1),
 
-            // Danh sách nhân viên
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: ListView.builder(
-                  itemCount: employees.length,
-                  itemBuilder: (context, index) {
-                    final emp = employees[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        radius: 24,
-                        backgroundImage: AssetImage(emp["image"]!),
-                      ),
-                      title: Text(
-                        emp["name"]!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                          fontSize: 15,
-                        ),
-                      ),
-                      subtitle: Text(
-                        emp["dept"]!,
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 13,
-                        ),
-                      ),
-                      trailing: Text(
-                        emp["code"]!,
-                        style: const TextStyle(
-                          color: Color(0xFF3C8DF4),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      onTap: () {},
-                    );
-                  },
-                ),
+              child: BlocBuilder<StaffCubit, StaffState>(
+                bloc: _cubit,
+                builder: (context, state) {
+                  if (state.loadStatus == LoadStatus.LOADING) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (state.loadStatus == LoadStatus.FAILURE) {
+                    return const Center(child: Text("Không thể tải danh sách nhân viên"));
+                  }
+
+                  final employees = state.listEmployees ?? [];
+
+                  if (employees.isEmpty) {
+                    return const Center(child: Text("Không có nhân viên nào"));
+                  }
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: ListView.builder(
+                      itemCount: employees.length,
+                      itemBuilder: (context, index) {
+                        final EmployeeEntity emp = employees[index];
+                        return ListTile(
+                          leading: CircleAvatar(
+                            radius: 24,
+                            backgroundImage: (emp.avatarUrl != null && emp.avatarUrl!.isNotEmpty)
+                                ? NetworkImage(emp.avatarUrl!)
+                                : AssetImage(AppAssets.img_df_avatar),
+                          ),
+                          title: Text(
+                            emp.name ?? "Không có tên",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                              fontSize: 15,
+                            ),
+                          ),
+                          subtitle: Text(
+                            "Phòng ban: ${emp.department ?? 'Chưa có'}",
+                            style: const TextStyle(
+                              color: Colors.black54,
+                              fontSize: 13,
+                            ),
+                          ),
+                          trailing: Text(
+                            'NV: ${emp.code ?? "Làm gì có mã :v"}',
+                            style: const TextStyle(
+                              color: Color(0xFF3C8DF4),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
             ),
           ],

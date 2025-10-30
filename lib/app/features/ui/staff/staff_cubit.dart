@@ -29,7 +29,10 @@ class StaffCubit extends Cubit<StaffState> {
         listEmployees =  mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
       }
 
-      emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listEmployees: listEmployees?? []));
+      emit(state.copyWith(
+        loadStatus: LoadStatus.SUCCESS,
+        allEmployees: listEmployees,
+        listEmployees: listEmployees?? []));
 
     }catch(e,s){
       logger.d(e);
@@ -38,4 +41,17 @@ class StaffCubit extends Cubit<StaffState> {
     }
   }
 
+  void searchEmployees(String query) {
+    if (query.isEmpty) {
+      emit(state.copyWith(listEmployees: state.allEmployees));
+    } else {
+      final filtered = (state.allEmployees??[]).where((emp) {
+        final name = emp.name?.toLowerCase() ?? '';
+        final code = emp.code?.toLowerCase() ?? '';
+        return name.contains(query.toLowerCase()) || code.contains(query.toLowerCase());
+      }).toList();
+
+      emit(state.copyWith(listEmployees: filtered));
+    }
+  }
 }

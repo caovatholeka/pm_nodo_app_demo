@@ -1,4 +1,4 @@
-package com.nodo.pm_app
+package com.example.pm_app
 
 import io.flutter.embedding.android.FlutterActivity
 
