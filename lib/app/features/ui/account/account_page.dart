@@ -133,11 +133,38 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  void _logOut() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+  void _logOut() async {
+  final shouldLogout = await showGeneralDialog<bool>(
+  context: context,
+  barrierLabel: "Logout",
+  barrierDismissible: true,
+  barrierColor: Colors.black54,
+  transitionDuration: const Duration(milliseconds: 250),
+  pageBuilder: (_, __, ___) => const SizedBox(),
+  transitionBuilder: (_, anim, __, ___) {
+    return ScaleTransition(
+      scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Xác nhận đăng xuất", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text("Bạn có chắc muốn đăng xuất khỏi tài khoản này không?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.push(context, 
+            MaterialPageRoute(builder: (context) => const LoginPage())),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            child: const Text("Đăng xuất"),
+          ),
+        ],
+      ),
     );
+  },
+);
+
   }
 
   @override

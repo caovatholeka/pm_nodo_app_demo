@@ -24,6 +24,10 @@ abstract class ApiClient {
   @POST("users/change_password")
   Future<CommonResponse> changePassword(@Body() Map<String,dynamic> body);
 
+  //Đăng xuất
+  @POST("/users/do_logout")
+  Future<CommonResponse> logOut(@Body() Map<String,dynamic> body);
+
   // xin nghi
   @GET("/leave/get_hr_leave")
   Future<CommonResponse> getListTimeOnLeaves(

@@ -122,9 +122,9 @@ class EmployeeDetailPage extends StatelessWidget {
                     _sectionTitle("Thông tin công việc"),
                     _InfoItem(title: "Chức vụ", value: employee.jobTitle ?? "Chưa có"),
                     _InfoItem(title: "Phòng ban", value: employee.department ?? "Chưa có"),
-                    _InfoItem(title: "Quản lý", value: "Trần Xuân Trường"),
-                    _InfoItem(title: "Trạng thái", value: "Đang làm việc"),
-                    _InfoItem(title: "Ngày gia nhập", value: "02/10/2025"),
+                    _InfoItem(title: "Quản lý", value: "-"),
+                    _InfoItem(title: "Trạng thái", value: "-"),
+                    _InfoItem(title: "Ngày gia nhập", value: "-"),
                     _InfoItem(title: "Trạng thái hợp đồng", value: "Chưa ký"),
                     const SizedBox(height: 16),
 
