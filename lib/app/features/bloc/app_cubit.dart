@@ -38,21 +38,31 @@ class AppCubit extends Cubit<AppState> {
     emit(state.copyWith(locale: Locale(currentLang)));
   }
 
-  void getProfile() async {
-    final param = {
-      "user_id" : GlobalData.instance.userId,
-    };
-    try {
-      final user = await userRepository.getUserProfile(param);
-      ProfileEntity? userEntity;
-      if (user.data != null) {
-        GlobalData.instance.userProfile =  mapObject(user.data, ProfileEntity.fromJson);
-        userEntity = mapObject(user.data, ProfileEntity.fromJson);
-        // getUserAvatar(userEntity?.id ?? 0);
-      }
-      emit(state.copyWith(userProfile: userEntity));
-    } catch (error) {
-      logger.e(error);
-    }
+void getProfile() async {
+  if (GlobalData.instance.userId == null) {
+    final token = await SharedPrefsHelper.getToken();
+    GlobalData.instance.userId = token?.uid;
   }
+
+  if (GlobalData.instance.userId == null) {
+    logger.e("Không có user_id để gọi API getUserProfile");
+    return;
+  }
+
+  final param = {
+    "user_id": GlobalData.instance.userId,
+  };
+
+  try {
+    final user = await userRepository.getUserProfile(param);
+    if (user.data != null) {
+      final userEntity = mapObject(user.data, ProfileEntity.fromJson);
+      GlobalData.instance.userProfile = userEntity;
+      emit(state.copyWith(userProfile: userEntity));
+    }
+  } catch (error) {
+    logger.e(error);
+  }
+}
+
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 
 class StaffPage extends StatefulWidget {
   const StaffPage({super.key});
@@ -11,49 +14,23 @@ class StaffPage extends StatefulWidget {
 
 class _StaffPageState extends State<StaffPage> {
   final List<Map<String, String>> employees = [
-    {
-      "name": "Nguyễn Minh Dũng",
-      "dept": "Phòng ban: UI/UX",
-      "code": "NV03102",
-      "image": AppAssets.img_df_avatar,
-    },
-    {
-      "name": "Tạ Quang Mạnh",
-      "dept": "Phòng ban: BA",
-      "code": "NV01231",
-      "image": AppAssets.img_df_avatar,
-    },
-    {
-      "name": "Nguyễn Văn An",
-      "dept": "Phòng ban: Developer",
-      "code": "NV01232",
-      "image": AppAssets.img_df_avatar,
-    },
-    {
-      "name": "Lê Thị Thùy",
-      "dept": "Phòng ban: Tester",
-      "code": "NV01231",
-      "image": AppAssets.img_df_avatar,
-    },
-    {
-      "name": "Trần Minh Tuấn",
-      "dept": "Phòng ban: Marketing",
-      "code": "NV01233",
-      "image": AppAssets.img_df_avatar,
-    },
-    {
-      "name": "Phạm Thị Hằng",
-      "dept": "Phòng ban: HR",
-      "code": "NV01234",
-      "image": AppAssets.img_df_avatar,
-    },
-    {
-      "name": "Ngô Văn Khải",
-      "dept": "Phòng ban: Sales",
-      "code": "NV01235",
-      "image": AppAssets.img_df_avatar,
-    },
   ];
+
+
+  final _cubit = GetIt.I.get<StaffCubit>();
+
+
+  @override
+  void initState() {
+    _cubit.getListEmployees();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

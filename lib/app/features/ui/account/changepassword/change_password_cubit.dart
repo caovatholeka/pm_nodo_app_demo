@@ -31,6 +31,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
       final body = {
         "old_password": currentPassword,
         "new_password": newPassword,
+        "retype_new_password": confirmPassword
       };
 
       final result = await userRepository.changeCurrentPass(body);

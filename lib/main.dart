@@ -25,6 +25,7 @@ void main() {
     ]);
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
     runApp(MyApp());
+    FlutterNativeSplash.remove();
   }, (error, stackTrace) {
     debugPrint('Uncaught error: $error');
   });

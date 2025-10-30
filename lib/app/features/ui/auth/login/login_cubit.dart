@@ -8,6 +8,9 @@ import '../../../../core/logger/logger.dart';
 import '../../../../data/models/entities/token_entity.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../data/repositories/auth_repository.dart';
+import 'package:get_it/get_it.dart';
+import '../../../bloc/app_cubit.dart';
+
 
 part 'login_state.dart';
 
@@ -35,37 +38,50 @@ class LogInCubit extends Cubit<LoginState> {
     ));
   }
 
-  void doLogin(String username, String password) async {
+void doLogin(String username, String password) async {
+  emit(state.copyWith(loginStatus: LoadStatus.LOADING));
 
-    emit(state.copyWith(loginStatus: LoadStatus.LOADING));
+  try {
+    final param = {
+      "login": username,
+      "password": password,
+    };
 
-    try{
-      final param = {
-        "login": username,
-        "password" : password
-      };
-      final result = await authRepository.authLogin(param);
-      TokenEntity? entity = mapObject(result.data, TokenEntity.fromJson);
-      if(entity != null){
-        GlobalData.instance.userId = entity.uid;
-        GlobalData.instance.token = entity;
-        await authRepository.saveToken(entity);
-      }
+    final result = await authRepository.authLogin(param);
+    TokenEntity? entity = mapObject(result.data, TokenEntity.fromJson);
 
-      GlobalData.instance.token = mapObject(result.data, TokenEntity.fromJson);
-      emit(state.copyWith(loginStatus: LoadStatus.SUCCESS,userName: "",password: ""));
-      logger.d("login success :: ${result.toJson()}");
-      // navigatorController.sink.add(SignInNavigator.OPEN_HOME);
-    }on DioException catch (e,s){
-      logger.e(e);
-      logger.e(s);
-      // Remove token if get data error
-      await authRepository.removeToken();
-      GlobalData.instance.token = null;
-      final res = e.response!.data as Map<String, dynamic>;
-      emit(state.copyWith(loginStatus: LoadStatus.FAILURE,errMsg: res["message"]));
+    if (entity != null) {
+      GlobalData.instance.userId = entity.uid;
+      GlobalData.instance.token = entity;
+      await authRepository.saveToken(entity);
+
+      final appCubit = GetIt.I<AppCubit>();
+      appCubit.getProfile();
     }
+
+    emit(state.copyWith(
+      loginStatus: LoadStatus.SUCCESS,
+      userName: "",
+      password: "",
+    ));
+
+    logger.d("login success :: ${result.toJson()}");
+  } on DioException catch (e, s) {
+    logger.e(e);
+    logger.e(s);
+
+    await authRepository.removeToken();
+    GlobalData.instance.token = null;
+
+    final res = e.response?.data as Map<String, dynamic>? ?? {};
+    emit(state.copyWith(
+      loginStatus: LoadStatus.FAILURE,
+      errMsg: res["message"] ?? "Đăng nhập thất bại",
+    ));
   }
+}
+
+
 
   void onChangeUSerName(String userName){
     emit(state.copyWith(userName: userName));

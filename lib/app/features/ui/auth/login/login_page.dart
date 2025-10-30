@@ -15,6 +15,7 @@ import '../../../navigation/bottom_navigation.dart';
 import '../../../widgets/input_text_field.dart';
 import '../../../widgets/primary_button.dart';
 import '../forgot_pass/forgot_pass_page.dart';
+import 'package:pm_app/di/di.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -28,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   final _userNameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  final _cubit = GetIt.I.get<LogInCubit>();
+  final _cubit = sl<LogInCubit>();
 
   @override
   void initState() {
@@ -175,12 +176,21 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 20,),
-                PrimaryButton(
-                  mainText:"Đăng Nhập", //S.current.login,
-                  isLoading: false,
-                  callback:(){
-                    _login();
-                  }
+                BlocBuilder<LogInCubit,LoginState>(
+                  bloc: _cubit,
+                  buildWhen: (prev,cur) => prev.loginStatus != cur.loginStatus,
+                  builder: (context,state){
+                    final isLoading = state.loginStatus == LoadStatus.LOADING;
+                    return PrimaryButton(
+                        mainText:"Đăng Nhập", //S.current.login,
+                        isLoading: isLoading,
+                        callback: isLoading
+                          ? null
+                          : () async {
+                          _login();
+                       },
+                    );
+                  },
                 )
               ],
             ),

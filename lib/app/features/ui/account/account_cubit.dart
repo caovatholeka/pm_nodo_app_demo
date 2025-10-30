@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/di/di.dart';
 import '../../../data/models/entities/profile_entity.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -15,7 +16,7 @@ class AccountCubit extends Cubit<AccountState> {
     try {
       emit(state.copyWith(loadStatus: LoadStatus.LOADING));
 
-      final appCubit = GetIt.I<AppCubit>();
+      final appCubit = sl<AppCubit>();
       final userId = appCubit.state.userProfile?.id;
 
       if (userId == null) {

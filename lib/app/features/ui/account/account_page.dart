@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/di/di.dart';
@@ -24,12 +25,13 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final _cubit = GetIt.I.get<AccountCubit>();
+  final _cubit = sl<AccountCubit>();
+
 
   @override
   void initState() {
     super.initState();
-    _cubit.fetchUserProfile();
+    // _cubit.fetchUserProfile();
   }
 
   void _goLangague() {

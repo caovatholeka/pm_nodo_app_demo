@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/commons/app_colors.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../../data/models/entities/on_leave_entity.dart';
 
 class OnLeaveListItem extends StatelessWidget {
@@ -96,7 +97,8 @@ class OnLeaveListItem extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("12 AM",//entity.displayDateWithShift ?? "",
+                Text("${AppDateUtils.changeIso8601StringToDateTimeString(entity.dateFrom)}"
+                    " - ${AppDateUtils.changeIso8601StringToDateTimeString(entity.dateTo)}",
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -141,9 +143,9 @@ class OnLeaveListItem extends StatelessWidget {
             Column(
               children: [
                 const SizedBox(height: 16,),
-                _buildItem("Loại nghỉ","Nghỉ ốm"),
+                _buildItem("Loại nghỉ",""),
                 const SizedBox(height: 12,),
-                _buildItem("Người duyệt:","nodo admin"),
+                _buildItem("Người duyệt:",""),
               ],
             ),
           ],

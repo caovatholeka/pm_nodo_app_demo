@@ -26,7 +26,8 @@ class _OnLeavePageState extends State<OnLeavePage> {
   ScrollController controller = ScrollController();
 
   @override
-  void initState() {
+  void initState(){
+    _cubit.getListOnLeaveTimes();
     super.initState();
   }
 
@@ -42,7 +43,10 @@ class _OnLeavePageState extends State<OnLeavePage> {
   Future<void> _openDetail(OnLeaveEntity entity) async{
     final bool? result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => OnLeaveDetailPage()),
+      MaterialPageRoute(builder: (context) => OnLeaveDetailPage(
+        detailEntity: entity,
+        detailId: entity.id,
+      )),
     );
 
     if(result != null && result){
@@ -92,13 +96,15 @@ class _OnLeavePageState extends State<OnLeavePage> {
                       topLeft: Radius.circular(12),
                     topRight: Radius.circular(12),)
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _filterWidget,
-                    _listWidget,
-                    const SizedBox(height: 32,)
-                  ],
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _filterWidget,
+                      _listWidget,
+                      const SizedBox(height: 32,)
+                    ],
+                  ),
                 ),
 
               ),
