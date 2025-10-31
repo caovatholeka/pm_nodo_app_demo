@@ -11,6 +11,14 @@ class CreateOnLeaveState extends Equatable {
   String? reason;
   String? leaveDays;
 
+  // loại ngày nghỉ
+  List<MasterDataItem>? listDateTypeLeaves;
+  MasterDataItem? currentDateLeaveType;
+
+  // loại nghỉ
+  List<MasterDataItem>? listTypeLeaves;
+  MasterDataItem? currentLeaveType;
+
   CreateOnLeaveState({
     this.createStatus = LoadStatus.INITIAL,
     this.leaveDateType,
@@ -20,7 +28,11 @@ class CreateOnLeaveState extends Equatable {
     this.fromDate,
     this.toDate,
     this.reason,
-    this.leaveDays
+    this.leaveDays,
+    this.listDateTypeLeaves,
+    this.currentDateLeaveType,
+    this.listTypeLeaves,
+    this.currentLeaveType
   });
 
   CreateOnLeaveState copyWith({
@@ -32,7 +44,11 @@ class CreateOnLeaveState extends Equatable {
     String? fromDate,
     String? toDate,
     String? reason,
-    String? leaveDays
+    String? leaveDays,
+    List<MasterDataItem>? listDateTypeLeaves,
+    MasterDataItem? currentDateLeaveType,
+    List<MasterDataItem>? listTypeLeaves,
+    MasterDataItem? currentLeaveType,
   }) {
     return CreateOnLeaveState(
       createStatus: createStatus ?? this.createStatus,
@@ -43,7 +59,11 @@ class CreateOnLeaveState extends Equatable {
       fromDate: fromDate ?? this.fromDate,
       toDate: toDate ?? this.toDate,
       reason: reason ?? this.reason,
-      leaveDays: leaveDays ?? this.leaveDays
+      leaveDays: leaveDays ?? this.leaveDays,
+      listDateTypeLeaves: listDateTypeLeaves ?? this.listDateTypeLeaves,
+      currentDateLeaveType: currentDateLeaveType ?? this.currentDateLeaveType,
+      listTypeLeaves: listTypeLeaves ?? this.listTypeLeaves,
+      currentLeaveType: currentDateLeaveType ?? this.currentLeaveType
     );
   }
 
@@ -57,6 +77,10 @@ class CreateOnLeaveState extends Equatable {
     fromDate,
     toDate,
     reason,
-    leaveDays
+    leaveDays,
+    listDateTypeLeaves,
+    currentDateLeaveType,
+    listTypeLeaves,
+    currentLeaveType
   ];
 }

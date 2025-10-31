@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/employee_detail_page.dart';
@@ -18,6 +19,10 @@ class StaffPage extends StatefulWidget {
 class _StaffPageState extends State<StaffPage> {
   final _cubit = GetIt.I.get<StaffCubit>();
   final _searchController = TextEditingController();
+
+  List<MasterDataItem> listDateTypeLeaves = [
+    MasterDataItem(text: "Nghỉ phép")
+  ];
 
   @override
   void initState() {

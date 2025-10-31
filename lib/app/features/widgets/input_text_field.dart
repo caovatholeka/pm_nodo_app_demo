@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
 import '../../config/app_config.dart';
 import '../../core/commons/app_assets.dart';
 import '../../core/commons/app_colors.dart';
-
-import '../ui/notification/noti_page.dart';
 
 class InputTextField extends StatefulWidget {
   final String title;
@@ -71,7 +68,7 @@ class _InputTextFieldState extends State<InputTextField> {
 
     final fillColor = (widget.enable == true || widget.bgrColor == true)
         ? Colors.white
-        : AppColors.gray;
+        : AppColors.lineGray50;
 
     final baseBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),

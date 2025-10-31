@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../config/app_config.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../data/models/entities/master_data_item.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../data/repositories/on_leave_repository.dart';
 
@@ -14,9 +15,36 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
 
   CreateOnLeaveCubit({required this.repository}) : super(CreateOnLeaveState());
 
-  @override
-  Future<void> close() {
-    return super.close();
+  // @override
+  // Future<void> close() {
+  //   return super.close();
+  // }
+
+  // Loại ngày nghỉ
+  void getListDateTypeLeaves(){
+    List<MasterDataItem> list = [
+      MasterDataItem(text: "Nghỉ phép",code: "P"),
+      MasterDataItem(text: "Nghỉ không lương",code: "KL"),
+    ];
+
+    emit(state.copyWith(listDateTypeLeaves: list));
+  }
+  void onChangeDateTypeLeaves(MasterDataItem item){
+    emit(state.copyWith(currentDateLeaveType: item,leaveDateType: item.text));
+  }
+
+  // Loại nghỉ
+  void getListTypeLeaves(){
+    List<MasterDataItem> list = [
+      MasterDataItem(text: "Sáng",code: "AM"),
+      MasterDataItem(text: "Chiều",code: "PM"),
+      MasterDataItem(text: "Cả ngày",code: "ALL"),
+    ];
+
+    emit(state.copyWith(listTypeLeaves: list));
+  }
+  void onChangeLeaveType(MasterDataItem item){
+    emit(state.copyWith(currentLeaveType: item,leaveType: item.text));
   }
 
   // date time
@@ -42,10 +70,6 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
 
   void onChangeToDate(String toDate){
     emit(state.copyWith(toDate: toDate));
-  }
-
-  void onChangeLeaveType(String type){
-    emit(state.copyWith(leaveType: type));
   }
 
   void onChangeLeaveDays(String leaveDays){
