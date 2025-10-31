@@ -145,7 +145,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             initiallyExpanded: true,
             children: [
               _infoBox([
-                _InfoRow(title: "Tên nhân viên", value: user.name ?? "Ko phải Nodo :)"),
+                _InfoRow(title: "Tên nhân viên", value: user.name ?? "Ko phải của Nodo :)"),
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
@@ -153,7 +153,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Địa chỉ", value: "-"),
+                _InfoRow(title: "Địa chỉ", value: "Không có đừng tìm :((((("),
               ]),
             ],
           ),
@@ -163,15 +163,15 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             initiallyExpanded: true,
             children: [
               _infoBox([
-                _InfoRow(title: "Chức danh", value: user.login ?? "-"),
+                _InfoRow(title: "Chức danh", value: "Ko Có:("),
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Phòng ban", value: "Phòng sản xuất"),
+                _InfoRow(title: "Phòng ban", value: "Ko Có:("),
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Trạng thái", value: "Đang làm việc"),
+                _InfoRow(title: "Trạng thái", value: "Ko Có:("),
               ]),
             ],
           ),
@@ -181,7 +181,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             initiallyExpanded: true,
             children: [
               _infoBox([
-                _InfoRow(title: "Đã ký hợp đồng", value: "Ngày gia nhập: 02/10/2025"),
+                _InfoRow(title: "Đã ký hợp đồng", value: "Làm gì có :("),
               ]),
             ],
           ),

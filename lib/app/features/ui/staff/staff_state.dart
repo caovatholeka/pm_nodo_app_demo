@@ -2,41 +2,27 @@ part of 'staff_cubit.dart';
 
 class StaffState extends Equatable {
   final LoadStatus loadStatus;
-  String? errMsg;
-  String? errStatus;
   final List<EmployeeEntity>? listEmployees;
-  final List<EmployeeEntity>?allEmployees;
+  final EmployeeFilterParam? filter;
 
-  StaffState({
+  const StaffState({
     this.loadStatus = LoadStatus.INITIAL,
-    this.errMsg,
-    this.errStatus,
     this.listEmployees,
-    this.allEmployees,
+    this.filter,
   });
 
   StaffState copyWith({
-    bool resetDateTime = false,
     LoadStatus? loadStatus,
-    String? errMsg,
-    String? errStatus,
     List<EmployeeEntity>? listEmployees,
-    List<EmployeeEntity>? allEmployees
+    EmployeeFilterParam? filter,
   }) {
     return StaffState(
       loadStatus: loadStatus ?? this.loadStatus,
-      errMsg: errMsg ?? this.errMsg,
-      errStatus: errStatus ?? this.errStatus,
       listEmployees: listEmployees ?? this.listEmployees,
-      allEmployees: allEmployees ?? this.allEmployees
+      filter: filter ?? this.filter,
     );
   }
 
   @override
-  List<Object?> get props => [
-    loadStatus,
-    errMsg,
-    errStatus,
-    listEmployees,
-  ];
+  List<Object?> get props => [loadStatus, listEmployees, filter];
 }

@@ -266,10 +266,10 @@ class _AccountPageState extends State<AccountPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _InfoItem(title: "Ngày sinh", value: profile.birthdayDate ?? "Null"),
+                  _InfoItem(title: "Ngày sinh", value: profile.birthdayDate ?? "Ko Có:("),
                   _InfoItem(
                       title: "Staff profile code",
-                      value: profile.code ?? "Null"),
+                      value: profile.code ?? "Ko Có:("),
                   _InfoItem(
                       title: "Số điện thoại",
                       value: (profile.phone == true ? "Có" : "Không"),

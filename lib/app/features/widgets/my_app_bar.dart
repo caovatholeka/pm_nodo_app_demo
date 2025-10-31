@@ -13,7 +13,6 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.haveActionButton = false,
     this.haveBackButton = false,
     this.bottom,
-    // this.onWillPop,
     this.onPopInvoked,
     this.canPop = true,
   });
@@ -28,58 +27,66 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   PreferredSizeWidget? bottom;
   bool? canPop;
 
-  // WillPopCallback? onWillPop;
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: canPop ?? true, // false : dismiss pop
+      canPop: canPop ?? true,
       onPopInvoked: onPopInvoked,
       child: AppBar(
-        centerTitle: true,
-        title: Text(
-          titleAppbar,
-          style: TextStyle(
-              color: AppColors.whiteColor,
-              fontSize: 20,
-              fontWeight: FontWeight.w600),
-        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: haveBackButton!
-            ? InkWell(
-          child: IconButton(
-            onPressed: () {
-              if (backAction != null) {
-                backAction!();
-              } else {
-                Navigator.of(context).pop();
-              }
-            },
-            icon: Image.asset(AppAssets.ic_arrowB)
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+
+        title: Text(
+          titleAppbar,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
-        )
+        ),
+
+        leading: haveBackButton!
+            ? IconButton(
+                onPressed: backAction ??
+                    () {
+                      Navigator.of(context).maybePop();
+                    },
+                icon: Image.asset(
+                  AppAssets.ic_arrowB,
+                  width: 22,
+                  height: 22,
+                ),
+              )
             : const SizedBox(),
+
         actions: [
           haveActionButton! && iconPathAsset != null
               ? Container(
-              margin: const EdgeInsets.only(right: 16),
-              child: InkWell(
-                onTap: actionCallBack,
-                child: SvgPicture.asset(
-                  iconPathAsset!,
-                  width: 24,
-                  height: 24,
-                ),
-              ))
+                  margin: const EdgeInsets.only(right: 16),
+                  child: InkWell(
+                    onTap: actionCallBack,
+                    borderRadius: BorderRadius.circular(30),
+                    child: SvgPicture.asset(
+                      iconPathAsset!,
+                      width: 24,
+                      height: 24,
+                      color: Colors.white, 
+                    ),
+                  ),
+                )
               : const SizedBox()
         ],
+
         bottom: bottom,
-      ),);
+      ),
+    );
   }
 
   @override
-  // TODO: implement preferredSize
-  Size get preferredSize => (bottom != null) ? const Size.fromHeight(112.0) :
-  const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize =>
+      (bottom != null)
+          ? const Size.fromHeight(112.0)
+          : const Size.fromHeight(kToolbarHeight);
 }

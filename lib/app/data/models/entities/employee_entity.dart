@@ -25,6 +25,10 @@ class EmployeeEntity {
   @JsonKey()
   String? avatarUrl;
 
+  @JsonKey()
+  bool? active;
+
+
   EmployeeEntity({
     this.id,
     this.code,
@@ -32,7 +36,8 @@ class EmployeeEntity {
     this.workEmail,
     this.jobTitle,
     this.department,
-    this.avatarUrl
+    this.avatarUrl,
+    this.active
   });
 
   EmployeeEntity copyWith({
@@ -42,7 +47,8 @@ class EmployeeEntity {
     String? workEmail,
     String? jobTitle,
     String? department,
-    String? avatarUrl
+    String? avatarUrl,
+    bool? active
   }) {
     return EmployeeEntity(
       id: id ?? this.id,
@@ -51,7 +57,8 @@ class EmployeeEntity {
       workEmail: workEmail ?? this.workEmail,
       jobTitle: jobTitle ?? this.jobTitle,
       department: department ?? this.department,
-      avatarUrl: avatarUrl ?? this.avatarUrl
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      active: active ?? this.active
     );
   }
 

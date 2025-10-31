@@ -129,14 +129,14 @@ class EmployeeDetailPage extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     _sectionTitle("Thông tin cá nhân"),
-                    _InfoRow(icon: Icons.male, label: "Giới tính", value: "Nam"),
-                    _InfoRow(icon: Icons.calendar_today, label: "Ngày sinh", value: "03/01/2002"),
+                    _InfoRow(icon: Icons.male, label: "Giới tính", value: "-"),
+                    _InfoRow(icon: Icons.calendar_today, label: "Ngày sinh", value: "-"),
                     _InfoRow(icon: Icons.email_outlined, label: "Email", value: employee.workEmail ?? "Không có"),
-                    _InfoRow(icon: Icons.phone, label: "Số điện thoại", value: "0845733708"),
+                    _InfoRow(icon: Icons.phone, label: "Số điện thoại", value: "-"),
                     _InfoRow(
                       icon: Icons.location_on_outlined,
                       label: "Địa chỉ",
-                      value: "24 Nguyễn Cơ Thạch, Mỹ Đình 1, Nam Từ Liêm, Hà Nội",
+                      value: "-",
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -167,7 +167,6 @@ class EmployeeDetailPage extends StatelessWidget {
   }
 }
 
-// Thẻ trạng thái
 class _TagItem extends StatelessWidget {
   final String label;
   final Color backgroundColor;

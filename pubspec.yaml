@@ -14,6 +14,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+
   cupertino_icons: ^1.0.8
   hive: ^2.2.3
   flutter_bloc: ^9.1.1
@@ -69,6 +70,7 @@ dependencies:
   url_launcher: ^6.3.2
   firebase_remote_config: ^4.4.7
   syncfusion_flutter_calendar: ^31.1.19
+  i10n_translator: ^2.2.1
 
 
 dev_dependencies:
@@ -84,8 +86,9 @@ dev_dependencies:
 dependency_overrides:
   intl: ^0.17.0
 flutter:
-
   uses-material-design: true
+  generate: true
+
 
   # To add assets to your application, add an assets section, like this:
   assets:
