@@ -1,0 +1,66 @@
+{
+  "@@locale": "en",
+
+  "login_title": "Please log in to your account",
+  "forgot_title": "Forgot password",
+  "forgot_subtitle": "Your new password must be at least 8 characters, including UPPERCASE, lowercase, special characters and numbers.",
+  "username": "Username",
+  "password": "Password",
+  "hint_Username":"Please enter your username",
+  "hint_Password":"Please enter your password",
+  "remmember_Account":"Remmember your account",
+  "text_ForgotPassword":"Forgot password?",
+  "btn_Login":"Login",
+  "btn_logout":"Logout",
+  "btn_apply":"Apply",
+  "btn_langauge": "Change langauge",
+  "btn_changepassword":"Change password",
+  "btn_setting":"General Setting",
+  "btn_Confrim": "Confrim",
+  "congratulations":"Congratulations",
+  "congrat_subtitle": "Your new password has been reset",
+  
+  "home_hi": "Hi",
+  "search_text": "Staff code or employee name",
+  "utilities": "Utilities",
+  "seeall_text": "See all",
+  "work_data": "Work data",
+
+
+  "bottomtab_home": "Home",
+  "bottomtab_employee":"Employee",
+  "bottomtab_checkin":"Check in",
+  "bottomtab_onleave": "On leave",
+  "bottomtab_personal":"Personal",
+  "staff_appbar":"Staff List",
+  "department": "Department",
+
+  "advance_filter": "Advance Filter",
+  "clear_filter": "Clear All",
+  "input_employee_name": "Employee name",
+  "input_employee_code": "Staff code",
+  "input_employee_department": "Department",
+  "input_employee_position": "Work Position",
+  "input_employee_status": "Status",
+
+  "appbar_staffdetail": "Staff Detail",
+  "position":"Position",
+  "manager": "Manager",
+  "working_status": "Contract state",
+  "personal_text": "Personal Information",
+  "gender": "Gender",
+  "dob": "Date of birth",
+  "phone_number": "Phone number",
+  "address": "Address",  
+
+  "expenable_personal_profile": "Personal profile",
+  "expenable_job": "Job position information",
+  "expenable_other":"Other",
+
+  "info_contract": "Contract signed",
+  "info_date":"Joining date",
+  "info_title": "Title"
+  
+
+
+}

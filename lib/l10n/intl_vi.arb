@@ -1,0 +1,64 @@
+{
+  "@@locale": "vi",
+
+  "login_title": "Hãy đăng nhập vào tài khoản của bạn",
+  "forgot_title": "Quên mật khẩu",
+  "forgot_subtitle": "Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.",
+  "username": "Tên đăng nhập",
+  "password": "Mật khẩu",
+  "hint_Username":"Nhập tên đăng nhạp của bạn",
+  "hint_Password":"Nhập mật khẩu của bạn",
+  "remmember_Account":"Nhớ tài khoản",
+  "text_ForgotPassword":"Quên mật khẩu?",
+  "btn_Login":"Đăng nhập",
+  "btn_logout":"Đăng xuất",
+  "btn_apply":"Xác nhận",
+  "btn_langauge": "Đổi ngôn ngữ",
+  "btn_changepassword":"Đổi mật khẩu",
+  "btn_setting":"Cài đặt chung",
+  "btn_Confrim": "Xác nhận",
+  "congratulations":"Chúc mừng",
+  "congrat_subtitle": "Mật khẩu của bạn đã được làm mới",
+  
+  "home_hi": "Xin chào",
+  "search_text": "Mã nhân viên hoặc tên nhân viên",
+  "utilities": "Tiện ích",
+  "seeall_text": "Xem tất cả",
+  "work_data": "Dữ liệu công",
+
+
+  "bottomtab_home": "Trang chủ",
+  "bottomtab_employee":"Nhân viên",
+  "bottomtab_checkin":"Chấm công",
+  "bottomtab_onleave": "Nghỉ phép",
+  "bottomtab_personal":"Cá nhân",
+  "staff_appbar":"Danh sách nhân viên",
+  "department": "Phòng ban",
+
+  "advance_filter": "Bộ lọc nâng cao",
+  "clear_filter": "Xóa lọc",
+  "input_employee_name": "Tên nhân viên",
+  "input_employee_code": "Mã nhân viên",
+  "input_employee_department": "Phòng ban",
+  "input_employee_position": "Vị trí công việc",
+  "input_employee_status": "Trạng thái",
+
+  "appbar_staffdetail": "Chi tiết nhân viên",
+  "position":"Chức vụ",
+  "manager": "Quản lý",
+  "working_status": "Trạng thái",
+  "personal_text": "Trạng thái hợp đồng",
+  "gender": "Giới tính",
+  "dob": "Ngày sinh",
+  "phone_number": "Số điện thoại",
+  "address": "Địa chỉ",  
+
+  "expenable_personal_profile": "Thông tin cá nhân",
+  "expenable_job": "Thông tin vị trí công tác",
+  "expenable_other":"Khác",
+
+  "info_contract": "Đã ký hợp đồng",
+  "info_date":"Ngày gia nhập",
+  "info_title": "Chức danh"
+  
+}
