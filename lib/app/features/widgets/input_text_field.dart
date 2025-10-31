@@ -1,11 +1,11 @@
-  import 'package:flutter/material.dart';
-  import 'package:flutter_svg/svg.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
-  import '../../config/app_config.dart';
-  import '../../core/commons/app_assets.dart';
-  import '../../core/commons/app_colors.dart';
+import '../../config/app_config.dart';
+import '../../core/commons/app_assets.dart';
+import '../../core/commons/app_colors.dart';
 
-  import '../ui/notification/noti_page.dart';
+import '../ui/notification/noti_page.dart';
 
   class InputTextField extends StatefulWidget {
     final String title;
@@ -69,9 +69,9 @@
       assert(!(widget.controller != null && widget.initialValue != null),
       'Provide either controller OR initialValue, not both.');
 
-      final fillColor = (widget.enable == true || widget.bgrColor == true)
-          ? Colors.white
-          : AppColors.gray;
+    final fillColor = (widget.enable == true || widget.bgrColor == true)
+        ? Colors.white
+        : AppColors.gray;
 
       final baseBorder = OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),

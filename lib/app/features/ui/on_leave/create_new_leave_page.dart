@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:pm_app/app/features/widgets/common_bottom_sheet.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../core/utils/validators.dart';
@@ -38,6 +40,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   final _typeKey = GlobalKey<FormState>();
   final _reasonKey = GlobalKey<FormState>();
 
+  TextEditingController leavesDaysController = TextEditingController();
   TextEditingController dateTypeController = TextEditingController();
   TextEditingController fromDateController = TextEditingController();
   TextEditingController toDateController = TextEditingController();
@@ -54,12 +57,14 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
   @override
   void initState() {
+    _createCubit.getListDateTypeLeaves();
+    _createCubit.getListTypeLeaves();
     super.initState();
   }
 
   @override
   void dispose() {
-    _createCubit.close();
+    // _createCubit.close();
     super.dispose();
   }
 
@@ -71,6 +76,44 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
       currentTime: defaultValue ?? DateTime.now(),
       locale: "vi"
     );
+  }
+
+  _openDateTypeLeaveBottomSheet(List<MasterDataItem> list) async{
+    final item = await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        useRootNavigator: true,
+        isScrollControlled: true,
+        builder: (BuildContext context) =>
+            CommonBottomSheet(
+              listValues: list,
+              currentValue: _createCubit.state.currentDateLeaveType ,
+              title: "Loại ngày nghỉ",
+            )
+    );
+
+    if(item != null ){
+      _createCubit.onChangeDateTypeLeaves(item);
+    }
+  }
+
+  _openTypeLeaveBottomSheet(List<MasterDataItem> list) async{
+    final item = await showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        useRootNavigator: true,
+        isScrollControlled: true,
+        builder: (BuildContext context) =>
+            CommonBottomSheet(
+              listValues: list,
+              currentValue: _createCubit.state.currentLeaveType,
+              title: "Loại nghỉ",
+            )
+    );
+
+    if(item != null ){
+      _createCubit.onChangeLeaveType(item);
+    }
   }
 
   @override
@@ -127,6 +170,13 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          InputTextField(
+            title: "Số phép còn lại",
+            hintText: "",
+            isRequiredField: false,
+            controller: leavesDaysController..text = '0.0', //(_cubit.state.leaveEntity?.soNgayPhepConLai ?? 0).toString() ?? "",
+            readOnly: true,
+          ).paddingOnly(bottom: 20),
           Form(
             key: _dateTypeKey,
             child: BlocListener<CreateOnLeaveCubit,CreateOnLeaveState>(
@@ -145,18 +195,19 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                 }
               },
               child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
-                  buildWhen: (prev,cur) => prev.leaveDateType != cur.leaveDateType,
+                  buildWhen: (prev,cur) => prev.leaveDateType != cur.leaveDateType ||
+                    prev.listDateTypeLeaves != cur.listDateTypeLeaves,
                   builder: (context,state){
                     return InputTextField(
                       title: "Loại ngày nghỉ",
                       hintText: "",
                       isRequiredField: true,
                       controller: dateTypeController,
-                      enable: !(widget.isEdit ?? false),
+                      enable: true,
                       readOnly: true,
                       suffixIcon: AppAssets.icArrowDown,
                       callback: (){
-                        // _openSchoolBottomSheet(state.listSchools ?? []);
+                        _openDateTypeLeaveBottomSheet(state.listDateTypeLeaves ?? []);
                       },
                       validator: (value) =>
                           Validator.validateEmpty(value, "Loại ngày nghỉ"),
@@ -281,7 +332,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                   ))
             ],
           ).paddingOnly(bottom: 20),
-
+          // list danh sach ngay nghi
+          
           Row(
             children: [
               Expanded(
@@ -338,7 +390,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                         }
                       },
                       child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
-                          buildWhen: (prev,cur) => prev.leaveType != cur.leaveType,
+                          buildWhen: (prev,cur) => prev.leaveType != cur.leaveType ||
+                            prev.currentLeaveType != cur.currentLeaveType,
                           builder: (context,state){
                             return InputTextField(
                               title: "Loại nghỉ",
@@ -349,7 +402,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                               readOnly: true,
                               suffixIcon: AppAssets.icArrowDown,
                               callback: (){
-                                // _openSchoolBottomSheet(state.listSchools ?? []);
+                                 _openTypeLeaveBottomSheet(state.listTypeLeaves ?? []);
                               },
                               validator: (value) =>
                                   Validator.validateEmpty(value, "Loại nghỉ"),

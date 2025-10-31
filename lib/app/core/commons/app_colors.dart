@@ -19,6 +19,8 @@ class AppColors {
   static const Color shadowColor = Color(0x20000000);
   static const Color gray = Color(0xFF262626);
 
+  static const Color lineGray50 = Color(0xFFE3E5EB);
+
   static const Color colorCompliant = Color(0xFF45B902);
   static const Color colorLateClockIn = Color(0xFFFFD335);
   static const Color colorNoClockIn = Color(0xFFDA3535);
