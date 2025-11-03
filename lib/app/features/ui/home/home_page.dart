@@ -4,6 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/features/ui/checkin/checkin_data/check_in_data_page.dart';
 
 import '../../widgets/input_text_field.dart';
 import '../../../core/commons/app_colors.dart';
@@ -39,9 +41,16 @@ class _HomePageState extends State<HomePage> {
         ));
 }
 
+void _goCheckIn() {
+  Navigator.push(context, 
+  MaterialPageRoute(builder:  (context) => CheckInDataPage()
+  ));
+}
+
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
@@ -60,7 +69,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
           const Text(
-          'Xin chào',
+          'Xin chào,',
           style: TextStyle(
           fontSize: 20,
           color: AppColors.themeBlackDefault,
@@ -150,14 +159,15 @@ class _HomePageState extends State<HomePage> {
                 mainAxisSpacing: 20,
                 crossAxisSpacing: 12,
                 children: [
-                  _buildMenuItemWithAsset(AppAssets.ic_employee, 'Nhân viên'),
-                  _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công'),
-                  _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép'),
-                  _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công'),
-                  _buildMenuItemWithAsset(AppAssets.ic_employee, 'Nhân viên'),
-                  _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công'),
-                  _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép'),
-                  _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công'),
+                  _buildMenuItemWithAsset(
+                    AppAssets.ic_employee, 'Nhân viên', onTap: () => {},),
+                  _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {_goCheckIn()}),
+                  _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),
+                  _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {}),
+                  _buildMenuItemWithAsset(AppAssets.ic_employee, 'Nhân viên',onTap: () => {}),
+                  _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {}),
+                  _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),
+                  _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {}),
                 ],
               ),
 
@@ -220,15 +230,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMenuItemWithAsset(String assetPath, String title) {
-    return Column(
+Widget _buildMenuItemWithAsset(String assetPath, String title, {VoidCallback? onTap}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: AppColors.colorPrimary50
+            color: AppColors.colorPrimary50,
           ),
           child: Image.asset(assetPath, width: 28, height: 28),
         ),
@@ -239,6 +251,8 @@ class _HomePageState extends State<HomePage> {
           textAlign: TextAlign.center,
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
 }

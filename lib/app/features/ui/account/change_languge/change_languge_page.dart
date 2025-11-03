@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/app.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/radio_box_icon.dart';
 import 'package:pm_app/app/features/widgets/radio_box_selected_icon.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ChangeLanguagePage extends StatefulWidget {
   const ChangeLanguagePage({super.key});
@@ -17,11 +22,37 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
   String selectedLang = "vi";
 
   @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final lang = await SharedPrefsHelper.getAppLanguage();
+    setState(() {
+      selectedLang = lang;
+    });
+  }
+
+  Future<void> _changeLanguage(String code) async {
+    await SharedPrefsHelper.setAppLanguage(code);
+
+    context.read<AppCubit>().changeAppLanguage(code);
+
+    if (!mounted) return;
+    setState(() {
+      selectedLang = code;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: MyAppBar(
-        titleAppbar: "Ngôn ngữ",
+        titleAppbar: s.btn_langauge, 
         haveBackButton: true,
       ),
       body: Container(
@@ -38,7 +69,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
             const SizedBox(height: 120),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5), 
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Container(
                   width: double.infinity,
                   padding:
@@ -52,6 +83,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                     boxShadow: AppShadow.pageBoxShadow,
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 8),
                       _buildLanguageItem("Tiếng Việt", "vi"),
@@ -68,14 +100,11 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
     );
   }
 
+  /// 🧱 Item chọn ngôn ngữ
   Widget _buildLanguageItem(String title, String code) {
     final bool isSelected = selectedLang == code;
     return InkWell(
-      onTap: () {
-        setState(() {
-          selectedLang = code;
-        });
-      },
+      onTap: () => _changeLanguage(code),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -97,8 +126,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.black87,
-                fontWeight:
-                    isSelected ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
             isSelected

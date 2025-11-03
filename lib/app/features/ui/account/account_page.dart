@@ -14,6 +14,7 @@ import '../account/change_languge/change_languge_page.dart';
 import '../account/changepassword/change_password_page.dart';
 import '../account/changepassword/change_password_cubit.dart';
 import '../account/personal_info/personal_info_page.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'account_cubit.dart';
 import 'account_state.dart';
 
@@ -37,7 +38,10 @@ class _AccountPageState extends State<AccountPage> {
   void _goLangague() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const ChangeLanguagePage()),
+      MaterialPageRoute(
+        builder: (context) => ChangeLanguagePage(
+        ),
+      ),
     );
   }
 
@@ -169,6 +173,7 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocBuilder<AccountCubit, AccountState>(
       bloc: _cubit,
       builder: (context, state) {
@@ -176,7 +181,7 @@ class _AccountPageState extends State<AccountPage> {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: MyAppBar(
-            titleAppbar: "Cá nhân",
+            titleAppbar: s.bottomtab_personal,
             haveBackButton: true,
             backAction: () => Navigator.pop(context),
           ),
@@ -200,31 +205,31 @@ class _AccountPageState extends State<AccountPage> {
                   else if (profile != null)
                     _accountInfo(profile)
                   else
-                    const Center(
+                    Center(
                       child: Text(
-                        "Không thể tải thông tin người dùng",
-                        style: TextStyle(color: Colors.white),
+                        'Failed to load data',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   const SizedBox(height: 24),
                   _menuItem(
                     icon: AppAssets.ic_user,
-                    title: "Thông tin cá nhân",
+                    title: s.expenable_personal_profile,
                     onTap: _goInfo,
                   ),
                   _menuItem(
                     icon: AppAssets.ic_langague,
-                    title: "Ngôn ngữ",
+                    title: s.btn_langauge,
                     onTap: _goLangague,
                   ),
                   _menuItem(
                     icon: AppAssets.ic_protect,
-                    title: "Đổi mật khẩu",
+                    title: s.btn_changepassword,
                     onTap: _goPassword,
                   ),
                   _menuItem(
                     icon: AppAssets.ic_setting,
-                    title: "Cài đặt chung",
+                    title: s.btn_setting,
                     onTap: _showDialog,
                   ),
                   const SizedBox(height: 24),
@@ -240,6 +245,7 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Widget _accountInfo(ProfileEntity profile) {
+    final s = S.of(context);
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -266,13 +272,13 @@ class _AccountPageState extends State<AccountPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _InfoItem(title: "Ngày sinh", value: profile.birthdayDate ?? "Ko Có:("),
+                  _InfoItem(title: s.dob , value: profile.birthdayDate ?? "-"),
                   _InfoItem(
-                      title: "Staff profile code",
-                      value: profile.code ?? "Ko Có:("),
+                      title: s.input_employee_code,
+                      value: profile.code ?? "-"),
                   _InfoItem(
-                      title: "Số điện thoại",
-                      value: (profile.phone == true ? "Có" : "Không"),
+                      title: s.phone_number,
+                      value: (profile.phone == true ? "-" : "-"),
                   )
                 ],
               ),

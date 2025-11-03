@@ -59,6 +59,10 @@
 
   "info_contract": "Đã ký hợp đồng",
   "info_date":"Ngày gia nhập",
-  "info_title": "Chức danh"
+  "info_title": "Chức danh",
+  "failed_load_data": "Tải dữ liệu thất bại",
+
+  "attendance_data":"Dữ liệu chấm công",
+  "attendance_explanation": "Giải trình công"
   
 }

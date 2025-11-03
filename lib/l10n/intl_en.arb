@@ -59,7 +59,10 @@
 
   "info_contract": "Contract signed",
   "info_date":"Joining date",
-  "info_title": "Title"
+  "info_title": "Title",
+  
+  "failed_load_data": "Failed to load data",
+  "attendance_data":"Attendance Data"
   
 
 

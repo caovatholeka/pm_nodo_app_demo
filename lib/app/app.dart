@@ -5,15 +5,14 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_it/get_it.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:pm_app/app/data/repositories/employee_repository.dart';
-import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
-import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
-import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
-import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:provider/single_child_widget.dart';
+
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+import 'package:pm_app/generated/l10n.dart'; // ✅ import localization
 
 import '../di/di.dart';
 import 'config/app_config.dart';
@@ -23,14 +22,20 @@ import 'core/logger/logger.dart';
 import 'core/router/application.dart';
 import 'core/router/routers.dart';
 import 'data/repositories/auth_repository.dart';
+import 'data/repositories/employee_repository.dart';
+import 'data/repositories/on_leave_repository.dart';
 import 'features/bloc/app_cubit.dart';
 import 'features/ui/auth/login/login_cubit.dart';
+import 'features/ui/on_leave/bloc/create_on_leave_cubit.dart';
+import 'features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'features/ui/splash/splash_cubit.dart';
 import 'features/ui/account/account_cubit.dart';
+import 'features/ui/staff/staff_cubit.dart';
 
 final getIt = GetIt.instance;
+
 class MyApp extends StatefulWidget {
-  MyApp() {
+  MyApp({super.key}) {
     final router = FluroRouter();
     Routes.configureRoutes(router);
     Application.router = router;
@@ -47,14 +52,22 @@ class _MyAppState extends State<MyApp> {
   bool networkEnabled = true;
 
   final _appCubit = sl<AppCubit>();
-
+  Locale? _locale;
 
   @override
   void initState() {
     super.initState();
     initConnectivity();
+    _loadSavedLanguage();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final savedLang = await SharedPrefsHelper.getAppLanguage();
+    setState(() {
+      _locale = Locale(savedLang);
+    });
   }
 
   @override
@@ -72,13 +85,10 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    if (!mounted) {
-      return Future.value(null);
-    }
+    if (!mounted) return;
 
     return _updateConnectionStatus(result);
   }
-
 
   Future<void> _updateConnectionStatus(List<ConnectivityResult> results) async {
     final result = results[0];
@@ -86,10 +96,8 @@ class _MyAppState extends State<MyApp> {
         result != ConnectivityResult.mobile) {
       if (networkEnabled) {
         _overlaySupportEntry = showSimpleNotification(
-          SizedBox(
-            child: Text('Mất kết nối, vui lòng kiểm tra lại đường truyền.'),
-          ),
-          leading: Icon(Icons.wifi, color: Colors.white),
+          const Text('Mất kết nối, vui lòng kiểm tra lại đường truyền.'),
+          leading: const Icon(Icons.wifi, color: Colors.white),
           autoDismiss: false,
           background: Colors.red,
         );
@@ -109,9 +117,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<CreateOnLeaveCubit>()),
       BlocProvider(create: (context) => sl<LogInCubit>()),
       BlocProvider(create: (context) => sl<StaffCubit>()),
-      // BlocProvider(create: (context) => sl<ForgotCubit>()),
       BlocProvider(create: (context) => sl<AccountCubit>()),
-      // BlocProvider(create: (context) => sl<HomeCubit>()),
     ];
   }
 
@@ -126,12 +132,12 @@ class _MyAppState extends State<MyApp> {
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),
         child: BlocConsumer<AppCubit, AppState>(
-            listener: (context, state) {},
-            buildWhen: (pre, cur) => pre.locale != cur.locale,
-            builder: (context, state) {
-
-              return OverlaySupport(child: materialApp(state.locale));
-            }),
+          listener: (context, state) {},
+          buildWhen: (pre, cur) => pre.locale != cur.locale,
+          builder: (context, state) {
+            return OverlaySupport(child: materialApp(_locale ?? state.locale));
+          },
+        ),
       ),
     );
   }
@@ -140,6 +146,7 @@ class _MyAppState extends State<MyApp> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: AppConfig.appName,
@@ -147,19 +154,19 @@ class _MyAppState extends State<MyApp> {
       navigatorKey: GlobalData.instance.navigatorKey,
       onGenerateRoute: Application.router.generator,
       initialRoute: Routes.root,
+
       locale: locale,
-      // localizationsDelegates: const [
-      //   GlobalMaterialLocalizations.delegate,
-      //   GlobalWidgetsLocalizations.delegate,
-      //   GlobalCupertinoLocalizations.delegate,
-      //   S.delegate,
-      // ],
-      // supportedLocales: S.delegate.supportedLocales,
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+
       builder: (context, child) {
         return GestureDetector(
-          onTap: () {
-            hideKeyboard(context);
-          },
+          onTap: () => hideKeyboard(context),
           child: MediaQuery(
             data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
             child: child!,

@@ -63,4 +63,9 @@ class AppAssets {
 
   static final icArrowDown = 'assets/images/icons/ic_arrow_down.svg';
   static final icCalendar = 'assets/images/icons/ic_calendar.svg';
+
+
+  static final icCheckin = 'assets/images/icons/ic_checkin.png';
+  static final icCheckout = 'assets/images/icons/ic_logout.png';
+  static final launchBreak = 'assets/images/icons/ic_coffee.png';
 }
