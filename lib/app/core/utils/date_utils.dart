@@ -27,4 +27,29 @@ class AppDateUtils {
       return DateTime.now();
     }
   }
+
+  static List<DateTime> daysBetween(
+      DateTime start,
+      DateTime end, {
+        bool inclusive = true,
+        bool useUtc = false,
+      }) {
+    DateTime normalize(DateTime x) =>
+        useUtc ? DateTime.utc(x.year, x.month, x.day) : DateTime(x.year, x.month, x.day);
+
+    var s = normalize(start);
+    var e = normalize(end);
+
+    if (s.isAfter(e)) {
+      final tmp = s;
+      s = e;
+      e = tmp;
+    }
+
+    final addEnd = inclusive ? 1 : 0;
+    final totalDays = e.difference(s).inDays + addEnd;
+    if (totalDays <= 0) return <DateTime>[];
+
+    return List.generate(totalDays, (i) => s.add(Duration(days: i)));
+  }
 }

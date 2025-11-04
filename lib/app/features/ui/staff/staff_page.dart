@@ -246,145 +246,141 @@ class _StaffPageState extends State<StaffPage> {
 
                 final employees = state.listEmployees ?? [];
 
-                return Column(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(24),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(16, 16, 16, 10),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.search,
-                                      color: Colors.grey, size: 22),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _searchController,
-                                      onChanged: _cubit.searchEmployees,
-                                      decoration: const InputDecoration(
-                                        hintText:
-                                            "Mã nhân viên, Tên nhân viên",
-                                        hintStyle: TextStyle(
-                                            color: Colors.grey, fontSize: 14),
-                                        border: InputBorder.none,
-                                        isDense: true,
-                                      ),
-                                    ),
-                                  ),
-                                  InkWell(
-                                    onTap: _openFilterSheet,
-                                    child: Container(
-                                      width: 34,
-                                      height: 34,
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF0062FF),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: const Icon(
-                                        Icons.tune_rounded,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            Expanded(
-                              child: employees.isEmpty
-                                  ? const Center(
-                                      child: Text("Không có nhân viên nào"),
-                                    )
-                                  : ListView.builder(
-                                      itemCount: employees.length,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8),
-                                      itemBuilder: (context, index) {
-                                        final emp = employees[index];
-                                        return Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                          child: ListTile(
-                                            leading: CircleAvatar(
-                                              radius: 24,
-                                              backgroundImage: (emp.avatarUrl !=
-                                                          null &&
-                                                      emp.avatarUrl!.isNotEmpty)
-                                                  ? NetworkImage(emp.avatarUrl!)
-                                                  : AssetImage(AppAssets
-                                                          .img_df_avatar)
-                                                      as ImageProvider,
-                                            ),
-                                            title: Text(
-                                              emp.name ?? "Không có tên",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.black87,
-                                                fontSize: 15,
-                                              ),
-                                            ),
-                                            subtitle: Text(
-                                              "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
-                                              style: const TextStyle(
-                                                color: Colors.black54,
-                                                fontSize: 13,
-                                                height: 1.3,
-                                              ),
-                                            ),
-                                            trailing: Text(
-                                              emp.code != null
-                                                  ? "NV${emp.code}"
-                                                  : "",
-                                              style: const TextStyle(
-                                                color: Color.fromARGB(255, 0, 98, 255),
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      EmployeeDetailPage(
-                                                          employee: emp),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    ),
-                            ),
-                          ],
-                        ),
+                return Padding(
+                  padding: const EdgeInsets.all(5), 
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24),
+                        topRight: Radius.circular(24),
                       ),
                     ),
-                  ],
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.search,
+                                  color: Colors.grey, size: 22),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: _cubit.searchEmployees,
+                                  decoration: const InputDecoration(
+                                    hintText: "Mã nhân viên, Tên nhân viên",
+                                    hintStyle: TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                    border: InputBorder.none,
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: _openFilterSheet,
+                                child: Container(
+                                  width: 34,
+                                  height: 34,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0062FF),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.tune_rounded,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: employees.isEmpty
+                              ? const Center(
+                                  child: Text("Không có nhân viên nào"),
+                                )
+                              : ListView.builder(
+                                  itemCount: employees.length,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8),
+                                  itemBuilder: (context, index) {
+                                    final emp = employees[index];
+                                    return Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      child: ListTile(
+                                        leading: CircleAvatar(
+                                          radius: 24,
+                                          backgroundImage: (emp.avatarUrl !=
+                                                      null &&
+                                                  emp.avatarUrl!.isNotEmpty)
+                                              ? NetworkImage(emp.avatarUrl!)
+                                              : AssetImage(
+                                                      AppAssets.img_df_avatar)
+                                                  as ImageProvider,
+                                        ),
+                                        title: Text(
+                                          emp.name ?? "Không có tên",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        subtitle: Text(
+                                          "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
+                                          style: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 13,
+                                            height: 1.3,
+                                          ),
+                                        ),
+                                        trailing: Text(
+                                          emp.code != null
+                                              ? "NV${emp.code}"
+                                              : "",
+                                          style: const TextStyle(
+                                            color:
+                                                Color.fromARGB(255, 0, 98, 255),
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  EmployeeDetailPage(
+                                                      employee: emp),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),

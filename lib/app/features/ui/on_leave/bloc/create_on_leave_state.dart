@@ -15,6 +15,9 @@ class CreateOnLeaveState extends Equatable {
   List<MasterDataItem>? listDateTypeLeaves;
   MasterDataItem? currentDateLeaveType;
 
+  // số ngày nghỉ
+  List<LeaveDayEntity>? listLeaveDays;
+
   // loại nghỉ
   List<MasterDataItem>? listTypeLeaves;
   MasterDataItem? currentLeaveType;
@@ -32,7 +35,8 @@ class CreateOnLeaveState extends Equatable {
     this.listDateTypeLeaves,
     this.currentDateLeaveType,
     this.listTypeLeaves,
-    this.currentLeaveType
+    this.currentLeaveType,
+    this.listLeaveDays
   });
 
   CreateOnLeaveState copyWith({
@@ -47,6 +51,9 @@ class CreateOnLeaveState extends Equatable {
     String? leaveDays,
     List<MasterDataItem>? listDateTypeLeaves,
     MasterDataItem? currentDateLeaveType,
+
+    List<LeaveDayEntity>? listLeaveDays,
+
     List<MasterDataItem>? listTypeLeaves,
     MasterDataItem? currentLeaveType,
   }) {
@@ -62,8 +69,9 @@ class CreateOnLeaveState extends Equatable {
       leaveDays: leaveDays ?? this.leaveDays,
       listDateTypeLeaves: listDateTypeLeaves ?? this.listDateTypeLeaves,
       currentDateLeaveType: currentDateLeaveType ?? this.currentDateLeaveType,
+      listLeaveDays: listLeaveDays ?? this.listLeaveDays,
       listTypeLeaves: listTypeLeaves ?? this.listTypeLeaves,
-      currentLeaveType: currentDateLeaveType ?? this.currentLeaveType
+      currentLeaveType: currentLeaveType ?? this.currentLeaveType
     );
   }
 
@@ -81,6 +89,7 @@ class CreateOnLeaveState extends Equatable {
     listDateTypeLeaves,
     currentDateLeaveType,
     listTypeLeaves,
-    currentLeaveType
+    currentLeaveType,
+    listLeaveDays
   ];
 }

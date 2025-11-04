@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/features/ui/on_leave/data/leave_day_entity.dart';
 
 import '../../../../config/app_config.dart';
 import '../../../../core/utils/date_utils.dart';
@@ -36,9 +38,9 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   // Loại nghỉ
   void getListTypeLeaves(){
     List<MasterDataItem> list = [
+      MasterDataItem(text: "Cả ngày",code: "ALL"),
       MasterDataItem(text: "Sáng",code: "AM"),
       MasterDataItem(text: "Chiều",code: "PM"),
-      MasterDataItem(text: "Cả ngày",code: "ALL"),
     ];
 
     emit(state.copyWith(listTypeLeaves: list));
@@ -47,6 +49,10 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
     emit(state.copyWith(currentLeaveType: item,leaveType: item.text));
   }
 
+  void onChangeListLeaveDays(List<LeaveDayEntity> list) async{
+    emit(state.copyWith(listLeaveDays: []));
+    emit(state.copyWith(listLeaveDays: list));
+  }
   // date time
   void getNowTime() {
     DateTime now = DateTime.now();

@@ -9,6 +9,7 @@ import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
+import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
 
@@ -39,6 +40,8 @@ Future<void> init() async {
   sl.registerLazySingleton<CreateOnLeaveCubit>(() => CreateOnLeaveCubit(repository: sl()));
   sl.registerLazySingleton<CheckInCubit>(() => CheckInCubit(checkInRepository: sl()));
   sl.registerLazySingleton<StaffCubit>(() => StaffCubit(repository: sl()));
+
+  sl.registerLazySingleton<EmployeeFilterCubit>(() => EmployeeFilterCubit());
 
   //** Repository */
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
