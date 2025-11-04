@@ -1,5 +1,5 @@
 class AppConstant {
-  AppConstant._privateConstructor() {}
+  AppConstant._privateConstructor();
 
   static final AppConstant instance = AppConstant._privateConstructor();
 

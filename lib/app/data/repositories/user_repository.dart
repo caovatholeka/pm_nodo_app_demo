@@ -1,5 +1,4 @@
 
-import 'dart:ffi';
 
 import '../../core/network/api_client.dart';
 import '../models/response/common_response.dart';

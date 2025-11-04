@@ -101,7 +101,7 @@ class EmployeeDetailPage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _TagItem(
-                                label: 'NV'+ (employee.code ?? "Chưa có mã"),
+                                label: 'NV${employee.code ?? "Chưa có mã"}',
                                 backgroundColor: const Color(0xFFEAF1FF),
                                 textColor: const Color(0xFF004C9C),
                               ),

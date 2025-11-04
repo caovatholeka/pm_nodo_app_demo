@@ -4,7 +4,7 @@ import '../../data/models/entities/general_error_entity.dart';
 
 class ErrorUtils {
 
-  static String messageFromError(DioError? e){
+  static String messageFromError(DioException? e){
     String text = "";
     try {
       GeneralErrorCode error = GeneralErrorCode.fromJson(e?.response?.data);
@@ -17,7 +17,7 @@ class ErrorUtils {
 
   static String networkErrorToMessage(dynamic e) {
     try {
-      if (e is DioError) {
+      if (e is DioException) {
         if (e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.receiveTimeout ||
             e.type == DioExceptionType.sendTimeout) {
@@ -55,7 +55,7 @@ class ErrorUtils {
 
   static String errorToMessage(dynamic e,String key) {
     try {
-      if (e is DioError) {
+      if (e is DioException) {
         if (e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.receiveTimeout ||
             e.type == DioExceptionType.sendTimeout) {

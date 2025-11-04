@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../core/commons/app_colors.dart';
 
 class CustomDashView extends StatelessWidget {
-  const CustomDashView({Key? key}) : super(key: key);
+  const CustomDashView({super.key});
 
   @override
   Widget build(BuildContext context) {

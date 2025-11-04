@@ -15,7 +15,7 @@ class AppCacheImage extends StatelessWidget {
   final double borderRadius;
   final BoxFit fit;
 
-  AppCacheImage({
+  const AppCacheImage({super.key, 
     required this.url,
     this.width,
     this.height,
@@ -85,7 +85,7 @@ class AppCircleAvatar extends StatelessWidget {
   final bool? isEdit;
 
   const AppCircleAvatar({
-    Key? key,
+    super.key,
     required this.url,
     this.size,
     this.onSelectImage,
@@ -93,7 +93,7 @@ class AppCircleAvatar extends StatelessWidget {
     this.borderWidth,
     this.defaultAvatar,
     this.isEdit = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

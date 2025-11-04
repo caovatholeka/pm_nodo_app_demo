@@ -48,7 +48,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
           message: result.message ?? "Đổi mật khẩu thất bại!",
         ));
       }
-    } on DioException catch (e, s) {
+    } on DioException catch (e) {
       logger.e("Change password error");
       emit(state.copyWith(
           status: LoadStatus.FAILURE,

@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:pm_app/di/di.dart';
 import '../../../data/models/entities/profile_entity.dart';
 import '../../../data/models/enums/load_status.dart';

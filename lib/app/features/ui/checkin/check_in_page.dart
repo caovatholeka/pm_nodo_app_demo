@@ -11,9 +11,7 @@ import '../../../data/models/enums/load_status.dart';
 import '../../widgets/primary_button.dart';
 import 'bloc/check_in_cubit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
-import '../../widgets/my_app_bar.dart';
 
 class CheckInPage extends StatefulWidget {
   const CheckInPage({super.key});

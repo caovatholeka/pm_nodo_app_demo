@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../../config/app_config.dart';
-import '../../data/models/entities/token_entity.dart';
 import '../../data/models/response/common_response.dart';
 
 part 'api_client.g.dart';

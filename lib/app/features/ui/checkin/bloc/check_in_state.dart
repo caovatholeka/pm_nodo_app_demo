@@ -13,7 +13,7 @@ class CheckInState extends Equatable {
   final String? errMsg;
   final String? errStatus;
 
-  CheckInState({
+  const CheckInState({
     this.checkInStatus = LoadStatus.INITIAL,
     this.checkOutStatus = LoadStatus.INITIAL,
     this.getCheckInfo = LoadStatus.INITIAL,

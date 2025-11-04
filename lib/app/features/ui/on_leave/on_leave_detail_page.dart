@@ -22,10 +22,10 @@ class OnLeaveDetailPage extends StatefulWidget {
   OnLeaveEntity? detailEntity;
 
   OnLeaveDetailPage({
-    Key? key,
+    super.key,
     this.detailId,
     this.detailEntity
-  }) : super(key: key);
+  });
 
   @override
   State<OnLeaveDetailPage> createState() => _OnLeaveDetailPageState();

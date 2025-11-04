@@ -8,12 +8,11 @@ class OnLeaveListItem extends StatelessWidget {
   final OnLeaveEntity entity;
   final VoidCallback? onShowDetail;
 
-  OnLeaveListItem(
-      {Key? key,
+  const OnLeaveListItem(
+      {super.key,
         required this.entity,
         this.onShowDetail,
-      })
-      : super(key: key);
+      });
 
   Color getStatusColor(int status){
     switch(status){

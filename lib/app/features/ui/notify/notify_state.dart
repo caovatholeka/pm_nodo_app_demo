@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../../core/commons/app_assets.dart';
 
 class NotificationItem {

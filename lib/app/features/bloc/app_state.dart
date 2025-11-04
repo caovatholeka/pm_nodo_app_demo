@@ -13,6 +13,8 @@ class AppState extends Equatable {
     this.userProfile
   });
 
+  factory AppState.initial() => AppState(locale: Locale('vi'));
+
   AppState copyWith({
     TokenEntity? token,
     LoadStatus? signOutStatus,

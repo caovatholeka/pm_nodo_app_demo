@@ -12,7 +12,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-import 'package:pm_app/generated/l10n.dart'; // ✅ import localization
+import 'package:pm_app/generated/l10n.dart';
 
 import '../di/di.dart';
 import 'config/app_config.dart';
@@ -135,7 +135,7 @@ class _MyAppState extends State<MyApp> {
           listener: (context, state) {},
           buildWhen: (pre, cur) => pre.locale != cur.locale,
           builder: (context, state) {
-            return OverlaySupport(child: materialApp(_locale ?? state.locale));
+            return OverlaySupport(child: materialApp(state.locale ?? _locale));
           },
         ),
       ),
@@ -168,7 +168,7 @@ class _MyAppState extends State<MyApp> {
         return GestureDetector(
           onTap: () => hideKeyboard(context),
           child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
             child: child!,
           ),
         );

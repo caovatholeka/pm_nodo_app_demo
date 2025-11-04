@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/core/commons/app_colors.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   MyAppBar({
@@ -55,8 +54,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                     },
                 icon: Image.asset(
                   AppAssets.ic_arrowB,
-                  width: 22,
-                  height: 22,
+                  width: 30,
+                  height: 30,
                 ),
               )
             : const SizedBox(),
@@ -70,9 +69,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                     borderRadius: BorderRadius.circular(30),
                     child: SvgPicture.asset(
                       iconPathAsset!,
-                      width: 24,
-                      height: 24,
-                      color: Colors.white, 
+                      width: 30,
+                      height: 30,
                     ),
                   ),
                 )

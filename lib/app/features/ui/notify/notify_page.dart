@@ -185,7 +185,7 @@ Widget _buildNotiItem(NotificationItem item) {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Container(
+                    SizedBox(
                       width: double.infinity, 
                       child: Text(
                       item.subtitle,

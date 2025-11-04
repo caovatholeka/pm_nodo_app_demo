@@ -58,7 +58,7 @@ extension SnackBarTypeExtension on SnackBarType {
 class MyAppSnackBar extends SnackBar {
   final SnackBarMessage message;
 
-  MyAppSnackBar({
+  MyAppSnackBar({super.key, 
     required this.message,
   }) : super(
     elevation: 0,

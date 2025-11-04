@@ -25,28 +25,28 @@ class DxFlushBar {
         int duration = 3,
         FlushbarPosition position = FlushbarPosition.TOP,
       }) {
-    Color _backgroundColor;
-    Icon _icon;
+    Color backgroundColor;
+    Icon icon;
     //String _title;
     switch (type) {
       case FlushBarType.NOTIFICATION:
-        _backgroundColor = const Color(0xff63a026);
-        _icon = const Icon(Icons.info, color: Colors.white);
+        backgroundColor = const Color(0xff63a026);
+        icon = const Icon(Icons.info, color: Colors.white);
         // _title = "Warning";
         break;
       case FlushBarType.SUCCESS:
-        _backgroundColor = const Color(0xFF63a026);
-        _icon = const Icon(Icons.check_circle, color: Colors.white);
+        backgroundColor = const Color(0xFF63a026);
+        icon = const Icon(Icons.check_circle, color: Colors.white);
         // _title = "Success";
         break;
       case FlushBarType.ERROR:
-        _backgroundColor = const Color(0xFFf64438);
-        _icon = const Icon(Icons.error, color: Colors.white);
+        backgroundColor = const Color(0xFFf64438);
+        icon = const Icon(Icons.error, color: Colors.white);
         // _title = "Error";
         break;
       case FlushBarType.WARNING:
-        _backgroundColor = const Color(0xFFedbc38);
-        _icon = const Icon(Icons.warning, color: Colors.white);
+        backgroundColor = const Color(0xFFedbc38);
+        icon = const Icon(Icons.warning, color: Colors.white);
         // _title = "Alert";
         break;
     }
@@ -67,8 +67,8 @@ class DxFlushBar {
           : title,
       duration: Duration(seconds: duration),
       flushbarPosition: position,
-      backgroundColor: _backgroundColor,
-      icon: _icon,
+      backgroundColor: backgroundColor,
+      icon: icon,
       flushbarStyle: FlushbarStyle.GROUNDED,
     );
     flushBar.show(context);

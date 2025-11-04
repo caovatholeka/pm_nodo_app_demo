@@ -10,7 +10,7 @@ class AvatarAttachBottomSheet extends StatelessWidget {
   final VoidCallback? onCameraClickListener;
   final VoidCallback? onImageClickListener;
 
-  AvatarAttachBottomSheet({
+  const AvatarAttachBottomSheet({super.key, 
     this.onCameraClickListener,
     this.onImageClickListener
   });

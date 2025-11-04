@@ -21,10 +21,10 @@ class CreateNewLeavePage extends StatefulWidget {
   OnLeaveEntity? detailEntity;
 
   CreateNewLeavePage({
-    Key? key,
+    super.key,
     this.isEdit,
     this.detailEntity
-  }) : super(key: key);
+  });
 
 
   @override

@@ -13,12 +13,12 @@ class CommonBottomSheet extends StatefulWidget {
   final MasterDataItem? currentValue;
   final String? title;
 
-  CommonBottomSheet({
-    Key? key,
+  const CommonBottomSheet({
+    super.key,
     this.listValues,
     this.currentValue,
     this.title,
-  }): super(key: key);
+  });
 
 
   @override

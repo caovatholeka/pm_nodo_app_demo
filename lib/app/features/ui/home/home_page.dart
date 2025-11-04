@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/generated/l10n.dart';
-import 'package:pm_app/app/features/ui/checkin/checkin_data/check_in_data_page.dart';
+import 'package:pm_app/app/features/widgets/attendance_card.dart' as widgets;
 
-import '../../widgets/input_text_field.dart';
+import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../core/commons/app_assets.dart';
 
@@ -41,12 +41,12 @@ class _HomePageState extends State<HomePage> {
         ));
 }
 
-void _goCheckIn() {
-  Navigator.push(context, 
-  MaterialPageRoute(builder:  (context) => CheckInDataPage()
-  ));
+void _goAttendanceData() {
+  Navigator.push(context,
+         MaterialPageRoute(
+        builder:(context) => AttendanceDataPage()
+        ));
 }
-
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +161,9 @@ void _goCheckIn() {
                 children: [
                   _buildMenuItemWithAsset(
                     AppAssets.ic_employee, 'Nhân viên', onTap: () => {},),
-                  _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {_goCheckIn()}),
+                  _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {
+                      _goAttendanceData()
+                  }),
                   _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_employee, 'Nhân viên',onTap: () => {}),
@@ -175,9 +177,7 @@ void _goCheckIn() {
 
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -187,40 +187,12 @@ void _goCheckIn() {
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(AppAssets.ic_roundG),
-                        const SizedBox(width: 6),
-                        const Text(
-                          'Thứ 5, 25/08/2025',
-                          style: TextStyle(
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Đúng giờ',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Chấm công vào/ra: 08:30 - 18:00',
-                      style: TextStyle(
-                        color: Colors.black45,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
+                child: widgets.AttendanceCard(
+                  date: "Thứ 3, 4/11/2025",
+                 status: "Đúng giờ",
+                 timerage: "08:00 - 17:00",
+                 iconPath: AppAssets.ic_roundG
+                 ),
               ),
             ],
           ),
@@ -230,6 +202,7 @@ void _goCheckIn() {
     );
   }
 
+}
 Widget _buildMenuItemWithAsset(String assetPath, String title, {VoidCallback? onTap}) {
   return GestureDetector(
     onTap: onTap,
@@ -253,6 +226,4 @@ Widget _buildMenuItemWithAsset(String assetPath, String title, {VoidCallback? on
       ],
     ),
   );
-}
-
 }

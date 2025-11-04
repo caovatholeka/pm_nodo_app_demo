@@ -21,9 +21,6 @@ class Validator {
   }
 
   static bool isEmptyOrNull(String text) {
-    if (text == null) {
-      return true;
-    }
     return text.isEmpty;
   }
 
@@ -110,12 +107,12 @@ class Validator {
   }
 
 
-  String? validateConfirmPassword(String? password, String? confirm_password) {
-    if(confirm_password == null || confirm_password.isEmpty) {
+  String? validateConfirmPassword(String? password, String? confirmPassword) {
+    if(confirmPassword == null || confirmPassword.isEmpty) {
       return "Vui lòng nhập lại mật khẩu";
     }
     
-    if(password != confirm_password){
+    if(password != confirmPassword){
       return "Mật khẩu không khớp";
     }
 

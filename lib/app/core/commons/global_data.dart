@@ -4,7 +4,7 @@ import 'package:pm_app/app/data/models/entities/profile_entity.dart';
 import '../../data/models/entities/token_entity.dart';
 
 class GlobalData {
-  GlobalData._privateConstructor() {}
+  GlobalData._privateConstructor();
 
   static final GlobalData instance = GlobalData._privateConstructor();
 

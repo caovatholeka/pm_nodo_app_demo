@@ -29,15 +29,15 @@ class PrimaryButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         width: buttonWidth ?? double.infinity,
         decoration: BoxDecoration(
-          color: AppColors.themePrimaryDefault,
+          color: enable 
+          ? AppColors.themePrimaryDefault
+          : AppColors.bgGray.withValues(alpha: 0.6),
           borderRadius: BorderRadius.all(
             Radius.circular(borderRadius ?? 6),
           ),
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF3C7EFF).withValues(alpha: 0.7),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: Color(0xFF3C7EFF),
             )
           ],
           border: Border.all(

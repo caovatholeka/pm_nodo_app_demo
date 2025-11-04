@@ -7,13 +7,13 @@ class LoadingIndicatorWidget extends StatelessWidget {
   final Color color;
   final double size;
 
-  LoadingIndicatorWidget({this.color = AppColors.themePrimaryDefault, this.size = 24});
+  const LoadingIndicatorWidget({super.key, this.color = AppColors.themePrimaryDefault, this.size = 24});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: Container(
+      child: SizedBox(
         width: size,
         height: size,
         child: CircularProgressIndicator(

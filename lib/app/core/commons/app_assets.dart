@@ -49,7 +49,6 @@ class AppAssets {
   static final ic_timekeeping = 'assets/images/icons/ic_location.png';
   static final ic_paper = 'assets/images/icons/ic_paper.png';
   static final ic_paper2 = 'assets/images/icons/ic_paper2.png';
-  static final ic_roundG = 'assets/images/icons/ic_round_green.png';
   static final ic_employee = 'assets/images/icons/ic_employee.png';
   static final ic_search = 'assets/images/icons/ic_search.png';
 
@@ -64,8 +63,13 @@ class AppAssets {
   static final icArrowDown = 'assets/images/icons/ic_arrow_down.svg';
   static final icCalendar = 'assets/images/icons/ic_calendar.svg';
 
-
+  //Activity Icons
   static final icCheckin = 'assets/images/icons/ic_checkin.png';
   static final icCheckout = 'assets/images/icons/ic_logout.png';
   static final launchBreak = 'assets/images/icons/ic_coffee.png';
+
+  //Attendance Icons
+  static final ic_roundG = 'assets/images/icons/ic_round_green.png';
+  static final ic_roundR = 'assets/images/icons/ic_roundR.png';
+  static final ic_roundO = 'assets/images/icons/ic_roundO.png';
 }

@@ -5,7 +5,6 @@ import '../../config/app_config.dart';
 import '../../core/commons/app_assets.dart';
 import '../../core/commons/app_colors.dart';
 
-import '../ui/notification/noti_page.dart';
 
   class InputTextField extends StatefulWidget {
     final String title;

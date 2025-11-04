@@ -14,10 +14,6 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
 
   DetailOnLeaveCubit({required this.repository}) : super(DetailOnLeaveState());
 
-  @override
-  Future<void> close() {
-    return super.close();
-  }
 
   getDetailOnLeave(int id) async{
     if(id == 0){

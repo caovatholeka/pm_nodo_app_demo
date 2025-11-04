@@ -10,7 +10,7 @@ class MasterData {
   static List<String> getDepartmentsFromEmployees(List<EmployeeEntity> employees) {
     final departments = employees
         .map((e) => e.department)
-        .where((d) => d != null && d!.isNotEmpty)
+        .where((d) => d != null && d.isNotEmpty)
         .toSet()
         .toList()
       ..sort();
@@ -20,7 +20,7 @@ class MasterData {
   static List<String> getJobTitlesFromEmployees(List<EmployeeEntity> employees) {
     final jobTitles = employees
         .map((e) => e.jobTitle)
-        .where((j) => j != null && j!.isNotEmpty)
+        .where((j) => j != null && j.isNotEmpty)
         .toSet()
         .toList()
       ..sort();

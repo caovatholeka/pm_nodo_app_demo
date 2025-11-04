@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pm_app/app/app.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/radio_box_icon.dart';
 import 'package:pm_app/app/features/widgets/radio_box_selected_icon.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 
 class ChangeLanguagePage extends StatefulWidget {
   const ChangeLanguagePage({super.key});
@@ -24,25 +23,20 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
   @override
   void initState() {
     super.initState();
-    _loadSavedLanguage();
+    _loadCurrentLanguage();
   }
 
-  Future<void> _loadSavedLanguage() async {
+  Future<void> _loadCurrentLanguage() async {
     final lang = await SharedPrefsHelper.getAppLanguage();
     setState(() {
       selectedLang = lang;
     });
   }
 
-  Future<void> _changeLanguage(String code) async {
-    await SharedPrefsHelper.setAppLanguage(code);
-
+  void _changeLanguage(String code) {
+    setState(() => selectedLang = code);
     context.read<AppCubit>().changeAppLanguage(code);
-
-    if (!mounted) return;
-    setState(() {
-      selectedLang = code;
-    });
+    final langName = code == "vi" ? "Tiếng Việt" : "English";
   }
 
   @override
@@ -52,7 +46,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: MyAppBar(
-        titleAppbar: s.btn_langauge, 
+        titleAppbar: s.btn_langauge,
         haveBackButton: true,
       ),
       body: Container(
@@ -83,12 +77,11 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                     boxShadow: AppShadow.pageBoxShadow,
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 8),
-                      _buildLanguageItem("Tiếng Việt", "vi"),
+                      _buildLanguageItem("🇻🇳  Tiếng Việt", "vi"),
                       const SizedBox(height: 16),
-                      _buildLanguageItem("English", "en"),
+                      _buildLanguageItem("🇬🇧  English", "en"),
                     ],
                   ),
                 ),
@@ -100,9 +93,9 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
     );
   }
 
-  /// 🧱 Item chọn ngôn ngữ
   Widget _buildLanguageItem(String title, String code) {
     final bool isSelected = selectedLang == code;
+
     return InkWell(
       onTap: () => _changeLanguage(code),
       borderRadius: BorderRadius.circular(16),
@@ -114,8 +107,8 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
           boxShadow: AppShadow.boxShadowNormal,
           border: Border.all(
             color: isSelected
-                ? AppColors.themeBlackDefault.withOpacity(0.3)
-                : Colors.grey.withOpacity(0.2),
+                ? const Color.fromARGB(255, 8, 4, 255)
+                : const Color.fromARGB(255, 0, 0, 0).withOpacity(0.2),
           ),
         ),
         child: Row(

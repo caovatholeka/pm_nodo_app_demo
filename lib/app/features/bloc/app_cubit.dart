@@ -26,17 +26,28 @@ class AppCubit extends Cubit<AppState> {
 
   Future<void> changeAppLanguage(String code) async {
     try {
+      final locale = Locale(code);
       await SharedPrefsHelper.setAppLanguage(code);
-      emit(state.copyWith(locale: Locale(code)));
+      emit(state.copyWith(locale: locale));
+      logger.d("Language changed to: $code");
     } catch (error) {
-      logger.e(error);
+      logger.e("Error changing app language: $error");
     }
   }
 
+
   Future<void> loadAppLanguage() async {
-    final currentLang = await SharedPrefsHelper.getAppLanguage();
-    emit(state.copyWith(locale: Locale(currentLang)));
+    try {
+      final savedLang = await SharedPrefsHelper.getAppLanguage();
+      final locale = Locale(savedLang);
+      emit(state.copyWith(locale: locale));
+      logger.d("Loaded saved language: $savedLang");
+    } catch (e) {
+      logger.e("Error loading saved language: $e");
+    }
   }
+
+
 
 void getProfile() async {
   if (GlobalData.instance.userId == null) {
