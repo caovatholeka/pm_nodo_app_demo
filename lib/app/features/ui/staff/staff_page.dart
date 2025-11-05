@@ -9,12 +9,16 @@ import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/employee_detail_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
+import 'package:pm_app/app/features/widgets/app_cached_image.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart' as widgets;
 
+import '../../widgets/loading_more_row_widget.dart';
+
 class StaffPage extends StatefulWidget {
-  const StaffPage({super.key});
+  bool? isFromHome;
+  StaffPage({super.key,this.isFromHome});
 
   @override
   State<StaffPage> createState() => _StaffPageState();
@@ -24,10 +28,14 @@ class _StaffPageState extends State<StaffPage> {
   final _cubit = GetIt.I.get<StaffCubit>();
   final _searchController = TextEditingController();
 
+  final ScrollController _scrollController = ScrollController();
+  final _scrollThreshold = 100.0;
+
   @override
   void initState() {
     super.initState();
     _cubit.getListEmployees();
+    // _scrollController.addListener(_onMaxScroll);
   }
 
   @override
@@ -36,13 +44,20 @@ class _StaffPageState extends State<StaffPage> {
     super.dispose();
   }
 
+  void _onMaxScroll() {
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    if (maxScroll - currentScroll <= _scrollThreshold) {
+      _cubit.onLoadMore();
+    }
+  }
+
   void _openFilterSheet() {
     final employees = _cubit.state.listEmployees ?? [];
     final departments = MasterData.getDepartmentsFromEmployees(employees);
     final jobTitles = MasterData.getJobTitlesFromEmployees(employees);
     final statuses = MasterData.employeeStatuses;
     final currentFilter = _cubit.state.filter;
-
     final nameController =
         TextEditingController(text: currentFilter?.name ?? "");
     final codeController =
@@ -218,7 +233,7 @@ class _StaffPageState extends State<StaffPage> {
       extendBodyBehindAppBar: true,
       appBar: MyAppBar(
         titleAppbar: "Danh sách nhân viên",
-        haveBackButton: true,
+        haveBackButton: (widget.isFromHome ?? false) ? true : false,
         haveActionButton: true,
         iconPathAsset: AppAssets.ic_bell,
         actionCallBack: () {},
@@ -234,6 +249,9 @@ class _StaffPageState extends State<StaffPage> {
           SafeArea(
             child: BlocBuilder<StaffCubit, StaffState>(
               bloc: _cubit,
+              buildWhen: (prev,cur) =>  prev.loadStatus != cur.loadStatus
+                || prev.listEmployees != cur.listEmployees
+                || prev.loadEventStatus != cur.loadEventStatus,
               builder: (context, state) {
                 if (state.loadStatus == LoadStatus.LOADING) {
                   return const Center(child: CircularProgressIndicator());
@@ -243,7 +261,7 @@ class _StaffPageState extends State<StaffPage> {
                   return const Center(
                       child: Text("Không thể tải danh sách nhân viên"));
                 }
-
+                final isShowLoadMore = state.loadEventStatus == LoadStatus.LOADING_MORE ? true : false;
                 final employees = state.listEmployees ?? [];
 
                 return Padding(
@@ -316,7 +334,90 @@ class _StaffPageState extends State<StaffPage> {
                               ? const Center(
                                   child: Text("Không có nhân viên nào"),
                                 )
-                              : ListView.builder(
+                              : Stack(
+                            children: [
+                              RefreshIndicator(
+                                  onRefresh: () async => _cubit.getListEmployees(),
+                                  child: ListView.builder(
+                                    controller: _scrollController,
+                                    physics: const AlwaysScrollableScrollPhysics(),
+                                    itemCount: employees.length,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8),
+                                    itemBuilder: (context, index) {
+                                      final emp = employees[index];
+                                      return Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 4),
+                                        child: ListTile(
+                                          leading: AppCircleAvatar(
+                                              url: emp.avatarUrl ?? "",
+                                              size: 58,
+                                          ),
+                                          // leading: CircleAvatar(
+                                          //   radius: 24,
+                                          //   backgroundImage: (emp.avatarUrl !=
+                                          //       null &&
+                                          //       emp.avatarUrl!.isNotEmpty)
+                                          //       ? NetworkImage(emp.avatarUrl!)
+                                          //       : AssetImage(
+                                          //       AppAssets.img_df_avatar)
+                                          //   as ImageProvider,
+                                          // ),
+                                          title: Text(
+                                            emp.name ?? "Không có tên",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black87,
+                                              fontSize: 15,
+                                            ),
+                                          ),
+                                          subtitle: Text(
+                                            "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
+                                            style: const TextStyle(
+                                              color: Colors.black54,
+                                              fontSize: 13,
+                                              height: 1.3,
+                                            ),
+                                          ),
+                                          trailing: Text(
+                                            emp.code != null
+                                                ? "NV${emp.code}"
+                                                : "",
+                                            style: const TextStyle(
+                                              color:
+                                              Color.fromARGB(255, 0, 98, 255),
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    EmployeeDetailPage(
+                                                        employee: emp),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ), ),
+                              Positioned.fill(
+                                bottom: 3,
+                                child: Visibility(
+                                  visible: isShowLoadMore,
+                                  child: const Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: LoadingMoreRowWidget(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                          /*ListView.builder(
                                   itemCount: employees.length,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8),
@@ -377,6 +478,7 @@ class _StaffPageState extends State<StaffPage> {
                                     );
                                   },
                                 ),
+                          */
                         ),
                       ],
                     ),

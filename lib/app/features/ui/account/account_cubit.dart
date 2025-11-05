@@ -38,4 +38,8 @@ class AccountCubit extends Cubit<AccountState> {
       emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
     }
   }
+
+  doLogout(){
+
+  }
 }

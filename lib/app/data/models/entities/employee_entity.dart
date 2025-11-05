@@ -22,7 +22,7 @@ class EmployeeEntity {
   @JsonKey()
   String? department;
 
-  @JsonKey()
+  @JsonKey(name: "avatar")
   String? avatarUrl;
 
   @JsonKey()

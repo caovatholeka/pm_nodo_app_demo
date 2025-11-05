@@ -22,7 +22,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const StaffPage(),
+    StaffPage(),
     const CheckInPage(),
     const OnLeavePage(),
     const AccountPage(),
