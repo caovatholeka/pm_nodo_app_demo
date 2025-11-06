@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -105,15 +106,60 @@ class Utils {
     }
   }
 
-  Uint8List decodeBase64(String b64) {
-    var cleaned = b64.trim();
-    if (cleaned.contains(',')) {
-      cleaned = cleaned.split(',').last;
+  bool _looksLikeBitmap(Uint8List b) {
+    // PNG
+    if (b.length >= 8 &&
+        b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) return true;
+    // JPEG
+    if (b.length >= 3 && b[0] == 0xFF && b[1] == 0xD8) return true;
+    // WEBP
+    if (b.length >= 12 &&
+        b[0] == 0x52 && b[1] == 0x49 && b[2] == 0x46 && b[3] == 0x46 && // "RIFF"
+        b[8] == 0x57 && b[9] == 0x45 && b[10] == 0x42 && b[11] == 0x50) return true;
+    // GIF
+    if (b.length >= 6 &&
+        b[0] == 0x47 && b[1] == 0x49 && b[2] == 0x46 && b[3] == 0x38) return true;
+    return false;
+  }
+
+  Uint8List? decodeBase64(String b64) {
+    // var cleaned = b64.trim();
+    // if (cleaned.contains(',')) {
+    //   cleaned = cleaned.split(',').last;
+    // }
+    // cleaned = cleaned.replaceAll(RegExp(r'\s'), '');
+    // final pad = cleaned.length % 4;
+    // if (pad > 0) cleaned += '=' * (4 - pad);
+    // return base64Decode(cleaned);
+
+    try {
+      final noHeader = b64.split(',').last;
+      final compact = noHeader.replaceAll(RegExp(r'\s'), '');
+      final normalized = base64.normalize(compact);
+      Uint8List bytes;
+      try {
+        bytes = base64.decode(normalized);
+      } catch (_) {
+        bytes = base64Url.decode(normalized);
+      }
+
+      if (_looksLikeBitmap(bytes)) return bytes;
+
+      return null;
+    } catch (_) {
+      return null;
     }
-    cleaned = cleaned.replaceAll(RegExp(r'\s'), '');
-    final pad = cleaned.length % 4;
-    if (pad > 0) cleaned += '=' * (4 - pad);
-    return base64Decode(cleaned);
+  }
+
+  ImageProvider providerFromBase64OrAsset(
+      String base64String, {
+        required String fallbackAssetPath,
+      }) {
+    final bytes = decodeBase64(base64String);
+    if (bytes == null) {
+      return AssetImage(fallbackAssetPath);
+    }
+    return MemoryImage(bytes);
   }
 
   String toHhMm(String s) {

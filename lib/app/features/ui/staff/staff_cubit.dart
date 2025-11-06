@@ -14,12 +14,16 @@ class StaffCubit extends Cubit<StaffState> {
 
   StaffCubit({required this.repository}) : super(StaffState());
 
-  EmployeeFilterParam? _filterParam; 
+  EmployeeFilterParam? _filterParam;
+
+  static const int offset = 0;
+  static const int limit = 40;
+  static const int total = 0;
 
   void getListEmployees() async {
-    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
+    emit(state.copyWith(loadStatus: LoadStatus.LOADING,page: offset,totalPages: total));
     try {
-      final results = await repository.getListEmployees();
+      final results = await repository.getListEmployees(limit: limit,offset: offset);
       List<EmployeeEntity>? listEmployees;
       if (results.data != null) {
         listEmployees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
@@ -28,6 +32,8 @@ class StaffCubit extends Cubit<StaffState> {
       emit(state.copyWith(
         loadStatus: LoadStatus.SUCCESS,
         listEmployees: listEmployees ?? [],
+        page: results.offset,
+        totalPages: results.total
       ));
     } catch (e, s) {
       logger.e(e);
@@ -54,6 +60,44 @@ class StaffCubit extends Cubit<StaffState> {
     }).toList();
 
     emit(state.copyWith(listEmployees: filtered, loadStatus: LoadStatus.SUCCESS));
+  }
+
+  void onLoadMore() async{
+    if (state.page == state.totalPages) {
+      emit(state.copyWith(loadEventStatus: LoadStatus.SUCCESS));
+      return;
+    }
+
+    if (state.loadStatus != LoadStatus.SUCCESS) {
+      return;
+    }
+
+    emit(state.copyWith(loadEventStatus: LoadStatus.LOADING_MORE));
+    try{
+      final results = await repository.getListEmployees(limit: limit,offset: offset + 1);
+      List<EmployeeEntity>? listEmployees;
+
+      if (results.data != null) {
+        listEmployees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
+
+        emit(state.copyWith(
+            loadStatus: LoadStatus.SUCCESS,
+            listEmployees: listEmployees,
+            page: results.offset,
+            totalPages: results.total
+        ));
+      }else{
+        emit(state.copyWith(
+            loadStatus: LoadStatus.SUCCESS,
+            listEmployees: [],
+            page: results.offset,
+            totalPages: results.total
+        ));
+      }
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
+    }
   }
 
 

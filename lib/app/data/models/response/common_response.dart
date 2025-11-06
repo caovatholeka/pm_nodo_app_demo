@@ -8,11 +8,18 @@ class CommonResponse {
   final String? message;
   final int? code;
   final bool? error;
+  final int? total;
+  final int? limit;
+  final int? offset;
   final dynamic data;
   final dynamic optional;
 
+
   CommonResponse({this.status, this.message, this.data, this.optional,
-    this.code,this.error
+    this.code,this.error,
+    this.total,
+    this.limit,
+    this.offset
   });
 
   factory CommonResponse.fromJson(Map<String, dynamic> json) =>

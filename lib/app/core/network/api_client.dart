@@ -42,5 +42,8 @@ abstract class ApiClient {
 
   // employee
   @GET("/employees/employees")
-  Future<CommonResponse> getListEmployees();
+  Future<CommonResponse> getListEmployees(
+      @Query("limit") int? limit,
+      @Query("offset") int? offset,
+      );
 }

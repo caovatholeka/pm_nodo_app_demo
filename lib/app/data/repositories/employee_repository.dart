@@ -2,7 +2,7 @@ import '../../core/network/api_client.dart';
 import '../models/response/common_response.dart';
 
 abstract class EmployeeRepository {
-  Future<CommonResponse> getListEmployees();
+  Future<CommonResponse> getListEmployees({int? limit, int? offset});
 }
 
 class EmployeeRepositoryImpl extends EmployeeRepository {
@@ -13,7 +13,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
   }
 
   @override
-  Future<CommonResponse> getListEmployees() async {
-    return _apiClient.getListEmployees();
+  Future<CommonResponse> getListEmployees({int? limit, int? offset}) async {
+    return _apiClient.getListEmployees(limit,offset);
   }
 }

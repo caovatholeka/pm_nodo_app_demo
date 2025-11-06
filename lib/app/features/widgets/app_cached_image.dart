@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 
 import '../../core/commons/app_assets.dart';
 import '../../core/commons/app_colors.dart';
@@ -114,12 +115,21 @@ class AppCircleAvatar extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               height: double.infinity,
-              child: Image.memory(
-                bytes,
+              child: Image(
+                image: Utils().providerFromBase64OrAsset(
+                  url,
+                  fallbackAssetPath: AppAssets.img_df_avatar,
+                ),
+                width: 58,
+                height: 58,
                 fit: BoxFit.cover,
-                gaplessPlayback: true,
-                filterQuality: FilterQuality.high,
-              )
+              ),
+              // child: Image.memory(
+              //   bytes,
+              //   fit: BoxFit.cover,
+              //   gaplessPlayback: true,
+              //   filterQuality: FilterQuality.high,
+              // )
             ),
             // child: CachedNetworkImage(
             //   imageUrl: url,

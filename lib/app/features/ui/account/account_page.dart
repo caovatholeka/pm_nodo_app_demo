@@ -88,8 +88,9 @@ class _AccountPageState extends State<AccountPage> {
             child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.push(context, 
-            MaterialPageRoute(builder: (context) => const LoginPage())),
+            onPressed: (){
+
+            },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
             child: const Text("Đăng xuất"),
           ),
@@ -112,8 +113,7 @@ class _AccountPageState extends State<AccountPage> {
           extendBodyBehindAppBar: true,
           appBar: MyAppBar(
             titleAppbar: s.bottomtab_personal,
-            haveBackButton: true,
-            backAction: () => Navigator.pop(context),
+            haveBackButton: false,
           ),
           body: Container(
             width: double.infinity,
