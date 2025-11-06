@@ -293,20 +293,20 @@ callback: isLoading
     : () async {
         await _requestLocationPermission();
 
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const FaceScanPage()),
-        );
+        // final result = await Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (_) => const FaceScanPage()),
+        // );
 
-        if (result == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("✅ Check in thành công!"),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // await _cubit.doCheckIn();
-        }
+        // if (result == true) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(
+        //       content: Text("✅ Check in thành công!"),
+        //       backgroundColor: Colors.green,
+        //     ),
+        //   );
+        //   // await _cubit.doCheckIn();
+        // }
       },
             isLoading: isLoading,
             // mainText: state.currentCheckInEntity?.checkinAt != null ?

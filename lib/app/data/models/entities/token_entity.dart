@@ -14,7 +14,7 @@ class TokenEntity {
   String? refreshToken;
 
   @JsonKey(name: 'expires_in')
-  int? expiresIn;
+  String? expiresIn;
 
   @JsonKey(name: 'refresh_token_expires_in')
   int? refreshTokenExpiresIn;
@@ -39,7 +39,7 @@ class TokenEntity {
     String? accessToken,
     String? refreshToken,
     String? id,
-    int? expiresIn,
+    String? expiresIn,
     int? refreshTokenExpiresIn,
     int? uid,
     int? partnerId,
