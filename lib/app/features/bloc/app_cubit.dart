@@ -49,7 +49,7 @@ class AppCubit extends Cubit<AppState> {
 
 
 
-void getProfile() async {
+  Future<void> getProfile() async {
   if (GlobalData.instance.userId == null) {
     final token = await SharedPrefsHelper.getToken();
     GlobalData.instance.userId = token?.uid;

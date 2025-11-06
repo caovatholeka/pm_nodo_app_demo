@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:dio/dio.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
+import 'package:pm_app/app/data/models/response/common_response.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/di/di.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../widgets/primary_button.dart';
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import '../auth/login/login_page.dart';
 import '../account/change_languge/change_languge_page.dart';
 import '../account/changepassword/change_password_page.dart';
 import '../account/changepassword/change_password_cubit.dart';
 import '../account/personal_info/personal_info_page.dart';
 import 'package:pm_app/app/features/widgets/development_alert_dialog.dart';
+import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/generated/l10n.dart';
 import 'account_cubit.dart';
 import 'account_state.dart';
@@ -67,40 +73,85 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  void _logOut() async {
+void _logOut() async {
   final shouldLogout = await showGeneralDialog<bool>(
-  context: context,
-  barrierLabel: "Logout",
-  barrierDismissible: true,
-  barrierColor: Colors.black54,
-  transitionDuration: const Duration(milliseconds: 250),
-  pageBuilder: (_, __, ___) => const SizedBox(),
-  transitionBuilder: (_, anim, __, ___) {
-    return ScaleTransition(
-      scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
-      child: AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Xác nhận đăng xuất", style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text("Bạn có chắc muốn đăng xuất khỏi tài khoản này không?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+    context: context,
+    barrierLabel: "Logout",
+    barrierDismissible: true,
+    barrierColor: Colors.black54,
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (_, __, ___) => const SizedBox(),
+    transitionBuilder: (_, anim, __, ___) {
+      return ScaleTransition(
+        scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text(
+            "Xác nhận đăng xuất",
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          ElevatedButton(
-            onPressed: (){
+          content: const Text(
+            "Bạn có chắc muốn đăng xuất khỏi tài khoản này không?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              child: const Text("Đăng xuất"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            child: const Text("Đăng xuất"),
-          ),
-        ],
-      ),
+  if (shouldLogout != true) return;
+  try {
+    final apiClient = GetIt.I<ApiClient>();
+    final token = await SharedPrefsHelper.getToken();
+
+    if (token?.accessToken == null) {
+      logger.w("⚠️ Không có accessToken, logout local thôi.");
+    } else {
+      final dio = GetIt.I<Dio>();
+      dio.options.headers['Authorization'] = 'Bearer ${token!.accessToken}';
+      final response = await apiClient.logOut({});
+
+      if (response.code == 200) {
+        logger.i("✅ Logout API success");
+      } else {
+        logger.w("⚠️ Logout API failed: ${response.message}");
+      }
+    }
+    await SharedPrefsHelper.clearAll();
+
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
     );
-  },
-);
+  } catch (e, s) {
+    logger.e("❌ Lỗi khi logout: $e");
+    logger.e(s);
 
+    await SharedPrefsHelper.clearAll();
+
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
   }
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {

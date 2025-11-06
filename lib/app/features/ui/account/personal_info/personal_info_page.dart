@@ -80,7 +80,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       alignment: Alignment.topCenter,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 48),
+          margin: const EdgeInsets.only(top: 48, left: 3, right: 3),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             color: AppColors.profileContainer,
@@ -133,10 +133,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   Widget _bodyInfo(ProfileEntity user) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.only(top: 18, right: 16, left: 10, bottom: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
@@ -200,7 +201,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   Widget _infoBox(List<Widget> children) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.only(top:12, left:16, right:12, bottom:16),
       decoration: const BoxDecoration(
         color: Color.fromRGBO(243, 240, 240, 1),
       ),

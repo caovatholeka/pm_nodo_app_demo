@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import '../../../../core/commons/global_data.dart';
 import '../../../../core/helper/response_mapper.dart';
 import '../../../../core/logger/logger.dart';
@@ -11,80 +11,92 @@ import '../../../../data/repositories/auth_repository.dart';
 import 'package:get_it/get_it.dart';
 import '../../../bloc/app_cubit.dart';
 
-
 part 'login_state.dart';
 
 class LogInCubit extends Cubit<LoginState> {
   AuthRepository authRepository;
 
-  LogInCubit({
-    required this.authRepository
-  }):super(LoginState());
+  LogInCubit({required this.authRepository}) : super(LoginState());
 
+  void doLogin(String username, String password) async {
+    emit(state.copyWith(loginStatus: LoadStatus.LOADING));
 
-  @override
-  Future<void> close() {
-    // showMessageController.close();
-    return super.close();
-  }
+    try {
+      final param = {"login": username, "password": password};
+      final result = await authRepository.authLogin(param);
 
-  void onReset() {
-    emit(state.copyWith(
-      tokenEntity: null,
-      loginStatus: LoadStatus.INITIAL,
-      // showPassword: false,
-      // userName: "",
-      // password: ""
-    ));
-  }
+      logger.d("🔁 authLogin raw response: ${result.toJson()}");
 
-void doLogin(String username, String password) async {
-  emit(state.copyWith(loginStatus: LoadStatus.LOADING));
+      dynamic payload = result.data;
+      if (payload is Map && payload.containsKey('data')) {
+        payload = payload['data'];
+      }
 
-  try {
-    final param = {
-      "login": username,
-      "password": password,
-    };
+      TokenEntity? entity = mapObject(payload, TokenEntity.fromJson);
 
-    final result = await authRepository.authLogin(param);
-    TokenEntity? entity = mapObject(result.data, TokenEntity.fromJson);
+      if (entity == null) {
+        try {
+          entity = TokenEntity.fromJson(payload as Map<String, dynamic>);
+        } catch (e) {
+          logger.w("⚠️ TokenEntity.fromJson failed: $e");
+        }
+      }
 
-    if (entity != null) {
-      GlobalData.instance.userId = entity.uid;
-      GlobalData.instance.token = entity;
-      logger.d("🔐 Lưu token vào GlobalData: ${entity.toJson()}");
-      await authRepository.saveToken(entity);
+      if (entity != null && entity.accessToken != null && entity.accessToken!.isNotEmpty) {
+        GlobalData.instance.userId = entity.uid;
+        GlobalData.instance.token = entity;
+        logger.i("🔐 Lưu token vào GlobalData: ${entity.toJson()}");
 
-      final appCubit = GetIt.I<AppCubit>();
-      appCubit.getProfile();
+        await authRepository.saveToken(entity);
+        await SharedPrefsHelper.setIsLoginApp(true);
+
+        final appCubit = GetIt.I<AppCubit>();
+        await appCubit.getProfile();
+
+        emit(state.copyWith(
+          loginStatus: LoadStatus.SUCCESS,
+          tokenEntity: entity,
+        ));
+      } else {
+        logger.w("⚠️ Không nhận được token từ server: $payload");
+        emit(state.copyWith(
+          loginStatus: LoadStatus.FAILURE,
+          errMsg: "Không nhận được token từ server",
+        ));
+      }
+    } on DioException catch (e, s) {
+      logger.e("Login failed: $e");
+      logger.e(s);
+
+      await authRepository.removeToken();
+      GlobalData.instance.token = null;
+
+      String message = "Đăng nhập thất bại";
+      final res = e.response?.data;
+
+      if (e.response?.statusCode == 401) {
+        message = "Tài khoản hoặc mật khẩu không đúng";
+      } else if (res is Map<String, dynamic> && res["message"] != null) {
+        message = res["message"];
+      } else if (e.type == DioExceptionType.connectionError) {
+        message = "Không thể kết nối đến máy chủ, kiểm tra mạng của bạn";
+      }
+
+      emit(state.copyWith(
+        loginStatus: LoadStatus.FAILURE,
+        errMsg: message,
+      ));
+    } catch (e, s) {
+      logger.e("Unexpected error during login: $e");
+      logger.e(s);
+      emit(state.copyWith(
+        loginStatus: LoadStatus.FAILURE,
+        errMsg: "Lỗi không xác định",
+      ));
     }
-
-    emit(state.copyWith(
-      loginStatus: LoadStatus.SUCCESS,
-      userName: "",
-      password: "",
-    ));
-
-    logger.d("login success :: ${result.toJson()}");
-  } on DioException catch (e, s) {
-    logger.e(e);
-    logger.e(s);
-
-    await authRepository.removeToken();
-    GlobalData.instance.token = null;
-
-    final res = e.response?.data as Map<String, dynamic>? ?? {};
-    emit(state.copyWith(
-      loginStatus: LoadStatus.FAILURE,
-      errMsg: res["message"] ?? "Đăng nhập thất bại",
-    ));
   }
-}
 
-
-
-  void onChangeUSerName(String userName){
+  void onChangeUSerName(String userName) {
     emit(state.copyWith(userName: userName));
   }
 
@@ -92,7 +104,7 @@ void doLogin(String username, String password) async {
     emit(state.copyWith(password: password));
   }
 
-  void onShowHidePwd(bool isShow){
+  void onShowHidePwd(bool isShow) {
     emit(state.copyWith(showPassword: !isShow));
   }
 }

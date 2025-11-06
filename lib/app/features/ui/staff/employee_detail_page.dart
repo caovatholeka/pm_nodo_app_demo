@@ -1,152 +1,52 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/features/ui/staff/employee_detail_cubit.dart' hide LoadStatus;
+import 'package:pm_app/app/data/repositories/employee_repository.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 
-class EmployeeDetailPage extends StatelessWidget {
-  final EmployeeEntity employee;
+class EmployeeDetailPage extends StatefulWidget {
+  final int employeeId;
 
-  const EmployeeDetailPage({super.key, required this.employee});
+  const EmployeeDetailPage({super.key, required this.employeeId});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        centerTitle: true,
-        title: const Text(
-          "Chi tiết nhân viên",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration:BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(AppAssets.imgBg2), 
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+  State<EmployeeDetailPage> createState() => _EmployeeDetailPageState();
+}
 
-          Padding(
-            padding: const EdgeInsets.only(top: 120), 
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(26),
-                  topRight: Radius.circular(26),
-                ),
-              ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            radius: 45,
-                            backgroundImage: (employee.avatarUrl != null && employee.avatarUrl!.isNotEmpty)
-                                ? NetworkImage(employee.avatarUrl!)
-                                :AssetImage(AppAssets.img_df_avatar) as ImageProvider,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            employee.name ?? "Chưa có tên",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            employee.jobTitle ?? "Không có chức vụ",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _TagItem(
-                                label: 'NV${employee.code ?? "Chưa có mã"}',
-                                backgroundColor: const Color(0xFFEAF1FF),
-                                textColor: const Color(0xFF004C9C),
-                              ),
-                              const SizedBox(width: 8),
-                              const _TagItem(
-                                label: "Văn phòng công ty",
-                                backgroundColor: Color(0xFFDDF7E3),
-                                textColor: Color(0xFF2E7D32),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
+  late final EmployeeDetailCubit _cubit;
 
-                    const SizedBox(height: 16),
+  @override
+  void initState() {
+    super.initState();
+    final repo = GetIt.I.get<EmployeeRepository>();
+    _cubit = EmployeeDetailCubit(repository: repo);
+    _cubit.getDetailEmployee(widget.employeeId);
+  }
 
-                    _sectionTitle("Thông tin công việc"),
-                    _InfoItem(title: "Chức vụ", value: employee.jobTitle ?? "Chưa có"),
-                    _InfoItem(title: "Phòng ban", value: employee.department ?? "Chưa có"),
-                    _InfoItem(title: "Quản lý", value: "-"),
-                    _InfoItem(title: "Trạng thái", value: "-"),
-                    _InfoItem(title: "Ngày gia nhập", value: "-"),
-                    _InfoItem(title: "Trạng thái hợp đồng", value: "Chưa ký"),
-                    const SizedBox(height: 16),
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
 
-                    _sectionTitle("Thông tin cá nhân"),
-                    _InfoRow(icon: Icons.male, label: "Giới tính", value: "-"),
-                    _InfoRow(icon: Icons.calendar_today, label: "Ngày sinh", value: "-"),
-                    _InfoRow(icon: Icons.email_outlined, label: "Email", value: employee.workEmail ?? "Không có"),
-                    _InfoRow(icon: Icons.phone, label: "Số điện thoại", value: "-"),
-                    _InfoRow(
-                      icon: Icons.location_on_outlined,
-                      label: "Địa chỉ",
-                      value: "-",
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  ImageProvider _buildAvatarImage(String? base64String) {
+    if (base64String == null || base64String.isEmpty) {
+      return AssetImage(AppAssets.img_df_avatar);
+    }
+
+    try {
+      final cleanedBase64 = base64String.contains(',') ? base64String.split(',').last : base64String;
+      final bytes = const Base64Decoder().convert(cleanedBase64);
+      return MemoryImage(bytes);
+    } catch (e) {
+      return AssetImage(AppAssets.img_df_avatar);
+    }
   }
 
   Widget _sectionTitle(String text) {
@@ -163,6 +63,148 @@ class EmployeeDetailPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<EmployeeDetailCubit, EmployeeDetailState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final employee = state.employee;
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+            centerTitle: true,
+            title: const Text(
+              "Chi tiết nhân viên",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          body: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration:BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(AppAssets.imgBg2),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 120),
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(26),
+                      topRight: Radius.circular(26),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: state.loadStatus == LoadStatus.LOADING
+                        ? SizedBox(
+                            height: 300,
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                                child: Column(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 45,
+                                      backgroundImage: _buildAvatarImage(employee?.avatarUrl),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      employee?.name ?? "Chưa có tên",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      employee?.jobTitle ?? "Không có chức vụ",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        _TagItem(
+                                          label: 'NV${employee?.code ?? "Chưa có mã"}',
+                                          backgroundColor: const Color(0xFFEAF1FF),
+                                          textColor: const Color(0xFF004C9C),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const _TagItem(
+                                          label: "Văn phòng công ty",
+                                          backgroundColor: Color(0xFFDDF7E3),
+                                          textColor: Color(0xFF2E7D32),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              _sectionTitle("Thông tin công việc"),
+                              _InfoItem(title: "Chức vụ", value: employee?.jobTitle ?? "Chưa có"),
+                              _InfoItem(title: "Phòng ban", value: employee?.department ?? "Chưa có"),
+                              _InfoItem(title: "Quản lý", value: employee?.managerby ?? "-"),
+                              _InfoItem(title: "Trạng thái", value: (employee?.active ?? false) ? "Đang làm" : "Nghỉ việc"),
+                              _InfoItem(title: "Ngày gia nhập", value:"-"),
+                              _InfoItem(title: "Trạng thái hợp đồng", value: employee?.contractStatus ?? "Chưa ký"),
+                              const SizedBox(height: 16),
+                              _sectionTitle("Thông tin cá nhân"),
+                              _InfoRow(icon: Icons.male, label: "Giới tính", value: employee?.gender ?? "-"),
+                              _InfoRow(icon: Icons.calendar_today, label: "Ngày sinh", value: employee?.birthday ?? "-"),
+                              _InfoRow(icon: Icons.email_outlined, label: "Email", value: employee?.workEmail ?? "Không có"),
+                              _InfoRow(icon: Icons.phone, label: "Số điện thoại", value: employee?.phone ?? "-"),
+                              _InfoRow(icon: Icons.location_on_outlined, label: "Địa chỉ", value:"-"),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

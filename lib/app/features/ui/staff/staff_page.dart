@@ -35,7 +35,7 @@ class _StaffPageState extends State<StaffPage> {
   void initState() {
     super.initState();
     _cubit.getListEmployees();
-    // _scrollController.addListener(_onMaxScroll);
+    _scrollController.addListener(_onMaxScroll);
   }
 
   @override
@@ -52,9 +52,9 @@ class _StaffPageState extends State<StaffPage> {
     }
   }
 
-  void _openFilterSheet() {
+  Future<void> _openFilterSheet() async {
     final employees = _cubit.state.listEmployees ?? [];
-    final departments = MasterData.getDepartmentsFromEmployees(employees);
+    final departments = await MasterData.getDepartmentsFromApi();
     final jobTitles = MasterData.getJobTitlesFromEmployees(employees);
     final statuses = MasterData.employeeStatuses;
     final currentFilter = _cubit.state.filter;
@@ -311,7 +311,7 @@ class _StaffPageState extends State<StaffPage> {
                                 ),
                               ),
                               InkWell(
-                                onTap: _openFilterSheet,
+                                onTap: () => _openFilterSheet(),
                                 child: Container(
                                   width: 34,
                                   height: 34,
@@ -395,9 +395,7 @@ class _StaffPageState extends State<StaffPage> {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (_) =>
-                                                    EmployeeDetailPage(
-                                                        employee: emp),
+                                                 builder: (_) => EmployeeDetailPage(employeeId: emp.id ?? 0),
                                               ),
                                             );
                                           },

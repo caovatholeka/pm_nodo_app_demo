@@ -31,11 +31,24 @@ class SharedPrefsHelper {
     return value;
   }
 
-  ///Token
-  static Future<void> saveToken(TokenEntity? token) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString(_tokenPrefs, json.encode(token?.toJson()));
+static Future<void> saveToken(TokenEntity? token) async {
+  final prefs = await SharedPreferences.getInstance();
+  if (token == null ||
+      (token.accessToken == null || token.accessToken!.isEmpty)) {
+    await prefs.remove(_tokenPrefs);
+    await prefs.reload();
+  } else {
+    await prefs.setString(_tokenPrefs, json.encode(token.toJson()));
+    await prefs.reload();
   }
+}
+
+    static Future<void> clearAll() async {
+       final prefs = await SharedPreferences.getInstance();
+       await prefs.clear();
+    }
+
+
 
   static Future<TokenEntity?> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

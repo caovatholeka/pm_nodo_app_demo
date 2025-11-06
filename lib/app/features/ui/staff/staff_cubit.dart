@@ -17,7 +17,7 @@ class StaffCubit extends Cubit<StaffState> {
   EmployeeFilterParam? _filterParam;
 
   static const int offset = 0;
-  static const int limit = 40;
+  static const int limit = 1000;
   static const int total = 0;
 
   void getListEmployees() async {

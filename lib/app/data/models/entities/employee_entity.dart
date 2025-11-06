@@ -19,11 +19,32 @@ class EmployeeEntity {
   @JsonKey(name: "job_title")
   String? jobTitle;
 
+  @JsonKey(name: "x_location_type")
+  String? xlocationType;
+
+  @JsonKey(name: "manager_by")
+  String? managerby;
+
+  @JsonKey(name: "contract_status")
+  String? contractStatus;
+
+  @JsonKey()
+  String? gender;
+
+  @JsonKey()
+  String? phone;
+
+  @JsonKey(name: "current_address")
+  bool? currentAddress;
+
   @JsonKey()
   String? department;
 
   @JsonKey(name: "avatar")
   String? avatarUrl;
+
+  @JsonKey()
+  String? birthday;
 
   @JsonKey()
   bool? active;
@@ -37,7 +58,14 @@ class EmployeeEntity {
     this.jobTitle,
     this.department,
     this.avatarUrl,
-    this.active
+    this.active,
+    this.xlocationType,
+    this.managerby,
+    this.contractStatus,
+    this.gender,
+    this.phone,
+    this.currentAddress,
+    this.birthday,
   });
 
   EmployeeEntity copyWith({
@@ -48,7 +76,14 @@ class EmployeeEntity {
     String? jobTitle,
     String? department,
     String? avatarUrl,
-    bool? active
+    bool? active,
+    String? xlocationType,
+    String? managerby,
+    String? contractStatus,
+    String? gender,
+    String? phone,
+    bool? currentAddress,
+    String? birthday,
   }) {
     return EmployeeEntity(
       id: id ?? this.id,
@@ -58,7 +93,14 @@ class EmployeeEntity {
       jobTitle: jobTitle ?? this.jobTitle,
       department: department ?? this.department,
       avatarUrl: avatarUrl ?? this.avatarUrl,
-      active: active ?? this.active
+      active: active ?? this.active,
+      xlocationType: xlocationType ?? this.xlocationType,
+      managerby: managerby ?? this.managerby,
+      contractStatus: contractStatus ?? this.contractStatus,
+      gender: gender ?? this.gender,
+      phone: phone ?? this.phone,
+      currentAddress: currentAddress ?? this.currentAddress,
+      birthday: birthday ?? this.birthday,
     );
   }
 
