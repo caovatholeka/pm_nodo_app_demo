@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'face_scan_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -34,29 +34,58 @@ class _CheckInPageState extends State<CheckInPage> {
     mapController = controller;
   }
 
-  void _requestLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      openAppSettings();
-    } else {
-      permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          openAppSettings();
-        }
-      }
-      if (permission == LocationPermission.deniedForever) {
-        openAppSettings();
-      }
+Future<void> _requestLocationPermission() async {
 
-      _locationSubscription = Geolocator.getPositionStream().listen((event) {
-        // _cubit.onChangeAddress(event);
-      });
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Vui lòng bật dịch vụ định vị (GPS)."),
+        backgroundColor: Colors.orange,
+      ),
+    );
+    await Geolocator.openLocationSettings();
+    return;
+  }
+
+  LocationPermission permission = await Geolocator.checkPermission();
+
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Quyền vị trí bị từ chối. Không thể xác định vị trí."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
     }
   }
+
+  if (permission == LocationPermission.deniedForever) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+            "Quyền vị trí bị từ chối vĩnh viễn. Vui lòng bật lại trong Cài đặt."),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    await openAppSettings();
+    return;
+  }
+  _locationSubscription?.cancel();
+
+  _locationSubscription = Geolocator.getPositionStream(
+    locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 10, 
+    ),
+  ).listen((Position position) {
+    print("📍 Vị trí hiện tại: ${position.latitude}, ${position.longitude}");
+  });
+}
+
 
   @override
   void initState() {
@@ -259,30 +288,26 @@ class _CheckInPageState extends State<CheckInPage> {
         return Padding(
           padding: const EdgeInsets.only(left: 55,right: 55),
           child: PrimaryButton(
-            callback: isLoading
-                ? null
-                : () async{
-              // doCheckIn();
-              bool serviceEnabled;
-              LocationPermission permission;
-              serviceEnabled = await Geolocator.isLocationServiceEnabled();
-              if (!serviceEnabled) {
-                openAppSettings();
-              } else {
-                permission = await Geolocator.checkPermission();
-                if (permission == LocationPermission.denied) {
-                  permission = await Geolocator.requestPermission();
-                  if (permission == LocationPermission.denied) {
-                    openAppSettings();
-                  }
-                }
-                if (permission == LocationPermission.deniedForever) {
-                  openAppSettings();
-                }
+callback: isLoading
+    ? null
+    : () async {
+        await _requestLocationPermission();
 
-                // doCheckIn();
-              }
-            },
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const FaceScanPage()),
+        );
+
+        if (result == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("✅ Check in thành công!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // await _cubit.doCheckIn();
+        }
+      },
             isLoading: isLoading,
             // mainText: state.currentCheckInEntity?.checkinAt != null ?
             // context.loc.check_out : context.loc.check_in,

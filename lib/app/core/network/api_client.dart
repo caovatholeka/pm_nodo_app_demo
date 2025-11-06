@@ -10,6 +10,7 @@ part 'api_client.g.dart';
 abstract class ApiClient {
   factory ApiClient(Dio dio, {required String baseUrl}) = _ApiClient;
 
+
   // get user profile
   @POST("/users/get_detail_users")
   Future<CommonResponse> getUserProfile(@Body() Map<String, dynamic> body);
@@ -19,7 +20,7 @@ abstract class ApiClient {
   Future<CommonResponse> authLogin(@Body() Map<String, dynamic> body);
 
   //Đổi mật khẩu
-  @POST("users/change_password")
+  @POST("/users/change_password")
   Future<CommonResponse> changePassword(@Body() Map<String,dynamic> body);
 
   //Đăng xuất

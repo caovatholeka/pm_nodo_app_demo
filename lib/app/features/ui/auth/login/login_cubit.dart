@@ -53,6 +53,7 @@ void doLogin(String username, String password) async {
     if (entity != null) {
       GlobalData.instance.userId = entity.uid;
       GlobalData.instance.token = entity;
+      logger.d("🔐 Lưu token vào GlobalData: ${entity.toJson()}");
       await authRepository.saveToken(entity);
 
       final appCubit = GetIt.I<AppCubit>();

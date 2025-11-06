@@ -154,7 +154,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                                     ? "Đang xử lý..."
                                     : "Xác nhận",
                                 callback:
-                                    isLoading ? null : _onSubmit, // disable khi loading
+                                    isLoading ? null : _onSubmit, 
                               ),
                             );
                           },

@@ -4,26 +4,26 @@ part 'token_entity.g.dart';
 
 @JsonSerializable()
 class TokenEntity {
-  @JsonKey()
+  @JsonKey(name: 'access_token')
   String? accessToken;
 
-  @JsonKey()
+  @JsonKey(name: 'id')
   String? id;
 
-  @JsonKey()
+  @JsonKey(name: 'refresh_token')
   String? refreshToken;
 
-  @JsonKey()
+  @JsonKey(name: 'expires_in')
   int? expiresIn;
 
-  @JsonKey()
+  @JsonKey(name: 'refresh_token_expires_in')
   int? refreshTokenExpiresIn;
 
-  @JsonKey()
+  @JsonKey(name: 'uid')
   int? uid;
 
-  @JsonKey()
-  int? partner_id;
+  @JsonKey(name: 'partner_id')
+  int? partnerId;
 
   TokenEntity({
     this.accessToken,
@@ -32,7 +32,7 @@ class TokenEntity {
     this.expiresIn,
     this.refreshTokenExpiresIn,
     this.uid,
-    this.partner_id
+    this.partnerId,
   });
 
   TokenEntity copyWith({
@@ -42,22 +42,21 @@ class TokenEntity {
     int? expiresIn,
     int? refreshTokenExpiresIn,
     int? uid,
-    int? partner_id
+    int? partnerId,
   }) {
     return TokenEntity(
-        accessToken: accessToken ?? this.accessToken,
-        refreshToken: refreshToken ?? this.refreshToken,
-        id: id ?? this.id,
-        expiresIn: expiresIn ?? this.expiresIn,
-        refreshTokenExpiresIn: refreshTokenExpiresIn ?? this.refreshTokenExpiresIn,
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      id: id ?? this.id,
+      expiresIn: expiresIn ?? this.expiresIn,
+      refreshTokenExpiresIn: refreshTokenExpiresIn ?? this.refreshTokenExpiresIn,
       uid: uid ?? this.uid,
-      partner_id: partner_id ?? this.partner_id
+      partnerId: partnerId ?? this.partnerId,
     );
   }
 
-  factory TokenEntity.fromJson(Map<String, dynamic> json) => _$TokenEntityFromJson(json);
+  factory TokenEntity.fromJson(Map<String, dynamic> json) =>
+      _$TokenEntityFromJson(json);
 
   Map<String, dynamic> toJson() => _$TokenEntityToJson(this);
-
-
 }
