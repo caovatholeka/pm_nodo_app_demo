@@ -1,8 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
-import 'package:pm_app/app/data/models/response/common_response.dart';
+import '../../data/models/response/common_response.dart';
 
 part 'api_client.g.dart';
 
@@ -57,5 +56,12 @@ abstract class ApiClient {
 
   /// Xóa đơn xin nghỉ
   @DELETE("/leave/hr_leave/{id}")
-  Future<dynamic> deleteDetailOnLeave(@Path("id") int id);
+  Future<dynamic> deleteDetailOnLeave( @Path('id') int id);
+
+  // employee
+  @GET("/employees/employees")
+  Future<CommonResponse> getListEmployees(
+      @Query("limit") int? limit,
+      @Query("offset") int? offset,
+      );
 }

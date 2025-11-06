@@ -30,6 +30,20 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
     }
   }
 
+  void confirmHrLeave(int id) async {
+    emit(state.copyWith(confirmStatus: LoadStatus.LOADING));
+    try {
+      final param = {
+        "leave_id" : id,
+      };
+      await repository.confirmHrLeave(param);
+      emit(state.copyWith(confirmStatus: LoadStatus.SUCCESS));
+    }on DioException catch(e){
+      logger.d(e);
+      emit(state.copyWith(confirmStatus: LoadStatus.FAILURE));
+    }
+  }
+
   void deleteOnLeave(int id) async{
     emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
     try {

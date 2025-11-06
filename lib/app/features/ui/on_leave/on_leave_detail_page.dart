@@ -99,7 +99,6 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         return "";
     }
   }
-
   Future<void> doUpdate(BuildContext context) async{
     final bool? updated = await Navigator.push(
       context,
@@ -119,14 +118,26 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         bloc: _cubit,
         listener: (context,state){
           if(state.loadStatus == LoadStatus.LOADING ||
-            state.deleteStatus == LoadStatus.LOADING){
+            state.deleteStatus == LoadStatus.LOADING ||
+            state.confirmStatus == LoadStatus.LOADING
+          ){
             LoadingOverlay.show(context);
           }
           else if(state.deleteStatus == LoadStatus.SUCCESS){
             LoadingOverlay.hide(context);
             AppSnackBar.showInfo(title: "Thành công",message: "Xoá bản ghi thành công!");
             Navigator.of(context).pop();
-          }else if(state.deleteStatus == LoadStatus.FAILURE){
+          }
+          else if(state.confirmStatus == LoadStatus.SUCCESS){
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(title: "Thành công",message: "Đã gửi duyệt thành công!");
+            Navigator.of(context).pop();
+          }
+          else if(state.confirmStatus == LoadStatus.FAILURE){
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(title: "Lỗi",message: "Gửi duyệt lỗi!");
+          }
+          else if(state.deleteStatus == LoadStatus.FAILURE){
             LoadingOverlay.hide(context);
             AppSnackBar.showInfo(title: "Lỗi",message: "Không xóa được bản ghi khác nháp!");
           }
@@ -262,6 +273,20 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
               top: false,
               child: Row(
                 children: [
+                  Expanded(
+                      flex: 1,
+                      child: PrimaryButton(
+                        callback:(){
+                          _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
+                        },
+                        mainText: "Gửi duyệt",//context.loc.update,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.whiteColor
+                        ),
+                      )),
+                  const SizedBox(width: 10,),
                   Expanded(
                       flex: 1,
                       child: PrimaryButton(
