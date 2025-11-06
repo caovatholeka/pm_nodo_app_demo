@@ -2,12 +2,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
-import 'package:pm_app/app/features/ui/on_leave/data/leave_day_entity.dart';
+import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
 
 import '../../../../config/app_config.dart';
+import '../../../../core/utils/app_utils.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../data/models/entities/master_data_item.dart';
 import '../../../../data/models/enums/load_status.dart';
+import '../../../../data/models/param/create_leave_param.dart';
 import '../../../../data/repositories/on_leave_repository.dart';
 
 part 'create_on_leave_state.dart';
@@ -21,6 +23,28 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   // Future<void> close() {
   //   return super.close();
   // }
+
+  void createOrUpdateLeaveDay() async{
+    emit(state.copyWith(createStatus: LoadStatus.LOADING));
+    try{
+      final UpdateOnLeaveParam param = UpdateOnLeaveParam(
+        employeeId: 57,
+        holidayStatusId: 1,
+        departmentId: 4,
+        requestDateFrom: AppUtil().parseDateToYMD(state.fromDate),
+        requestDateTo: AppUtil().parseDateToYMD(state.toDate),
+        name: state.reason,
+        leaveDays: state.listLeaveDays
+      );
+      final res = await repository.saveOrUpdateHrLeave(param);
+      if((res.lines ?? []).isNotEmpty){
+        emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
+      }
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(createStatus: LoadStatus.FAILURE));
+    }
+  }
 
   // Loại ngày nghỉ
   void getListDateTypeLeaves(){
@@ -38,9 +62,9 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   // Loại nghỉ
   void getListTypeLeaves(){
     List<MasterDataItem> list = [
-      MasterDataItem(text: "Cả ngày",code: "ALL"),
-      MasterDataItem(text: "Sáng",code: "AM"),
-      MasterDataItem(text: "Chiều",code: "PM"),
+      MasterDataItem(text: "Cả ngày",code: "full"),
+      MasterDataItem(text: "Sáng",code: "before"),
+      MasterDataItem(text: "Chiều",code: "after"),
     ];
 
     emit(state.copyWith(listTypeLeaves: list));

@@ -70,7 +70,7 @@ import '../../core/commons/app_colors.dart';
 
     final fillColor = (widget.enable == true || widget.bgrColor == true)
         ? Colors.white
-        : AppColors.gray;
+        : AppColors.lineGray50;
 
       final baseBorder = OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),

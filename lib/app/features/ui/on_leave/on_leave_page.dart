@@ -37,7 +37,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
   }
 
   Future _onRefresh() async {
-
+    _cubit.getListOnLeaveTimes();
   }
 
   Future<void> _openDetail(OnLeaveEntity entity) async{
