@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -59,4 +60,24 @@ abstract class ApiClient {
   @DELETE("/leave/hr_leave/{id}")
   Future<dynamic> deleteDetailOnLeave( @Path('id') int id);
 
+  @POST("/leave/hr_leave/save_or_update")
+  Future<OnLeaveResponse> saveOrUpdateLeave(@Body() UpdateOnLeaveParam param);
+
+  @POST("/leave/hr_leave/confirm_hr_leave")
+  Future<dynamic> confirmHrLeave(@Body() Map<String,dynamic> body);
+
+  // employee
+  @GET("/employees/employees")
+  Future<CommonResponse> getListEmployees(
+      @Query("limit") int? limit,
+      @Query("offset") int? offset,
+      );
+
+  // danh sach cham cong
+  @GET("/work_entry/attendance/by_month")
+  Future<List<AttendanceEntity>> getListAttendances(
+      @Query("employee_id") int? employeeId,
+      @Query("month") int? month,
+      @Query("year") int? year,
+      );
 }
