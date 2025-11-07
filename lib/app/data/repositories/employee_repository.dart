@@ -1,25 +1,52 @@
-import '../../core/network/api_client.dart';
-import '../models/response/common_response.dart';
+import 'package:pm_app/app/core/network/api_client.dart';
+import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import '../../data/models/response/common_response.dart';
 
 abstract class EmployeeRepository {
-  Future<CommonResponse> getListEmployees({int? limit, int? offset});
-  Future<CommonResponse> getDetailEmployee(int id);
+  Future<CommonResponse> getListEmployees({
+    int? limit,
+    int? offset,
+    String? name,
+    String? code,
+    String? email,
+    int? departmentId,
+    String? jobTitle,
+    bool? active,
+  });
+
+  Future<EmployeeEntity> getDetailEmployee(int id);
 }
 
 class EmployeeRepositoryImpl extends EmployeeRepository {
-  late ApiClient _apiClient;
+  final ApiClient _apiClient;
 
-  EmployeeRepositoryImpl(ApiClient client) {
-    _apiClient = client;
-  }
+  EmployeeRepositoryImpl(this._apiClient);
+
+ Future<CommonResponse> getListEmployees({
+  int? limit,
+  int? offset,
+  String? name,
+  String? code,
+  String? email,
+  int? departmentId,
+  String? jobTitle,
+  bool? active,
+}) {
+  return _apiClient.getListEmployees(
+    limit,
+    offset,
+    name,
+    code,
+    email,
+    departmentId,
+    jobTitle,
+    active,
+  );
+}
+
 
   @override
-  Future<CommonResponse> getListEmployees({int? limit, int? offset}) async {
-    return _apiClient.getListEmployees(limit,offset);
-  }
-
-  @override
-  Future<CommonResponse> getDetailEmployee(int id) async {
+  Future<EmployeeEntity> getDetailEmployee(int id) {
     return _apiClient.getDetailEmployee(id);
   }
 }

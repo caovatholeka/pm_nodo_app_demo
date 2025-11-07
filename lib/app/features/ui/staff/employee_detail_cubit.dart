@@ -1,27 +1,35 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
-import 'package:pm_app/app/data/repositories/employee_repository.dart';
+import 'package:pm_app/app/core/network/api_client.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 
 part 'employee_detail_state.dart';
 
 class EmployeeDetailCubit extends Cubit<EmployeeDetailState> {
-  final EmployeeRepository repository;
+  final ApiClient apiClient;
 
-  EmployeeDetailCubit({required this.repository}) : super(EmployeeDetailState.initial());
-
+  EmployeeDetailCubit({required this.apiClient}) : super(EmployeeDetailState.initial());
   Future<void> getDetailEmployee(int id) async {
+    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
+
     try {
-      emit(state.copyWith(loadStatus: LoadStatus.LOADING));
-      final response = await repository.getDetailEmployee(id);
-      final employee = response.data;
+      final employee = await apiClient.getDetailEmployee(id);
+
       if (employee != null) {
-        emit(state.copyWith(employee: employee, loadStatus: LoadStatus.SUCCESS));
+        emit(state.copyWith(
+          employee: employee,
+          loadStatus: LoadStatus.SUCCESS,
+        ));
       } else {
-        emit(state.copyWith(loadStatus: LoadStatus.FAILURE, error: "Không có dữ liệu"));
+        emit(state.copyWith(
+          loadStatus: LoadStatus.FAILURE,         
+        ));
       }
     } catch (e) {
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE, error: e.toString()));
+      emit(state.copyWith(
+        loadStatus: LoadStatus.FAILURE,
+      ));
     }
   }
 }

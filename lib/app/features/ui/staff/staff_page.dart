@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/param/employee_filter_param.dart';
 import 'package:pm_app/app/data/local/master_data.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
@@ -13,12 +12,11 @@ import 'package:pm_app/app/features/widgets/app_cached_image.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart' as widgets;
-
 import '../../widgets/loading_more_row_widget.dart';
 
 class StaffPage extends StatefulWidget {
-  bool? isFromHome;
-  StaffPage({super.key,this.isFromHome});
+  final bool? isFromHome;
+  const StaffPage({super.key, this.isFromHome});
 
   @override
   State<StaffPage> createState() => _StaffPageState();
@@ -27,204 +25,296 @@ class StaffPage extends StatefulWidget {
 class _StaffPageState extends State<StaffPage> {
   final _cubit = GetIt.I.get<StaffCubit>();
   final _searchController = TextEditingController();
-
   final ScrollController _scrollController = ScrollController();
   final _scrollThreshold = 100.0;
+  bool _isSearchActive = false;
 
   @override
   void initState() {
     super.initState();
-    _cubit.getListEmployees();
+    if (_cubit.state.listEmployees == null ||
+        _cubit.state.listEmployees!.isEmpty) {
+      _cubit.getListEmployees();
+    }
     _scrollController.addListener(_onMaxScroll);
+
+    _searchController.addListener(() {
+      final hasText = _searchController.text.trim().isNotEmpty;
+      if (hasText != _isSearchActive) {
+        setState(() => _isSearchActive = hasText);
+      }
+      if (_searchController.text.trim().isEmpty) {
+        _cubit.getListEmployees();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onMaxScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   void _onMaxScroll() {
+    if (!_scrollController.hasClients) return;
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _cubit.onLoadMore();
+      if (_cubit.state.loadEventStatus != LoadStatus.LOADING_MORE) {
+        _cubit.onLoadMore();
+      }
     }
   }
 
-  Future<void> _openFilterSheet() async {
-    final employees = _cubit.state.listEmployees ?? [];
-    final departments = await MasterData.getDepartmentsFromApi();
-    final jobTitles = MasterData.getJobTitlesFromEmployees(employees);
-    final statuses = MasterData.employeeStatuses;
-    final currentFilter = _cubit.state.filter;
-    final nameController =
-        TextEditingController(text: currentFilter?.name ?? "");
-    final codeController =
-        TextEditingController(text: currentFilter?.code ?? "");
-    final emailController =
-        TextEditingController(text: currentFilter?.email ?? "");
+Future<void> _openFilterSheet() async {
+  final employees = _cubit.state.listEmployees ?? [];
+  final departments = await MasterData.getDepartmentsFromApi();
+  final jobTitles = MasterData.getJobTitlesFromEmployees(employees);
+  final statuses = MasterData.employeeStatuses;
 
-    String? selectedDept = currentFilter?.department;
-    String? selectedJob = currentFilter?.jobTitle;
-    String? selectedStatus;
+  final currentFilter = _cubit.state.filter;
 
-    if (currentFilter?.active == true) {
-      selectedStatus = "Đang làm việc";
-    } else if (currentFilter?.active == false) {
-      selectedStatus = "Đã nghỉ việc";
-    }
+  final nameController = TextEditingController(text: currentFilter?.name ?? "");
+  final codeController = TextEditingController(text: currentFilter?.code ?? "");
+  final emailController = TextEditingController(text: currentFilter?.email ?? "");
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 12,
-            left: 16,
-            right: 16,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Bộ lọc nâng cao",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                          ),
+  int? selectedDeptId = currentFilter?.departmentId;
+  String? selectedJob = currentFilter?.jobTitle;
+  String? selectedStatus;
+
+  if (currentFilter?.active == true) {
+    selectedStatus = "Đang làm việc";
+  } else if (currentFilter?.active == false) {
+    selectedStatus = "Đã nghỉ việc";
+  }
+
+  if (!mounted) return;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          top: 12,
+          left: 16,
+          right: 16,
+        ),
+        child: StatefulBuilder(
+          builder: (context, setModalState) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Bộ lọc nâng cao",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            nameController.clear();
-                            codeController.clear();
-                            emailController.clear();
-                            selectedDept = null;
-                            selectedJob = null;
-                            selectedStatus = null;
-                            _cubit.clearFilter();
-                            setState(() {});
-                          },
-                          child: const Text(
-                            "Xóa lọc",
-                            style: TextStyle(
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
-                    InputTextField(
-                      title: "Tên nhân viên",
-                      hintText: "Nhập tên nhân viên",
-                      isRequiredField: false,
-                      controller: nameController,
-                      enable: true,
-                    ),
-                    const SizedBox(height: 10),
-                    InputTextField(
-                      title: "Mã nhân viên",
-                      hintText: "Nhập mã nhân viên",
-                      isRequiredField: false,
-                      controller: codeController,
-                      enable: true,
-                    ),
-                    const SizedBox(height: 10),
-                    widgets.DropdownInputField(
-                      title: "Phòng ban",
-                      hint: "Chọn phòng ban",
-                      items: departments,
-                      selectedValue: selectedDept,
-                      onChanged: (val) => setState(() => selectedDept = val),
-                    ),
-                    const SizedBox(height: 10),
-                    widgets.DropdownInputField(
-                      title: "Chức vụ",
-                      hint: "Chọn chức vụ",
-                      items: jobTitles,
-                      selectedValue: selectedJob,
-                      onChanged: (val) => setState(() => selectedJob = val),
-                    ),
-                    const SizedBox(height: 10),
-                    InputTextField(
-                      title: "Email",
-                      hintText: "Nhập Email",
-                      isRequiredField: false,
-                      controller: emailController,
-                      enable: true,
-                    ),
-                    const SizedBox(height: 10),
-                    widgets.DropdownInputField(
-                      title: "Trạng thái",
-                      hint: "Chọn trạng thái",
-                      items: statuses,
-                      selectedValue: selectedStatus,
-                      onChanged: (val) => setState(() => selectedStatus = val),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          final activeValue = selectedStatus == "Đang làm việc"
-                              ? true
-                              : selectedStatus == "Đã nghỉ việc"
-                                  ? false
-                                  : null;
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          nameController.clear();
+                          codeController.clear();
+                          emailController.clear();
+                          selectedDeptId = null;
+                          selectedJob = null;
+                          selectedStatus = null;
 
-                          final filter = EmployeeFilterParam(
-                            name: nameController.text,
-                            code: codeController.text,
-                            email: emailController.text,
-                            department: selectedDept,
-                            jobTitle: selectedJob,
-                            active: activeValue,
+                          final resetFilter = EmployeeFilterParam(
+                            name: null,
+                            code: null,
+                            email: null,
+                            departmentId: null,
+                            jobTitle: null,
+                            active: null,
                           );
 
-                          _cubit.filterEmployees(filter);
+                          _cubit.filterEmployees(resetFilter);
+                          Navigator.pop(context);
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0062FF),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
                         child: const Text(
-                          "Áp dụng",
+                          "Xóa lọc",
                           style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
+                            color: Colors.redAccent,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+
+                  InputTextField(
+                    title: "Tên nhân viên",
+                    hintText: "Nhập tên nhân viên",
+                    isRequiredField: false,
+                    controller: nameController,
+                    enable: true,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  InputTextField(
+                    title: "Mã nhân viên",
+                    hintText: "Nhập mã nhân viên",
+                    isRequiredField: false,
+                    controller: codeController,
+                    enable: true,
+                  ),
+
+
+                  widgets.DropdownInputField(
+                    title: "Phòng ban",
+                    hint: "Chọn phòng ban",
+                    items: ["Không", ...departments.map((e) => e.text ?? '')],
+                    selectedValue: selectedDeptId == null
+                        ? "Không"
+                        : departments
+                            .firstWhere(
+                              (d) => d.code == selectedDeptId.toString(),
+                              orElse: () =>
+                                  const MasterDataItem(text: "Không", code: "0"),
+                            )
+                            .text,
+                    onChanged: (val) {
+                      setModalState(() {
+                        if (val == "Không") {
+                          selectedDeptId = null;
+                          _cubit.getListEmployees();
+                        } else {
+                          final selected = departments.firstWhere(
+                            (d) => d.text == val,
+                            orElse: () =>
+                                const MasterDataItem(text: "Không", code: "0"),
+                          );
+                          selectedDeptId = int.tryParse(selected.code ?? '');
+                        }
+                      });
+                    },
+                  ),
+
+                  widgets.DropdownInputField(
+                    title: "Chức vụ",
+                    hint: "Chọn chức vụ",
+                    items: ["Không", ...jobTitles],
+                    selectedValue: selectedJob ?? "Không",
+                    onChanged: (val) {
+                      setModalState(() {
+                        selectedJob = (val == "Không") ? null : val;
+                        if (val == "Không") _cubit.getListEmployees();
+                      });
+                    },
+                  ),
+
+                  InputTextField(
+                    title: "Email",
+                    hintText: "Nhập email",
+                    isRequiredField: false,
+                    controller: emailController,
+                    enable: true,
+                  ),
+
+                  widgets.DropdownInputField(
+                    title: "Trạng thái",
+                    hint: "Chọn trạng thái",
+                    items: ["Không", ...statuses],
+                    selectedValue: selectedStatus ?? "Không",
+                    onChanged: (val) {
+                      setModalState(() {
+                        selectedStatus = (val == "Không") ? null : val;
+                        if (val == "Không") _cubit.getListEmployees();
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+
+                        final activeValue = selectedStatus == "Đang làm việc"
+                            ? true
+                            : selectedStatus == "Đã nghỉ việc"
+                                ? false
+                                : null;
+
+                        final hasFilter = nameController.text.isNotEmpty ||
+                            codeController.text.isNotEmpty ||
+                            emailController.text.isNotEmpty ||
+                            selectedDeptId != null ||
+                            selectedJob != null ||
+                            activeValue != null;
+
+                        if (!hasFilter) {
+                          _cubit.getListEmployees();
+                          return;
+                        }
+
+                        final filter = EmployeeFilterParam(
+                          name: nameController.text.isNotEmpty
+                              ? nameController.text
+                              : null,
+                          code: codeController.text.isNotEmpty
+                              ? codeController.text
+                              : null,
+                          email: emailController.text.isNotEmpty
+                              ? emailController.text
+                              : null,
+                          departmentId: selectedDeptId,
+                          jobTitle: selectedJob,
+                          active: activeValue,
+                        );
+
+                        _cubit.filterEmployees(filter);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0062FF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        "Áp dụng",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+
+  void _onSearchPressed() {
+    final query = _searchController.text.trim();
+    _cubit.searchEmployees(query);
   }
 
   @override
@@ -233,7 +323,7 @@ class _StaffPageState extends State<StaffPage> {
       extendBodyBehindAppBar: true,
       appBar: MyAppBar(
         titleAppbar: "Danh sách nhân viên",
-        haveBackButton: (widget.isFromHome ?? false) ? true : false,
+        haveBackButton: (widget.isFromHome ?? false),
         haveActionButton: true,
         iconPathAsset: AppAssets.ic_bell,
         actionCallBack: () {},
@@ -241,17 +331,15 @@ class _StaffPageState extends State<StaffPage> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              AppAssets.imgBg2,
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset(AppAssets.imgBg2, fit: BoxFit.cover),
           ),
           SafeArea(
             child: BlocBuilder<StaffCubit, StaffState>(
               bloc: _cubit,
-              buildWhen: (prev,cur) =>  prev.loadStatus != cur.loadStatus
-                || prev.listEmployees != cur.listEmployees
-                || prev.loadEventStatus != cur.loadEventStatus,
+              buildWhen: (prev, cur) =>
+                  prev.loadStatus != cur.loadStatus ||
+                  prev.listEmployees != cur.listEmployees ||
+                  prev.loadEventStatus != cur.loadEventStatus,
               builder: (context, state) {
                 if (state.loadStatus == LoadStatus.LOADING) {
                   return const Center(child: CircularProgressIndicator());
@@ -261,11 +349,13 @@ class _StaffPageState extends State<StaffPage> {
                   return const Center(
                       child: Text("Không thể tải danh sách nhân viên"));
                 }
-                final isShowLoadMore = state.loadEventStatus == LoadStatus.LOADING_MORE ? true : false;
+
                 final employees = state.listEmployees ?? [];
+                final isShowLoadMore =
+                    state.loadEventStatus == LoadStatus.LOADING_MORE;
 
                 return Padding(
-                  padding: const EdgeInsets.all(5), 
+                  padding: const EdgeInsets.all(5),
                   child: Container(
                     width: double.infinity,
                     decoration: const BoxDecoration(
@@ -277,6 +367,7 @@ class _StaffPageState extends State<StaffPage> {
                     ),
                     child: Column(
                       children: [
+                        // 🔍 Search bar
                         Container(
                           margin: const EdgeInsets.fromLTRB(12, 12, 12, 10),
                           padding: const EdgeInsets.symmetric(
@@ -286,7 +377,7 @@ class _StaffPageState extends State<StaffPage> {
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -300,7 +391,6 @@ class _StaffPageState extends State<StaffPage> {
                               Expanded(
                                 child: TextField(
                                   controller: _searchController,
-                                  onChanged: _cubit.searchEmployees,
                                   decoration: const InputDecoration(
                                     hintText: "Mã nhân viên, Tên nhân viên",
                                     hintStyle: TextStyle(
@@ -308,10 +398,29 @@ class _StaffPageState extends State<StaffPage> {
                                     border: InputBorder.none,
                                     isDense: true,
                                   ),
+                                  onSubmitted: (_) => _onSearchPressed(),
                                 ),
                               ),
                               InkWell(
-                                onTap: () => _openFilterSheet(),
+                                onTap: _onSearchPressed,
+                                borderRadius: BorderRadius.circular(8),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 250),
+                                  width: 34,
+                                  height: 34,
+                                  child: Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: _isSearchActive
+                                        ? const Color.fromARGB(255, 0, 81, 255)
+                                        : Colors.transparent,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              InkWell(
+                                onTap: _openFilterSheet,
+                                borderRadius: BorderRadius.circular(8),
                                 child: Container(
                                   width: 34,
                                   height: 34,
@@ -329,154 +438,85 @@ class _StaffPageState extends State<StaffPage> {
                             ],
                           ),
                         ),
+
+                        // 🧾 Danh sách nhân viên
                         Expanded(
                           child: employees.isEmpty
                               ? const Center(
                                   child: Text("Không có nhân viên nào"),
                                 )
                               : Stack(
-                            children: [
-                              RefreshIndicator(
-                                  onRefresh: () async => _cubit.getListEmployees(),
-                                  child: ListView.builder(
-                                    controller: _scrollController,
-                                    physics: const AlwaysScrollableScrollPhysics(),
-                                    itemCount: employees.length,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8),
-                                    itemBuilder: (context, index) {
-                                      final emp = employees[index];
-                                      return Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 4),
-                                        child: ListTile(
-                                          leading: AppCircleAvatar(
-                                              url: emp.avatarUrl ?? "",
-                                              size: 58,
-                                          ),
-                                          // leading: CircleAvatar(
-                                          //   radius: 24,
-                                          //   backgroundImage: (emp.avatarUrl !=
-                                          //       null &&
-                                          //       emp.avatarUrl!.isNotEmpty)
-                                          //       ? NetworkImage(emp.avatarUrl!)
-                                          //       : AssetImage(
-                                          //       AppAssets.img_df_avatar)
-                                          //   as ImageProvider,
-                                          // ),
-                                          title: Text(
-                                            emp.name ?? "Không có tên",
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black87,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          subtitle: Text(
-                                            "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
-                                            style: const TextStyle(
-                                              color: Colors.black54,
-                                              fontSize: 13,
-                                              height: 1.3,
-                                            ),
-                                          ),
-                                          trailing: Text(
-                                            emp.code != null
-                                                ? "NV${emp.code}"
-                                                : "",
-                                            style: const TextStyle(
-                                              color:
-                                              Color.fromARGB(255, 0, 98, 255),
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                 builder: (_) => EmployeeDetailPage(employeeId: emp.id ?? 0),
+                                  children: [
+                                    RefreshIndicator(
+                                      onRefresh: () async =>
+                                          _cubit.getListEmployees(),
+                                      child: ListView.builder(
+                                        controller: _scrollController,
+                                        physics:
+                                            const AlwaysScrollableScrollPhysics(),
+                                        itemCount: employees.length,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        itemBuilder: (context, index) {
+                                          final emp = employees[index];
+                                          return Container(
+                                            margin: const EdgeInsets.symmetric(
+                                                vertical: 4),
+                                            child: ListTile(
+                                              leading: AppCircleAvatar(
+                                                url: emp.avatarUrl ?? "",
+                                                size: 58,
                                               ),
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ), ),
-                              Positioned.fill(
-                                bottom: 3,
-                                child: Visibility(
-                                  visible: isShowLoadMore,
-                                  child: const Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: LoadingMoreRowWidget(),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                          /*ListView.builder(
-                                  itemCount: employees.length,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8),
-                                  itemBuilder: (context, index) {
-                                    final emp = employees[index];
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      child: ListTile(
-                                        leading: CircleAvatar(
-                                          radius: 24,
-                                          backgroundImage: (emp.avatarUrl !=
-                                                      null &&
-                                                  emp.avatarUrl!.isNotEmpty)
-                                              ? NetworkImage(emp.avatarUrl!)
-                                              : AssetImage(
-                                                      AppAssets.img_df_avatar)
-                                                  as ImageProvider,
-                                        ),
-                                        title: Text(
-                                          emp.name ?? "Không có tên",
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black87,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                        subtitle: Text(
-                                          "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
-                                          style: const TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 13,
-                                            height: 1.3,
-                                          ),
-                                        ),
-                                        trailing: Text(
-                                          emp.code != null
-                                              ? "NV${emp.code}"
-                                              : "",
-                                          style: const TextStyle(
-                                            color:
-                                                Color.fromARGB(255, 0, 98, 255),
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) =>
-                                                  EmployeeDetailPage(
-                                                      employee: emp),
+                                              title: Text(
+                                                emp.name ?? "Không có tên",
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.black87,
+                                                  fontSize: 15,
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
+                                                style: const TextStyle(
+                                                  color: Colors.black54,
+                                                  fontSize: 13,
+                                                  height: 1.3,
+                                                ),
+                                              ),
+                                              trailing: Text(
+                                                emp.code != null
+                                                    ? "NV${emp.code}"
+                                                    : "",
+                                                style: const TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 0, 98, 255),
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        EmployeeDetailPage(
+                                                      employeeId: emp.id ?? 0,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                             ),
                                           );
                                         },
                                       ),
-                                    );
-                                  },
+                                    ),
+                                    if (isShowLoadMore)
+                                      const Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: LoadingMoreRowWidget(),
+                                      ),
+                                  ],
                                 ),
-                          */
                         ),
                       ],
                     ),

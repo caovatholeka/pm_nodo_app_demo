@@ -1,39 +1,57 @@
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/response/common_response.dart';
 
 class MasterData {
-
   static const List<String> employeeStatuses = [
-    'Đang làm việc', 
-    'Đã nghỉ việc',  
+    'Đang làm việc',
+    'Đã nghỉ việc',
   ];
-
-static Future<List<String>> getDepartmentsFromApi({
-    int limit = 1,
+  static Future<List<MasterDataItem>> getDepartmentsFromApi({
+    int limit = 1000,
     int offset = 0,
   }) async {
     try {
-      final apiClient = GetIt.I<ApiClient>(); 
-      final CommonResponse response = await apiClient.getListDepartments(limit, offset);
+      final apiClient = GetIt.I<ApiClient>();
+      final CommonResponse response =
+          await apiClient.getListDepartments(limit, offset);
 
       if (response.data != null && response.data is List) {
         final List<dynamic> rawList = response.data as List<dynamic>;
 
-        final List<String> departments = rawList
-            .map<String>((e) {
-              if (e is Map<String, dynamic>) {
-                return e['name'] ?? e['departmentName'] ?? '';
-              }
-              return e.toString();
-            })
-            .where((d) => d.isNotEmpty)
+        final List<MasterDataItem> departments = rawList.map((e) {
+          if (e is Map<String, dynamic>) {
+            final int? id = e['id'] is int
+                ? e['id']
+                : int.tryParse(e['id']?.toString() ?? '');
+            final String? name = e['name'] ??
+                e['departmentName'] ??
+                e['department'] ??
+                e['text'] ??
+                '';
+            return MasterDataItem(
+              id: id,
+              name: name,
+              text: name,
+              code: e['code']?.toString(),
+            );
+          }
+          return MasterDataItem(
+            id: null,
+            name: e.toString(),
+            text: e.toString(),
+          );
+        }).toList();
+
+        final filtered = departments
+            .where((d) => (d.name?.isNotEmpty ?? false))
             .toSet()
             .toList()
-          ..sort();
+          ..sort((a, b) => a.name!.compareTo(b.name!));
 
-        return departments;
+        return filtered;
       }
 
       return [];
@@ -47,7 +65,7 @@ static Future<List<String>> getDepartmentsFromApi({
   static List<String> getJobTitlesFromEmployees(List<EmployeeEntity> employees) {
     final jobTitles = employees
         .map((e) => e.jobTitle)
-        .where((j) => j != null && j.isNotEmpty)
+        .where((j) => j != null && j!.isNotEmpty)
         .toSet()
         .toList()
       ..sort();

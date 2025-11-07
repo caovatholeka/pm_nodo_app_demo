@@ -21,11 +21,13 @@ class DropdownInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = TextEditingController(text: selectedValue ?? '');
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
+
           showModalBottomSheet(
             context: context,
             shape: const RoundedRectangleBorder(
@@ -36,6 +38,7 @@ class DropdownInputField extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+
                     Container(
                       width: 50,
                       height: 5,
@@ -45,6 +48,7 @@ class DropdownInputField extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+
                     Text(
                       title,
                       style: const TextStyle(
@@ -52,25 +56,35 @@ class DropdownInputField extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+
+                    const SizedBox(height: 10),
+                    const Divider(height: 1, thickness: 1, color: Colors.black12),
+
                     Flexible(
-                      child: ListView.builder(
+                      child: ListView.separated(
                         shrinkWrap: true,
                         itemCount: items.length,
+                        separatorBuilder: (context, index) => const Divider(
+                          height: 1,
+                          thickness: 0.8,
+                          color: Colors.black12,
+                        ),
                         itemBuilder: (context, index) {
                           final item = items[index];
-                          final isSelected = item == selectedValue;
+                          final bool isSelected = item == selectedValue;
 
                           return ListTile(
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                             title: Text(
                               item,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: isSelected
-                                    ? const Color.fromARGB(255, 0, 38, 255)
+                                    ? const Color.fromARGB(255, 0, 62, 255)
                                     : Colors.black87,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
+                                fontWeight:
+                                    isSelected ? FontWeight.w600 : FontWeight.w400,
                               ),
                             ),
                             onTap: () {
@@ -81,7 +95,8 @@ class DropdownInputField extends StatelessWidget {
                         },
                       ),
                     ),
-                    const SizedBox(height: 10),
+
+                    const SizedBox(height: 12),
                   ],
                 ),
               );

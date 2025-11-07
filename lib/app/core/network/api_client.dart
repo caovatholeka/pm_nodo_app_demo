@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
+import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -30,15 +31,23 @@ abstract class ApiClient {
   Future<CommonResponse> logOut(@Body() Map<String, dynamic> body);
 
   /// Lấy danh sách nhân viên
-  @GET("/employees/employees")
-  Future<CommonResponse> getListEmployees(
-    @Query("limit") int? limit,
-    @Query("offset") int? offset,
-  );
+@GET("/employees/employees")
+Future<CommonResponse> getListEmployees(
+  @Query("limit") int? limit,
+  @Query("offset") int? offset,
+  @Query("name") String? name,
+  @Query("code") String? code,
+  @Query("email") String? email,
+  @Query("department_id") int? departmentId,
+  @Query("job_title") String? jobTitle,
+  @Query("active") bool? active,
+);
+
 
   //Lấy chi tiết nhân viên
-  @GET("/employees/employee/{id}")
-  Future<CommonResponse> getDetailEmployee(@Path("id") int id);
+  @GET("/employees/employees/{id}")
+  Future<EmployeeEntity> getDetailEmployee(@Path("id") int id);
+
 
   /// Lấy danh sách phòng ban 
   @GET("/metadata/departments")

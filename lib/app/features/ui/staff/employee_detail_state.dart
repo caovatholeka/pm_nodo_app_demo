@@ -1,32 +1,27 @@
 part of 'employee_detail_cubit.dart';
 
-enum LoadStatus { LOADING, SUCCESS, FAILURE }
-
 class EmployeeDetailState extends Equatable {
-  final EmployeeEntity? employee;
   final LoadStatus loadStatus;
-  final String? error;
+  final EmployeeEntity? employee;
 
   const EmployeeDetailState({
-    this.employee,
     required this.loadStatus,
-    this.error,
+    this.employee,
   });
 
-  factory EmployeeDetailState.initial() => const EmployeeDetailState(loadStatus: LoadStatus.SUCCESS);
+  factory EmployeeDetailState.initial() =>
+      const EmployeeDetailState(loadStatus: LoadStatus.SUCCESS);
 
   EmployeeDetailState copyWith({
-    EmployeeEntity? employee,
     LoadStatus? loadStatus,
-    String? error,
+    EmployeeEntity? employee,
   }) {
     return EmployeeDetailState(
-      employee: employee ?? this.employee,
       loadStatus: loadStatus ?? this.loadStatus,
-      error: error ?? this.error,
+      employee: employee ?? this.employee,
     );
   }
 
   @override
-  List<Object?> get props => [employee, loadStatus, error];
+  List<Object?> get props => [loadStatus, employee];
 }

@@ -4,10 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
-import 'package:pm_app/app/features/ui/staff/employee_detail_cubit.dart' hide LoadStatus;
-import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'employee_detail_cubit.dart';
 
 class EmployeeDetailPage extends StatefulWidget {
   final int employeeId;
@@ -24,8 +24,8 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
   @override
   void initState() {
     super.initState();
-    final repo = GetIt.I.get<EmployeeRepository>();
-    _cubit = EmployeeDetailCubit(repository: repo);
+    final apiClient = GetIt.I.get<ApiClient>();
+    _cubit = EmployeeDetailCubit(apiClient: apiClient);
     _cubit.getDetailEmployee(widget.employeeId);
   }
 
@@ -39,10 +39,11 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
     if (base64String == null || base64String.isEmpty) {
       return AssetImage(AppAssets.img_df_avatar);
     }
-
     try {
-      final cleanedBase64 = base64String.contains(',') ? base64String.split(',').last : base64String;
-      final bytes = const Base64Decoder().convert(cleanedBase64);
+      final cleaned = base64String.contains(',')
+          ? base64String.split(',').last
+          : base64String;
+      final bytes = base64Decode(cleaned);
       return MemoryImage(bytes);
     } catch (e) {
       return AssetImage(AppAssets.img_df_avatar);
@@ -96,7 +97,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
               Container(
                 width: double.infinity,
                 height: double.infinity,
-                decoration:BoxDecoration(
+                decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(AppAssets.imgBg2),
                     fit: BoxFit.cover,
@@ -114,90 +115,114 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                       topRight: Radius.circular(26),
                     ),
                   ),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: state.loadStatus == LoadStatus.LOADING
-                        ? SizedBox(
-                            height: 300,
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                        : Column(
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                                child: Column(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 45,
-                                      backgroundImage: _buildAvatarImage(employee?.avatarUrl),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      employee?.name ?? "Chưa có tên",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      employee?.jobTitle ?? "Không có chức vụ",
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        _TagItem(
-                                          label: 'NV${employee?.code ?? "Chưa có mã"}',
-                                          backgroundColor: const Color(0xFFEAF1FF),
-                                          textColor: const Color(0xFF004C9C),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        const _TagItem(
-                                          label: "Văn phòng công ty",
-                                          backgroundColor: Color(0xFFDDF7E3),
-                                          textColor: Color(0xFF2E7D32),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              _sectionTitle("Thông tin công việc"),
-                              _InfoItem(title: "Chức vụ", value: employee?.jobTitle ?? "Chưa có"),
-                              _InfoItem(title: "Phòng ban", value: employee?.department ?? "Chưa có"),
-                              _InfoItem(title: "Quản lý", value: employee?.managerby ?? "-"),
-                              _InfoItem(title: "Trạng thái", value: (employee?.active ?? false) ? "Đang làm" : "Nghỉ việc"),
-                              _InfoItem(title: "Ngày gia nhập", value:"-"),
-                              _InfoItem(title: "Trạng thái hợp đồng", value: employee?.contractStatus ?? "Chưa ký"),
-                              const SizedBox(height: 16),
-                              _sectionTitle("Thông tin cá nhân"),
-                              _InfoRow(icon: Icons.male, label: "Giới tính", value: employee?.gender ?? "-"),
-                              _InfoRow(icon: Icons.calendar_today, label: "Ngày sinh", value: employee?.birthday ?? "-"),
-                              _InfoRow(icon: Icons.email_outlined, label: "Email", value: employee?.workEmail ?? "Không có"),
-                              _InfoRow(icon: Icons.phone, label: "Số điện thoại", value: employee?.phone ?? "-"),
-                              _InfoRow(icon: Icons.location_on_outlined, label: "Địa chỉ", value:"-"),
-                              const SizedBox(height: 20),
-                            ],
+                  child: Builder(
+                    builder: (_) {
+                      if (state.loadStatus == LoadStatus.LOADING) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (state.loadStatus == LoadStatus.FAILURE) {
+                        return const Center(
+                          child: Text(
+                            "Không thể tải thông tin nhân viên",
+                            style: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
+                        );
+                      }
+
+                      if (employee == null) {
+                        return const Center(child: Text("Không có dữ liệu nhân viên"));
+                      }
+
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                              child: Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 45,
+                                    backgroundImage: _buildAvatarImage(employee.avatarUrl),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    employee.name ?? "Chưa có tên",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    employee.jobTitle ?? "Không có chức vụ",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      _TagItem(
+                                        label: 'NV${employee.code ?? "--"}',
+                                        backgroundColor: const Color(0xFFEAF1FF),
+                                        textColor: const Color(0xFF004C9C),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      _TagItem(
+                                        label: employee.xlocationType ?? "Văn phòng công ty",
+                                        backgroundColor: const Color(0xFFDDF7E3),
+                                        textColor: const Color(0xFF2E7D32),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _sectionTitle("Thông tin công việc"),
+                            _InfoItem(title: "Chức vụ", value: employee.jobTitle ?? "Chưa có"),
+                            _InfoItem(title: "Phòng ban", value: employee.department ?? "Chưa có"),
+                            _InfoItem(title: "Quản lý", value: employee.managerby ?? "-"),
+                            _InfoItem(title: "Trạng thái", value: "-"),
+                            _InfoItem(title: "Ngày gia nhập", value: "-"),
+                            _InfoItem(title: "Trạng thái hợp đồng", value: employee.contractStatus ?? "Chưa ký"),
+                            const SizedBox(height: 16),
+                            _sectionTitle("Thông tin cá nhân"),
+                            _InfoRow(icon: Icons.male, label: "Giới tính", value: employee.gender ?? "-"),
+                            _InfoRow(icon: Icons.calendar_today, label: "Ngày sinh", value: employee.birthday ?? "-"),
+                            _InfoRow(icon: Icons.email_outlined, label: "Email", value: employee.workEmail ?? "Không có"),
+                            _InfoRow(icon: Icons.phone, label: "Số điện thoại", value: employee.phone ?? "-"),
+                            _InfoRow(
+                              icon: Icons.location_on_outlined,
+                              label: "Địa chỉ",
+                              value: "-",
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -259,12 +284,19 @@ class _InfoItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(color: Colors.black54, fontSize: 14)),
-          Text(value, style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
     );
   }
 }
+
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -287,7 +319,7 @@ class _InfoRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color.fromARGB(255, 0, 98, 255), size: 22),
+          Icon(icon, color: const Color(0xFF0062FF), size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
