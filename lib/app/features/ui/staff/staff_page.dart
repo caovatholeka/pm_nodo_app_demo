@@ -58,13 +58,10 @@ class _StaffPageState extends State<StaffPage> {
   }
 
   void _onMaxScroll() {
-    if (!_scrollController.hasClients) return;
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      if (_cubit.state.loadEventStatus != LoadStatus.LOADING_MORE) {
-        _cubit.onLoadMore();
-      }
+      _cubit.onLoadMore();
     }
   }
 

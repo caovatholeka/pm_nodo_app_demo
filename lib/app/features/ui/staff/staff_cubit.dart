@@ -18,18 +18,12 @@ class StaffCubit extends Cubit<StaffState> {
   static const int offset = 0;
   static const int limit = 10;
   static const int total = 0;
-  static const String code = '';
-  static const String name = '';
 
-Future<void> getListEmployees() async {
-    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
+  void getListEmployees() async {
+    emit(state.copyWith(loadStatus: LoadStatus.LOADING,page: offset,totalPages: total));
     try {
-      final results = await repository.getListEmployees(
-        limit: limit,
-        offset: 0,
-      );
-
-      List<EmployeeEntity> employees = [];
+      final results = await repository.getListEmployees(limit: limit,offset: offset);
+      List<EmployeeEntity>? listEmployees;
       if (results.data != null) {
         employees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
       }
@@ -37,9 +31,14 @@ Future<void> getListEmployees() async {
       emit(state.copyWith(
         listEmployees: employees,
         loadStatus: LoadStatus.SUCCESS,
+        listEmployees: listEmployees ?? [],
+        page: results.offset,
+        totalPages: results.total
       ));
-    } catch (e) {
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE, listEmployees: []));
     }
   }
 
