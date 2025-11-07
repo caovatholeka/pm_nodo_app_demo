@@ -40,15 +40,22 @@ class _StaffPageState extends State<StaffPage> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onMaxScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   void _onMaxScroll() {
+    if (!_scrollController.hasClients) return;
+
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
     if (maxScroll - currentScroll <= _scrollThreshold) {
-      _cubit.onLoadMore();
+      final state = _cubit.state;
+      if (state.loadEventStatus != LoadStatus.LOADING_MORE) {
+        _cubit.onLoadMore();
+      }
     }
   }
 

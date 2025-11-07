@@ -17,28 +17,34 @@ class StaffCubit extends Cubit<StaffState> {
   EmployeeFilterParam? _filterParam;
 
   static const int offset = 0;
-  static const int limit = 1000;
+  static const int limit = 10;
   static const int total = 0;
 
   void getListEmployees() async {
-    emit(state.copyWith(loadStatus: LoadStatus.LOADING,page: offset,totalPages: total));
+    emit(state.copyWith(
+      loadStatus: LoadStatus.LOADING,
+      loadEventStatus: LoadStatus.SUCCESS,
+      page: offset,
+      totalPages: total,
+    ));
     try {
-      final results = await repository.getListEmployees(limit: limit,offset: offset);
-      List<EmployeeEntity>? listEmployees;
+      final results = await repository.getListEmployees(limit: limit, offset: offset);
+      List<EmployeeEntity> listEmployees = [];
       if (results.data != null) {
         listEmployees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
       }
 
       emit(state.copyWith(
         loadStatus: LoadStatus.SUCCESS,
-        listEmployees: listEmployees ?? [],
+        loadEventStatus: LoadStatus.SUCCESS,
+        listEmployees: listEmployees,
         page: results.offset,
-        totalPages: results.total
+        totalPages: results.total,
       ));
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE, listEmployees: []));
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE, loadEventStatus: LoadStatus.FAILURE, listEmployees: []));
     }
   }
 
@@ -63,40 +69,42 @@ class StaffCubit extends Cubit<StaffState> {
   }
 
   void onLoadMore() async{
-    if (state.page == state.totalPages) {
+    final currentPage = state.page ?? 0;
+    final totalPages = state.totalPages ?? 0;
+
+    if (totalPages > 0 && currentPage >= (totalPages - 1)) {
       emit(state.copyWith(loadEventStatus: LoadStatus.SUCCESS));
       return;
     }
 
-    if (state.loadStatus != LoadStatus.SUCCESS) {
+    if (state.loadStatus != LoadStatus.SUCCESS ||
+        state.loadEventStatus == LoadStatus.LOADING_MORE) {
       return;
     }
 
     emit(state.copyWith(loadEventStatus: LoadStatus.LOADING_MORE));
     try{
-      final results = await repository.getListEmployees(limit: limit,offset: offset + 1);
-      List<EmployeeEntity>? listEmployees;
+      final nextOffset = currentPage + 1;
+      final results = await repository.getListEmployees(limit: limit, offset: nextOffset);
 
+      List<EmployeeEntity> newPage = [];
       if (results.data != null) {
-        listEmployees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
-
-        emit(state.copyWith(
-            loadStatus: LoadStatus.SUCCESS,
-            listEmployees: listEmployees,
-            page: results.offset,
-            totalPages: results.total
-        ));
-      }else{
-        emit(state.copyWith(
-            loadStatus: LoadStatus.SUCCESS,
-            listEmployees: [],
-            page: results.offset,
-            totalPages: results.total
-        ));
+        newPage = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
       }
+
+      final existing = List<EmployeeEntity>.from(state.listEmployees ?? const []);
+      final merged = [...existing, ...newPage];
+
+      emit(state.copyWith(
+        loadStatus: LoadStatus.SUCCESS,
+        loadEventStatus: LoadStatus.SUCCESS,
+        listEmployees: merged,
+        page: results.offset,
+        totalPages: results.total,
+      ));
     }catch(e){
       logger.d(e);
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE,loadEventStatus: LoadStatus.FAILURE));
     }
   }
 
