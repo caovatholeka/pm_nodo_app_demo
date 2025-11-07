@@ -3,7 +3,9 @@ import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../data/models/param/create_leave_param.dart';
 import '../../data/models/response/common_response.dart';
+import '../../data/models/response/on_leave_response.dart';
 
 part 'api_client.g.dart';
 
@@ -66,12 +68,6 @@ abstract class ApiClient {
   @POST("/leave/hr_leave/confirm_hr_leave")
   Future<dynamic> confirmHrLeave(@Body() Map<String,dynamic> body);
 
-  // employee
-  @GET("/employees/employees")
-  Future<CommonResponse> getListEmployees(
-      @Query("limit") int? limit,
-      @Query("offset") int? offset,
-      );
 
   // danh sach cham cong
   @GET("/work_entry/attendance/by_month")
