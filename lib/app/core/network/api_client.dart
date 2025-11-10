@@ -81,6 +81,11 @@ Future<CommonResponse> getListEmployees(
   @POST("/leave/hr_leave/confirm_hr_leave")
   Future<dynamic> confirmHrLeave(@Body() Map<String,dynamic> body);
 
+  @POST("/work_entry/send_invalid")
+  Future<dynamic> workEntry(@Body() Map<String,dynamic> body);
+
+  @POST("/work_entry/user/entries")
+  Future<dynamic> listWorkEntry(@Body() Map<String,dynamic> body);
 
   // danh sach cham cong
   @GET("/work_entry/attendance/by_month")

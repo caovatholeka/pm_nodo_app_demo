@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -26,7 +27,9 @@ class EmployeeDetailCubit extends Cubit<EmployeeDetailState> {
           loadStatus: LoadStatus.FAILURE,         
         ));
       }
-    } catch (e) {
+    } catch (e,s) {
+      logger.d('err:$e');
+      logger.d('ERRRRR: $s');
       emit(state.copyWith(
         loadStatus: LoadStatus.FAILURE,
       ));
