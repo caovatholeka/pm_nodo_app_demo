@@ -43,11 +43,11 @@ Future<CommonResponse> getListEmployees(
   @Query("active") bool? active,
 );
 
-
-  //Lấy chi tiết nhân viên
-  @GET("/employees/employees/{id}")
-  Future<EmployeeEntity> getDetailEmployee(@Path("id") int id);
-
+  @GET("/metadata/jobs")
+  Future<CommonResponse> getListJobs(
+    @Query("limit") int? limit,
+    @Query("offset") int? offset,
+  );
 
   /// Lấy danh sách phòng ban 
   @GET("/metadata/departments")
@@ -55,6 +55,10 @@ Future<CommonResponse> getListEmployees(
     @Query("limit") int? limit,
     @Query("offset") int? offset,
   );
+
+  //Lấy chi tiết nhân viên
+  @GET("/employees/employees/{id}")
+  Future<EmployeeEntity> getDetailEmployee(@Path("id") int id);
 
   /// Lấy danh sách đơn xin nghỉ
   @GET("/leave/get_hr_leave")

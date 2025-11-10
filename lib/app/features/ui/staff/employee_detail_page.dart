@@ -34,7 +34,6 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
     _cubit.close();
     super.dispose();
   }
-
   ImageProvider _buildAvatarImage(String? base64String) {
     if (base64String == null || base64String.isEmpty) {
       return AssetImage(AppAssets.img_df_avatar);
@@ -204,7 +203,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                             _InfoItem(title: "Chức vụ", value: employee.jobTitle ?? "Chưa có"),
                             _InfoItem(title: "Phòng ban", value: employee.department ?? "Chưa có"),
                             _InfoItem(title: "Quản lý", value: employee.managerby ?? "-"),
-                            _InfoItem(title: "Trạng thái", value: "-"),
+                            _InfoItem(title: "Trạng thái", value: (employee.active ?? true) ? "Đang làm việc":"Đang nghỉ việc"),
                             _InfoItem(title: "Ngày gia nhập", value: "-"),
                             _InfoItem(title: "Trạng thái hợp đồng", value: employee.contractStatus ?? "Chưa ký"),
                             const SizedBox(height: 16),

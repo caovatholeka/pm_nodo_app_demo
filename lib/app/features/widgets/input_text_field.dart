@@ -110,7 +110,6 @@ import '../../core/commons/app_colors.dart';
             const SizedBox(height: 4),
           ],
 
-          //
           ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 44),
             child: TextFormField(

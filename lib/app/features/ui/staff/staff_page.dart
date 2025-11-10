@@ -66,25 +66,26 @@ class _StaffPageState extends State<StaffPage> {
   }
 
 Future<void> _openFilterSheet() async {
-  final employees = _cubit.state.listEmployees ?? [];
   final departments = await MasterData.getDepartmentsFromApi();
-  final jobTitles = MasterData.getJobTitlesFromEmployees(employees);
+  final jobTitles = await MasterData.getJobTitlesFromApi();
   final statuses = MasterData.employeeStatuses;
 
-  final currentFilter = _cubit.state.filter;
+  final savedFilter = _cubit.state.filterParam;
 
-  final nameController = TextEditingController(text: currentFilter?.name ?? "");
-  final codeController = TextEditingController(text: currentFilter?.code ?? "");
-  final emailController = TextEditingController(text: currentFilter?.email ?? "");
+  final nameController = TextEditingController(text: savedFilter?.name ?? '');
+  final codeController = TextEditingController(text: savedFilter?.code ?? '');
+  final emailController = TextEditingController(text: savedFilter?.email ?? '');
 
-  int? selectedDeptId = currentFilter?.departmentId;
-  String? selectedJob = currentFilter?.jobTitle;
+  int? selectedDeptId = savedFilter?.departmentId;
+  String? selectedJob = savedFilter?.jobTitle;
   String? selectedStatus;
 
-  if (currentFilter?.active == true) {
+  if (savedFilter?.active == true) {
     selectedStatus = "Đang làm việc";
-  } else if (currentFilter?.active == false) {
+  } else if (savedFilter?.active == false) {
     selectedStatus = "Đã nghỉ việc";
+  } else {
+    selectedStatus = null;
   }
 
   if (!mounted) return;
@@ -122,25 +123,17 @@ Future<void> _openFilterSheet() async {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           nameController.clear();
                           codeController.clear();
                           emailController.clear();
                           selectedDeptId = null;
                           selectedJob = null;
                           selectedStatus = null;
-
-                          final resetFilter = EmployeeFilterParam(
-                            name: null,
-                            code: null,
-                            email: null,
-                            departmentId: null,
-                            jobTitle: null,
-                            active: null,
-                          );
-
-                          _cubit.filterEmployees(resetFilter);
-                          Navigator.pop(context);
+                          _cubit.clearFilter();
+                          if (mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                         child: const Text(
                           "Xóa lọc",
@@ -153,7 +146,6 @@ Future<void> _openFilterSheet() async {
                     ],
                   ),
                   const SizedBox(height: 30),
-
                   InputTextField(
                     title: "Tên nhân viên",
                     hintText: "Nhập tên nhân viên",
@@ -161,9 +153,7 @@ Future<void> _openFilterSheet() async {
                     controller: nameController,
                     enable: true,
                   ),
-
                   const SizedBox(height: 10),
-
                   InputTextField(
                     title: "Mã nhân viên",
                     hintText: "Nhập mã nhân viên",
@@ -171,59 +161,61 @@ Future<void> _openFilterSheet() async {
                     controller: codeController,
                     enable: true,
                   ),
-
-
                   widgets.DropdownInputField(
                     title: "Phòng ban",
                     hint: "Chọn phòng ban",
-                    items: ["Không", ...departments.map((e) => e.text ?? '')],
+                    items: ["Không", ...departments.map((e) => e.text ?? "")],
                     selectedValue: selectedDeptId == null
                         ? "Không"
                         : departments
                             .firstWhere(
-                              (d) => d.code == selectedDeptId.toString(),
+                              (d) => d.id == selectedDeptId,
                               orElse: () =>
-                                  const MasterDataItem(text: "Không", code: "0"),
+                                  const MasterDataItem(text: "Không"),
                             )
                             .text,
                     onChanged: (val) {
                       setModalState(() {
                         if (val == "Không") {
                           selectedDeptId = null;
-                          _cubit.getListEmployees();
                         } else {
                           final selected = departments.firstWhere(
                             (d) => d.text == val,
                             orElse: () =>
-                                const MasterDataItem(text: "Không", code: "0"),
+                                const MasterDataItem(text: "Không"),
                           );
-                          selectedDeptId = int.tryParse(selected.code ?? '');
+                          selectedDeptId = selected.id;
                         }
                       });
                     },
                   ),
-
                   widgets.DropdownInputField(
                     title: "Chức vụ",
                     hint: "Chọn chức vụ",
-                    items: ["Không", ...jobTitles],
+                    items: ["Không", ...jobTitles.map((e) => e.text ?? "")],
                     selectedValue: selectedJob ?? "Không",
                     onChanged: (val) {
                       setModalState(() {
-                        selectedJob = (val == "Không") ? null : val;
-                        if (val == "Không") _cubit.getListEmployees();
+                        if (val == "Không") {
+                          selectedJob = null;
+                        } else {
+                          final selected = jobTitles.firstWhere(
+                            (j) => j.text == val,
+                            orElse: () =>
+                                const MasterDataItem(text: "Không"),
+                          );
+                          selectedJob = selected.name;
+                        }
                       });
                     },
                   ),
-
                   InputTextField(
                     title: "Email",
                     hintText: "Nhập email",
-                    isRequiredField: false,
                     controller: emailController,
+                    isRequiredField: false,
                     enable: true,
                   ),
-
                   widgets.DropdownInputField(
                     title: "Trạng thái",
                     hint: "Chọn trạng thái",
@@ -232,37 +224,20 @@ Future<void> _openFilterSheet() async {
                     onChanged: (val) {
                       setModalState(() {
                         selectedStatus = (val == "Không") ? null : val;
-                        if (val == "Không") _cubit.getListEmployees();
                       });
                     },
                   ),
-
                   const SizedBox(height: 20),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-
                         final activeValue = selectedStatus == "Đang làm việc"
                             ? true
                             : selectedStatus == "Đã nghỉ việc"
                                 ? false
                                 : null;
-
-                        final hasFilter = nameController.text.isNotEmpty ||
-                            codeController.text.isNotEmpty ||
-                            emailController.text.isNotEmpty ||
-                            selectedDeptId != null ||
-                            selectedJob != null ||
-                            activeValue != null;
-
-                        if (!hasFilter) {
-                          _cubit.getListEmployees();
-                          return;
-                        }
-
                         final filter = EmployeeFilterParam(
                           name: nameController.text.isNotEmpty
                               ? nameController.text
@@ -277,7 +252,6 @@ Future<void> _openFilterSheet() async {
                           jobTitle: selectedJob,
                           active: activeValue,
                         );
-
                         _cubit.filterEmployees(filter);
                       },
                       style: ElevatedButton.styleFrom(
@@ -307,6 +281,7 @@ Future<void> _openFilterSheet() async {
     },
   );
 }
+
 
 
   void _onSearchPressed() {
@@ -364,7 +339,6 @@ Future<void> _openFilterSheet() async {
                     ),
                     child: Column(
                       children: [
-                        // 🔍 Search bar
                         Container(
                           margin: const EdgeInsets.fromLTRB(12, 12, 12, 10),
                           padding: const EdgeInsets.symmetric(
@@ -435,86 +409,87 @@ Future<void> _openFilterSheet() async {
                             ],
                           ),
                         ),
-
-                        // 🧾 Danh sách nhân viên
-                        Expanded(
-                          child: employees.isEmpty
-                              ? const Center(
-                                  child: Text("Không có nhân viên nào"),
-                                )
-                              : Stack(
-                                  children: [
-                                    RefreshIndicator(
-                                      onRefresh: () async =>
-                                          _cubit.getListEmployees(),
-                                      child: ListView.builder(
-                                        controller: _scrollController,
-                                        physics:
-                                            const AlwaysScrollableScrollPhysics(),
-                                        itemCount: employees.length,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8),
-                                        itemBuilder: (context, index) {
-                                          final emp = employees[index];
-                                          return Container(
-                                            margin: const EdgeInsets.symmetric(
-                                                vertical: 4),
-                                            child: ListTile(
-                                              leading: AppCircleAvatar(
-                                                url: emp.avatarUrl ?? "",
-                                                size: 58,
-                                              ),
-                                              title: Text(
-                                                emp.name ?? "Không có tên",
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
-                                                  fontSize: 15,
-                                                ),
-                                              ),
-                                              subtitle: Text(
-                                                "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
-                                                style: const TextStyle(
-                                                  color: Colors.black54,
-                                                  fontSize: 13,
-                                                  height: 1.3,
-                                                ),
-                                              ),
-                                              trailing: Text(
-                                                emp.code != null
-                                                    ? "NV${emp.code}"
-                                                    : "",
-                                                style: const TextStyle(
-                                                  color: Color.fromARGB(
-                                                      255, 0, 98, 255),
-                                                  fontWeight: FontWeight.w700,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              onTap: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        EmployeeDetailPage(
-                                                      employeeId: emp.id ?? 0,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    if (isShowLoadMore)
-                                      const Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: LoadingMoreRowWidget(),
-                                      ),
-                                  ],
-                                ),
+Expanded(
+  child: employees.isEmpty
+      ? Center(
+          child: Text(
+            state.filterParam != null
+                ? "Không có kết quả nào phù hợp với bộ lọc"
+                : "Không có nhân viên nào",
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black54,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        )
+      : Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: () async => _cubit.getListEmployees(),
+              child: ListView.builder(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: employees.length,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                itemBuilder: (context, index) {
+                  final emp = employees[index];
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: ListTile(
+                      leading: AppCircleAvatar(
+                        url: emp.avatarUrl ?? "",
+                        size: 58,
+                      ),
+                      title: Text(
+                        emp.name ?? "Không có tên",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                          fontSize: 15,
                         ),
+                      ),
+                      subtitle: Text(
+                        "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
+                        style: const TextStyle(
+                          color: Colors.black54,
+                          fontSize: 13,
+                          height: 1.3,
+                        ),
+                      ),
+                      trailing: Text(
+                        emp.code != null ? "NV${emp.code}" : "",
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 0, 98, 255),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EmployeeDetailPage(
+                              employeeId: emp.id ?? 0,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (isShowLoadMore)
+              const Align(
+                alignment: Alignment.bottomCenter,
+                child: LoadingMoreRowWidget(),
+              ),
+          ],
+        ),
+),
+
                       ],
                     ),
                   ),

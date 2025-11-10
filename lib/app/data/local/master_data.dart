@@ -10,7 +10,7 @@ class MasterData {
     'Đã nghỉ việc',
   ];
   static Future<List<MasterDataItem>> getDepartmentsFromApi({
-    int limit = 1000,
+    int limit = 10,
     int offset = 0,
   }) async {
     try {
@@ -62,13 +62,54 @@ class MasterData {
     }
   }
 
-  static List<String> getJobTitlesFromEmployees(List<EmployeeEntity> employees) {
-    final jobTitles = employees
-        .map((e) => e.jobTitle)
-        .where((j) => j != null && j!.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
-    return jobTitles.cast<String>();
+ static Future<List<MasterDataItem>> getJobTitlesFromApi({
+  int limit = 10,
+  int offset = 0,
+}) async {
+  try {
+    final apiClient = GetIt.I<ApiClient>();
+    final CommonResponse response =
+        await apiClient.getListJobs(limit, offset); 
+
+    if (response.data != null && response.data is List) {
+      final List<dynamic> rawList = response.data as List<dynamic>;
+
+      final List<MasterDataItem> jobTitles = rawList.map((e) {
+        if (e is Map<String, dynamic>) {
+          final int? id = e['id'] is int
+              ? e['id']
+              : int.tryParse(e['id']?.toString() ?? '');
+          final String? name =
+              e['name'] ?? e['jobTitleName'] ?? e['title'] ?? e['text'] ?? '';
+          return MasterDataItem(
+            id: id,
+            name: name,
+            text: name,
+            code: e['code']?.toString(),
+          );
+        }
+        return MasterDataItem(
+          id: null,
+          name: e.toString(),
+          text: e.toString(),
+        );
+      }).toList();
+
+      final filtered = jobTitles
+          .where((j) => (j.name?.isNotEmpty ?? false))
+          .toSet()
+          .toList()
+        ..sort((a, b) => a.name!.compareTo(b.name!));
+
+      return filtered;
+    }
+
+    return [];
+  } catch (e, s) {
+    print('❌ Lỗi khi lấy danh sách chức vụ: $e');
+    print(s);
+    return [];
   }
+}
+
 }

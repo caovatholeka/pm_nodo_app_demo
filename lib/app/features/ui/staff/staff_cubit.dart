@@ -11,19 +11,19 @@ part 'staff_state.dart';
 class StaffCubit extends Cubit<StaffState> {
   final EmployeeRepository repository;
 
-  StaffCubit({required this.repository}) : super(StaffState());
-
-  EmployeeFilterParam? _filterParam;
+  StaffCubit({required this.repository}) : super(const StaffState());
 
   static const int offset = 0;
   static const int limit = 10;
-  static const int total = 0;
-
-  void getListEmployees() async {
-    emit(state.copyWith(loadStatus: LoadStatus.LOADING,page: offset,totalPages: total));
+  Future<void> getListEmployees() async {
+    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try {
-      final results = await repository.getListEmployees(limit: limit,offset: offset);
-      List<EmployeeEntity>? listEmployees;
+      final results = await repository.getListEmployees(
+        limit: limit,
+        offset: 0,
+      );
+
+      List<EmployeeEntity> employees = [];
       if (results.data != null) {
         employees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
       }
@@ -31,18 +31,13 @@ class StaffCubit extends Cubit<StaffState> {
       emit(state.copyWith(
         listEmployees: employees,
         loadStatus: LoadStatus.SUCCESS,
-        listEmployees: listEmployees ?? [],
-        page: results.offset,
-        totalPages: results.total
       ));
-    } catch (e, s) {
-      logger.e(e);
-      logger.e(s);
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE, listEmployees: []));
+    } catch (e) {
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
     }
   }
 
- Future<void> searchEmployees(String query) async {
+  Future<void> searchEmployees(String query) async {
     final q = query.trim();
     if (q.isEmpty) {
       await getListEmployees();
@@ -83,11 +78,9 @@ class StaffCubit extends Cubit<StaffState> {
     }
   }
 
-
-
-  void onLoadMore() async{
-    final currentPage = state.page ?? 0;
-    final totalPages = state.totalPages ?? 0;
+  void onLoadMore() async {
+    final currentPage = state.page;
+    final totalPages = state.totalPages;
 
     if (totalPages > 0 && currentPage >= (totalPages - 1)) {
       emit(state.copyWith(loadEventStatus: LoadStatus.SUCCESS));
@@ -100,7 +93,7 @@ class StaffCubit extends Cubit<StaffState> {
     }
 
     emit(state.copyWith(loadEventStatus: LoadStatus.LOADING_MORE));
-    try{
+    try {
       final nextOffset = currentPage + 1;
       final results = await repository.getListEmployees(limit: limit, offset: nextOffset);
 
@@ -119,23 +112,24 @@ class StaffCubit extends Cubit<StaffState> {
         page: results.offset,
         totalPages: results.total,
       ));
-    }catch(e){
+    } catch (e) {
       logger.d(e);
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE,loadEventStatus: LoadStatus.FAILURE));
+      emit(state.copyWith(
+        loadStatus: LoadStatus.FAILURE,
+        loadEventStatus: LoadStatus.FAILURE,
+      ));
     }
   }
 
-
 Future<void> filterEmployees(EmployeeFilterParam param) async {
-  final isEmptyFilter = (param.name == null || param.name!.isEmpty) &&
+  final hasNoFilter = (param.name == null || param.name!.isEmpty) &&
       (param.code == null || param.code!.isEmpty) &&
       (param.email == null || param.email!.isEmpty) &&
-      (param.departmentId == null) &&
+      param.departmentId == null &&
       (param.jobTitle == null || param.jobTitle!.isEmpty) &&
       param.active == null;
 
-  if (isEmptyFilter) {
-    await getListEmployees();
+  if (hasNoFilter) {
     return;
   }
 
@@ -145,11 +139,11 @@ Future<void> filterEmployees(EmployeeFilterParam param) async {
     final results = await repository.getListEmployees(
       limit: limit,
       offset: 0,
-      name: param.name?.trim().isNotEmpty == true ? param.name : null,
-      code: param.code?.trim().isNotEmpty == true ? param.code : null,
-      email: param.email?.trim().isNotEmpty == true ? param.email : null,
+      name: param.name,
+      code: param.code,
+      email: param.email,
       departmentId: param.departmentId,
-      jobTitle: param.jobTitle?.trim().isNotEmpty == true ? param.jobTitle : null,
+      jobTitle: param.jobTitle,
       active: param.active,
     );
 
@@ -160,19 +154,28 @@ Future<void> filterEmployees(EmployeeFilterParam param) async {
 
     emit(state.copyWith(
       listEmployees: employees,
-      filter: param,
       loadStatus: LoadStatus.SUCCESS,
+      filterParam: param,
     ));
   } catch (e) {
     emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
   }
 }
 
+Future<void> clearFilter() async {
+  emit(const StaffState(
+    loadStatus: LoadStatus.LOADING,
+    loadEventStatus: LoadStatus.INITIAL,
+    listEmployees: [],
+    page: 0,
+    totalPages: 0,
+  ));
 
-
-void clearFilter() {
-  _filterParam = null;
-  emit(state.copyWith(filter: null));
-  getListEmployees();
+  try {
+    await getListEmployees();
+  } catch (e) {
+    emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
   }
+}
+
 }

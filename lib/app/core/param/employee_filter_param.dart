@@ -21,8 +21,7 @@ class EmployeeFilterParam {
       if (code != null && code!.trim().isNotEmpty) 'code': code!.trim(),
       if (email != null && email!.trim().isNotEmpty) 'email': email!.trim(),
       if (departmentId != null) 'department_id': departmentId,
-      if (jobTitle != null && jobTitle!.trim().isNotEmpty)
-        'job_title': jobTitle!.trim(),
+      if (jobTitle != null) 'job_title': jobTitle,
       if (active != null) 'active': active,
     };
   }
