@@ -65,6 +65,8 @@ Future<CommonResponse> getListEmployees(
   Future<CommonResponse> getListTimeOnLeaves(
     @Query("limit") int? limit,
     @Query("offset") int? offset,
+      @Query("start_date") String? startDate,
+      @Query("end_date") String? endDate,
   );
 
   /// Lấy chi tiết đơn xin nghỉ
@@ -81,6 +83,8 @@ Future<CommonResponse> getListEmployees(
   @POST("/leave/hr_leave/confirm_hr_leave")
   Future<dynamic> confirmHrLeave(@Body() Map<String,dynamic> body);
 
+  @GET("/metadata/leave_types")
+  Future<CommonResponse> getListLeavesType();
 
   // danh sach cham cong
   @GET("/work_entry/attendance/by_month")

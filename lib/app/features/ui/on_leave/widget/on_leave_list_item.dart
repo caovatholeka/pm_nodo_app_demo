@@ -142,7 +142,7 @@ class OnLeaveListItem extends StatelessWidget {
             Column(
               children: [
                 const SizedBox(height: 16,),
-                _buildItem("Loại nghỉ",""),
+                _buildItem("Loại nghỉ", entity.holidayStatus ?? ""),
                 const SizedBox(height: 12,),
                 _buildItem("Người duyệt:",""),
               ],

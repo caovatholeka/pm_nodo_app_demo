@@ -6,12 +6,12 @@ import '../models/response/common_response.dart';
 import '../models/response/on_leave_response.dart';
 
 abstract class OnLeaveRepository {
-  Future<CommonResponse> getListTimeOnLeaves(int limit,int offset);
+  Future<CommonResponse> getListTimeOnLeaves(int limit,int offset, String? startDate, String? endDate);
   Future<OnLeaveEntity> getDetailOnLeave(int id);
   Future<dynamic> deleteDetailOnLeave( int id);
   Future<OnLeaveResponse> saveOrUpdateHrLeave(UpdateOnLeaveParam param);
   Future<dynamic> confirmHrLeave(Map<String,dynamic> body);
-
+  Future<CommonResponse> getListLeavesType();
 }
 
 class OnLeaveRepositoryImpl extends OnLeaveRepository {
@@ -22,8 +22,8 @@ class OnLeaveRepositoryImpl extends OnLeaveRepository {
   }
 
   @override
-  Future<CommonResponse> getListTimeOnLeaves(int limit, int offset) async {
-    return _apiClient.getListTimeOnLeaves(limit,offset);
+  Future<CommonResponse> getListTimeOnLeaves(int limit, int offset, String? startDate, String? endDate) async {
+    return _apiClient.getListTimeOnLeaves(limit,offset,startDate,endDate);
   }
 
   @override
@@ -44,5 +44,10 @@ class OnLeaveRepositoryImpl extends OnLeaveRepository {
   @override
   Future<dynamic> confirmHrLeave(Map<String,dynamic> body) async {
     return await _apiClient.confirmHrLeave(body);
+  }
+
+  @override
+  Future<CommonResponse> getListLeavesType() async {
+    return await _apiClient.getListLeavesType();
   }
 }

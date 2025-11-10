@@ -252,6 +252,8 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
                 CustomDashView(),
 
                 const SizedBox(height: 30,),
+                // state.detailEntity?.state == "draft"  ?
+                //   _bottomSheet : const SizedBox.shrink(),
                 _bottomSheet,
                 const SizedBox(height: 30,),
               ],
