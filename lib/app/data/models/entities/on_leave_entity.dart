@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
 
 part 'on_leave_entity.g.dart';
 
@@ -28,6 +29,9 @@ class OnLeaveEntity {
   @JsonKey(name:"holiday_status")
   String? holidayStatus;
 
+  // @JsonKey(name:"holiday_status_id")
+  // int? holidayStatusId;
+
   @JsonKey()
   String? description;
 
@@ -39,6 +43,9 @@ class OnLeaveEntity {
 
   @JsonKey()
   String? state;
+
+  @JsonKey(name: "line_ids")
+  List<LeaveDayEntity>? lineIds;
 
   @JsonKey()
   int? status;
@@ -52,6 +59,7 @@ class OnLeaveEntity {
     this.dateFrom,
     this.dateTo,
     this.holidayStatus,
+    // this.holidayStatusId,
     this.description,
     this.durationDisplay,
     this.remainLeave,
@@ -68,6 +76,7 @@ class OnLeaveEntity {
     String? dateFrom,
     String? dateTo,
     String? holidayStatus,
+    int? holidayStatusId,
     String? description,
     String? durationDisplay,
     int? remainLeave,
@@ -83,6 +92,7 @@ class OnLeaveEntity {
       dateFrom: dateFrom ?? this.dateFrom,
       dateTo: dateTo ?? this.dateTo,
       holidayStatus: holidayStatus ?? this.holidayStatus,
+      // holidayStatusId: holidayStatusId ?? this.holidayStatusId,
       description: description ?? this.description,
       durationDisplay: durationDisplay ?? this.durationDisplay,
       remainLeave: remainLeave ?? this.remainLeave,

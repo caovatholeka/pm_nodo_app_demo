@@ -64,8 +64,16 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   List<LeaveDayEntity> listDays = [];
   @override
   void initState() {
+     // _createCubit.initData(widget.detailEntity ?? OnLeaveEntity());
     _createCubit.getListDateTypeLeaves();
     _createCubit.getListTypeLeaves();
+
+    if(widget.isEdit ?? false){
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _prefillForEdit();
+      });
+
+    }
     super.initState();
   }
 
@@ -92,6 +100,117 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   String _fmtTotal(double v) {
     return (v == v.roundToDouble()) ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
   }
+
+  // Edit
+  DateTime? _tryParseIso(String? iso) {
+    if (iso == null || iso.isEmpty) return null;
+    try {
+      return DateTime.parse(iso);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<LeaveDayEntity> _buildDaysForEdit({
+    required DateTime from,
+    required DateTime to,
+    required List<dynamic>? lineIds,
+  }) {
+    final List<LeaveDayEntity> out = [];
+
+    if (lineIds != null && lineIds.isNotEmpty) {
+      for (final e in lineIds) {
+        if (e is LeaveDayEntity) {
+          final d = _tryParseIso(e.date);
+          if (d != null) {
+            out.add(LeaveDayEntity(date: d.toIso8601String(), type: (e.type ?? 'full')));
+          }
+        } else if (e is Map) {
+          final d = _tryParseIso(e['date'] as String?);
+          final t = (e['type'] as String?) ?? 'full';
+          if (d != null) {
+            out.add(LeaveDayEntity(date: d.toIso8601String(), type: t));
+          }
+        }
+      }
+      if (out.isNotEmpty) return out;
+    }
+
+    final allDays = AppDateUtils.daysBetween(from, to);
+    for (final d in allDays) {
+      out.add(LeaveDayEntity(date: d.toIso8601String(), type: 'full'));
+    }
+    return out;
+  }
+
+  Future<void> _prefillForEdit() async {
+    final detail = widget.detailEntity;
+    if (!(widget.isEdit ?? false) || detail == null) return;
+
+    final from = _tryParseIso(
+        (detail as dynamic).dateFrom ?? (detail as dynamic).date_from);
+    final to = _tryParseIso(
+        (detail as dynamic).dateTo ?? (detail as dynamic).date_to);
+
+
+    final description =
+        (detail as dynamic).description as String? ?? (detail as dynamic).reason as String? ?? '';
+    final remainLeave =
+        (detail as dynamic).remainLeave as num? ?? (detail as dynamic).remain_leave as num? ?? 0;
+    final holidayStatus =
+        (detail as dynamic).holidayStatus as String? ?? (detail as dynamic).holiday_status as String? ?? '';
+
+    // final holidayStatusId =
+    //     (detail as dynamic).holidayStatusId as num? ?? (detail as dynamic).holiday_status_id as num? ?? 0;
+
+    final lineIds =
+        (detail as dynamic).lineIds as List<dynamic>? ?? (detail as dynamic).line_ids as List<dynamic>?;
+
+    if (from != null) {
+      _createCubit.setFromDate(from);
+      fromDateController.text = AppDateUtils.changeIso8601StringToDateTimeString(from.toIso8601String());
+    }
+    if (to != null) {
+      _createCubit.setToDate(to);
+      toDateController.text = AppDateUtils.changeIso8601StringToDateTimeString(to.toIso8601String());
+    }
+
+    // danh sach ngay nghi
+    if (from != null && to != null) {
+      listDays = _buildDaysForEdit(from: from, to: to, lineIds: lineIds);
+      _createCubit.onChangeListLeaveDays(listDays);
+
+      // leave type
+      final total = _sumDaysByType(listDays);
+      totalDaysController.text = _fmtTotal(total);
+    } else {
+      listDays = [];
+      _createCubit.onChangeListLeaveDays(listDays);
+      totalDaysController.text = '0';
+    }
+
+    //lý do
+    reasonController.text = description;
+    _createCubit.onChangeReason(description);
+
+    // Loại ngày nghỉ
+    if (holidayStatus.isNotEmpty) {
+      dateTypeController.text = holidayStatus;
+      try {
+        _createCubit.onChangeDateTypeLeaves(
+          MasterDataItem(text: holidayStatus, code: holidayStatus),
+        );
+      } catch (e){
+        logger.d(e);
+      }
+    }
+    try {
+      leavesDaysController.text = (remainLeave.toDouble()).toStringAsFixed(1);
+    } catch (_) {
+      leavesDaysController.text = remainLeave.toString();
+    }
+  }
+
 
   _showDatePicker({DateTime? defaultValue, DateChangedCallback? onConfirm}){
     DatePicker.showDatePicker(

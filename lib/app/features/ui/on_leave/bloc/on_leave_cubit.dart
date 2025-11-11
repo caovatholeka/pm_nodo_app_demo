@@ -22,8 +22,11 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
 
       int limit = 10;
       int offset  = 0;
-
-      final results = await repository.getListTimeOnLeaves(limit,offset);
+      String? startDate;
+      String? endDate;
+      final results = await repository.getListTimeOnLeaves(limit,
+          offset,state.startDateFilter,
+          state.endDateFilter);
       List<OnLeaveEntity>? listLeaves;
       if(results.data != null){
         listLeaves =  mapList<OnLeaveEntity>(results.data, OnLeaveEntity.fromJson);
@@ -36,6 +39,10 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
       logger.d(s);
       emit(state.copyWith(loadStatus: LoadStatus.FAILURE,listLeaveEntities: []));
     }
+  }
+
+  onChangeDateFilter(String start, String end){
+    emit(state.copyWith(startDateFilter: start,endDateFilter: end));
   }
 
 }

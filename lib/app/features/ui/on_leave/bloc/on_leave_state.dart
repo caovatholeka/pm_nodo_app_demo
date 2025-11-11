@@ -8,12 +8,18 @@ class OnLeaveState extends Equatable {
   final List<OnLeaveEntity>? listLeaveEntities;
   final OnLeaveEntity? detailOnLeave;
 
+  String? startDateFilter;
+  String? endDateFilter;
+
+
   OnLeaveState({
     this.loadStatus = LoadStatus.INITIAL,
     this.errMsg,
     this.errStatus,
     this.listLeaveEntities,
     this.detailOnLeave,
+    this.startDateFilter,
+    this.endDateFilter
   });
 
   OnLeaveState copyWith({
@@ -23,6 +29,8 @@ class OnLeaveState extends Equatable {
     String? errStatus,
     List<OnLeaveEntity>? listLeaveEntities,
     OnLeaveEntity? detailOnLeave,
+    String? startDateFilter,
+    String? endDateFilter
   }) {
     return OnLeaveState(
         loadStatus: loadStatus ?? this.loadStatus,
@@ -30,6 +38,8 @@ class OnLeaveState extends Equatable {
         errStatus: errStatus ?? this.errStatus,
         listLeaveEntities: listLeaveEntities ?? this.listLeaveEntities,
         detailOnLeave: detailOnLeave ?? this.detailOnLeave,
+      startDateFilter: startDateFilter ?? this.startDateFilter,
+      endDateFilter: endDateFilter ?? this.endDateFilter
     );
   }
 
@@ -40,5 +50,7 @@ class OnLeaveState extends Equatable {
     errStatus,
     listLeaveEntities,
     detailOnLeave,
+    startDateFilter,
+    endDateFilter
   ];
 }

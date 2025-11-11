@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
@@ -10,6 +11,7 @@ import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 import '../../../data/models/entities/on_leave_entity.dart';
 import '../../../data/models/enums/load_status.dart';
+import '../../widgets/custom_calendar_range_sheet.dart';
 import 'bloc/on_leave_cubit.dart';
 import 'on_leave_detail_page.dart';
 import 'widget/on_leave_list_item.dart';
@@ -35,6 +37,23 @@ class _OnLeavePageState extends State<OnLeavePage> {
   void dispose() {
     super.dispose();
   }
+
+  // Calendar date
+
+  static DateTime _mondayOf(DateTime d) {
+    final x = DateTime(d.year, d.month, d.day);
+    final delta = x.weekday - 1; // weekday: Monday = 1 → delta = 0
+    return x.subtract(Duration(days: delta));
+  }
+
+  static DateTimeRange _weekOf(DateTime d) {
+    final start = _mondayOf(d);
+    final end = start.add(const Duration(days: 6));
+    return DateTimeRange(start: start, end: end);
+  }
+
+  DateTimeRange selectedWeek = _weekOf(DateTime.now());
+  final _df = DateFormat('dd/MM/yyyy');
 
   Future _onRefresh() async {
     _cubit.getListOnLeaveTimes();
@@ -68,9 +87,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(titleAppbar: "Quản lý nghỉ phép",
-        haveBackButton: true,
-      ),
+      appBar: MyAppBar(titleAppbar: "Quản lý nghỉ phép"),
       extendBodyBehindAppBar: true,
       body: Container(
         width: double.infinity,
@@ -129,6 +146,33 @@ class _OnLeavePageState extends State<OnLeavePage> {
               disableTitle: true,
               enable: true,
               readOnly: true,
+              suffixIcon: AppAssets.icCalendar,
+              callback: () async{
+                // open custom calendar
+                final res = await showModalBottomSheet<DateTimeRange>(
+                context: context,
+                isScrollControlled: true,
+                showDragHandle: true,
+                backgroundColor: Colors.white,
+                builder: (_) => CalendarRangeSheet(
+                  initial: selectedWeek,
+                  locale: "en",),
+                );
+
+                if (res != null) {
+                  selectedWeek = res;
+                  // String week = selectedWeek.toYmdLabel();
+                  String start = _df.format(selectedWeek.start);
+                  String end = _df.format(selectedWeek.end);
+                  if (start != end) {
+                    _cubit.onChangeDateFilter(start, end);
+                  } else {
+                    _cubit.onChangeDateFilter("", "");
+                  }
+                  // call api search
+                  _cubit.getListOnLeaveTimes();
+                }
+              },
             ),
           ),
         const SizedBox(width: 8,),

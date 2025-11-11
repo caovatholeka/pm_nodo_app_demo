@@ -1,10 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
+import 'package:pm_app/app/data/models/entities/leave_type_entity.dart';
+import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 
 import '../../../../config/app_config.dart';
+import '../../../../core/helper/response_mapper.dart';
 import '../../../../core/utils/app_utils.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../data/models/entities/master_data_item.dart';
@@ -24,18 +28,25 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   //   return super.close();
   // }
 
+  void initData(OnLeaveEntity entity){
+    emit(state.copyWith(
+      reason: entity.description,
+    ));
+  }
+
   void createOrUpdateLeaveDay() async{
     emit(state.copyWith(createStatus: LoadStatus.LOADING));
     try{
       final UpdateOnLeaveParam param = UpdateOnLeaveParam(
-        employeeId: 57,
-        holidayStatusId: 1,
-        departmentId: 4,
+        employeeId: GlobalData.instance.userId,
+        holidayStatusId: state.currentDateLeaveType?.id,
+        departmentId: 4, //GlobalData.instance.userProfile,
         requestDateFrom: AppUtil().parseDateToYMD(state.fromDate),
         requestDateTo: AppUtil().parseDateToYMD(state.toDate),
         name: state.reason,
         leaveDays: state.listLeaveDays
       );
+
       final res = await repository.saveOrUpdateHrLeave(param);
       if((res.lines ?? []).isNotEmpty){
         emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
@@ -47,13 +58,33 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   }
 
   // Loại ngày nghỉ
-  void getListDateTypeLeaves(){
-    List<MasterDataItem> list = [
-      MasterDataItem(text: "Nghỉ phép",code: "P"),
-      MasterDataItem(text: "Nghỉ không lương",code: "KL"),
-    ];
+  void getListDateTypeLeaves() async{
+    try {
+      List<MasterDataItem> list = [];
+      List<LeaveTypeEntity>? leaveTypes;
+      final res = await repository.getListLeavesType();
+      if(res.data != null){
+        leaveTypes = mapList<LeaveTypeEntity>(res.data, LeaveTypeEntity.fromJson);
+      }
 
-    emit(state.copyWith(listDateTypeLeaves: list));
+      if((leaveTypes ?? []).isNotEmpty){
+        for (LeaveTypeEntity type in (leaveTypes ?? [])) {
+          MasterDataItem item = MasterDataItem(id: type.id,code:
+          type.id.toString(),text: type.name);
+          list.add(item);
+        }
+        emit(state.copyWith(listDateTypeLeaves: list));
+      }else{
+        emit(state.copyWith(listDateTypeLeaves: []));
+      }
+
+
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(listDateTypeLeaves: []));
+    }
+
+
   }
   void onChangeDateTypeLeaves(MasterDataItem item){
     emit(state.copyWith(currentDateLeaveType: item,leaveDateType: item.text));
