@@ -17,10 +17,16 @@ class WorkEntryPage extends StatefulWidget {
 class _WorkEntryPageState extends State<WorkEntryPage> {
   final cubit = GetIt.I.get<WorkEntryCubit>();
 
+  final String dateFrom = "2025-09-01";  
+  final String dateTo   = "2025-09-30";
+
   @override
   void initState() {
     super.initState();
-    cubit.loadWorkEntries();
+    cubit.loadWorkEntries(
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+    );
   }
 
   String _mapStatus(String? state) {
