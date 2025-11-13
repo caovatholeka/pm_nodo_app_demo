@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/explanation/explanation_list_cubit.dart';
+import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
@@ -96,6 +98,10 @@ Future<void> init() async {
     () => EmployeeFilterCubit(),
   );
 
+  sl.registerLazySingleton<AttendanceDataCubit>(
+        () => AttendanceDataCubit(repository: sl()),
+  );
+
   // ** Repository **
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(sl()),
@@ -112,6 +118,8 @@ Future<void> init() async {
   sl.registerLazySingleton<EmployeeRepository>(
     () => EmployeeRepositoryImpl(sl()),
   );
+
+  sl.registerLazySingleton<AttendanceRepository>(() => AttendanceRepositoryImpl(sl()));
 
   // ** Account **
   sl.registerLazySingleton<AccountCubit>(

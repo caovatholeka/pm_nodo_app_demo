@@ -1,4 +1,6 @@
 import 'dart:async';
+import '../../../core/commons/app_assets.dart';
+import 'face_scan_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,7 +15,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../core/commons/app_colors.dart';
 
 class CheckInPage extends StatefulWidget {
-  const CheckInPage({super.key});
+  final bool? isFromHome;
+  const CheckInPage({super.key,this.isFromHome});
 
   @override
   State<CheckInPage> createState() => _CheckInPageState();
@@ -113,6 +116,17 @@ Future<void> _requestLocationPermission() async {
           return Scaffold(
             appBar: AppBar(
               title: Text("Chấm công"),
+                leading: (widget.isFromHome ?? false)
+                    ? IconButton(
+                  onPressed: () {
+                        Navigator.of(context).maybePop();
+                      },
+                  icon: Image.asset(
+                    AppAssets.ic_arrowB,
+                    width: 30,
+                    height: 30,
+                  ),
+                ) : const SizedBox(),
             ),
             body: SizedBox(
               height: double.infinity,
@@ -292,20 +306,20 @@ callback: isLoading
     : () async {
         await _requestLocationPermission();
 
-        // final result = await Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (_) => const FaceScanPage()),
-        // );
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const FaceScanPage()),
+        );
 
-        // if (result == true) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     const SnackBar(
-        //       content: Text("✅ Check in thành công!"),
-        //       backgroundColor: Colors.green,
-        //     ),
-        //   );
-        //   // await _cubit.doCheckIn();
-        // }
+        if (result == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("✅ Check in thành công!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // await _cubit.doCheckIn();
+        }
       },
             isLoading: isLoading,
             // mainText: state.currentCheckInEntity?.checkinAt != null ?

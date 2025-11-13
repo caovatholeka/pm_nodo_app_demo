@@ -98,6 +98,12 @@ Future<CommonResponse> getListEmployees(
 
   @POST("/work_entry/send_invalid")
   Future<CommonResponse> sendInvalid(@Body() Map<String,dynamic> body);
+  //
+  @GET("/metadata/workflow_stages")
+  Future<CommonResponse> getListWorkFlowStages();
+
+  @GET("/metadata/workentry_types")
+  Future<CommonResponse> getListWorkEntryTypes();
 }
 
 

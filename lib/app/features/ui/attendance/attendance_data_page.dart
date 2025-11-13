@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
+import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/attendance_tab/attendance_tab.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_tab.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -17,6 +19,8 @@ class AttendanceDataPage extends StatefulWidget {
 class _AttendanceDataPageState extends State<AttendanceDataPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
+
+  final _cubit = GetIt.I<AttendanceDataCubit>();
 
   @override
   void initState() {
@@ -88,8 +92,8 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
                     ),
                     child: TabBarView(
                       controller: _tabController,
-                      children: const [
-                        AttendanceTab(),
+                      children: [
+                        AttendanceTab(cubit: _cubit,),
                         ExplanationTab(),
                       ],
                     ),

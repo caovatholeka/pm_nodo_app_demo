@@ -14,19 +14,25 @@ class OnLeaveListItem extends StatelessWidget {
         this.onShowDetail,
       });
 
-  Color getStatusColor(int status){
-    switch(status){
+  // trạng thái đơn nghỉ :
+  // Nháp , Trưởng phòng duyệt, Hoàn thành, Huỷ
+
+  Color getStatusColor(int id){
+    switch(id){
       case 1:
-        return AppColors.colorPending;
-      case 2:
-        return AppColors.colorApproved;
-      case 3:
-        return AppColors.colorRejected;
-      case 4:
-        return AppColors.colorCancel;
-      case 5:
-        return AppColors.colorApproved;
       case 6:
+      case 13:
+      case 17:
+        return AppColors.colorDraft;
+      case 14:
+        return AppColors.colorApproved;
+      case 11:
+      case 15:
+      case 9:
+        return AppColors.colorFinished;
+      case 20:
+      case 16:
+      case 12:
         return AppColors.colorCancel;
       default:
         return Colors.transparent;
@@ -36,17 +42,20 @@ class OnLeaveListItem extends StatelessWidget {
   Color getBgColor(int status){
     switch(status){
       case 1:
-        return AppColors.colorPending.withValues(alpha: 0.1);
-      case 2:
-        return AppColors.colorApproved.withValues(alpha: 0.1);
-      case 3:
-        return AppColors.colorRejected.withValues(alpha: 0.1);
-      case 4:
-        return AppColors.colorCancel.withValues(alpha: 0.1);
-      case 5:
-        return AppColors.colorApproved.withValues(alpha: 0.1);
       case 6:
-        return AppColors.colorRejected.withValues(alpha: 0.1);
+      case 13:
+      case 17:
+        return AppColors.colorDraft.withValues(alpha: 0.1);
+      case 14:
+        return AppColors.colorApproved.withValues(alpha: 0.1);
+      case 11:
+      case 15:
+      case 9:
+        return AppColors.colorFinished.withValues(alpha: 0.1);
+      case 20:
+      case 16:
+      case 12:
+        return AppColors.colorCancel.withValues(alpha: 0.1);
       default:
         return Colors.transparent;
     }
@@ -55,15 +64,20 @@ class OnLeaveListItem extends StatelessWidget {
   String getStatusTitle(int status){
     switch(status){
       case 1:
-        return "Chờ duyệt";//S.current.pending_approval;
-      case 2:
-        return  "Đã duyệt";//S.current.approved;
-      case 3:
-        return  "Từ chối"; //S.current.rejected;
-      case 4:
-        return "Huỷ nghỉ phép";
-      case 5:
-        return "Đã duyệt huỷ";
+      case 6:
+      case 13:
+      case 17:
+        return "Nháp";//S.current.pending_approval;
+      case 14:
+        return  "Trưởng phòng duyệt";//S.current.approved;
+      case 11:
+      case 15:
+      case 9:
+        return  "Hoàn thành"; //S.current.rejected;
+      case 20:
+      case 16:
+      case 12:
+        return "Huỷ";
       default:
         return "";
     }
@@ -108,7 +122,7 @@ class OnLeaveListItem extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6,vertical: 4),
                   decoration: BoxDecoration(
-                    color: getBgColor(entity.status ?? 0),
+                    color: getBgColor(entity.leaveStage?.id ?? 0),
                     borderRadius: BorderRadius.circular(99),
                   ),
                   child: Row(
@@ -117,17 +131,17 @@ class OnLeaveListItem extends StatelessWidget {
                         width: 6,
                         height: 6,
                         decoration: BoxDecoration(
-                          color: getStatusColor(entity.status ?? 0),
+                          color: getStatusColor(entity.leaveStage?.id ?? 0),
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
                       const SizedBox(width: 4,),
                       Text(
-                        getStatusTitle(entity.status ?? 0),
+                        getStatusTitle(entity.leaveStage?.id ?? 0),
                         style: TextStyle(
                           fontSize: 9,
-                          fontWeight: FontWeight.w500,
-                          color: getStatusColor(entity.status ?? 0),
+                          fontWeight: FontWeight.w400,
+                          color: getStatusColor(entity.leaveStage?.id ?? 0),
                         ),
                         overflow: TextOverflow.ellipsis,
                         softWrap: false,
@@ -144,7 +158,7 @@ class OnLeaveListItem extends StatelessWidget {
                 const SizedBox(height: 16,),
                 _buildItem("Loại nghỉ", entity.holidayStatus ?? ""),
                 const SizedBox(height: 12,),
-                _buildItem("Người duyệt:",""),
+                _buildItem("Người duyệt:",entity.userApprove?.name ?? ""),
               ],
             ),
           ],

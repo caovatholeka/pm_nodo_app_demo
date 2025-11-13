@@ -12,6 +12,11 @@
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
+		<key>CFBundleLocalizations</key>
+        <array>
+        	<string>en</string>
+        	<string>vi</string>
+        </array>
 		<key>CFBundleName</key>
 		<string>Nodo PM</string>
 		<key>CFBundlePackageType</key>
@@ -24,6 +29,23 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSAppTransportSecurity</key>
+        <dict>
+        	<key>NSAllowsArbitraryLoads</key>
+        	<true/>
+        </dict>
+        <key>NSCameraUsageDescription</key>
+        <string>Ứng dụng cần quyền truy cập Camera để chụp ảnh tài liệu/avatar...</string>
+        <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+        <string>Ứng dụng cần quyền truy cập vị trí của bạn để hiển thị vị trí chấm công.</string>
+        <key>NSLocationAlwaysUsageDescription</key>
+        <string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ trường học.</string>
+        <key>NSLocationWhenInUseUsageDescription</key>
+        <string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ trường học.</string>
+        <key>NSPhotoLibraryAddUsageDescription</key>
+        <string>Ứng dụng cần quyền lưu ảnh/video vào Thư viện của bạn khi xuất hoặc tải về.</string>
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>Ứng dụng cần quyền truy cập Photos để gửi ảnh tài liệu...</string>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>

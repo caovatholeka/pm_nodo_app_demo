@@ -38,9 +38,9 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
     emit(state.copyWith(createStatus: LoadStatus.LOADING));
     try{
       final UpdateOnLeaveParam param = UpdateOnLeaveParam(
-        employeeId: GlobalData.instance.userId,
+        employeeId: GlobalData.instance.userProfile?.id,
         holidayStatusId: state.currentDateLeaveType?.id,
-        departmentId: 4, //GlobalData.instance.userProfile,
+        departmentId: GlobalData.instance.userProfile?.department?.id,
         requestDateFrom: AppUtil().parseDateToYMD(state.fromDate),
         requestDateTo: AppUtil().parseDateToYMD(state.toDate),
         name: state.reason,
