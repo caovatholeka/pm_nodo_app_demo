@@ -40,9 +40,9 @@ class AppColors {
   static const Color bgGray = Color(0xFFF5F6F9);
 
   // nghi phep
-  static const Color colorPending = Color(0xFFC47600);
+  static const Color colorDraft = Color(0xFFC47600);
   static const Color colorApproved = Color(0xFF037847);
-  static const Color colorRejected = Color(0xFFD21D0D);
-  static const Color colorCancel = Color(0xFFC47600);
+  static const Color colorFinished = Color(0xFF037847);
+  static const Color colorCancel = Color(0xFFD21D0D);
 
 }

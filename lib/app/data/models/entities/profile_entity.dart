@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pm_app/app/data/models/entities/department_entity.dart';
 
 part 'profile_entity.g.dart';
 
@@ -20,6 +21,12 @@ class ProfileEntity {
   bool? phone;
 
   @JsonKey()
+  DepartmentEntity? department;
+
+  @JsonKey(name: "remain_leave")
+  double? remainLeave;
+
+  @JsonKey()
   String? birthdayDate;
 
   @JsonKey()
@@ -34,6 +41,8 @@ class ProfileEntity {
     this.login,
     this.email,
     this.phone,
+    this.department,
+    this.remainLeave,
     this.birthdayDate,
     this.code,
     this.avatarUrl
@@ -46,6 +55,8 @@ class ProfileEntity {
     String? email,
     bool? phone,
     String? birthdayDate,
+    DepartmentEntity? department,
+    double? remainLeave,
     String? code,
     String? avatarUrl
   }) {
@@ -55,6 +66,8 @@ class ProfileEntity {
         login: login ?? this.login,
         email: email ?? this.email,
         phone: phone ?? this.phone,
+        department: department ?? this.department,
+        remainLeave: remainLeave ?? this.remainLeave,
         birthdayDate: birthdayDate ?? this.birthdayDate,
         avatarUrl:avatarUrl ?? this.avatarUrl,
         code: code ?? this.code

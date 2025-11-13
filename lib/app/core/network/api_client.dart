@@ -93,4 +93,11 @@ Future<CommonResponse> getListEmployees(
       @Query("month") int? month,
       @Query("year") int? year,
       );
+
+  //
+  @GET("/metadata/workflow_stages")
+  Future<CommonResponse> getListWorkFlowStages();
+
+  @GET("/metadata/workentry_types")
+  Future<CommonResponse> getListWorkEntryTypes();
 }

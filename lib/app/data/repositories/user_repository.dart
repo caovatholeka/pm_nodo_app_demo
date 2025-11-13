@@ -6,8 +6,9 @@ import '../models/response/common_response.dart';
 abstract class UserRepository {
   Future<CommonResponse> getUserProfile(Map<String, dynamic> body);
   Future<dynamic> changeCurrentPass(Map<String, dynamic> body);
-  // Future<CommonResponse> updateUserProfile(int userId, File file);
-  // Future<List<UploadEntity>> getUserAvatar(Map<String, dynamic> body);
+
+  Future<CommonResponse> getListWorkFlowStages();
+  Future<CommonResponse> getListWorkEntryTypes();
 }
 
 class UserRepositoryImpl extends UserRepository {
@@ -27,5 +28,13 @@ class UserRepositoryImpl extends UserRepository {
       return await _apiClient.changePassword(body);
   }
 
+  @override
+  Future<CommonResponse> getListWorkFlowStages() async {
+      return await _apiClient.getListWorkFlowStages();
+  }
 
+  @override
+  Future<CommonResponse> getListWorkEntryTypes() async {
+    return await _apiClient.getListWorkEntryTypes();
+  }
 }

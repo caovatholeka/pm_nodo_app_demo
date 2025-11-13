@@ -3,7 +3,7 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
 
 class LeaveBalanceCard extends StatelessWidget {
-  final int remainingDays;
+  final String remainingDays;
 
   const LeaveBalanceCard({
     Key? key,
@@ -33,7 +33,7 @@ class LeaveBalanceCard extends StatelessWidget {
             ),
           ),
           Text(
-            '$remainingDays',
+            remainingDays,
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

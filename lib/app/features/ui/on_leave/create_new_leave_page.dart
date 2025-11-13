@@ -147,25 +147,21 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     final detail = widget.detailEntity;
     if (!(widget.isEdit ?? false) || detail == null) return;
 
-    final from = _tryParseIso(
-        (detail as dynamic).dateFrom ?? (detail as dynamic).date_from);
-    final to = _tryParseIso(
-        (detail as dynamic).dateTo ?? (detail as dynamic).date_to);
+    final from = _tryParseIso(detail.dateFrom ?? "");
+    final to = _tryParseIso(detail.dateTo);
 
 
-    final description =
-        (detail as dynamic).description as String? ?? (detail as dynamic).reason as String? ?? '';
-    final remainLeave =
-        (detail as dynamic).remainLeave as num? ?? (detail as dynamic).remain_leave as num? ?? 0;
-    final holidayStatus =
-        (detail as dynamic).holidayStatus as String? ?? (detail as dynamic).holiday_status as String? ?? '';
+    // final description =
+    //     (detail as dynamic).description as String? ?? (detail as dynamic).reason as String? ?? '';
+    final description = detail.description ?? "";
+    final remainLeave = detail.remainLeave ?? 0;
+    String holidayStatus = detail.holidayStatus ?? "";
 
-    // final holidayStatusId =
-    //     (detail as dynamic).holidayStatusId as num? ?? (detail as dynamic).holiday_status_id as num? ?? 0;
+    final holidayStatusId = detail.holidayStatusId ?? 0;
 
-    final lineIds =
-        (detail as dynamic).lineIds as List<dynamic>? ?? (detail as dynamic).line_ids as List<dynamic>?;
-
+    // final lineIds =
+    //     (detail as dynamic).lineIds as List<dynamic>? ?? (detail as dynamic).line_ids as List<dynamic>?;
+    final lineIds = detail.lineIds ?? [];
     if (from != null) {
       _createCubit.setFromDate(from);
       fromDateController.text = AppDateUtils.changeIso8601StringToDateTimeString(from.toIso8601String());
@@ -198,7 +194,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
       dateTypeController.text = holidayStatus;
       try {
         _createCubit.onChangeDateTypeLeaves(
-          MasterDataItem(text: holidayStatus, code: holidayStatus),
+          MasterDataItem(text: holidayStatus, code: holidayStatusId.toString()),
         );
       } catch (e){
         logger.d(e);

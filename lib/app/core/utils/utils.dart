@@ -29,6 +29,22 @@ class Utils {
     return int.tryParse('$value');
   }
 
+  String weekdayLabel(DateTime d, {String locale = 'vi'}) {
+    final l = locale.toLowerCase();
+    if (l.startsWith('vi')) {
+      if (d.weekday == DateTime.sunday) return 'Chủ nhật';
+      return 'Thứ ${d.weekday + 1}';
+    }
+
+    return DateFormat('EEEE', 'en').format(d);
+  }
+
+  String dayLabel(DateTime d, {String locale = 'vi'}) {
+    final w = weekdayLabel(d, locale: locale);
+    final dateStr = DateFormat('d/M/yyyy', locale.startsWith('vi') ? 'vi' : 'en').format(d);
+    return '$w, $dateStr';
+  }
+
   // tính khoảng cách được checkin
   double calcDistanceMetersGeolocator(
       double schoolLat, double schoolLon, double userLat, double userLon,

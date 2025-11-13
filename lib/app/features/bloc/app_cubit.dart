@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
+import 'package:pm_app/app/data/models/entities/work_entry_type_entity.dart';
+import 'package:pm_app/app/data/models/entities/work_flow_stage_entity.dart';
 
 import '../../core/commons/global_data.dart';
 import '../../core/helper/response_mapper.dart';
@@ -75,5 +77,39 @@ class AppCubit extends Cubit<AppState> {
     logger.e(error);
   }
 }
+
+  Future<void> getListWorkFlowStages() async {
+    try{
+      final res = await userRepository.getListWorkFlowStages();
+      List<WorkFlowStageEntity>? list;
+      if(res.data != null){
+        list = mapList(res.data, WorkFlowStageEntity.fromJson);
+        if(list.isNotEmpty){
+          emit(state.copyWith(listWorkFlowStages: list));
+        }else{
+          emit(state.copyWith(listWorkFlowStages: []));
+        }
+      }
+    }catch(e){
+      logger.d(e);
+    }
+  }
+
+  Future<void> getListWorkEntryTypes() async {
+    try{
+      final res = await userRepository.getListWorkEntryTypes();
+      List<WorkEntryTypeEntity>? list;
+      if(res.data != null){
+        list = mapList(res.data, WorkEntryTypeEntity.fromJson);
+        if(list.isNotEmpty){
+          emit(state.copyWith(listWorkEntryTypes: list));
+        }else{
+          emit(state.copyWith(listWorkEntryTypes: []));
+        }
+      }
+    }catch(e){
+      logger.d(e);
+    }
+  }
 
 }

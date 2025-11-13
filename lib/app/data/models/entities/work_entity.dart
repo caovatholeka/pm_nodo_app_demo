@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pm_app/app/data/models/entities/work_entry_type_entity.dart';
 
 part 'work_entity.g.dart';
 
@@ -22,6 +23,9 @@ class WorkEntity {
   @JsonKey(name: "date_stop")
   String? dateStop;
 
+  @JsonKey(name: "work_entry_type")
+  WorkEntryTypeEntity? workEntryType;
+
   WorkEntity({
     this.display,
     this.workEntryLabel,
@@ -29,6 +33,7 @@ class WorkEntity {
     this.nameStage,
     this.dateStart,
     this.dateStop,
+    this.workEntryType
   });
 
   WorkEntity copyWith({
@@ -38,6 +43,7 @@ class WorkEntity {
     String? nameStage,
     String? dateStart,
     String? dateStop,
+    WorkEntryTypeEntity? workEntryType
   }) {
     return WorkEntity(
       display: display ?? this.display,
@@ -46,6 +52,7 @@ class WorkEntity {
       nameStage: nameStage ?? this.nameStage,
       dateStart: dateStart ?? this.dateStart,
       dateStop: dateStop ?? this.dateStop,
+      workEntryType: workEntryType ?? this.workEntryType
     );
   }
 

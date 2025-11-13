@@ -25,7 +25,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _appCubit.getProfile(); 
+    _appCubit.getProfile();
+    // _appCubit.getListWorkEntryTypes();
+    // _appCubit.getListWorkFlowStages();
     super.initState();
   }
 
