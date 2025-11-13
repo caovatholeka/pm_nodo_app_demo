@@ -86,11 +86,18 @@ Future<CommonResponse> getListEmployees(
   @GET("/metadata/leave_types")
   Future<CommonResponse> getListLeavesType();
 
-  // danh sach cham cong
   @GET("/work_entry/attendance/by_month")
   Future<List<AttendanceEntity>> getListAttendances(
       @Query("employee_id") int? employeeId,
       @Query("month") int? month,
       @Query("year") int? year,
       );
+
+  @POST('/work_entry/user/entries')
+  Future<CommonResponse> getListWorkEntry(@Body() Map<String, dynamic> body);
+
+  @POST("/work_entry/send_invalid")
+  Future<CommonResponse> sendInvalid(@Body() Map<String,dynamic> body);
 }
+
+

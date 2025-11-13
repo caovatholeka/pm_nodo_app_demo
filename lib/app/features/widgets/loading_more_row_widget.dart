@@ -9,12 +9,12 @@ class LoadingMoreRowWidget extends StatelessWidget {
   final double strokeWidth;
 
   const LoadingMoreRowWidget({
-    Key? key,
+    super.key,
     this.height = 80,
     this.color = Colors.white,
     this.loadingSize = 24,
     this.strokeWidth = 4,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

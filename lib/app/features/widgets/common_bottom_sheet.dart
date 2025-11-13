@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/features/widgets/radio_box_icon.dart';
 import 'package:pm_app/app/features/widgets/radio_box_selected_icon.dart';

@@ -15,7 +15,6 @@ import '../../../data/models/entities/on_leave_entity.dart';
 import '../../widgets/custom_dash_view.dart';
 import '../../widgets/my_app_bar.dart';
 import '../../widgets/primary_button.dart';
-import 'bloc/on_leave_cubit.dart';
 
 class OnLeaveDetailPage extends StatefulWidget {
   int? detailId;

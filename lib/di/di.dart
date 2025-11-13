@@ -5,6 +5,8 @@ import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
+import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
+import 'package:pm_app/app/features/ui/attendance/explanation/explanation_list_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
@@ -120,5 +122,13 @@ Future<void> init() async {
   );
   sl.registerFactory<PersonalCubit>(
     () => PersonalCubit(userRepository: sl()),
+  );
+
+  sl.registerLazySingleton<ExplanationCubit>(
+    () => ExplanationCubit(),
+  );
+
+    sl.registerLazySingleton<WorkEntryCubit>(
+    () => WorkEntryCubit(),
   );
 }

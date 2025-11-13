@@ -168,7 +168,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Phòng ban", value: "Ko Có:("),
+                _InfoRow(title: "Phòng ban", value: user.department?.name ?? "Ko có :("),
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),

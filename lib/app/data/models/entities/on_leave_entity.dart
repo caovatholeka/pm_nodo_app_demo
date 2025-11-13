@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
+import 'package:pm_app/app/data/models/entities/user_approve_entity.dart';
+import 'package:pm_app/app/data/models/entities/work_flow_stage_entity.dart';
 
 part 'on_leave_entity.g.dart';
 
@@ -29,8 +31,11 @@ class OnLeaveEntity {
   @JsonKey(name:"holiday_status")
   String? holidayStatus;
 
-  // @JsonKey(name:"holiday_status_id")
-  // int? holidayStatusId;
+  @JsonKey(name:"holiday_status_id")
+  int? holidayStatusId;
+
+  @JsonKey(name:"leave_stage")
+  WorkFlowStageEntity? leaveStage;
 
   @JsonKey()
   String? description;
@@ -40,6 +45,9 @@ class OnLeaveEntity {
 
   @JsonKey(name:"remain_leave")
   int? remainLeave;
+
+  @JsonKey(name:"user_approve")
+  UserApproveEntity? userApprove;
 
   @JsonKey()
   String? state;
@@ -59,10 +67,12 @@ class OnLeaveEntity {
     this.dateFrom,
     this.dateTo,
     this.holidayStatus,
-    // this.holidayStatusId,
+    this.holidayStatusId,
+    this.leaveStage,
     this.description,
     this.durationDisplay,
     this.remainLeave,
+    this.userApprove,
     this.state,
     this.status
   });
@@ -77,9 +87,11 @@ class OnLeaveEntity {
     String? dateTo,
     String? holidayStatus,
     int? holidayStatusId,
+    WorkFlowStageEntity? leaveStage,
     String? description,
     String? durationDisplay,
     int? remainLeave,
+    UserApproveEntity? userApprove,
     String? state,
     int? status
   }) {
@@ -92,10 +104,12 @@ class OnLeaveEntity {
       dateFrom: dateFrom ?? this.dateFrom,
       dateTo: dateTo ?? this.dateTo,
       holidayStatus: holidayStatus ?? this.holidayStatus,
-      // holidayStatusId: holidayStatusId ?? this.holidayStatusId,
+      holidayStatusId: holidayStatusId ?? this.holidayStatusId,
+      leaveStage: leaveStage ?? this.leaveStage,
       description: description ?? this.description,
       durationDisplay: durationDisplay ?? this.durationDisplay,
       remainLeave: remainLeave ?? this.remainLeave,
+      userApprove: userApprove ?? this.userApprove,
       state: state ?? this.state,
       status: status ?? this.status
     );

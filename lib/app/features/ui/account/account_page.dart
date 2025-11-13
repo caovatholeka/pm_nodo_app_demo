@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
-import 'package:pm_app/app/data/models/response/common_response.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/di/di.dart';
 import '../../../core/commons/app_assets.dart';

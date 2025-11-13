@@ -17,9 +17,9 @@ class FilterBottomSheet extends StatefulWidget {
   EmployeeFilterParam? filterParam;
 
   FilterBottomSheet({
-    Key? key,
+    super.key,
     this.filterParam,
-  }): super(key: key);
+  });
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();

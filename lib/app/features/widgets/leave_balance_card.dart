@@ -6,9 +6,9 @@ class LeaveBalanceCard extends StatelessWidget {
   final int remainingDays;
 
   const LeaveBalanceCard({
-    Key? key,
+    super.key,
     required this.remainingDays,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -22,7 +22,8 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
 
   EmployeeRepositoryImpl(this._apiClient);
 
- Future<CommonResponse> getListEmployees({
+ @override
+  Future<CommonResponse> getListEmployees({
   int? limit,
   int? offset,
   String? name,
@@ -49,4 +50,6 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
   Future<EmployeeEntity> getDetailEmployee(int id) {
     return _apiClient.getDetailEmployee(id);
   }
+
+
 }

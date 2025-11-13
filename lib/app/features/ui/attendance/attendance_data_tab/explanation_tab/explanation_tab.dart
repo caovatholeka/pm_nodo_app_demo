@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-import 'package:pm_app/app/data/models/entities/profile_entity.dart';
-import 'package:pm_app/app/data/models/entities/token_entity.dart';
-import 'package:pm_app/app/data/repositories/user_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
-import 'package:pm_app/di/di.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'explanation_cubit.dart';
+import 'explanation_state.dart';
 
 class ExplanationTab extends StatefulWidget {
   const ExplanationTab({super.key});
@@ -17,60 +16,19 @@ class ExplanationTab extends StatefulWidget {
 
 class _ExplanationTabState extends State<ExplanationTab> {
   final TextEditingController _reasonController = TextEditingController();
+  final _cubit = GetIt.I.get<ExplanationCubit>();
   bool _isReasonFilled = false;
-
-  ProfileEntity? _profile;
-  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _cubit.fetchProfile();
+
     _reasonController.addListener(() {
-      setState(() => _isReasonFilled = _reasonController.text.trim().isNotEmpty);
+      final text = _reasonController.text.trim();
+      setState(() => _isReasonFilled = text.isNotEmpty);
+      _cubit.updateReason(text);
     });
-  }
-
-  Future<void> _loadProfile() async {
-    try {
-      final TokenEntity? tokenEntity = await SharedPrefsHelper.getToken();
-      final accessToken = tokenEntity?.accessToken;
-      if (accessToken == null || accessToken.isEmpty) {
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      final parts = accessToken.split('.');
-      if (parts.length != 3) {
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
-      final data = json.decode(payload);
-      final userId = data['id'] ?? data['sub'] ?? data['user_id'];
-      if (userId == null) {
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      final repo = sl<UserRepository>();
-      final response = await repo.getUserProfile({"id": userId});
-
-      if (response.data != null) {
-        final Map<String, dynamic> jsonData =
-            response.data is Map<String, dynamic> ? response.data : json.decode(json.encode(response.data));
-
-        setState(() {
-          _profile = ProfileEntity.fromJson(jsonData);
-          _isLoading = false;
-        });
-      } else {
-        setState(() => _isLoading = false);
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
   }
 
   @override
@@ -81,72 +39,93 @@ class _ExplanationTabState extends State<ExplanationTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return BlocConsumer<ExplanationCubit, ExplanationState>(
+      bloc: _cubit,
+      listener: (context, state) {
+        try {
+          if (state.submitSuccess == true) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
 
-    final name = _profile?.name ?? "Không xác định";
-    final department = _profile?.code ?? "Không xác định";
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildReadOnlyField("Nhân viên", name),
-          const SizedBox(height: 10),
-          _buildReadOnlyField("Phòng ban", department),
-          const SizedBox(height: 10),
-          _buildReadOnlyField("Giờ đến", "08:30"),
-          const SizedBox(height: 10),
-          _buildReadOnlyField("Giờ về", "18:00"),
-          const SizedBox(height: 10),
-          const Text.rich(
-            TextSpan(
-              text: "Lý do ",
-              style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 15),
-              children: [
-                TextSpan(text: "*", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          TextField(
-            controller: _reasonController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              hintText: "Nhập lý do nghỉ",
-              hintStyle: const TextStyle(color: Colors.grey),
-              contentPadding: const EdgeInsets.all(12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.grey, width: 1),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: AppColors.colorPrimary50, width: 1.4),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          PrimaryButton(
-            mainText: "Xác nhận",
-            enable: _isReasonFilled,
-            callback: () {
-              if (_isReasonFilled) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Đã gửi giải trình thành công!")),
+              try {
+                showDialog(
+                  context: context,
+                  builder: (_) => CustomDialog(
+                    title: "Thành công",
+                    content: "Đã gửi giải trình thành công!",
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 );
+              } catch (e, st) {
+                debugPrint('Error showing dialog: $e\n$st');
               }
-            },
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-            borderRadius: 10,
+              try {
+                _reasonController.clear();
+              } catch (e, st) {
+                debugPrint('Error clearing controller: $e\n$st');
+              }
+              Future.microtask(() {
+                try {
+                  _cubit.resetSubmitSuccess();
+                } catch (e, st) {
+                  debugPrint('Error resetting submitSuccess: $e\n$st');
+                }
+              });
+            });
+          }
+        } catch (e, st) {
+          debugPrint('Listener caught error: $e\n$st');
+        }
+      },
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final name = state.profile?.name ?? "Không xác định";
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildReadOnlyField("Nhân viên", name),
+              const SizedBox(height: 10),
+              _buildReadOnlyField(
+                "Phòng ban",
+                state.profile?.department?.name ?? "Không xác định",
+              ),
+              const SizedBox(height: 10),
+              _buildReadOnlyField("Giờ đến", "08:30"),
+              const SizedBox(height: 10),
+              _buildReadOnlyField("Giờ về", "18:00"),
+              const SizedBox(height: 10),
+              InputTextField(
+                title: "Lý do",
+                hintText: "Nhập lý do",
+                controller: _reasonController,
+                isRequiredField: true,
+                maxLine: 3,
+                enable: true,
+                onChange: (value) {
+                  _cubit.updateReason(value.trim());
+                },
+              ),
+              const SizedBox(height: 24),
+              PrimaryButton(
+                mainText: "Xác nhận",
+                enable: _isReasonFilled,
+                callback: () {
+                  if (_isReasonFilled) {
+                    _cubit.sendInvalidReason();
+                  }
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -154,16 +133,16 @@ class _ExplanationTabState extends State<ExplanationTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: 15)),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 6),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Text(value, style: const TextStyle(fontSize: 15, color: Colors.black87)),
+          child: Text(value),
         ),
       ],
     );

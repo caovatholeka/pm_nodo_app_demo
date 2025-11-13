@@ -17,17 +17,11 @@ class EmployeeDetailCubit extends Cubit<EmployeeDetailState> {
     try {
       final employee = await apiClient.getDetailEmployee(id);
 
-      if (employee != null) {
-        emit(state.copyWith(
-          employee: employee,
-          loadStatus: LoadStatus.SUCCESS,
-        ));
-      } else {
-        emit(state.copyWith(
-          loadStatus: LoadStatus.FAILURE,         
-        ));
-      }
-    } catch (e,s) {
+      emit(state.copyWith(
+        employee: employee,
+        loadStatus: LoadStatus.SUCCESS,
+      ));
+        } catch (e,s) {
       logger.d('err:$e');
       logger.d('ERRRRR: $s');
       emit(state.copyWith(

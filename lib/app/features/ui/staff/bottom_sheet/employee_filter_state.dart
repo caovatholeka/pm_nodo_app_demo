@@ -21,7 +21,7 @@ class EmployeeFilterState extends Equatable {
   final String? jobStatus;
   final MasterDataItem? currentJobStatus;
 
-  EmployeeFilterState({
+  const EmployeeFilterState({
     this.loadStatus = LoadStatus.INITIAL,
     this.employName,
     this.employId,

@@ -28,15 +28,10 @@ import 'core/logger/logger.dart';
 import 'core/router/application.dart';
 import 'core/router/routers.dart';
 import 'data/repositories/auth_repository.dart';
-import 'data/repositories/employee_repository.dart';
-import 'data/repositories/on_leave_repository.dart';
 import 'features/bloc/app_cubit.dart';
 import 'features/ui/auth/login/login_cubit.dart';
-import 'features/ui/on_leave/bloc/create_on_leave_cubit.dart';
-import 'features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'features/ui/splash/splash_cubit.dart';
 import 'features/ui/account/account_cubit.dart';
-import 'features/ui/staff/staff_cubit.dart';
 
 final getIt = GetIt.instance;
 

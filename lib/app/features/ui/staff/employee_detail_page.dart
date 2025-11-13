@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/network/api_client.dart';
-import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'employee_detail_cubit.dart';
 
@@ -34,20 +33,26 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
     _cubit.close();
     super.dispose();
   }
-  ImageProvider _buildAvatarImage(String? base64String) {
-    if (base64String == null || base64String.isEmpty) {
-      return AssetImage(AppAssets.img_df_avatar);
-    }
-    try {
-      final cleaned = base64String.contains(',')
-          ? base64String.split(',').last
-          : base64String;
-      final bytes = base64Decode(cleaned);
-      return MemoryImage(bytes);
-    } catch (e) {
-      return AssetImage(AppAssets.img_df_avatar);
-    }
+ImageProvider _buildAvatarImage(String? base64String) {
+  if (base64String == null || base64String.trim().isEmpty) {
+    return AssetImage(AppAssets.img_df_avatar);
   }
+
+  try {
+    final cleaned = base64String.contains(',')
+        ? base64String.split(',').last
+        : base64String;
+    final bytes = base64Decode(cleaned);
+    if (bytes.isEmpty) {
+      return AssetImage(AppAssets.img_df_avatar);
+    }
+    return MemoryImage(bytes);
+  } catch (e) {
+    debugPrint("Lỗi load ảnh Base64: $e");
+    return AssetImage(AppAssets.img_df_avatar);
+  }
+}
+
 
   Widget _sectionTitle(String text) {
     return Align(

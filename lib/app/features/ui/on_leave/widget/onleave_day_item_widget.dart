@@ -13,7 +13,7 @@ class OnleaveDayItemWidget extends StatefulWidget {
   String type;
   final ValueChanged<String>? onTypeChanged;
 
-  OnleaveDayItemWidget({required this.date, required this.type, this.onTypeChanged});
+  OnleaveDayItemWidget({super.key, required this.date, required this.type, this.onTypeChanged});
 
   @override
   State<OnleaveDayItemWidget> createState() => _OnleaveDayItemWidgetState();

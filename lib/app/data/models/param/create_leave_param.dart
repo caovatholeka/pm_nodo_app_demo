@@ -23,7 +23,7 @@ class UpdateOnLeaveParam {
   @JsonKey()
   String? name;
 
-  @JsonKey(name:"leave_days")
+  @JsonKey(name:"leave_days")    
   List<LeaveDayEntity>? leaveDays;
 
   UpdateOnLeaveParam({

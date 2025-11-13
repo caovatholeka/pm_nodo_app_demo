@@ -49,7 +49,6 @@ class LogInCubit extends Cubit<LoginState> {
 
         await authRepository.saveToken(entity);
         await SharedPrefsHelper.setIsLoginApp(true);
-
         final appCubit = GetIt.I<AppCubit>();
         await appCubit.getProfile();
 

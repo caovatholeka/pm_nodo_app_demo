@@ -3,6 +3,7 @@ import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/attendance/explanation/explanation_approval_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/generated/l10n.dart';
 import 'package:pm_app/app/features/widgets/attendance_card.dart' as widgets;
@@ -45,6 +46,14 @@ void _goAttendanceData() {
   Navigator.push(context,
          MaterialPageRoute(
         builder:(context) => AttendanceDataPage()
+        ));
+}
+
+
+void _goExplanation() {
+  Navigator.push(context,
+         MaterialPageRoute(
+        builder:(context) =>  WorkEntryPage()
         ));
 }
 
@@ -160,13 +169,16 @@ void _goAttendanceData() {
                 crossAxisSpacing: 12,
                 children: [
                   _buildMenuItemWithAsset(
-                    AppAssets.ic_employee, 'Nhân viên', onTap: () => {},),
+                    AppAssets.ic_employee, 'Nhân viên', onTap: () => {
+                    },),
                   _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {
                       _goAttendanceData()
                   }),
                   _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {}),
-                  _buildMenuItemWithAsset(AppAssets.ic_employee, 'Nhân viên',onTap: () => {}),
+                  _buildMenuItemWithAsset(AppAssets.ic_employee, 'Giải trình',onTap: () => {
+                    _goExplanation()
+                  }),
                   _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {}),
