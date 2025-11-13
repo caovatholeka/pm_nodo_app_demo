@@ -115,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   Positioned(
-                    top: 16,//96,
+                    top: 70,
                     left: 0,
                     right: 0,
                     child: Center(
@@ -192,7 +192,7 @@ class _LoginPageState extends State<LoginPage> {
         // ),
         // const SizedBox(height: 20),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 200),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -261,7 +261,7 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   }),
     
-              const SizedBox(height: 12),
+              const SizedBox(height: 6),
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
@@ -283,7 +283,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
               BlocBuilder<LogInCubit, LoginState>(
                 bloc: _cubit,
                 buildWhen: (prev, cur) =>
@@ -297,6 +297,7 @@ class _LoginPageState extends State<LoginPage> {
                   );
                 },
               ),
+              const SizedBox(height: 16),
             ],
           ),
         ),
