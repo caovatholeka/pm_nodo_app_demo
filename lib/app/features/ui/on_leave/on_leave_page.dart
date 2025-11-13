@@ -17,7 +17,8 @@ import 'on_leave_detail_page.dart';
 import 'widget/on_leave_list_item.dart';
 
 class OnLeavePage extends StatefulWidget {
-  const OnLeavePage({super.key});
+  final bool? isFromHome;
+  const OnLeavePage({super.key,this.isFromHome});
 
   @override
   State<OnLeavePage> createState() => _OnLeavePageState();
@@ -87,7 +88,10 @@ class _OnLeavePageState extends State<OnLeavePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(titleAppbar: "Quản lý nghỉ phép"),
+      appBar: MyAppBar(titleAppbar: "Quản lý nghỉ phép",
+
+        haveBackButton: (widget.isFromHome ?? false),
+      ),
       extendBodyBehindAppBar: true,
       body: Container(
         width: double.infinity,

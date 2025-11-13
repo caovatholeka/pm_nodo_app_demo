@@ -3,7 +3,10 @@ import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
+import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/generated/l10n.dart';
 import 'package:pm_app/app/features/widgets/attendance_card.dart' as widgets;
 
@@ -49,6 +52,27 @@ void _goAttendanceData() {
         builder:(context) => AttendanceDataPage()
         ));
 }
+
+void _goStaffPage(){
+  Navigator.push(context,
+      MaterialPageRoute(
+          builder:(context) => StaffPage(isFromHome: true,)
+      ));
+}
+
+  void _goOnLeavePage(){
+    Navigator.push(context,
+        MaterialPageRoute(
+            builder:(context) => OnLeavePage(isFromHome: true,)
+        ));
+  }
+
+  void _goCheckInPage(){
+    Navigator.push(context,
+        MaterialPageRoute(
+            builder:(context) => CheckInPage(isFromHome: true,)
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,12 +186,18 @@ void _goAttendanceData() {
                 crossAxisSpacing: 12,
                 children: [
                   _buildMenuItemWithAsset(
-                    AppAssets.ic_employee, 'Nhân viên', onTap: () => {},),
+                    AppAssets.ic_employee, 'Nhân viên', onTap: () => {
+                      _goStaffPage()
+                  },),
                   _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {
                       _goAttendanceData()
                   }),
-                  _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),
-                  _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {}),
+                  _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {
+                    _goOnLeavePage()
+                  }),
+                  _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {
+                    _goCheckInPage()
+                  }),
                   _buildMenuItemWithAsset(AppAssets.ic_employee, 'Nhân viên',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),

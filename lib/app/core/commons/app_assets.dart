@@ -29,6 +29,9 @@ class AppAssets {
   static final blockBg1 = 'assets/images/icons/block_bg_1.svg';
   static final icBack = 'assets/images/icons/ic_back.svg';
 
+  static final icEyeVisible = 'assets/images/icons/ic_eye_visible.svg';
+  static final icEyeClose = 'assets/images/icons/ic_eye_close.svg';
+
   static final starRating = 'assets/images/icons/ic_star_rating.svg';
   
   //Notification Icon 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
@@ -233,7 +234,15 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     );
 
     if(item != null ){
-      _createCubit.onChangeDateTypeLeaves(item);
+      if((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 &&
+        item.id == 7
+      ){
+        AppSnackBar.showError(title: "Cảnh báo",
+            message: "Quỹ phép của nhân viên ${GlobalData.instance.userProfile?.name ?? ""} không còn đủ !!!");
+      }else{
+        _createCubit.onChangeDateTypeLeaves(item);
+      }
+
     }
   }
 
@@ -319,7 +328,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             title: "Số phép còn lại",
             hintText: "",
             isRequiredField: false,
-            controller: leavesDaysController..text = '0.0', //(_cubit.state.leaveEntity?.soNgayPhepConLai ?? 0).toString() ?? "",
+            controller: leavesDaysController..text = '${GlobalData.instance.userProfile?.remainLeave}', //(_cubit.state.leaveEntity?.soNgayPhepConLai ?? 0).toString() ?? "",
             readOnly: true,
           ).paddingOnly(bottom: 20),
           // Loại ngày nghỉ
