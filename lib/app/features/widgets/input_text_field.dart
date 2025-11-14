@@ -184,7 +184,10 @@ import '../../core/commons/app_colors.dart';
                 errorBorder: errorBorder,
                 focusedErrorBorder: errorBorder,
 
-                errorStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, height: 1.2),
+                errorStyle: const TextStyle(
+                  fontSize: 0,   
+                  height: 0, 
+              ),
                 errorMaxLines: 2,
               ),
             ),
