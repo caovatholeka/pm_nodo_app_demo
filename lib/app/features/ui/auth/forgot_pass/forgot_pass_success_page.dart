@@ -72,18 +72,35 @@ class ForgotPassSuccessPage extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 20),
-                  PrimaryButton(
-                    mainText: "Đăng nhập",
-                    isLoading: false,
-                    enable: false,
-                    callback: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
-                        (route) => false,
-                      );
-                    },
+
+      GestureDetector(
+       onTap: () {
+        Navigator.pushAndRemoveUntil(
+       context,
+       MaterialPageRoute(builder: (_) => const LoginPage()),
+        (route) => false,
+          );
+        },
+            child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+             ),
+              child: const Center(
+                child: Text(
+                  "Đăng nhập",
+                  style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF2E6CF6),
                   ),
+                      ),
+                  ),
+                ),
+              ),
+
                 ],
               ),
             ),

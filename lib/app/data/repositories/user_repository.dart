@@ -1,5 +1,3 @@
-
-
 import '../../core/network/api_client.dart';
 import '../models/response/common_response.dart';
 
@@ -9,6 +7,7 @@ abstract class UserRepository {
 
   Future<CommonResponse> getListWorkFlowStages();
   Future<CommonResponse> getListWorkEntryTypes();
+  Future<dynamic> forgotPassword(Map<String,dynamic> body); 
 }
 
 class UserRepositoryImpl extends UserRepository {
@@ -36,5 +35,10 @@ class UserRepositoryImpl extends UserRepository {
   @override
   Future<CommonResponse> getListWorkEntryTypes() async {
     return await _apiClient.getListWorkEntryTypes();
+  }
+
+  @override
+  Future<CommonResponse> forgotPassword(Map<String,dynamic> body) async {
+    return await _apiClient.forgotPassword(body);
   }
 }

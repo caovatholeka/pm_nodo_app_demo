@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
+import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../config/app_config.dart';
@@ -193,7 +194,10 @@ class _LoginPageState extends State<LoginPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const ForgotPassPage(),
+                      builder: (_) => BlocProvider.value(
+                      value: sl<ForgotCubit>(),
+                       child: const ForgotPassPage(),
+                    ),
                     ),
                   );
                 },

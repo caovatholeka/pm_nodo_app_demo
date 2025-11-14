@@ -10,6 +10,7 @@ import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/explanation/explanation_list_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
+import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
@@ -144,6 +145,12 @@ Future<void> init() async {
 
   sl.registerLazySingleton<WorkEntryRepository>(
   () => WorkEntryRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton<ForgotCubit>(
+  () => ForgotCubit(sl()),
 );
+
+
 
 }

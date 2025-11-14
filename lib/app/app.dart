@@ -12,6 +12,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
+import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
@@ -122,6 +123,8 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<AccountCubit>()),
       BlocProvider(create: (context) => sl<EmployeeFilterCubit>()),
       BlocProvider(create: (context) => sl<AttendanceDataCubit>()),
+      BlocProvider(create: (context) => sl<ForgotCubit>()),
+
     ];
   }
 

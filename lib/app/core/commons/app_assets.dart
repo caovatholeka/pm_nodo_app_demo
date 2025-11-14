@@ -77,4 +77,5 @@ class AppAssets {
   static final ic_roundO = 'assets/images/icons/ic_roundO.png';
 
   static final bgForgotPassword = 'assets/images/img_forgotPassword.png';
+  static final loginBG = 'assets/images/imgBGLogin.png';
 }
