@@ -31,7 +31,7 @@ class PrimaryButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: enable 
           ? AppColors.themePrimaryDefault
-          : AppColors.bgGray.withValues(alpha: 0.6),
+          : Colors.white,
           borderRadius: BorderRadius.all(
             Radius.circular(borderRadius ?? 6),
           ),
@@ -52,7 +52,9 @@ class PrimaryButton extends StatelessWidget {
             style: style ?? TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: Colors.white
+               color: enable
+               ?  Colors.white
+               : AppColors.themePrimaryDefault,
             ),
           ),
         ),

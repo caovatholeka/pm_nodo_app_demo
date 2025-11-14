@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_pass_success_page.dart';
 
 import '../../../../core/commons/app_assets.dart';
@@ -17,167 +17,139 @@ class ForgotPassPage extends StatefulWidget {
 
 class _ForgotPassPageState extends State<ForgotPassPage> {
   final _userNameController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  void _forgotPass(){
+  void _forgotPass() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ForgotPassSuccessPage()),
+      MaterialPageRoute(builder: (_) => const ForgotPassSuccessPage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = ScreenSize.of(context).height;
+
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       backgroundColor: AppColors.colorPrimary50,
-      body: WillPopScope(
-        onWillPop: () async {
-          return false;
-        },
+      resizeToAvoidBottomInset: false,
+      body: SizedBox(
+        height: screenHeight,      
         child: Stack(
           children: [
-            Column(
-              children: [
-                _bannerWidget(),
-              ],
+            SizedBox(
+              height: screenHeight * 0.50,  
+              child: SvgPicture.asset(AppAssets.blockBg1, fit: BoxFit.fill),
             ),
+
             Positioned(
-              top: 86,
-              height: 16,
+              top: screenHeight * 0.06,
+              left: 16,
               child: InkWell(
-                onTap: (){
-                  Navigator.of(context).pop();
-                },
-                child: SizedBox(
-                  height: 30,
-                  width: 30,
-                  child: SvgPicture.asset(AppAssets.icBack),
-                ),
+                onTap: () => Navigator.pop(context),
+                child: SvgPicture.asset(AppAssets.icBack, width: 10),
+              ),
+            ),
+
+            Positioned(
+              top: screenHeight * 0.15,
+              left: 16,
+              right: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: SvgPicture.asset(AppAssets.appLogo, width: 88),
+                  ),
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    "Quên mật khẩu",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    "Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, "
+                    "bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.",
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.5,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
             Positioned(
-              top: 140,
-              left: 0,
-              right: 0,
+              top: screenHeight * 0.44 - 32,  
+              left: 16,
+              right: 16,
               bottom: 0,
-              child: _bodyContent(),
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(16, 22, 16, 30),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.12),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      InputTextField(
+                        title: "Tên đăng nhập",
+                        hintText: "Nhập tên đăng nhập của bạn",
+                        isRequiredField: true,
+                        controller: _userNameController,
+                        bgrColor: true,
+                      ),
+                      const SizedBox(height: 20),
+
+                      InputTextField(
+                        title: "Mật khẩu mới",
+                        hintText: "Nhập mật khẩu mới",
+                        bgrColor: true,
+                        isRequiredField: true,
+                        controller: _newPasswordController,
+                        isObscured: true,
+                      ),
+                      const SizedBox(height: 20),
+
+                      InputTextField(
+                        title: "Xác nhận mật khẩu mới",
+                        hintText: "Nhập lại mật khẩu mới",
+                        bgrColor: true,
+                        isRequiredField: true,
+                        controller: _confirmPasswordController,
+                        isObscured: true,
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      PrimaryButton(
+                        mainText: "Xác nhận",
+                        isLoading: false,
+                        callback: _forgotPass,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
   }
-
-  Widget _bannerWidget() {
-    return SizedBox(
-      height: ScreenSize.of(context).height*0.45,
-      child:  SvgPicture.asset(AppAssets.blockBg1,fit: BoxFit.fill,),
-    );
-  }
-
-  Widget _bodyContent(){
-    return Padding(padding: const EdgeInsets.only(left: 16,right: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: SvgPicture.asset(AppAssets.appLogo,width: 110,),
-          ),
-          const SizedBox(height: 20,),
-          Text("Quên Mật Khẩu",
-            style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w700,
-                color: AppColors.whiteColor
-            ),
-            textAlign: TextAlign.left,
-          ),
-          const SizedBox(height: 4,),
-          Text("Mật khẩu mới của bạn phải có tối thiểu 8 ký , bao gồm "
-              "CHỮ IN HOA, chữ thường ,ký tự đặc biệt và số",
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: AppColors.whiteColor
-            ),
-            textAlign: TextAlign.left,
-          ),
-          const SizedBox(height: 20,),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                )
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                InputTextField(
-                  title:"Tên Đăng Nhập",
-                  hintText: "Nhập tên đăng nhập của bạn",
-                  isRequiredField: false,
-                  enable: true,
-                  controller: _userNameController,
-                  maxLength: 255,
-                  onChange: (value){
-                  },
-                ),
-                const SizedBox(height: 20,),
-                InputTextField(
-                  title:"Mật khẩu mới",
-                  hintText: "Nhập mật khẩu mới",
-                  isRequiredField: true,
-                  enable: true,
-                  controller: _userNameController,
-                  maxLength: 255,
-                  onChange: (value){
-                  },
-                ),
-                const SizedBox(height: 20,),
-                InputTextField(
-                  title:"Xác nhận mật khẩu mới",
-                  hintText: "Nhập mật khẩu mới",
-                  isRequiredField: true,
-                  enable: true,
-                  controller: _userNameController,
-                  maxLength: 255,
-                  onChange: (value){
-                  },
-                ),
-
-                const SizedBox(height: 20,),
-                PrimaryButton(
-                    mainText:"Xác nhận", //S.current.login,
-                    isLoading: false,
-                    callback:(){
-                      _forgotPass();
-                    }
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
 }
