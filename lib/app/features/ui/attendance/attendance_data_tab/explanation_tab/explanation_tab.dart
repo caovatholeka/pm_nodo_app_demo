@@ -4,8 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+
 import 'explanation_cubit.dart';
-import 'explanation_state.dart';
 
 class ExplanationTab extends StatefulWidget {
   const ExplanationTab({super.key});
@@ -22,7 +22,7 @@ class _ExplanationTabState extends State<ExplanationTab> {
   @override
   void initState() {
     super.initState();
-    _cubit.fetchProfile();
+    _cubit.getListWorkEntries();
 
     _reasonController.addListener(() {
       final text = _reasonController.text.trim();

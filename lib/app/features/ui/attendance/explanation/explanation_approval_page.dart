@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/ui/attendance/explanation/explanation_list_cubit.dart';
-import 'package:pm_app/app/features/ui/attendance/explanation/explanation_list_state.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/explanation_card.dart';
 
@@ -15,7 +14,7 @@ class WorkEntryPage extends StatefulWidget {
 }
 
 class _WorkEntryPageState extends State<WorkEntryPage> {
-  final cubit = GetIt.I.get<WorkEntryCubit>();
+  final _cubit = GetIt.I<ExplanationListCubit>();
 
   final String dateFrom = "2025-09-01";  
   final String dateTo   = "2025-09-30";
@@ -23,24 +22,22 @@ class _WorkEntryPageState extends State<WorkEntryPage> {
   @override
   void initState() {
     super.initState();
-    cubit.loadWorkEntries(
-      dateFrom: dateFrom,
-      dateTo: dateTo,
-    );
+    _cubit.initData();
+    // _cubit.loadWorkEntries();
   }
 
-  String _mapStatus(String? state) {
-    switch (state) {
-      case "validated":
-        return "Hợp lệ";
-      case "invalidated":
-        return "Chưa xác nhận";
-      case "draft":
-        return "Nháp";
-      default:
-        return "Không rõ";
-    }
-  }
+  // String _mapStatus(String? state) {
+  //   switch (state) {
+  //     case "validated":
+  //       return "Hợp lệ";
+  //     case "invalidated":
+  //       return "Chưa xác nhận";
+  //     case "draft":
+  //       return "Nháp";
+  //     default:
+  //       return "Không rõ";
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -74,9 +71,10 @@ class _WorkEntryPageState extends State<WorkEntryPage> {
                     topRight: Radius.circular(18),
                   ),
                 ),
-
+                child: Center(child: Text("aabbbcc"),),
+                /*
                 child: BlocBuilder<WorkEntryCubit, WorkEntryState>(
-                  bloc: cubit,
+                  bloc: _cubit,
                   builder: (context, state) {
                     if (state.isLoading) {
                       return const Center(child: CircularProgressIndicator());
@@ -106,12 +104,13 @@ class _WorkEntryPageState extends State<WorkEntryPage> {
                           title: item.workEntryLabel ?? "Không xác định",
                           department: item.shift?.name ?? "Không rõ",
                           time: item.date ?? "-",
-                          status: _mapStatus(item.state),
+                          status: "",//_mapStatus(item.state),
                         );
                       },
                     );
                   },
                 ),
+               */ 
               ),
             ),
           ],

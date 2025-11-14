@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "55399884337",
+    "project_id": "nodo-pm-app",
+    "storage_bucket": "nodo-pm-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:55399884337:android:56dfee6ce3270b9b9a5710",
+        "android_client_info": {
+          "package_name": "com.nodo.pm_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6gayq_z4kcngi5sA2CSozbS3Ydzd6cs0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

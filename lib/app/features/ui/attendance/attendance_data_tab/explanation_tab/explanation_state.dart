@@ -1,5 +1,4 @@
-import 'package:equatable/equatable.dart';
-import 'package:pm_app/app/data/models/entities/profile_entity.dart';
+part of 'explanation_cubit.dart';
 
 class ExplanationState extends Equatable {
   final bool isLoading;
@@ -7,8 +6,10 @@ class ExplanationState extends Equatable {
   final String? error;
   final String? reason;
   final bool submitSuccess;
+  final LoadStatus loadStatus;
 
   const ExplanationState({
+    this.loadStatus = LoadStatus.INITIAL,
     this.isLoading = false,
     this.profile,
     this.error,
@@ -17,6 +18,7 @@ class ExplanationState extends Equatable {
   });
 
   ExplanationState copyWith({
+    LoadStatus? loadStatus,
     bool? isLoading,
     ProfileEntity? profile,
     String? error,
@@ -24,6 +26,7 @@ class ExplanationState extends Equatable {
     bool? submitSuccess,
   }) {
     return ExplanationState(
+      loadStatus: loadStatus ?? this.loadStatus,
       isLoading: isLoading ?? this.isLoading,
       profile: profile ?? this.profile,
       error: error,
@@ -33,5 +36,5 @@ class ExplanationState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [isLoading, profile, error, reason, submitSuccess];
+  List<Object?> get props => [loadStatus,isLoading, profile, error, reason, submitSuccess];
 }

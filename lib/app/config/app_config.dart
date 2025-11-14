@@ -10,6 +10,8 @@ class AppConfig {
   static String get envName => env.envName;
   static const baseImgUrl = "";
 
+  static const baseFaceIdUrl = "http://192.168.1.57:8000";
+
   ///Paging
   static const pageSize = 20;
   static const pageSizeMax = 1000;

@@ -1,14 +1,21 @@
 import 'dart:convert';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
+import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/di/di.dart';
-import 'explanation_state.dart';
+
+import '../../../../../data/models/enums/load_status.dart';
+
+part 'explanation_state.dart';
 
 class ExplanationCubit extends Cubit<ExplanationState> {
-  ExplanationCubit() : super(const ExplanationState());
+  WorkEntryRepository repository;
+  ExplanationCubit({required this.repository}) : super(ExplanationState());
 
   void updateReason(String reason) {
     emit(state.copyWith(reason: reason));
@@ -19,40 +26,60 @@ class ExplanationCubit extends Cubit<ExplanationState> {
 }
 
 
-  Future<void> fetchProfile() async {
-    emit(state.copyWith(isLoading: true, error: null));
+  // Future<void> fetchProfile() async {
+  //   emit(state.copyWith(isLoading: true, error: null));
+  //
+  //   try {
+  //     final token = await SharedPrefsHelper.getToken();
+  //     final accessToken = token?.accessToken;
+  //
+  //     if (accessToken == null || accessToken.isEmpty) {
+  //       emit(state.copyWith(isLoading: false, error: "Không có token"));
+  //       return;
+  //     }
+  //
+  //     final parts = accessToken.split('.');
+  //     final payloadPart = parts[0];
+  //     final decoded = utf8.decode(base64Url.decode(base64Url.normalize(payloadPart)));
+  //     final data = json.decode(decoded);
+  //     final userId = data['uid'];
+  //
+  //     if (userId == null) {
+  //       emit(state.copyWith(isLoading: false, error: "Token không hợp lệ"));
+  //       return;
+  //     }
+  //
+  //     final repo = sl<UserRepository>();
+  //     final resp = await repo.getUserProfile({"user_id": userId});
+  //
+  //     final rawData = resp.data;
+  //     final jsonData = rawData['data'] ?? rawData;
+  //
+  //     final profile = ProfileEntity.fromJson(Map<String, dynamic>.from(jsonData));
+  //
+  //     emit(state.copyWith(profile: profile, isLoading: false));
+  //   } catch (e) {
+  //     emit(state.copyWith(isLoading: false, error: e.toString()));
+  //   }
+  // }
 
+  Future<void> getListWorkEntries() async {
+    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try {
-      final token = await SharedPrefsHelper.getToken();
-      final accessToken = token?.accessToken;
-
-      if (accessToken == null || accessToken.isEmpty) {
-        emit(state.copyWith(isLoading: false, error: "Không có token"));
-        return;
+      final param = {
+        "limit": 20,
+        "offset": 0,
+        "date_from": "2025-10-01",
+        "date_to": "2025-10-30"
+      };
+      final res = await repository.getWorkEntries(param);
+      if(res.data != null){
+        logger.d("resss ::: ${res.data.toString()}");
       }
-
-      final parts = accessToken.split('.');
-      final payloadPart = parts[0];
-      final decoded = utf8.decode(base64Url.decode(base64Url.normalize(payloadPart)));
-      final data = json.decode(decoded);
-      final userId = data['uid'];
-
-      if (userId == null) {
-        emit(state.copyWith(isLoading: false, error: "Token không hợp lệ"));
-        return;
-      }
-
-      final repo = sl<UserRepository>();
-      final resp = await repo.getUserProfile({"user_id": userId});
-
-      final rawData = resp.data;
-      final jsonData = rawData['data'] ?? rawData;
-
-      final profile = ProfileEntity.fromJson(Map<String, dynamic>.from(jsonData));
-
-      emit(state.copyWith(profile: profile, isLoading: false));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+    }catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
     }
   }
 

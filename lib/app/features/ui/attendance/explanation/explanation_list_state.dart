@@ -1,23 +1,26 @@
-import 'package:equatable/equatable.dart';
-import 'package:pm_app/app/data/models/entities/work_entry_entity.dart';
+part of 'explanation_list_cubit.dart';
 
-class WorkEntryState extends Equatable {
+class ExplanationListState extends Equatable {
+  final LoadStatus loadStatus;
   final bool isLoading;
   final List<WorkEntryEntity> list;
   final String? error;
 
-  const WorkEntryState({
+  const ExplanationListState({
+    this.loadStatus = LoadStatus.INITIAL,
     this.isLoading = false,
     this.list = const [],
     this.error,
   });
 
-  WorkEntryState copyWith({
+  ExplanationListState copyWith({
+    LoadStatus? loadStatus,
     bool? isLoading,
     List<WorkEntryEntity>? list,
     String? error,
   }) {
-    return WorkEntryState(
+    return ExplanationListState(
+      loadStatus: loadStatus ?? this.loadStatus,
       isLoading: isLoading ?? this.isLoading,
       list: list ?? this.list,
       error: error,
@@ -25,5 +28,5 @@ class WorkEntryState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [isLoading, list, error];
+  List<Object?> get props => [loadStatus,isLoading, list, error];
 }

@@ -19,10 +19,14 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
+import '../app/config/app_config.dart';
 import '../app/core/network/api_client.dart';
+import '../app/core/network/api_client_face_id.dart';
 import '../app/core/network/api_util.dart';
 import '../app/data/repositories/auth_repository.dart';
+import '../app/data/repositories/face_id_repository.dart';
 import '../app/features/bloc/app_cubit.dart';
+import '../app/features/ui/checkin/bloc/face_scan_cubit.dart';
 import '../app/features/ui/splash/splash_cubit.dart';
 import '../app/features/ui/account/account_cubit.dart';
 import '../app/features/ui/account/changepassword/change_password_cubit.dart';
@@ -68,6 +72,13 @@ Future<void> init() async {
     () => ApiClient(
       sl<Dio>(),
       baseUrl: Environment.prod.baseUrl,
+    ),
+  );
+
+  sl.registerLazySingleton<ApiClientFaceId>(
+        () => ApiClientFaceId(
+      sl<Dio>(),
+      baseUrl: AppConfig.baseFaceIdUrl,
     ),
   );
 
@@ -134,13 +145,17 @@ Future<void> init() async {
     () => PersonalCubit(userRepository: sl()),
   );
 
-  sl.registerLazySingleton<ExplanationCubit>(
-    () => ExplanationCubit(),
+  sl.registerLazySingleton<FaceScanCubit>(
+        () => FaceScanCubit(faceIdRepository: sl()),
   );
 
-    sl.registerLazySingleton<WorkEntryCubit>(
-    () => WorkEntryCubit(),
+  sl.registerLazySingleton<ExplanationCubit>(
+        () => ExplanationCubit(repository: sl()),
   );
+  //
+  //   sl.registerLazySingleton<WorkEntryCubit>(
+  //   () => WorkEntryCubit(),
+  // );
 
 
   sl.registerLazySingleton<WorkEntryRepository>(
@@ -151,6 +166,8 @@ Future<void> init() async {
   () => ForgotCubit(sl()),
 );
 
-
+  sl.registerLazySingleton<FaceIdRepository>(
+        () => FaceIdRepositoryImpl(sl()),
+  );
 
 }

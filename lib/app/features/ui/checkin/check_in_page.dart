@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
+
 import '../../../core/commons/app_assets.dart';
 import 'face_scan_page.dart';
 import 'package:flutter/material.dart';
@@ -308,16 +311,18 @@ callback: isLoading
 
         final result = await Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const FaceScanPage()),
+          MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
         );
 
-        if (result == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("✅ Check in thành công!"),
-              backgroundColor: Colors.green,
-            ),
-          );
+        if (result != null && result.toString().isNotEmpty) {
+          // call api checking
+          logger.d("User id ::: ${result.toString()}" );
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   const SnackBar(
+          //     content: Text("✅ Check in thành công!"),
+          //     backgroundColor: Colors.green,
+          //   ),
+          // );
           // await _cubit.doCheckIn();
         }
       },

@@ -1,0 +1,60 @@
+this file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+# android/fastlane/Fastfile
+
+default_platform(:android)
+
+platform :android do
+  desc "Build APK (release) bằng FVM và upload Firebase App Distribution"
+  lane :staging_app_apk do
+     Dir.chdir "../.." do
+          sh("flutter", "build", "apk", "-t", "lib/main.dart", "--release")
+        end
+        copy_artifacts(
+          artifacts: ['../build/app/outputs/flutter-apk/app-release.apk'],
+          target_path: './build/apk'
+        )
+        firebase_app_distribution(
+          app: "1:55399884337:android:56dfee6ce3270b9b9a5710",
+          groups: "pm_internal_tester",
+          release_notes: "Môi trường | Staging",
+          apk_path: "./build/apk/app-release.apk",
+          firebase_cli_token: "1//0eCqL3dN-xBRlCgYIARAAGA4SNwF-L9IrY98ROo-YRMJTdNzuHBb-leCS_CTwI5Ehjb0YvHol7E_AY5Yk-hQMkhueHENmOCz8jao"
+        )
+  end
+
+  desc "Build AAB (release) bằng FVM và upload Firebase App Distribution"
+  lane :distribute_aab do
+    sh "fvm flutter clean"
+    sh "fvm flutter pub get"
+    # sh "fvm flutter build appbundle --release --flavor prod -t lib/main_prod.dart"
+    sh "fvm flutter build appbundle --release"
+
+    aab_path = Dir["build/app/outputs/bundle/**/app-*-release.aab"].first
+    unless aab_path && File.exist?(aab_path)
+      UI.user_error!("AAB not found in build/app/outputs/bundle")
+    end
+
+    firebase_app_distribution(
+      app: ENV["FIREBASE_ANDROID_APP_ID"],
+      testers: ENV["TESTERS"],
+      groups: ENV["DISTRIBUTION_GROUPS"],
+      release_notes: ENV["RELEASE_NOTES"],
+      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      android_artifact_path: aab_path
+    )
+  end
+end

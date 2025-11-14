@@ -10,6 +10,10 @@ class CheckInState extends Equatable {
   final Position? position;
   final Position? positionParam;
 
+  // danh sách điểm chấm công và điểm hiện tại
+  final List<CheckInInfoEntity>? listCheckInfos;
+  final CheckInInfoEntity? currentCheckInEntity;
+
   final String? errMsg;
   final String? errStatus;
 
@@ -20,6 +24,8 @@ class CheckInState extends Equatable {
     this.address,
     this.position,
     this.positionParam,
+    this.listCheckInfos,
+    this.currentCheckInEntity,
     this.errMsg,
     this.errStatus
   });
@@ -32,7 +38,9 @@ class CheckInState extends Equatable {
     Position? position,
     Position? positionParam,
     String? errMsg,
-    String? errStatus
+    String? errStatus,
+    List<CheckInInfoEntity>? listCheckInfos,
+    CheckInInfoEntity? currentCheckInEntity
   }){
     return CheckInState(
         checkInStatus: checkInStatus ?? this.checkInStatus,
@@ -42,7 +50,9 @@ class CheckInState extends Equatable {
         position: position ?? this.position,
         positionParam: positionParam ?? this.positionParam,
         errMsg: errMsg ?? this.errMsg,
-        errStatus: errStatus ?? this.errStatus
+        errStatus: errStatus ?? this.errStatus,
+      listCheckInfos: listCheckInfos ?? this.listCheckInfos,
+        currentCheckInEntity: currentCheckInEntity ?? this.currentCheckInEntity
     );
   }
 
@@ -55,6 +65,8 @@ class CheckInState extends Equatable {
     position,
     positionParam,
     errMsg,
-    errStatus
+    errStatus,
+    listCheckInfos,
+    currentCheckInEntity
   ];
 }

@@ -73,8 +73,9 @@ dependencies:
   i10n_translator: ^2.2.1
   rename_app: ^1.6.5
   camera: ^0.11.3
-  google_mlkit_face_detection: ^0.10.0
+  google_mlkit_face_detection: ^0.11.0
 #  google_mlkit_commons: ^0.11.0
+  image: ^4.2.0
 
 
 

@@ -179,7 +179,7 @@ void _goWorkEntry() {
                   }),
                   _buildMenuItemWithAsset(AppAssets.ic_paper2, 'Nghỉ phép',onTap: () => {}),
                   _buildMenuItemWithAsset(AppAssets.ic_timekeeping, 'Chấm công',onTap: () => {}),
-                  _buildMenuItemWithAsset(AppAssets.ic_employee, 'Giải trình công',onTap: () => {
+                  _buildMenuItemWithAsset(AppAssets.ic_employee, 'Giải trình',onTap: () => {
                      _goWorkEntry()
                   }),
                   _buildMenuItemWithAsset(AppAssets.ic_paper, 'Dữ liệu công',onTap: () => {}),

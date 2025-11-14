@@ -30,8 +30,12 @@ import 'core/logger/logger.dart';
 import 'core/router/application.dart';
 import 'core/router/routers.dart';
 import 'data/repositories/auth_repository.dart';
+import 'data/repositories/work_entry_repository.dart';
 import 'features/bloc/app_cubit.dart';
+import 'features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
+import 'features/ui/attendance/explanation/explanation_list_cubit.dart';
 import 'features/ui/auth/login/login_cubit.dart';
+import 'features/ui/checkin/bloc/face_scan_cubit.dart';
 import 'features/ui/splash/splash_cubit.dart';
 import 'features/ui/account/account_cubit.dart';
 
@@ -124,7 +128,9 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<EmployeeFilterCubit>()),
       BlocProvider(create: (context) => sl<AttendanceDataCubit>()),
       BlocProvider(create: (context) => sl<ForgotCubit>()),
-
+      BlocProvider(create: (context) => sl<ExplanationCubit>()),
+      BlocProvider(create: (context) => sl<ExplanationListCubit>()),
+      BlocProvider(create: (context) => sl<FaceScanCubit>()),
     ];
   }
 
@@ -135,6 +141,7 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider(create: (context) => sl<AuthRepository>()),
         RepositoryProvider(create: (context) => sl<OnLeaveRepository>()),
         RepositoryProvider(create: (context) => sl<EmployeeRepository>()),
+        RepositoryProvider(create: (context) => sl<WorkEntryRepository>()),
       ],
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),
