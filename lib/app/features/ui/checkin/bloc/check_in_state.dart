@@ -17,6 +17,9 @@ class CheckInState extends Equatable {
   final String? errMsg;
   final String? errStatus;
 
+  final CheckInOutEntity? checkInOutResponse;
+  final String? actionCheck;
+
   const CheckInState({
     this.checkInStatus = LoadStatus.INITIAL,
     this.checkOutStatus = LoadStatus.INITIAL,
@@ -27,7 +30,9 @@ class CheckInState extends Equatable {
     this.listCheckInfos,
     this.currentCheckInEntity,
     this.errMsg,
-    this.errStatus
+    this.errStatus,
+    this.checkInOutResponse,
+    this.actionCheck
   });
 
   CheckInState copyWith({
@@ -40,7 +45,9 @@ class CheckInState extends Equatable {
     String? errMsg,
     String? errStatus,
     List<CheckInInfoEntity>? listCheckInfos,
-    CheckInInfoEntity? currentCheckInEntity
+    CheckInInfoEntity? currentCheckInEntity,
+    CheckInOutEntity? checkInOutResponse,
+    String? actionCheck,
   }){
     return CheckInState(
         checkInStatus: checkInStatus ?? this.checkInStatus,
@@ -52,7 +59,9 @@ class CheckInState extends Equatable {
         errMsg: errMsg ?? this.errMsg,
         errStatus: errStatus ?? this.errStatus,
       listCheckInfos: listCheckInfos ?? this.listCheckInfos,
-        currentCheckInEntity: currentCheckInEntity ?? this.currentCheckInEntity
+        currentCheckInEntity: currentCheckInEntity ?? this.currentCheckInEntity,
+      checkInOutResponse: checkInOutResponse ?? this.checkInOutResponse,
+      actionCheck: actionCheck ?? this.actionCheck
     );
   }
 
@@ -67,6 +76,8 @@ class CheckInState extends Equatable {
     errMsg,
     errStatus,
     listCheckInfos,
-    currentCheckInEntity
+    currentCheckInEntity,
+    checkInOutResponse,
+    actionCheck
   ];
 }

@@ -134,20 +134,26 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             LoadingOverlay.show(context);
           }
           else if(state.deleteStatus == LoadStatus.SUCCESS){
+            _cubit.resetStatus();
             LoadingOverlay.hide(context);
             AppSnackBar.showInfo(title: "Thành công",message: "Xoá bản ghi thành công!");
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop(true);
+            Navigator.pop(context,true);
           }
           else if(state.confirmStatus == LoadStatus.SUCCESS){
+            _cubit.resetStatus();
             LoadingOverlay.hide(context);
             AppSnackBar.showInfo(title: "Thành công",message: "Đã gửi duyệt thành công!");
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop(true);
+            Navigator.pop(context,true);
           }
           else if(state.confirmStatus == LoadStatus.FAILURE){
+            _cubit.resetStatus();
             LoadingOverlay.hide(context);
             AppSnackBar.showInfo(title: "Lỗi",message: "Gửi duyệt lỗi!");
           }
           else if(state.deleteStatus == LoadStatus.FAILURE){
+            _cubit.resetStatus();
             LoadingOverlay.hide(context);
             AppSnackBar.showInfo(title: "Lỗi",message: "Không xóa được bản ghi khác nháp!");
           }
@@ -256,16 +262,16 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
                     .paddingOnly(bottom: 8,top: 8),
                 CustomDashView(),
 
-                // Người follow
-                _buildItem("Người follow",
-                    "")
-                    .paddingOnly(bottom: 8,top: 8),
-                CustomDashView(),
+                // // Người follow
+                // _buildItem("Người follow",
+                //     "")
+                //     .paddingOnly(bottom: 8,top: 8),
+                // CustomDashView(),
 
                 const SizedBox(height: 30,),
-                // state.detailEntity?.state == "draft"  ?
-                //   _bottomSheet : const SizedBox.shrink(),
-                _bottomSheet,
+                state.detailEntity?.leaveStage?.id == 13  ?
+                  _bottomSheet : const SizedBox.shrink(),
+
                 const SizedBox(height: 30,),
               ],
             );

@@ -15,6 +15,14 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
   DetailOnLeaveCubit({required this.repository}) : super(DetailOnLeaveState());
 
 
+  void resetStatus(){
+    emit(state.copyWith(
+        loadStatus: LoadStatus.INITIAL,
+        deleteStatus: LoadStatus.INITIAL,
+        confirmStatus: LoadStatus.INITIAL
+    ));
+  }
+
   getDetailOnLeave(int id) async{
     if(id == 0){
       return;

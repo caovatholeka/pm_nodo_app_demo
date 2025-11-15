@@ -252,10 +252,10 @@ void _logOut() async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _InfoItem(title: s.dob , value: profile.birthdayDate ?? "-"),
+                  _InfoItem(title: s.dob , value: profile.birthday ?? "-"),
                   _InfoItem(
                       title: s.input_employee_code,
-                      value: profile.code ?? "-"),
+                      value: profile.employeeCode ?? "-"),
                   _InfoItem(
                       title: s.phone_number,
                       value: (profile.phone == true ? "-" : "-"),

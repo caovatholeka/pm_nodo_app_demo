@@ -11,6 +11,8 @@ class CommonResponse {
   final int? total;
   final int? limit;
   final int? offset;
+  final int? page;
+  final int? total_pages;
   final dynamic data;
   final dynamic optional;
 
@@ -18,6 +20,8 @@ class CommonResponse {
   CommonResponse({this.status, this.message, this.data, this.optional,
     this.code,this.error,
     this.total,
+    this.page,
+    this.total_pages,
     this.limit,
     this.offset
   });

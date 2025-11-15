@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:pm_app/app/core/helper/response_mapper.dart';
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
 import '../../../../core/logger/logger.dart';
 import '../../../../data/models/entities/check_in_info_entity.dart';
 import '../../../../data/models/enums/load_status.dart';
@@ -22,8 +27,8 @@ class CheckInCubit extends Cubit<CheckInState> {
         getCheckInfo: LoadStatus.INITIAL,
         checkInStatus: LoadStatus.INITIAL,
         checkOutStatus: LoadStatus.INITIAL,
-        listCheckInfos: [],
-        currentCheckInEntity: CheckInInfoEntity()
+        // listCheckInfos: [],
+        // currentCheckInEntity: CheckInInfoEntity()
     ));
   }
 
@@ -37,27 +42,24 @@ class CheckInCubit extends Cubit<CheckInState> {
   void getListCheckInInfo() async{
     emit(state.copyWith(getCheckInfo: LoadStatus.LOADING));
     try {
-      // final response = await checkInRepository.searchCheckInStatus(param,20,0);
-      // TeachingEntity? teachingEntity;
-      //
-      // if (response.data != null) {
-      //   teachingEntity = mapObject(response.data, TeachingEntity.fromJson);
-      // }
-      //
-      // // hiển thị thông tin tiết hiện tại hoặc gần nhất
-      // CheckInInfoEntity? check =
-      // getUpComingCheckEntity(teachingEntity?.content ?? []);
-      //
-      // logger.d("check ::: ${check?.toJson()}");
-      // if(check != null){
-      //   emit(state.copyWith(getCheckInfo: LoadStatus.SUCCESS,
-      //       listCheckInfos: teachingEntity?.content,
-      //       currentCheckInEntity: check));
-      // }else{
-      //   emit(state.copyWith(getCheckInfo: LoadStatus.SUCCESS,
-      //       listCheckInfos: [],
-      //       currentCheckInEntity: CheckInInfoEntity()));
-      // }
+      final response = await checkInRepository.getListWorkLocations();
+      List<CheckInInfoEntity>? list;
+      if (response.data != null) {
+        list = mapList(response.data, CheckInInfoEntity.fromJson);
+      }
+
+      // hiển thị điểm checkin gần nhất
+      CheckInInfoEntity? check =  await findNearestCheckIn(list ?? []);
+
+      if(check != null){
+        emit(state.copyWith(getCheckInfo: LoadStatus.SUCCESS,
+            listCheckInfos: list,
+            currentCheckInEntity: check));
+      }else{
+        emit(state.copyWith(getCheckInfo: LoadStatus.SUCCESS,
+            listCheckInfos: [],
+            currentCheckInEntity: CheckInInfoEntity()));
+      }
 
     }catch(e,s){
       logger.d(e);
@@ -68,15 +70,64 @@ class CheckInCubit extends Cubit<CheckInState> {
   }
 
 
-  void doCheckInGps() async{
+  void doCheckInGps(String file) async{
     logger.d("Check-In");
     emit(state.copyWith(checkInStatus: LoadStatus.LOADING));
+    try {
+      final res = await checkInRepository.
+        userCheckInOut(file,
+          state.currentCheckInEntity?.id ?? 0,
+          state.position?.latitude ?? 0.0,
+          state.position?.longitude ?? 0.0
+      );
+      CheckInOutEntity? check;
+      if(res.data != null){
+        check = mapObject(res.data, CheckInOutEntity.fromJson);
+      }
+      if(check?.employeeId != null){
+        emit(state.copyWith(checkInStatus: LoadStatus.SUCCESS,checkInOutResponse: check));
+        // lưu hành động check in/out
+        SharedPrefsHelper.setCheckInOutAction(check?.action ?? "");
+        onChangeActionCheck(check?.action ?? "");
+      }else{
+        emit(state.copyWith(checkInStatus: LoadStatus.FAILURE,checkInOutResponse: check));
+      }
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(checkInStatus: LoadStatus.FAILURE));
+    }
   }
 
-  void doCheckOutGps() async{
+  void doCheckOutGps(String file,) async{
     logger.d("Check-Out");
-    emit(state.copyWith(checkInStatus: LoadStatus.LOADING));
+    emit(state.copyWith(checkOutStatus: LoadStatus.LOADING));
+    try {
+      final res = await checkInRepository.
+      userCheckInOut(file,
+          state.currentCheckInEntity?.id ?? 0,
+          state.position?.latitude ?? 0.0,
+          state.position?.longitude ?? 0.0
+      );
+      CheckInOutEntity? check;
+      if(res.data != null){
+        check = mapObject(res.data, CheckInOutEntity.fromJson);
+      }
+      if(check?.employeeId != null){
+        emit(state.copyWith(checkOutStatus: LoadStatus.SUCCESS,checkInOutResponse: check));
+        // lưu hành động check in/out
+        SharedPrefsHelper.setCheckInOutAction(check?.action ?? "");
+        onChangeActionCheck(check?.action ?? "");
+      }else{
+        emit(state.copyWith(checkOutStatus: LoadStatus.FAILURE,checkInOutResponse: check));
+      }
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(checkOutStatus: LoadStatus.FAILURE));
+    }
+  }
 
+  void onChangeActionCheck(String check) async {
+    emit(state.copyWith(actionCheck: check));
   }
 
   void onChangeAddress(Position position) async {
@@ -123,13 +174,13 @@ class CheckInCubit extends Cubit<CheckInState> {
     CheckInInfoEntity nearest = list.first;
     double minDist = Geolocator.distanceBetween(
       state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0,
-      nearest.latitude ?? 0.0, nearest.longtitude ?? 0.0,
+      nearest.latitude ?? 0.0, nearest.longitude ?? 0.0,
     );
 
     for (int i = 1; i < list.length; i++) {
       final d = Geolocator.distanceBetween(
         state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0,
-        list[i].latitude ?? 0.0, list[i].longtitude ?? 0.0,
+        list[i].latitude ?? 0.0, list[i].longitude ?? 0.0,
       );
       if (d < minDist) {
         minDist = d;

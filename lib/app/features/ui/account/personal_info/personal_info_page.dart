@@ -90,7 +90,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             children: [
               const SizedBox(height: 40),
               Text(
-                user.name ?? "Chưa có tên",
+                user.name ?? "",
                 style: const TextStyle(
                   color: AppColors.colorPrimary50,
                   fontWeight: FontWeight.bold,
@@ -101,9 +101,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _InfoItem(title: "Ngày sinh", value: user.birthdayDate ?? "Ko Có :("),
-                  _InfoItem(title: "Mã nhân viên", value: user.code ?? "Ko Có :("),
-                  _InfoItem(title: "Số điện thoại", value: user.phone?.toString() ?? "Ko Có :("),
+                  _InfoItem(title: "Ngày sinh", value: user.birthday ?? ""),
+                  _InfoItem(title: "Mã nhân viên", value: user.employeeCode ?? ""),
+                  _InfoItem(title: "Số điện thoại", value: user.phone?.toString() ?? ""),
                 ],
               ),
             ],
@@ -134,13 +134,14 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 18, right: 16, left: 10, bottom: 16),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 4,vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
+
           ExpandableSection(
             title: "Hồ sơ cá nhân",
             initiallyExpanded: true,
@@ -150,11 +151,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Email", value: user.email ?? "Làm gì có mail :)"),
+                _InfoRow(title: "Email", value: user.email ?? ""),
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Địa chỉ", value: "Không có đừng tìm :((((("),
+                _InfoRow(title: "Địa chỉ", value: user.currentAddress ?? ""),
               ]),
             ],
           ),
@@ -164,15 +165,16 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             initiallyExpanded: true,
             children: [
               _infoBox([
-                _InfoRow(title: "Chức danh", value: "Ko Có:("),
+                _InfoRow(title: "Chức danh", value: user.jobTitle ?? ""),
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Phòng ban", value: user.department?.name ?? "Ko có :("),
+                _InfoRow(title: "Phòng ban", value: user.department?.name ?? ""),
                 const SizedBox(height: 5),
                 Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
                 const SizedBox(height: 5),
-                _InfoRow(title: "Trạng thái", value: "Ko Có:("),
+                _InfoRow(title: "Trạng thái", value: (user.state ?? "") == "work" ?
+                  "Đang làm việc" : ""),
               ]),
             ],
           ),
@@ -182,7 +184,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             initiallyExpanded: true,
             children: [
               _infoBox([
-                _InfoRow(title: "Đã ký hợp đồng", value: "Làm gì có :("),
+                _InfoRow(title: "Đã ký hợp đồng", value: (user.contractStatus ?? "") == "signed" ?
+                  "Đã ký" : "Chưa ký"),
               ]),
             ],
           ),

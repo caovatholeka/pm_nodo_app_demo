@@ -63,6 +63,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
   final ScrollController _scrollController = ScrollController();
   List<LeaveDayEntity> listDays = [];
+
   @override
   void initState() {
      // _createCubit.initData(widget.detailEntity ?? OnLeaveEntity());
@@ -73,7 +74,6 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _prefillForEdit();
       });
-
     }
     super.initState();
   }
@@ -255,6 +255,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
         if(state.createStatus == LoadStatus.LOADING){
           LoadingOverlay.show(context);
         }else if(state.createStatus == LoadStatus.SUCCESS){
+          _createCubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(title: "Thông báo",
             message:  widget.isEdit ?? false ?
@@ -270,6 +271,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           }
 
         }else if(state.createStatus == LoadStatus.FAILURE){
+          _createCubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showError(title: "Cảnh báo", message: "Có lỗi xảy ra , vui lòng thử lại sau");
         }else{
@@ -328,7 +330,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             title: "Số phép còn lại",
             hintText: "",
             isRequiredField: false,
-            controller: leavesDaysController..text = '${GlobalData.instance.userProfile?.remainLeave}', //(_cubit.state.leaveEntity?.soNgayPhepConLai ?? 0).toString() ?? "",
+            controller: leavesDaysController..text = GlobalData.instance.userProfile?.remainLeave.toString().replaceAll(".0", "") ?? "",
             readOnly: true,
           ).paddingOnly(bottom: 20),
           // Loại ngày nghỉ

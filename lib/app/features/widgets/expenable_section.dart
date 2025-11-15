@@ -59,7 +59,7 @@ class _ExpandableSectionState extends State<ExpandableSection>
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
+        color: Colors.transparent,
       boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
