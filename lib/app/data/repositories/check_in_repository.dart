@@ -9,6 +9,7 @@ import '../models/response/common_response.dart';
 abstract class CheckInRepository {
   Future<CommonResponse> getListWorkLocations();
   Future<CommonResponse> userCheckInOut(String filePath, int locationId, double latitude, double longitude);
+  Future<dynamic> updateExplanation(Map<String,dynamic> body);
 }
 
 class CheckInRepositoryImpl extends CheckInRepository {
@@ -35,5 +36,10 @@ class CheckInRepositoryImpl extends CheckInRepository {
     });
 
     return await _apiClient.userCheckInOut(formData);
+  }
+  
+  @override
+  Future<dynamic> updateExplanation(Map<String,dynamic> body) async {
+    return await _apiClient.updateExplanation(body);
   }
 }

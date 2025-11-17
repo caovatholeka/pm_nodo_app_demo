@@ -113,6 +113,9 @@ Future<CommonResponse> getListEmployees(
 
   @POST("/attendance/check_in_out")
   Future<CommonResponse> userCheckInOut(@Body() FormData? body);
+
+  @POST("/attendance/update_explanation")
+  Future<dynamic> updateExplanation(@Body() Map<String,dynamic> body);
 }
 
 

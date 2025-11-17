@@ -5,6 +5,7 @@ class CheckInState extends Equatable {
   final LoadStatus checkInStatus;
   final LoadStatus checkOutStatus;
   final LoadStatus getCheckInfo;
+  final LoadStatus updateExplain;
 
   final String? address;
   final Position? position;
@@ -20,10 +21,13 @@ class CheckInState extends Equatable {
   final CheckInOutEntity? checkInOutResponse;
   final String? actionCheck;
 
+  final bool hasLateOrEarly;
+
   const CheckInState({
     this.checkInStatus = LoadStatus.INITIAL,
     this.checkOutStatus = LoadStatus.INITIAL,
     this.getCheckInfo = LoadStatus.INITIAL,
+    this.updateExplain = LoadStatus.INITIAL,
     this.address,
     this.position,
     this.positionParam,
@@ -32,13 +36,15 @@ class CheckInState extends Equatable {
     this.errMsg,
     this.errStatus,
     this.checkInOutResponse,
-    this.actionCheck
+    this.actionCheck,
+    this.hasLateOrEarly = false
   });
 
   CheckInState copyWith({
     LoadStatus? checkInStatus,
     LoadStatus? checkOutStatus,
     LoadStatus? getCheckInfo,
+    LoadStatus? updateExplain,
     String? address,
     Position? position,
     Position? positionParam,
@@ -48,11 +54,13 @@ class CheckInState extends Equatable {
     CheckInInfoEntity? currentCheckInEntity,
     CheckInOutEntity? checkInOutResponse,
     String? actionCheck,
+    bool? hasLateOrEarly
   }){
     return CheckInState(
         checkInStatus: checkInStatus ?? this.checkInStatus,
         checkOutStatus: checkOutStatus ?? this.checkOutStatus,
         getCheckInfo: getCheckInfo ?? this.getCheckInfo,
+        updateExplain: updateExplain ?? this.updateExplain,
         address: address ?? this.address,
         position: position ?? this.position,
         positionParam: positionParam ?? this.positionParam,
@@ -61,7 +69,8 @@ class CheckInState extends Equatable {
       listCheckInfos: listCheckInfos ?? this.listCheckInfos,
         currentCheckInEntity: currentCheckInEntity ?? this.currentCheckInEntity,
       checkInOutResponse: checkInOutResponse ?? this.checkInOutResponse,
-      actionCheck: actionCheck ?? this.actionCheck
+      actionCheck: actionCheck ?? this.actionCheck,
+      hasLateOrEarly: hasLateOrEarly ?? this.hasLateOrEarly
     );
   }
 
@@ -70,6 +79,7 @@ class CheckInState extends Equatable {
     checkInStatus,
     checkOutStatus,
     getCheckInfo,
+    updateExplain,
     address,
     position,
     positionParam,
@@ -78,6 +88,7 @@ class CheckInState extends Equatable {
     listCheckInfos,
     currentCheckInEntity,
     checkInOutResponse,
-    actionCheck
+    actionCheck,
+    hasLateOrEarly
   ];
 }

@@ -27,6 +27,7 @@ class CheckInCubit extends Cubit<CheckInState> {
         getCheckInfo: LoadStatus.INITIAL,
         checkInStatus: LoadStatus.INITIAL,
         checkOutStatus: LoadStatus.INITIAL,
+        updateExplain: LoadStatus.INITIAL,
         // listCheckInfos: [],
         // currentCheckInEntity: CheckInInfoEntity()
     ));
@@ -85,6 +86,11 @@ class CheckInCubit extends Cubit<CheckInState> {
         check = mapObject(res.data, CheckInOutEntity.fromJson);
       }
       if(check?.employeeId != null){
+        if((check?.shiftFlag?.isLate ?? false) ||
+            (check?.shiftFlag?.isLate ?? false)){
+          emit(state.copyWith(hasLateOrEarly: true));
+        }
+
         emit(state.copyWith(checkInStatus: LoadStatus.SUCCESS,checkInOutResponse: check));
         // lưu hành động check in/out
         SharedPrefsHelper.setCheckInOutAction(check?.action ?? "");
@@ -123,6 +129,22 @@ class CheckInCubit extends Cubit<CheckInState> {
     }catch(e){
       logger.d(e);
       emit(state.copyWith(checkOutStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void updateExplanation(String reason, int id) async{
+    emit(state.copyWith(updateExplain: LoadStatus.LOADING));
+    try{
+      final param = {
+        "biometric_data_id" : id,
+        "attendance_explanation" : reason
+      };
+      await checkInRepository.updateExplanation(param);
+      emit(state.copyWith(updateExplain: LoadStatus.SUCCESS));
+    }catch(e,s){
+      logger.d("err : $e");
+      logger.d("ese : $s");
+      emit(state.copyWith(updateExplain: LoadStatus.FAILURE));
     }
   }
 

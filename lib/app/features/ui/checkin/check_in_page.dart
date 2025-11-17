@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
+import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
 import '../../../core/commons/app_assets.dart';
@@ -96,7 +98,7 @@ Future<void> _requestLocationPermission() async {
   void initState() {
     _requestLocationPermission();
     _cubit.getListCheckInInfo();
-
+    getActionCheck();
     super.initState();
   }
 
@@ -123,17 +125,31 @@ Future<void> _requestLocationPermission() async {
         bloc: _cubit,
         buildWhen: (prev,cur) => prev.getCheckInfo != cur.getCheckInfo ||
           prev.listCheckInfos != cur.listCheckInfos ||
-        prev.currentCheckInEntity != cur.currentCheckInEntity,
-        listener: (context,state) {
-          if(state.getCheckInfo == LoadStatus.LOADING){
+        prev.currentCheckInEntity != cur.currentCheckInEntity ||
+        prev.hasLateOrEarly != cur.hasLateOrEarly,
+        listener: (context,state) async {
+          if(state.getCheckInfo == LoadStatus.LOADING ||
+              state.updateExplain == LoadStatus.LOADING){
             LoadingOverlay.show(context);
           } else if(state.checkInStatus == LoadStatus.SUCCESS){
             _cubit.onResetState();
-            AppSnackBar.showInfo(title: "Chấm công vào thành công",message:
+            AppSnackBar.showInfo(title: "Chấm công thành công",message:
               "${state.checkInOutResponse?.datetime} - ${state.currentCheckInEntity?.name} ");
+            // check chấm công muộn sớm
+            if(state.hasLateOrEarly){
+              final String? reason = await showLateEarlyDialog(context);
+              if (reason != null) {
+                _cubit.updateExplanation(reason,
+                  state.checkInOutResponse?.id ?? 0);
+              }
+            }
           }else if(state.checkOutStatus == LoadStatus.SUCCESS){
             _cubit.onResetState();
-            AppSnackBar.showInfo(title:"Chấm công ra thành công",message:  "${state.checkInOutResponse?.datetime} - ${state.currentCheckInEntity?.name} ");
+            AppSnackBar.showInfo(title:"Chấm công thành công",message:  "${state.checkInOutResponse?.datetime} - ${state.currentCheckInEntity?.name} ");
+          }
+          else if(state.updateExplain == LoadStatus.SUCCESS){
+            _cubit.onResetState();
+            AppSnackBar.showInfo(title:"Thành Công",message: "Giải trình công thành công");
           }
           else if(state.checkInStatus == LoadStatus.FAILURE ||
               state.checkOutStatus == LoadStatus.FAILURE){
@@ -191,32 +207,9 @@ Future<void> _requestLocationPermission() async {
     );
   }
   get _mapWidget {
-    // var marker = Marker(
-    //   markerId: const MarkerId('place_name'),
-    //   position: LatLng(21.011427,105.787951),
-    // );
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
-      // child: ClipRRect(
-      //   borderRadius: BorderRadius.circular(12.0),
-      //   child: GoogleMap(
-      //       onMapCreated: _onMapCreated,
-      //       initialCameraPosition: CameraPosition(
-      //         target: LatLng(
-      //           21.011427,105.787951
-      //         ),
-      //         zoom: 16.0,
-      //       ),
-      //       markers: <Marker>{marker},
-      //       myLocationButtonEnabled: false,
-      //       buildingsEnabled: false,
-      //       zoomControlsEnabled: false,
-      //       myLocationEnabled: true,
-      //       mapToolbarEnabled: false,
-      //       compassEnabled: false
-      //   ),
-      // ),
       child: BlocBuilder<CheckInCubit,CheckInState>(
           bloc: _cubit,
           buildWhen: (prev,cur) => prev.position != cur.position,
@@ -262,7 +255,6 @@ Future<void> _requestLocationPermission() async {
             prev.checkOutStatus != cur.checkOutStatus ||
             prev.actionCheck != cur.actionCheck,
         builder: (context,state){
-          getActionCheck();
           return Container(
             color: Colors.white,
             height:double.infinity,
@@ -272,8 +264,8 @@ Future<void> _requestLocationPermission() async {
                 const SizedBox(height: 38,),
                 _currentTimeSec,
                 const SizedBox(height: 30,),
-                ((state.actionCheck ?? "").isNotEmpty) ?
-                 _buttonCheckOut:
+                // ((state.actionCheck ?? "").isNotEmpty) ?
+                //  _buttonCheckOut:
                 _buttonCheckIn,
                 const SizedBox(height: 10,),
               ],
@@ -356,7 +348,7 @@ Future<void> _requestLocationPermission() async {
               }
             },
             isLoading: isLoading,
-            mainText: "check in",
+            mainText: "Chấm công",
             style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
@@ -367,6 +359,104 @@ Future<void> _requestLocationPermission() async {
       },
     );
   }
+
+  // dialog giai trinh
+  Future<String?> showLateEarlyDialog(
+      BuildContext context) async {
+    final reasonController = TextEditingController();
+    final _reasonKey = GlobalKey<FormState>();
+
+    return showDialog<String?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return StatefulBuilder(builder: (ctx, setState) {
+          return Dialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 20, right: 20, top: 20,
+                bottom: 16 + MediaQuery.of(ctx).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Chấm công muộn/sớm',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Bạn đã chấm công sớm/muộn, bạn có muốn giải trình ngay không?',
+                    style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.35),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // TextField lý do
+                 Form(
+                   key: _reasonKey,
+                   child: InputTextField(
+                       title: "",
+                       disableTitle: true,
+                       hintText: "Nhập lý do...",
+                       isRequiredField: true,
+                      enable: true,
+                     maxLine: 6,
+                     controller: reasonController,
+                     onChange: (val){
+                       _reasonKey.currentState!.validate();
+                     },
+                     validator: (val)
+                      => Validator.validateEmpty(val, "Lý do"),
+                   ),
+                 ),
+
+                  const SizedBox(height: 16),
+
+                  FilledButton(
+                    onPressed :(){
+                      final reasonValid = _reasonKey.currentState?.validate() ?? false;
+                      if(reasonValid){
+                        String reason = reasonController.text.trim();
+                        Navigator.of(ctx).pop(reason);
+                        // Navigator.pop(context,reason);
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      backgroundColor: AppColors.themePrimaryDefault,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Giải trình', style: TextStyle(fontSize: 16)),
+                  ),
+                  const SizedBox(height: 10),
+
+
+                  OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(null),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black87,
+                      side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Text('Để sau', style: TextStyle(fontSize: 16)),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
 
   get _buttonCheckOut{
     return BlocBuilder<CheckInCubit,CheckInState>(
