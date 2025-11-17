@@ -10,6 +10,7 @@ class AttendanceDataState extends Equatable {
   final String? reason;
   final String? selectedDateTime;
   DateTime? selectedDate;
+  final List<ExplanationEntity>? listAttendanceHistory;
 
   final List<AttendanceEntity>? listAttendances;
   final List<WorkEntity>? listSelectedEntries;
@@ -32,7 +33,8 @@ class AttendanceDataState extends Equatable {
     this.listAttendances,
     this.focusedMonth,
     this.attendanceDateMap,
-    this.entriesByDate
+    this.entriesByDate,
+     this.listAttendanceHistory
   });
 
   AttendanceDataState copyWith({
@@ -50,6 +52,7 @@ class AttendanceDataState extends Equatable {
     Map<DateTime, String>? attendanceDateMap,
     List<WorkEntity>? listSelectedEntries,
     Map<DateTime, List<WorkEntity>>? entriesByDate,
+    List<ExplanationEntity>? listAttendanceHistory
   }) {
     return AttendanceDataState(
       loadStatus: loadStatus ?? this.loadStatus,
@@ -65,7 +68,8 @@ class AttendanceDataState extends Equatable {
       listAttendances: listAttendances ?? this.listAttendances,
       focusedMonth: focusedMonth ?? this.focusedMonth,
       attendanceDateMap: attendanceDateMap ?? this.attendanceDateMap,
-      entriesByDate: entriesByDate ?? this.entriesByDate
+      entriesByDate: entriesByDate ?? this.entriesByDate,
+        listAttendanceHistory : listAttendanceHistory ?? this.listAttendanceHistory
     );
   }
 
@@ -85,5 +89,6 @@ class AttendanceDataState extends Equatable {
     attendanceDateMap,
     entriesByDate,
     listSelectedEntries,
+    listAttendanceHistory
       ];
 }

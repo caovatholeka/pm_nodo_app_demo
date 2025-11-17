@@ -55,7 +55,7 @@ class AttendanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Chấm công vào/ra: $timerage',
+            "",//'Chấm công vào/ra: $timerage',
             style: const TextStyle(
               fontSize: 13,
               color: AppColors.subtitle,

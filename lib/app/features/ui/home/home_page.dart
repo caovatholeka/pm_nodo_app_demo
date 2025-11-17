@@ -202,12 +202,12 @@ void _goWorkEntry() {
                     ),
                   ],
                 ),
-                child: widgets.AttendanceCard(
-                  date: "Thứ 3, 4/11/2025",
-                 status: "Đúng giờ",
-                 timerage: "08:00 - 17:00",
-                 iconPath: AppAssets.ic_roundG
-                 ),
+                // child: widgets.AttendanceCard(
+                //   date: "Thứ 3, 4/11/2025",
+                //  status: "Đúng giờ",
+                //  timerage: "08:00 - 17:00",
+                //  iconPath: AppAssets.ic_roundG
+                //  ),
               ),
             ],
           ),

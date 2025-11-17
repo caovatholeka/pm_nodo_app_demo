@@ -116,6 +116,9 @@ Future<CommonResponse> getListEmployees(
 
   @POST("/attendance/update_explanation")
   Future<dynamic> updateExplanation(@Body() Map<String,dynamic> body);
+
+  @GET("/attendance/history?date_from=2025-11-17")
+  Future<CommonResponse> getListAttendanceHistory();
 }
 
 

@@ -87,7 +87,7 @@ class CheckInCubit extends Cubit<CheckInState> {
       }
       if(check?.employeeId != null){
         if((check?.shiftFlag?.isLate ?? false) ||
-            (check?.shiftFlag?.isLate ?? false)){
+            (check?.shiftFlag?.isEarly ?? false)){
           emit(state.copyWith(hasLateOrEarly: true));
         }
 

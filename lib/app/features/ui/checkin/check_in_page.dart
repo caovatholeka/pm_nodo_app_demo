@@ -119,6 +119,39 @@ Future<void> _requestLocationPermission() async {
     _cubit.onChangeActionCheck(actionCheckIn);
   }
 
+  // Helpers
+  String todayFormatted({Locale? locale, DateTime? now}) {
+    final DateTime d = now ?? DateTime.now();
+    final String lang = (locale?.languageCode ?? 'en').toLowerCase();
+    final String prefix = (lang == 'vi') ? 'Hôm nay' : 'Today';
+
+    final String dateStr = DateFormat('d/M/yyyy', lang == 'vi' ? 'vi' : 'en')
+        .format(d);
+
+    return '$prefix, $dateStr';
+  }
+  DateTime _parseLocal(String s) {
+    return DateTime.parse(s.replaceFirst(' ', 'T'));
+  }
+
+  String formatDateTime(String input) {
+    final dt = _parseLocal(input);
+    const weekdaysVI = {
+      DateTime.monday: 'thứ hai',
+      DateTime.tuesday: 'thứ ba',
+      DateTime.wednesday: 'thứ tư',
+      DateTime.thursday: 'thứ năm',
+      DateTime.friday: 'thứ sáu',
+      DateTime.saturday: 'thứ bảy',
+      DateTime.sunday: 'chủ nhật',
+    };
+    final wd = weekdaysVI[dt.weekday]!;
+    final d = dt.day.toString().padLeft(2, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    final y = dt.year.toString();
+    return '$wd , $d/$m/$y';
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<CheckInCubit,CheckInState>(
@@ -134,7 +167,7 @@ Future<void> _requestLocationPermission() async {
           } else if(state.checkInStatus == LoadStatus.SUCCESS){
             _cubit.onResetState();
             AppSnackBar.showInfo(title: "Chấm công thành công",message:
-              "${state.checkInOutResponse?.datetime} - ${state.currentCheckInEntity?.name} ");
+              "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())}- ${state.currentCheckInEntity?.name} ");
             // check chấm công muộn sớm
             if(state.hasLateOrEarly){
               final String? reason = await showLateEarlyDialog(context);
@@ -153,6 +186,7 @@ Future<void> _requestLocationPermission() async {
           }
           else if(state.checkInStatus == LoadStatus.FAILURE ||
               state.checkOutStatus == LoadStatus.FAILURE){
+            _cubit.onResetState();
             if((state.errStatus ?? "").contains("ERROR.")){
               AppSnackBar.showError(title: "Chấm công thất bại",message: state.errMsg);
             }else{
@@ -261,9 +295,9 @@ Future<void> _requestLocationPermission() async {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 38,),
-                _currentTimeSec,
                 const SizedBox(height: 30,),
+                _currentTimeSec,
+                const SizedBox(height: 20,),
                 // ((state.actionCheck ?? "").isNotEmpty) ?
                 //  _buttonCheckOut:
                 _buttonCheckIn,
@@ -280,34 +314,56 @@ Future<void> _requestLocationPermission() async {
         buildWhen: (prev,cur) => prev.listCheckInfos != cur.listCheckInfos ||
             prev.currentCheckInEntity != cur.currentCheckInEntity,
         builder: (context,state){
-          return Padding(padding: const EdgeInsets.only(left: 38,right: 60),
+          return Padding(padding: const EdgeInsets.only(left: 16,right: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(DateFormat('H:mm').format(DateTime.now()),
-                  style: TextStyle(
-                      fontSize: 35,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.themeBlackDefault
-                  ),),
-                const SizedBox(width: 38,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(state.currentCheckInEntity?.name ?? "",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.themeBlackDefault,
-                      ),),
-                    Text("",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.themeBlackDefault,
-                      ),),
-                  ],
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      Text(DateFormat('H:mm').format(DateTime.now()),
+                        style: TextStyle(
+                            fontSize: 35,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.themeBlackDefault
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(todayFormatted(locale: const Locale('vi')),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.themeBlackDefault
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                // const SizedBox(width: 30,),
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    // crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(state.currentCheckInEntity?.name ?? "",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.themeBlackDefault,
+                        ),),
+                      Text("",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.themeBlackDefault,
+                        ),),
+                    ],
+                  ),
                 )
               ],
             ),
@@ -405,7 +461,7 @@ Future<void> _requestLocationPermission() async {
                        hintText: "Nhập lý do...",
                        isRequiredField: true,
                       enable: true,
-                     maxLine: 6,
+                     maxLine: 3,
                      controller: reasonController,
                      onChange: (val){
                        _reasonKey.currentState!.validate();
@@ -422,8 +478,8 @@ Future<void> _requestLocationPermission() async {
                       final reasonValid = _reasonKey.currentState?.validate() ?? false;
                       if(reasonValid){
                         String reason = reasonController.text.trim();
-                        Navigator.of(ctx).pop(reason);
-                        // Navigator.pop(context,reason);
+                        // Navigator.of(ctx).pop(reason);
+                        Navigator.pop(context,reason);
                       }
                     },
                     style: FilledButton.styleFrom(
