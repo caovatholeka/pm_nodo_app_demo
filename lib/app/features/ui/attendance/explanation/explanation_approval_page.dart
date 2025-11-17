@@ -71,7 +71,6 @@ class _WorkEntryPageState extends State<WorkEntryPage> {
                     topRight: Radius.circular(18),
                   ),
                 ),
-                child: Center(child: Text("aabbbcc"),),
                 /*
                 child: BlocBuilder<WorkEntryCubit, WorkEntryState>(
                   bloc: _cubit,

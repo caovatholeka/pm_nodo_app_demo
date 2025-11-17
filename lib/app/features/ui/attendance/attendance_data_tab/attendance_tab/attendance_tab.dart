@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
@@ -51,8 +52,9 @@ class _AttendanceTabState extends State<AttendanceTab> {
   @override
   void initState() {
     // get list attendance
-    widget.cubit.setYearMonth(DateTime.now().year, DateTime.now().month-1);
-    widget.cubit.getListAttendances(DateTime(DateTime.now().year,DateTime.now().month-1));  //DateTime.now()
+    widget.cubit.setYearMonth(DateTime.now().year, DateTime.now().month);
+    widget.cubit.getListAttendances(DateTime(DateTime.now().year,DateTime.now().month));  //DateTime.now()
+    widget.cubit.getListAttendanceHistory();
     super.initState();
   }
 
@@ -71,6 +73,38 @@ class _AttendanceTabState extends State<AttendanceTab> {
         .format(d);
 
     return '$prefix, $dateStr';
+  }
+
+  DateTime _parseLocal(String s) {
+    return DateTime.parse(s.replaceFirst(' ', 'T'));
+  }
+
+  String formatTimeAmPm(String input) {
+    final dt = _parseLocal(input);
+    int h = dt.hour % 12;
+    if (h == 0) h = 12;
+    final mm = dt.minute.toString().padLeft(2, '0');
+    final hh = h.toString().padLeft(2, '0');
+    final suffix = dt.hour >= 12 ? 'pm' : 'am';
+    return '$hh:$mm $suffix';
+  }
+
+  String formatDateTime(String input) {
+    final dt = _parseLocal(input);
+    const weekdaysVI = {
+      DateTime.monday: 'thứ hai',
+      DateTime.tuesday: 'thứ ba',
+      DateTime.wednesday: 'thứ tư',
+      DateTime.thursday: 'thứ năm',
+      DateTime.friday: 'thứ sáu',
+      DateTime.saturday: 'thứ bảy',
+      DateTime.sunday: 'chủ nhật',
+    };
+    final wd = weekdaysVI[dt.weekday]!;
+    final d = dt.day.toString().padLeft(2, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    final y = dt.year.toString();
+    return '$wd , $d/$m/$y';
   }
 
   @override
@@ -97,8 +131,8 @@ class _AttendanceTabState extends State<AttendanceTab> {
                     builder: (context,state){
                       return attendance.AttendanceCard(
                         date: state.selectedDateTime ?? todayFormatted(locale: const Locale('vi')),
-                        status: state.listSelectedEntries?.first.workEntryType?.name ??  "Đúng giờ",
-                        timerage: "08:30 - 18:00",
+                        status: "",//state.listSelectedEntries?.first.workEntryType?.name ??  "Đúng giờ",
+                        timerage: "",//"08:30 - 18:00",
                         iconPath: AppAssets.ic_roundG,
                       );
                     }),
@@ -261,37 +295,42 @@ class _AttendanceTabState extends State<AttendanceTab> {
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
                 color: AppColors.themeBlackDefault)),
-        Text("Xem tất cả", style: TextStyle(color: AppColors.subtitle)),
+        // Text("Xem tất cả", style: TextStyle(color: AppColors.subtitle)),
       ],
     );
   }
 
   Widget _buildActivityList() {
-    return Column(
-      children: [
-        ActivityItem(
-          icon: AppAssets.icCheckin,
-          title: "Check In",
-          time: "08:50",
-          subtitle: "Thứ 3, 4/11/2025",
-          status: "Đúng giờ",
-        ),
-        ActivityItem(
-          icon: AppAssets.launchBreak,
-          title: "Nghỉ trưa",
-          time: "12:00",
-          subtitle: "Thứ 3, 4/11/2025",
-          status: "Đúng giờ",
-        ),
-        ActivityItem(
-          icon: AppAssets.icCheckout,
-          title: "Check Out",
-          time: "18:00",
-          subtitle: "Thứ 3, 4/11/2025",
-          status: "Đúng giờ",
-        ),
-      ],
+    return BlocBuilder<AttendanceDataCubit,AttendanceDataState>(
+      bloc: widget.cubit,
+      buildWhen: (prev,cur) => prev.listAttendanceHistory != cur.listAttendanceHistory,
+      builder: (context,state){
+        if((state.listAttendanceHistory ??[]).isNotEmpty){
+          return Column(
+            children: (state.listAttendanceHistory ?? []).map((his) {
+              String status = "Đúng giờ";
+              if(his.isEarly ?? false){
+                status = "Về sớm";
+              }else if (his.isLate ?? false){
+                status = "Đi muộn";
+              }
+              return ActivityItem(
+                        icon: his.action == "check_in" ? AppAssets.icCheckin : AppAssets.icCheckout,
+                        title: his.action == "check_in" ?  "Check In" : "Check Out",
+                        time: formatTimeAmPm(his.datetime ?? ""),
+                        subtitle: formatDateTime(his.datetime ?? ""),
+                        status: status,
+                      );
+            }).toList(),
+          );
+        }else {
+          return Center(child: Text(
+            "Chưa có dữ liệu"
+          ),);
+        }
+      },
     );
+
   }
 
   // functions

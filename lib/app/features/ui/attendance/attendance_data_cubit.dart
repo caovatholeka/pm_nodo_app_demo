@@ -2,7 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/helper/response_mapper.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/data/models/entities/explanation_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import '../../../data/models/entities/attendance_entity.dart';
@@ -60,9 +62,29 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
         emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listAttendances: [],
             attendanceDateMap: {},entriesByDate: {}));
       }
+    }catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  getListAttendanceHistory() async {
+    try{
+      final res = await repository.getListAttendanceHistory();
+      List<ExplanationEntity>? list;
+      if(res.data != null){
+        list =  mapList(res.data, ExplanationEntity.fromJson);
+      }
+
+      if((list ?? []).isNotEmpty){
+        emit(state.copyWith(listAttendanceHistory: list));
+      }else{
+        emit(state.copyWith(listAttendanceHistory: []));
+      }
     }catch(e){
       logger.d(e);
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
+      emit(state.copyWith(listAttendanceHistory: []));
     }
   }
 
