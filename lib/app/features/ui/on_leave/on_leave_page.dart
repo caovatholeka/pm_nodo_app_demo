@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -68,7 +69,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
         detailId: entity.id,
       )),
     );
-
+    logger.d("result :: $result");
     if(result != null && result){
       _onRefresh();
     }

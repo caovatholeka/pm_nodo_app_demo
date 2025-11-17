@@ -40,6 +40,7 @@ class CreateOnLeaveState extends Equatable {
   });
 
   CreateOnLeaveState copyWith({
+    bool resetDateTime = false,
     LoadStatus? createStatus,
     String? leaveDateType,
     String? leaveType,
@@ -61,8 +62,8 @@ class CreateOnLeaveState extends Equatable {
       createStatus: createStatus ?? this.createStatus,
       leaveDateType: leaveDateType ?? this.leaveDateType,
       leaveType: leaveType ?? this.leaveType,
-      fromDateTime: fromDateTime ?? this.fromDateTime,
-      toDateTime: toDateTime ?? this.toDateTime,
+      fromDateTime: resetDateTime ? null : (fromDateTime ?? this.fromDateTime),
+      toDateTime: resetDateTime ? null : (toDateTime ?? this.toDateTime),
       fromDate: fromDate ?? this.fromDate,
       toDate: toDate ?? this.toDate,
       reason: reason ?? this.reason,

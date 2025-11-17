@@ -9,6 +9,7 @@ import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/di/di.dart';
 
+import '../../../../../core/commons/global_data.dart';
 import '../../../../../data/models/enums/load_status.dart';
 
 part 'explanation_state.dart';
@@ -101,7 +102,7 @@ class ExplanationCubit extends Cubit<ExplanationState> {
       double stopTime = now.add(const Duration(hours: 8)).millisecondsSinceEpoch / 1000;
 
       final body = {
-        "employee_id": profile.id,
+        "employee_id": GlobalData.instance.userProfile?.employeeId ?? 0,
         "department_id": profile.department?.id,
         "date": date,
         "date_start_employee_commit": startTime,

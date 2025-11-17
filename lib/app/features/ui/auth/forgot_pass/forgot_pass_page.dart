@@ -37,21 +37,18 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = ScreenSize.of(context).height;
+
     return BlocConsumer<ForgotCubit, ForgotState>(
       listener: (context, state) {
-        print("STATE = ${state.forgotStatus}");
-
         if (state.forgotStatus == LoadStatus.SUCCESS) {
-       WidgetsBinding.instance.addPostFrameCallback((_) {
-         Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ForgotPassSuccessPage(),
-      ),
-    );
-  });
-}
-
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const ForgotPassSuccessPage()),
+            );
+          });
+        }
 
         if (state.forgotStatus == LoadStatus.FAILURE) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -61,51 +58,125 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          resizeToAvoidBottomInset: true,
+          resizeToAvoidBottomInset: false,
           backgroundColor: AppColors.colorPrimary50,
-          body: WillPopScope(
-            onWillPop: () async => false,
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    _bannerWidget(),
-                  ],
-                ),
-
-                Positioned(
-                  top: 86,
-                  child: InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: SvgPicture.asset(AppAssets.icBack),
+          body: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: screenHeight * 0.45,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(AppAssets.loginBG),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 140,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: _bodyContent(state),
+              ),
+
+              Positioned(
+                top: 60,
+                left: 16,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: SvgPicture.asset(AppAssets.icBack),
+                  ),
                 ),
-              ],
-            ),
+              ),
+
+              Positioned(
+                top: screenHeight * 0.14,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: SvgPicture.asset(AppAssets.appLogo, width: 90),
+                ),
+              ),
+
+              Positioned(
+                top: screenHeight * 0.28,
+                left: 16,
+                right: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Quên mật khẩu",
+                      style: TextStyle(
+                        fontSize: 26,
+                        height: 1.3,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Nhập tên đăng nhập để nhận mật khẩu tạm thời qua email.",
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+
+              Positioned(
+                top: screenHeight * 0.38,
+                left: 16,
+                right: 16,
+                child: _formContent(state),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
+  Widget _formContent(ForgotState state) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 30),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          InputTextField(
+            title: "Tên Đăng Nhập",
+            hintText: "Nhập tên đăng nhập của bạn",
+            isRequiredField: true,
+            controller: _userNameController,
+            bgrColor: true,
+          ),
+
+          const SizedBox(height: 20),
+
+          PrimaryButton(
+            mainText: "Xác nhận",
+            isLoading: state.forgotStatus == LoadStatus.LOADING,
+            callback: _forgotPass,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _bannerWidget() {
     return SizedBox(
       height: ScreenSize.of(context).height * 0.45,
-      child: SvgPicture.asset(
-        AppAssets.blockBg1,
-        fit: BoxFit.fill,
-      ),
+      child: Image.asset(AppAssets.loginBG, fit: BoxFit.fill),
     );
   }
 
@@ -115,12 +186,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: SvgPicture.asset(
-              AppAssets.appLogo,
-              width: 110,
-            ),
-          ),
+          Center(child: SvgPicture.asset(AppAssets.appLogo, width: 110)),
           const SizedBox(height: 20),
 
           Text(
@@ -154,7 +220,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                   color: Colors.black12,
                   blurRadius: 6,
                   offset: Offset(0, 2),
-                )
+                ),
               ],
             ),
             child: Column(

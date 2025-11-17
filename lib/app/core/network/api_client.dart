@@ -37,7 +37,7 @@ abstract class ApiClient {
 @GET("/employees/employees")
 Future<CommonResponse> getListEmployees(
   @Query("limit") int? limit,
-  @Query("offset") int? offset,
+  @Query("page") int? offset,
   @Query("name") String? name,
   @Query("code") String? code,
   @Query("email") String? email,
@@ -107,6 +107,15 @@ Future<CommonResponse> getListEmployees(
 
   @GET("/metadata/workentry_types")
   Future<CommonResponse> getListWorkEntryTypes();
+
+  @GET("/metadata/attendance_locations")
+  Future<CommonResponse> getListWorkLocations();
+
+  @POST("/attendance/check_in_out")
+  Future<CommonResponse> userCheckInOut(@Body() FormData? body);
+
+  @POST("/attendance/update_explanation")
+  Future<dynamic> updateExplanation(@Body() Map<String,dynamic> body);
 }
 
 

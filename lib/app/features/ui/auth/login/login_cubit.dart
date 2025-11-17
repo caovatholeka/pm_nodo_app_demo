@@ -106,4 +106,9 @@ class LogInCubit extends Cubit<LoginState> {
   void onShowHidePwd(bool isShow) {
     emit(state.copyWith(showPassword: !isShow));
   }
+
+  void onRememberMe(bool? value) {
+  emit(state.copyWith(rememberMe: value));
+}
+
 }

@@ -13,14 +13,14 @@ class StaffCubit extends Cubit<StaffState> {
 
   StaffCubit({required this.repository}) : super(const StaffState());
 
-  static const int offset = 0;
+  static const int page = 1;
   static const int limit = 10;
   Future<void> getListEmployees() async {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try {
       final results = await repository.getListEmployees(
         limit: limit,
-        offset: 0,
+        page: page,
       );
 
       List<EmployeeEntity> employees = [];
@@ -59,7 +59,7 @@ class StaffCubit extends Cubit<StaffState> {
 
       final results = await repository.getListEmployees(
         limit: limit,
-        offset: 0,
+        page: 1,
         name: nameParam,
         code: codeParam,
       );
@@ -95,7 +95,7 @@ class StaffCubit extends Cubit<StaffState> {
     emit(state.copyWith(loadEventStatus: LoadStatus.LOADING_MORE));
     try {
       final nextOffset = currentPage + 1;
-      final results = await repository.getListEmployees(limit: limit, offset: nextOffset);
+      final results = await repository.getListEmployees(limit: limit, page: nextOffset);
 
       List<EmployeeEntity> newPage = [];
       if (results.data != null) {
@@ -109,8 +109,8 @@ class StaffCubit extends Cubit<StaffState> {
         loadStatus: LoadStatus.SUCCESS,
         loadEventStatus: LoadStatus.SUCCESS,
         listEmployees: merged,
-        page: results.offset,
-        totalPages: results.total,
+        page: results.page,
+        totalPages: results.total_pages,
       ));
     } catch (e) {
       logger.d(e);
@@ -138,7 +138,7 @@ Future<void> filterEmployees(EmployeeFilterParam param) async {
   try {
     final results = await repository.getListEmployees(
       limit: limit,
-      offset: 0,
+      page: 1,
       name: param.name,
       code: param.code,
       email: param.email,

@@ -134,7 +134,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
         builder: (context,state){
           return SizedBox(
             width: double.infinity,
-            height: ScreenSize.of(context).height*0.4,
+            height: ScreenSize.of(context).height*0.45,
             child: Column(
               children: [
                 SizedBox(
@@ -161,14 +161,16 @@ class _AttendanceTabState extends State<AttendanceTab> {
                       loading: state.loadStatus == LoadStatus.LOADING ? true : false,
                       error: "",//state.error,
                       onTapDay: (date) {
+
                         final key = DateTime(date.year, date.month, date.day);
                         List<WorkEntity> entries = state.entriesByDate?[key] ?? const [];
-                        // _showDayDetailSheet(context, date, entries);
-                        String day = Utils().dayLabel(date);
-                        widget.cubit.onChangeSelectedDateTime(day);
-                        widget.cubit.onChangeSelectedEntries(entries);
-                        widget.cubit.onChangeSelectedDate(date);
-                        logger.d("entries ${entries.first.toJson()}", );
+                        if(entries.isNotEmpty){
+                          String day = Utils().dayLabel(date);
+                          widget.cubit.onChangeSelectedDateTime(day);
+                          widget.cubit.onChangeSelectedEntries(entries);
+                          widget.cubit.onChangeSelectedDate(date);
+                        }
+
                       },
                     ),
                   ),

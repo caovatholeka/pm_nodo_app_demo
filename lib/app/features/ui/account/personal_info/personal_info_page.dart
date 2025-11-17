@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/features/widgets/info_box_special.dart';
+import 'package:pm_app/app/features/widgets/info_row_special.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/commons/app_colors.dart';
@@ -9,6 +11,7 @@ import '../../../widgets/primary_button.dart';
 import 'personal_cubit.dart';
 import 'personal_state.dart';
 import '../../../../data/models/entities/profile_entity.dart';
+import 'package:pm_app/app/features/widgets/info_row.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({super.key});
@@ -44,7 +47,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
           final user = state.profile;
           if (user == null) {
-            return const Center(child: Text("Không thể tải thông tin người dùng"));
+            return const Center(
+              child: Text("Không thể tải thông tin người dùng"),
+            );
           }
 
           return Container(
@@ -90,7 +95,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             children: [
               const SizedBox(height: 40),
               Text(
-                user.name ?? "Chưa có tên",
+                user.name ?? "",
                 style: const TextStyle(
                   color: AppColors.colorPrimary50,
                   fontWeight: FontWeight.bold,
@@ -101,9 +106,15 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _InfoItem(title: "Ngày sinh", value: user.birthdayDate ?? "Ko Có :("),
-                  _InfoItem(title: "Mã nhân viên", value: user.code ?? "Ko Có :("),
-                  _InfoItem(title: "Số điện thoại", value: user.phone?.toString() ?? "Ko Có :("),
+                  _InfoItem(title: "Ngày sinh", value: user.birthday ?? ""),
+                  _InfoItem(
+                    title: "Mã nhân viên",
+                    value: user.employeeCode ?? "",
+                  ),
+                  _InfoItem(
+                    title: "Số điện thoại",
+                    value: user.phone?.toString() ?? "",
+                  ),
                 ],
               ),
             ],
@@ -118,9 +129,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.avatarFrame, width: 3),
               image: DecorationImage(
-                image: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
-                    ? NetworkImage(user.avatarUrl!)
-                    : AssetImage(AppAssets.img_df_avatar) as ImageProvider,
+                image:
+                    (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                        ? NetworkImage(user.avatarUrl!)
+                        : AssetImage(AppAssets.img_df_avatar) as ImageProvider,
                 fit: BoxFit.cover,
               ),
             ),
@@ -134,7 +146,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 18, right: 16, left: 10, bottom: 16),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -144,46 +156,74 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           ExpandableSection(
             title: "Hồ sơ cá nhân",
             initiallyExpanded: true,
+            style: ExpandableStyle.secondary,
             children: [
-              _infoBox([
-                _InfoRow(title: "Tên nhân viên", value: user.name ?? "Ko phải của Nodo :)"),
-                const SizedBox(height: 5),
-                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
-                const SizedBox(height: 5),
-                _InfoRow(title: "Email", value: user.email ?? "Làm gì có mail :)"),
-                const SizedBox(height: 5),
-                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
-                const SizedBox(height: 5),
-                _InfoRow(title: "Địa chỉ", value: "Không có đừng tìm :((((("),
-              ]),
+              InfoBoxSpecial(
+                children: [
+                  InfoRow(
+                    title: "Tên nhân viên",
+                    subtitle: user.name ?? "-",
+                    subtitleIsLink: false,
+                  ),
+                  InfoRow(
+                    title: "Email",
+                    subtitle: user.email ?? "-",
+                    subtitleIsLink: false,
+                  ),
+                  InfoRow(
+                    title: "Địa chỉ",
+                    subtitle: user.currentAddress ?? "-",
+                    subtitleIsLink: false,
+                    showDivider: false,
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 16),
           ExpandableSection(
             title: "Thông tin vị trí công tác",
+            style: ExpandableStyle.secondary,
             initiallyExpanded: true,
             children: [
-              _infoBox([
-                _InfoRow(title: "Chức danh", value: "Ko Có:("),
-                const SizedBox(height: 5),
-                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
-                const SizedBox(height: 5),
-                _InfoRow(title: "Phòng ban", value: user.department?.name ?? "Ko có :("),
-                const SizedBox(height: 5),
-                Divider(height: 0.1, color: const Color.fromARGB(33, 221, 221, 221),),
-                const SizedBox(height: 5),
-                _InfoRow(title: "Trạng thái", value: "Ko Có:("),
-              ]),
+              InfoBoxSpecial(
+                children: [
+                  InfoRowSpecial(
+                    title: user.jobTitle ?? "-",
+                    subtitlePrefix: "Chức danh: ",
+                    subtitleValue: user.jobTitle ?? "-",
+                  ),
+
+                  InfoRowSpecial(
+                    title: user.department?.name ?? "-",
+                    subtitlePrefix: "Quản lý: ",
+                    subtitleValue: user.manager?.name ?? "-",
+                  ),
+
+                  InfoRowSpecial(
+                    title: user.state == "work" ? "Đang làm việc" : "-",
+                    subtitlePrefix: "Địa chỉ làm việc: ",
+                    subtitleValue: user.workLocation ?? "-",
+                    showDivider: false,
+                  ),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 16),
           ExpandableSection(
             title: "Khác",
             initiallyExpanded: true,
+            style: ExpandableStyle.secondary,
             children: [
-              _infoBox([
-                _InfoRow(title: "Đã ký hợp đồng", value: "Làm gì có :("),
-              ]),
+              InfoBoxSpecial(
+                children: [
+                  InfoRowSpecial(
+                    title: (user.contractStatus ?? "") == "signed" ? "Đã ký": "Chưa ký", 
+                    subtitlePrefix: "Ngày gia nhập: ",
+                    showDivider: false,
+                     subtitleValue: "")
+                ])
             ],
           ),
           const SizedBox(height: 32),
@@ -194,20 +234,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _infoBox(List<Widget> children) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(top:12, left:16, right:12, bottom:16),
-      decoration: const BoxDecoration(
-        color: Color.fromRGBO(243, 240, 240, 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
       ),
     );
   }
@@ -225,10 +251,7 @@ class _InfoItem extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: AppColors.avatarText,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: AppColors.avatarText, fontSize: 12),
           ),
           const SizedBox(height: 4),
           Text(
@@ -240,38 +263,6 @@ class _InfoItem extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final String title;
-  final String value;
-  const _InfoRow({required this.title, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Colors.black54,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-      ],
     );
   }
 }

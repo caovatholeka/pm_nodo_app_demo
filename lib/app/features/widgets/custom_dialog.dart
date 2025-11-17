@@ -5,21 +5,28 @@ class CustomDialog extends StatelessWidget {
   final String title;
   final String content;
   final VoidCallback onPressed;
+  final bool success; 
 
   const CustomDialog({
     super.key,
     required this.title,
     required this.content,
     required this.onPressed,
+    this.success = false, 
   });
 
   @override
   Widget build(BuildContext context) {
+    final Color iconColor = success ? Colors.green : Colors.redAccent;
+    final Color bgColor =
+        success ? Colors.green.withOpacity(0.15) : Colors.redAccent.withOpacity(0.15);
+    final IconData icon = success ? Icons.check : Icons.close_rounded;
+
     return Stack(
       children: [
         BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-          child: Container(color: Colors.black.withOpacity(0.1)),
+          child: Container(color: Colors.black.withOpacity(0.15)),
         ),
 
         Center(
@@ -48,24 +55,23 @@ class CustomDialog extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: bgColor,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.check, color: Colors.green, size: 34),
+                    child: Icon(icon, color: iconColor, size: 34),
                   ),
 
                   const SizedBox(height: 16),
 
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black87,
+                      color: iconColor,
                     ),
-                    textAlign: TextAlign.center,
                   ),
 
                   const SizedBox(height: 12),
@@ -75,9 +81,8 @@ class CustomDialog extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
-                      color: Colors.black54,
+                      color: Colors.black87,
                     ),
-                    textAlign: TextAlign.center,
                   ),
 
                   const SizedBox(height: 24),
@@ -85,7 +90,7 @@ class CustomDialog extends StatelessWidget {
                   ElevatedButton(
                     onPressed: onPressed,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: success ? Colors.green : Colors.redAccent, 
                       minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

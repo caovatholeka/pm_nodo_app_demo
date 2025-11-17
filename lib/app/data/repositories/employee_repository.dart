@@ -5,7 +5,7 @@ import '../../data/models/response/common_response.dart';
 abstract class EmployeeRepository {
   Future<CommonResponse> getListEmployees({
     int? limit,
-    int? offset,
+    int? page,
     String? name,
     String? code,
     String? email,
@@ -25,7 +25,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
  @override
   Future<CommonResponse> getListEmployees({
   int? limit,
-  int? offset,
+  int? page,
   String? name,
   String? code,
   String? email,
@@ -35,7 +35,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
 }) {
   return _apiClient.getListEmployees(
     limit,
-    offset,
+    page,
     name,
     code,
     email,

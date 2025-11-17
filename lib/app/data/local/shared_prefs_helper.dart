@@ -16,6 +16,7 @@ class SharedPrefsHelper {
   static const String _appDeviceToken = '_app_device_token';
   static const String _appDeviceId = '_app_device_id';
   static const String _userId = 'app_user_id';
+  static const String _checkIn = 'check_in_out';
 
   static Future<bool> setIsLoginApp(bool isCheck) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -120,5 +121,17 @@ static Future<void> saveToken(TokenEntity? token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String code = prefs.getString(_appDeviceId) ?? '';
     return code;
+  }
+
+  // lưu trạng thái check-in out
+  static Future<void> setCheckInOutAction(String action) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_checkIn, action);
+  }
+
+  static Future<String> getCheckInOutAction() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String action = prefs.getString(_checkIn) ?? '';
+    return action;
   }
 }

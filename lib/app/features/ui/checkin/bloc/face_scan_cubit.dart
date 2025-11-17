@@ -24,6 +24,7 @@ class FaceScanCubit extends Cubit<FaceScanState> {
 
   void onResetStatus(){
     emit(state.copyWith(scanStatus: LoadStatus.INITIAL
+        ,scanMsg: ""
     ));
   }
   void searchFace(File file) async{
@@ -32,11 +33,21 @@ class FaceScanCubit extends Cubit<FaceScanState> {
       try{
         FaceSearchResponseEntity res = await faceIdRepository.searchEmployeeFace(file);
         if(res.searchData != null && (res.searchData?.searchResults ?? []).isNotEmpty
-          // && GlobalData.instance.userProfile?.id.toString() ==  (res.searchData?.searchResults ?? []).first.employeeId
+          // && int.parse(GlobalData.instance.userProfile?.employeeCode ?? "0")  ==  (res.searchData?.searchResults ?? []).first.employeeId
         ){
-          emit(state.copyWith(scanStatus: LoadStatus.SUCCESS,faceResult: (res.searchData?.searchResults ?? []).first));
+          if(int.parse(GlobalData.instance.userProfile?.employeeCode ?? "0")  ==  (res.searchData?.searchResults ?? []).first.employeeId){
+            emit(state.copyWith(scanStatus: LoadStatus.SUCCESS,faceResult: (res.searchData?.searchResults ?? []).first));
+          }else{
+            emit(state.copyWith(scanStatus: LoadStatus.FAILURE,
+                faceResult: FaceSearchResultEntity(),
+                scanMsg: "Sai nhận diện khuôn mặt"
+            ));
+          }
         }else{
-          emit(state.copyWith(scanStatus: LoadStatus.FAILURE,faceResult: FaceSearchResultEntity()));
+          emit(state.copyWith(scanStatus: LoadStatus.FAILURE,
+              faceResult: FaceSearchResultEntity(),
+            scanMsg: "Không tìm thấy thông tin người dùng!"
+          ));
         }
       }catch(e,s){
         logger.d(e);
@@ -49,5 +60,9 @@ class FaceScanCubit extends Cubit<FaceScanState> {
     if (state.isFaceValid != valid) {
       emit(state.copyWith(isFaceValid: valid));
     }
+  }
+
+  void onChangeFilePath(String path) {
+    emit(state.copyWith(fileImgPath: path));
   }
 }

@@ -4,9 +4,8 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+import 'package:pm_app/app/features/widgets/language_selector_item.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
-import 'package:pm_app/app/features/widgets/radio_box_icon.dart';
-import 'package:pm_app/app/features/widgets/radio_box_selected_icon.dart';
 import 'package:pm_app/generated/l10n.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 
@@ -36,7 +35,6 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
   void _changeLanguage(String code) {
     setState(() => selectedLang = code);
     context.read<AppCubit>().changeAppLanguage(code);
-    final langName = code == "vi" ? "Tiếng Việt" : "English";
   }
 
   @override
@@ -45,10 +43,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: MyAppBar(
-        titleAppbar: s.btn_langauge,
-        haveBackButton: true,
-      ),
+      appBar: MyAppBar(titleAppbar: s.btn_langauge, haveBackButton: true),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -66,8 +61,10 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Container(
                   width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.whiteColor,
                     borderRadius: const BorderRadius.only(
@@ -79,9 +76,18 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 8),
-                      _buildLanguageItem("🇻🇳  Tiếng Việt", "vi"),
-                      const SizedBox(height: 16),
-                      _buildLanguageItem("🇬🇧  English", "en"),
+
+                      LanguageSelectorItem(
+                        title: "Tiếng Việt",
+                        isSelected: selectedLang == "vi",
+                        onTap: () => _changeLanguage("vi"),
+                      ),
+
+                      LanguageSelectorItem(
+                        title: "English",
+                        isSelected: selectedLang == "en",
+                        onTap: () => _changeLanguage("en"),
+                      ),
                     ],
                   ),
                 ),
@@ -93,41 +99,4 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
     );
   }
 
-  Widget _buildLanguageItem(String title, String code) {
-    final bool isSelected = selectedLang == code;
-
-    return InkWell(
-      onTap: () => _changeLanguage(code),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppShadow.boxShadowNormal,
-          border: Border.all(
-            color: isSelected
-                ? const Color.fromARGB(255, 8, 4, 255)
-                : const Color.fromARGB(255, 0, 0, 0).withOpacity(0.2),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black87,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-            isSelected
-                ? const RadioBoxSelectedIcon()
-                : const RadioBoxIcon(),
-          ],
-        ),
-      ),
-    );
-  }
 }

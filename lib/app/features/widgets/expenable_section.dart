@@ -1,17 +1,20 @@
-//expenable_section.dart
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+
+enum ExpandableStyle { primary, secondary, minimal }
 
 class ExpandableSection extends StatefulWidget {
   final String title;
   final List<Widget> children;
   final bool initiallyExpanded;
+  final ExpandableStyle style;
 
   const ExpandableSection({
     super.key,
     required this.title,
     required this.children,
     this.initiallyExpanded = false,
+    this.style = ExpandableStyle.primary,
   });
 
   @override
@@ -28,13 +31,15 @@ class _ExpandableSectionState extends State<ExpandableSection>
   void initState() {
     super.initState();
     isExpanded = widget.initiallyExpanded;
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+
     _arrowAnimation = Tween<double>(begin: 0, end: 0.5).animate(_controller);
 
-    if (isExpanded) {
-      _controller.value = 1.0;
-    }
+    if (isExpanded) _controller.value = 1.0;
   }
 
   @override
@@ -46,54 +51,87 @@ class _ExpandableSectionState extends State<ExpandableSection>
   void _onExpansionChanged(bool expanded) {
     setState(() {
       isExpanded = expanded;
-      if (expanded) {
-        _controller.forward();
-      } else {
-        _controller.reverse();
-      }
+      expanded ? _controller.forward() : _controller.reverse();
     });
+  }
+
+  Color getContentBackground() {
+    switch (widget.style) {
+      case ExpandableStyle.primary:
+        return const Color(0xFFF7F7F9);
+      case ExpandableStyle.secondary:
+        return const Color(0xFFF5F6F7);
+      case ExpandableStyle.minimal:
+        return const Color(0xFFFAFAFA);
+    }
+  }
+
+  TextStyle getTitleStyle() {
+    switch (widget.style) {
+      case ExpandableStyle.primary:
+        return const TextStyle(fontSize: 16, fontWeight: FontWeight.w700);
+      case ExpandableStyle.secondary:
+        return const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+      case ExpandableStyle.minimal:
+        return const TextStyle(fontSize: 15, fontWeight: FontWeight.w500);
+    }
+  }
+
+  Color getArrowColor() {
+    switch (widget.style) {
+      case ExpandableStyle.primary:
+        return AppColors.themePrimaryDefault; 
+      case ExpandableStyle.secondary:
+        return Colors.black54;
+      case ExpandableStyle.minimal:
+        return Colors.black38;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: AppColors.whiteColor,
-      boxShadow: [
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12, 
-            spreadRadius: 2, 
-            offset: const Offset(0, 4), 
-          ),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          )
         ],
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          childrenPadding:
-              const EdgeInsets.only(left: 0, right: 0, bottom: 0), 
-          title: Text(
-            widget.title,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: Colors.black87,
-            ),
-          ),
+          title: Text(widget.title, style: getTitleStyle()),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           trailing: RotationTransition(
             turns: _arrowAnimation,
-            child: const Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Colors.black54,
-              size: 26,
-            ),
+            child: Icon(Icons.keyboard_arrow_up,
+                size: 26, color: getArrowColor()),
           ),
           initiallyExpanded: isExpanded,
           onExpansionChanged: _onExpansionChanged,
-          children: widget.children,
+          childrenPadding: EdgeInsets.zero,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+              decoration: BoxDecoration(
+                color: getContentBackground(),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(12),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: widget.children,
+              ),
+            )
+          ],
         ),
       ),
     );

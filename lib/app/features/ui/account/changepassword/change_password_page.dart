@@ -9,7 +9,7 @@ import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/account/changepassword/change_password_cubit.dart';
 import 'package:pm_app/di/di.dart';
-
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 
 class ChangePasswordPage extends StatelessWidget {
   const ChangePasswordPage({super.key});
@@ -40,31 +40,44 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   void _showDialog(String title, String message, {bool success = false}) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(
-          title,
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: success ? Colors.green : Colors.redAccent),
-        ),
-        content: Text(message),
-        actions: [
-          TextButton(
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder:
+          (_) => CustomDialog(
+            title: title,
+            content: message,
             onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
           ),
-        ],
-      ),
     );
   }
 
   void _onSubmit() {
-    final cubit = context.read<ChangePasswordCubit>();
+    final current = currentPasswordController.text.trim();
+    final newPass = newPasswordController.text.trim();
+    final confirm = confirmPasswordController.text.trim();
+    if (current.isEmpty || newPass.isEmpty || confirm.isEmpty) {
+      _showDialog(
+        "Thiếu thông tin",
+        "Vui lòng nhập đầy đủ các trường mật khẩu.",
+        success: false,
+      );
+      return;
+    }
 
+    if (newPass != confirm) {
+      _showDialog(
+        "Không trùng khớp",
+        "Mật khẩu mới và mật khẩu xác nhận không giống nhau.",
+        success: false,
+      );
+      return;
+    }
+
+    final cubit = context.read<ChangePasswordCubit>();
     cubit.changePassword(
-      currentPassword: currentPasswordController.text.trim(),
-      newPassword: newPasswordController.text.trim(),
-      confirmPassword: confirmPasswordController.text.trim(),
+      currentPassword: current,
+      newPassword: newPass,
+      confirmPassword: confirm,
     );
   }
 
@@ -73,19 +86,18 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     return BlocListener<ChangePasswordCubit, ChangePasswordState>(
       listener: (context, state) {
         if (state.status == LoadStatus.SUCCESS) {
-          _showDialog("Thành công", state.message ?? "Đổi mật khẩu thành công!",
-              success: true);
+          _showDialog(
+            "Thành công",
+            state.message ?? "Đổi mật khẩu thành công!",
+            success: true,
+          );
         } else if (state.status == LoadStatus.FAILURE) {
           _showDialog("Lỗi", state.message ?? "Không thể đổi mật khẩu");
-          print(state.message);
         }
       },
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: MyAppBar(
-          titleAppbar: "Đổi mật khẩu",
-          haveBackButton: true,
-        ),
+        appBar: MyAppBar(titleAppbar: "Đổi mật khẩu", haveBackButton: true),
         body: Container(
           width: double.infinity,
           height: double.infinity,
@@ -104,7 +116,9 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 24),
+                      horizontal: 20,
+                      vertical: 24,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.whiteColor,
                       borderRadius: const BorderRadius.only(
@@ -115,33 +129,54 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                     ),
                     child: Column(
                       children: [
-                        InputTextField(
-                          controller: currentPasswordController,
-                          hintText: "Nhập mật khẩu hiện tại",
-                          title: "Mật khẩu hiện tại",
-                          style: TextStyle(color: AppColors.searchText),
-                          isRequiredField: true,
-                          bgrColor: true,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                InputTextField(
+                                  controller: currentPasswordController,
+                                  hintText: "Nhập mật khẩu hiện tại",
+                                  title: "Mật khẩu hiện tại",
+                                  isPasswordField: true,
+                                  style: const TextStyle(
+                                    color: AppColors.themeBlackDefault,
+                                  ),
+                                  isRequiredField: true,
+                                  bgrColor: true,
+                                ),
+                                const SizedBox(height: 10),
+
+                                InputTextField(
+                                  controller: newPasswordController,
+                                  hintText: "Nhập mật khẩu mới",
+                                  isPasswordField: true,
+                                  title: "Mật khẩu mới",
+                                  style: const TextStyle(
+                                    color: AppColors.themeBlackDefault,
+                                  ),
+                                  isRequiredField: true,
+                                  bgrColor: true,
+                                ),
+                                const SizedBox(height: 10),
+
+                                InputTextField(
+                                  controller: confirmPasswordController,
+                                  hintText: "Nhập lại mật khẩu mới",
+                                  isPasswordField: true,
+                                  title: "Xác nhận mật khẩu mới",
+                                  style: const TextStyle(
+                                    color: AppColors.themeBlackDefault,
+                                  ),
+                                  isRequiredField: true,
+                                  bgrColor: true,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        InputTextField(
-                          controller: newPasswordController,
-                          hintText: "Nhập mật khẩu mới",
-                          title: "Mật khẩu mới",
-                          style: TextStyle(color: AppColors.searchText),
-                          isRequiredField: true,
-                          bgrColor: true,
-                        ),
-                        const SizedBox(height: 10),
-                        InputTextField(
-                          controller: confirmPasswordController,
-                          hintText: "Nhập lại mật khẩu mới",
-                          title: "Xác nhận mật khẩu mới",
-                          style: TextStyle(color: AppColors.searchText),
-                          isRequiredField: true,
-                          bgrColor: true,
-                        ),
-                        const Spacer(),
+
+                        const SizedBox(height: 24),
+
                         BlocBuilder<ChangePasswordCubit, ChangePasswordState>(
                           builder: (context, state) {
                             final isLoading =
@@ -150,11 +185,9 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                               width: double.infinity,
                               height: 48,
                               child: PrimaryButton(
-                                mainText: isLoading
-                                    ? "Đang xử lý..."
-                                    : "Xác nhận",
-                                callback:
-                                    isLoading ? null : _onSubmit, 
+                                mainText:
+                                    isLoading ? "Đang xử lý..." : "Xác nhận",
+                                callback: isLoading ? null : _onSubmit,
                               ),
                             );
                           },

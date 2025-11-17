@@ -7,6 +7,7 @@ class LoginState extends Equatable {
   String? userName;
   String password;
   String? errMsg;
+  bool? rememberMe;
 
   LoginState({
     this.tokenEntity,
@@ -14,7 +15,8 @@ class LoginState extends Equatable {
     this.showPassword,
     this.userName,
     this.password = "",
-    this.errMsg
+    this.errMsg,
+    this.rememberMe
   });
 
   LoginState copyWith({
@@ -25,7 +27,8 @@ class LoginState extends Equatable {
     String? email,
     String? password,
     String? teacherCode,
-    String? errMsg
+    String? errMsg,
+    bool? rememberMe
   }) {
     return LoginState(
         tokenEntity: tokenEntity ?? this.tokenEntity,
@@ -33,7 +36,8 @@ class LoginState extends Equatable {
         showPassword: showPassword ?? this.showPassword,
         userName: userName ?? this.userName,
         password: password ?? this.password,
-        errMsg: errMsg ?? this.errMsg
+        errMsg: errMsg ?? this.errMsg,
+        rememberMe: rememberMe ?? this.rememberMe
     );
   }
   @override
@@ -43,6 +47,7 @@ class LoginState extends Equatable {
     showPassword,
     userName,
     password,
-    errMsg
+    errMsg,
+    rememberMe
   ];
 }

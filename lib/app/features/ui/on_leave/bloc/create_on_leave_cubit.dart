@@ -23,10 +23,18 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
 
   CreateOnLeaveCubit({required this.repository}) : super(CreateOnLeaveState());
 
-  // @override
-  // Future<void> close() {
-  //   return super.close();
-  // }
+  void resetStatus(){
+    emit(state.copyWith(
+        createStatus: LoadStatus.INITIAL,
+        reason:"",
+        leaveDays:"",
+        leaveDateType:"",
+        leaveType:"",
+        currentDateLeaveType:MasterDataItem(),
+      listLeaveDays:[],
+      resetDateTime: true,
+    ));
+  }
 
   void initData(OnLeaveEntity entity){
     emit(state.copyWith(
@@ -38,7 +46,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
     emit(state.copyWith(createStatus: LoadStatus.LOADING));
     try{
       final UpdateOnLeaveParam param = UpdateOnLeaveParam(
-        employeeId: GlobalData.instance.userProfile?.id,
+        employeeId: GlobalData.instance.userProfile?.employeeId,
         holidayStatusId: state.currentDateLeaveType?.id,
         departmentId: GlobalData.instance.userProfile?.department?.id,
         requestDateFrom: AppUtil().parseDateToYMD(state.fromDate),
@@ -46,7 +54,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
         name: state.reason,
         leaveDays: state.listLeaveDays
       );
-
+      logger.d("update parram :: ${param.toJson()}");
       final res = await repository.saveOrUpdateHrLeave(param);
       if((res.lines ?? []).isNotEmpty){
         emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
@@ -105,6 +113,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   }
 
   void onChangeListLeaveDays(List<LeaveDayEntity> list) async{
+    logger.d("list day ::: $list");
     emit(state.copyWith(listLeaveDays: []));
     emit(state.copyWith(listLeaveDays: list));
   }

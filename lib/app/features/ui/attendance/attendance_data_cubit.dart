@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 import 'package:pm_app/app/data/repositories/attendance_repository.dart';
@@ -20,7 +21,8 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try{
       // employee_id=9&month=10&year=2025
-      final res = await repository.getListAttendances(9, anyMonth.month, anyMonth.year);
+      final employeeId = GlobalData.instance.userProfile?.employeeId ?? 0;
+      final res = await repository.getListAttendances(employeeId, anyMonth.month, anyMonth.year);
       final map = <DateTime, String>{};
       final mapEntries = <DateTime, List<WorkEntity>>{};
 

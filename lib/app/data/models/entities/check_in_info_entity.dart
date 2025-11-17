@@ -5,13 +5,13 @@ part 'check_in_info_entity.g.dart';
 @JsonSerializable()
 class CheckInInfoEntity {
   @JsonKey()
-  String? workingPlaceId;
+  int? id;
 
   @JsonKey()
-  String? workingPlaceName;
+  String? name;
 
   @JsonKey()
-  String? workingPlaceAddress;
+  String? address;
 
   @JsonKey()
   double? radius;
@@ -20,32 +20,32 @@ class CheckInInfoEntity {
   double? latitude;
 
   @JsonKey()
-  double? longtitude;
+  double? longitude;
 
   CheckInInfoEntity({
-    this.workingPlaceId,
-    this.workingPlaceName,
-    this.workingPlaceAddress,
+    this.id,
+    this.name,
+    this.address,
     this.radius,
     this.latitude,
-    this.longtitude,
+    this.longitude,
   });
 
   CheckInInfoEntity copyWith({
-    String? workingPlaceId,
+    int? id,
     double? radius,
     double? latitude,
-    double? longtitude,
-    String? workingPlaceName,
-    String? workingPlaceAddress
+    double? longitude,
+    String? name,
+    String? address
   }) {
     return CheckInInfoEntity(
-      workingPlaceId: workingPlaceId ?? this.workingPlaceId,
+        id: id ?? this.id,
         radius: radius ?? this.radius,
-        longtitude:  longtitude ?? this.longtitude,
+        longitude:  longitude ?? this.longitude,
         latitude: latitude ?? this.latitude,
-      workingPlaceAddress: workingPlaceAddress ?? this.workingPlaceAddress,
-      workingPlaceName: workingPlaceName ?? this.workingPlaceName
+        address: address ?? this.address,
+        name: name ?? this.name
     );
   }
 

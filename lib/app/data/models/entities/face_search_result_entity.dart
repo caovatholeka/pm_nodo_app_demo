@@ -8,7 +8,7 @@ class FaceSearchResultEntity {
   String? employeeName;
 
   @JsonKey(name: "employee_id")
-  String? employeeId;
+  int? employeeId;
 
   @JsonKey(name :"image_base64")
   String? imageBase64;
@@ -21,7 +21,7 @@ class FaceSearchResultEntity {
 
   FaceSearchResultEntity copyWith({
     String? employeeName,
-    String? employeeId,
+    int? employeeId,
     String? imageBase64,
   }) {
     return FaceSearchResultEntity(

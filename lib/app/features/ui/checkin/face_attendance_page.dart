@@ -204,6 +204,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       final outFile = await File(outPath).writeAsBytes(bytes, flush: true);
 
       // call api check face
+      _cubit.onChangeFilePath(outFile.path);
       _cubit.searchFace(outFile);
       if (!mounted) return;
       // Navigator.pop(context, base64);
@@ -236,7 +237,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       }
       final bytes = await file.readAsBytes();
       final b64 = _encodeBase64(bytes);
-      if (mounted) Navigator.pop(context, b64);
+      // if (mounted) Navigator.pop(context, b64);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -371,12 +372,12 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
             LoadingOverlay.hide(context);
             AppSnackBar.showInfo(title: "Thành Công",message:  "Xác thực khuôn mặt thành công!!");
             await Future.delayed(const Duration(seconds: 2));
-            if (mounted) Navigator.pop(context, state.faceResult?.employeeId ?? "");
+            if (mounted) Navigator.pop(context, state.fileImgPath ?? "");
 
           }else if(state.scanStatus == LoadStatus.FAILURE){
             LoadingOverlay.hide(context);
             AppSnackBar.showError(title: "Thất bại",
-                message: "Không tìm thấy thông tin người dùng!");
+                message: state.scanMsg ?? "Không tìm thấy thông tin người dùng!");
 
             // Cho phép  người dùng thử lại
             // try { await _cam?.startImageStream(_processFrame); } catch (_) {}

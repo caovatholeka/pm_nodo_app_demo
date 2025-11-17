@@ -20,6 +20,12 @@ class ProfileEntity {
   @JsonKey()
   bool? phone;
 
+  @JsonKey(name: "employee_id")
+  int? employeeId;
+
+  @JsonKey(name: "x_employee_code")
+  String? employeeCode;
+
   @JsonKey()
   DepartmentEntity? department;
 
@@ -27,7 +33,28 @@ class ProfileEntity {
   double? remainLeave;
 
   @JsonKey()
-  String? birthdayDate;
+  DepartmentEntity? manager;
+
+  @JsonKey()
+  String? state;
+
+  @JsonKey(name:"work_location")
+  String? workLocation;
+
+  @JsonKey()
+  String? birthday;
+
+  @JsonKey(name: "current_address")
+  String? currentAddress;
+
+  @JsonKey(name: "job_title")
+  String? jobTitle;
+
+  @JsonKey(name: "contract_status")
+  String? contractStatus;
+
+  @JsonKey(name: "date_join_company")
+  String? dateJoinCompany;
 
   @JsonKey()
   String? code;
@@ -43,7 +70,16 @@ class ProfileEntity {
     this.phone,
     this.department,
     this.remainLeave,
-    this.birthdayDate,
+    this.birthday,
+    this.manager,
+    this.state,
+    this.workLocation,
+    this.currentAddress,
+    this.jobTitle,
+    this.dateJoinCompany,
+    this.contractStatus,
+    this.employeeId,
+    this.employeeCode,
     this.code,
     this.avatarUrl
   });
@@ -54,11 +90,20 @@ class ProfileEntity {
     String? login,
     String? email,
     bool? phone,
-    String? birthdayDate,
+    int? employeeId,
+    String? employeeCode,
+    String? birthday,
     DepartmentEntity? department,
     double? remainLeave,
+    String? state,
     String? code,
-    String? avatarUrl
+    String? avatarUrl,
+    String? dateJoinCompany,
+    String? contractStatus,
+    String? jobTitle,
+    String? currentAddress,
+    String? workLocation,
+    DepartmentEntity? manager,
   }) {
     return ProfileEntity(
         id: id ?? this.id,
@@ -68,9 +113,19 @@ class ProfileEntity {
         phone: phone ?? this.phone,
         department: department ?? this.department,
         remainLeave: remainLeave ?? this.remainLeave,
-        birthdayDate: birthdayDate ?? this.birthdayDate,
+        birthday: birthday ?? this.birthday,
         avatarUrl:avatarUrl ?? this.avatarUrl,
-        code: code ?? this.code
+        code: code ?? this.code,
+        employeeCode: employeeCode ?? this.employeeCode,
+        employeeId: employeeId ?? this.employeeId,
+      manager: manager ?? this.manager,
+      workLocation: workLocation ?? this.workLocation,
+      currentAddress: currentAddress ?? this.currentAddress,
+      jobTitle: jobTitle ?? this.jobTitle,
+        contractStatus : contractStatus ?? this.contractStatus,
+      dateJoinCompany: dateJoinCompany ?? this.dateJoinCompany,
+      state: state ?? this.state,
+
     );
   }
 

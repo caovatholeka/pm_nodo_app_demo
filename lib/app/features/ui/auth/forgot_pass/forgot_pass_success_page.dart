@@ -21,8 +21,8 @@ class ForgotPassSuccessPage extends StatelessWidget {
           SizedBox(
             height: screenHeight,
             width: double.infinity,
-            child: SvgPicture.asset(
-              AppAssets.blockBg1,
+            child: Image.asset(
+              AppAssets.loginBG,
               fit: BoxFit.cover,
             ),
           ),
@@ -43,7 +43,7 @@ class ForgotPassSuccessPage extends StatelessWidget {
                 children: [
                   SvgPicture.asset(
                     AppAssets.appLogo,
-                    width: 88,
+                    width: 90,
                   ),
 
                   const SizedBox(height: 25),

@@ -83,9 +83,19 @@ class _LoginPageState extends State<LoginPage> {
             height: screenHeight,
             child: Stack(
               children: [
-                SizedBox(
-                  height: screenHeight * 0.50,
-                  child: SvgPicture.asset(AppAssets.blockBg1, fit: BoxFit.fill),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: screenHeight * 0.45,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(AppAssets.loginBG),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
                 ),
 
                 Positioned(
@@ -98,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 Positioned(
-                  top: screenHeight * 0.30,
+                  top: screenHeight * 0.28,
                   left: 16,
                   right: 16,
                   child: const Text(
@@ -111,14 +121,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-
                 Positioned(
-                  top: screenHeight * 0.43 - 40, 
+                  top: screenHeight * 0.37,
                   left: 16,
                   right: 16,
-                  child: SingleChildScrollView(
-                    child: _formContent(screenHeight, state),
-                  ),
+                  child: _formContent(screenHeight, state),
                 ),
               ],
             ),
@@ -130,12 +137,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _formContent(double screenHeight, LoginState state) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        16,
-        screenHeight * 0.02,
-        16,
-        screenHeight * 0.05,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 30),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -174,14 +176,16 @@ class _LoginPageState extends State<LoginPage> {
               isRequiredField: true,
               bgrColor: true,
               maxLength: 16,
+              enable: true,
               isObscured: !(state.showPassword ?? false),
               controller: _passwordController,
               onChange: (v) => _passwordKey.currentState?.validate(),
-              suffixIcon: (state.showPassword ?? false)
-                  ? AppAssets.icEyeVisible
-                  : AppAssets.icEyeClose,
-              onSuffixAction: () =>
-                  _cubit.onShowHidePwd(state.showPassword ?? false),
+              suffixIcon:
+                  (state.showPassword ?? false)
+                      ? AppAssets.icEyeVisible
+                      : AppAssets.icEyeClose,
+              onSuffixAction:
+                  () => _cubit.onShowHidePwd(state.showPassword ?? false),
               validator: (v) => Validator.validateEmpty(v, "Mật khẩu"),
             ),
           ),
@@ -189,17 +193,58 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(height: 10),
 
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Row(
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      checkboxTheme: CheckboxThemeData(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        side: const BorderSide(
+                          color: Color(0xFFBFC6D0),
+                          width: 1.4,
+                        ),
+                        visualDensity: const VisualDensity(
+                          horizontal: -3,
+                          vertical: -3,
+                        ),
+                      ),
+                    ),
+                    child: Checkbox(
+                      value: state.rememberMe ?? false,
+                      onChanged: (v) => _cubit.onRememberMe(v ?? false),
+                      activeColor: AppColors.themePrimaryDefault,
+                      checkColor: Colors.white,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+
+                  Text(
+                    "Nhớ tài khoản",
+                    style: TextStyle(
+                      color: AppColors.textNormal,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: AppConfig.fontFamily,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
               GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => BlocProvider.value(
-                      value: sl<ForgotCubit>(),
-                       child: const ForgotPassPage(),
-                    ),
+                      builder:
+                          (_) => BlocProvider.value(
+                            value: sl<ForgotCubit>(),
+                            child: const ForgotPassPage(),
+                          ),
                     ),
                   );
                 },
@@ -215,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 28),
 
           BlocBuilder<LogInCubit, LoginState>(
             bloc: _cubit,
@@ -224,6 +269,7 @@ class _LoginPageState extends State<LoginPage> {
               return PrimaryButton(
                 mainText: "Đăng nhập",
                 isLoading: loading,
+                buttonWidth: double.infinity,
                 callback: loading ? null : _login,
               );
             },
