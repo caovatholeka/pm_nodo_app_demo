@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/di/di.dart';
 import '../../../core/commons/app_assets.dart';
@@ -23,7 +24,6 @@ import 'package:pm_app/generated/l10n.dart';
 import 'account_cubit.dart';
 import 'account_state.dart';
 
-
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
 
@@ -34,7 +34,6 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final _cubit = sl<AccountCubit>();
 
-
   @override
   void initState() {
     super.initState();
@@ -44,25 +43,21 @@ class _AccountPageState extends State<AccountPage> {
   void _goLangague() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ChangeLanguagePage(
-        ),
-      ),
+      MaterialPageRoute(builder: (context) => ChangeLanguagePage()),
     );
   }
 
-
-
   void _goPassword() {
-   Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => BlocProvider(
-      create: (_) => sl<ChangePasswordCubit>(),
-      child: const ChangePasswordPage(),
-    ),
-    ),
-  );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => sl<ChangePasswordCubit>(),
+              child: const ChangePasswordPage(),
+            ),
+      ),
+    );
   }
 
   void _goInfo() {
@@ -72,85 +67,72 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-void _logOut() async {
-  final shouldLogout = await showGeneralDialog<bool>(
-    context: context,
-    barrierLabel: "Logout",
-    barrierDismissible: true,
-    barrierColor: Colors.black54,
-    transitionDuration: const Duration(milliseconds: 250),
-    pageBuilder: (_, __, ___) => const SizedBox(),
-    transitionBuilder: (_, anim, __, ___) {
-      return ScaleTransition(
-        scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
-        child: AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text(
-            "Xác nhận đăng xuất",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            "Bạn có chắc muốn đăng xuất khỏi tài khoản này không?",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, true),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-              child: const Text("Đăng xuất"),
-            ),
-          ],
-        ),
-      );
-    },
-  );
+  void _logOut() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder: (_) {
+        return CustomDialog(
+          iconPath: AppAssets.ic_delete,
+          title: "Xác nhận đăng xuất",
+          content: "Bạn có chắc muốn đăng xuất khỏi tài khoản này không?",
+          success: false,
+          confirmText: "Đăng xuất",
+          cancelText: "Hủy",
 
-  if (shouldLogout != true) return;
-  try {
-    final apiClient = GetIt.I<ApiClient>();
-    final token = await SharedPrefsHelper.getToken();
+          onConfirm: () async {
+            Navigator.pop(context);
 
-    if (token?.accessToken == null) {
-      logger.w("⚠️ Không có accessToken, logout local thôi.");
-    } else {
-      final dio = GetIt.I<Dio>();
-      dio.options.headers['Authorization'] = 'Bearer ${token!.accessToken}';
-      final response = await apiClient.logOut({});
+            try {
+              final apiClient = GetIt.I<ApiClient>();
+              final token = await SharedPrefsHelper.getToken();
 
-      if (response.code == 200) {
-        logger.i("✅ Logout API success");
-      } else {
-        logger.w("⚠️ Logout API failed: ${response.message}");
-      }
-    }
-    await SharedPrefsHelper.clearAll();
+              if (token?.accessToken == null) {
+                logger.w("⚠️ Không có accessToken, logout local thôi.");
+              } else {
+                final dio = GetIt.I<Dio>();
+                dio.options.headers['Authorization'] =
+                    'Bearer ${token!.accessToken}';
+                final response = await apiClient.logOut({});
 
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (route) => false,
-    );
-  } catch (e, s) {
-    logger.e("❌ Lỗi khi logout: $e");
-    logger.e(s);
+                if (response.code == 200) {
+                  logger.i("✅ Logout API success");
+                } else {
+                  logger.w("⚠️ Logout API failed: ${response.message}");
+                }
+              }
 
-    await SharedPrefsHelper.clearAll();
+              await SharedPrefsHelper.clearAll();
 
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (route) => false,
+              if (!mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
+              );
+            } catch (e, s) {
+              logger.e("❌ Lỗi khi logout: $e");
+              logger.e(s);
+
+              await SharedPrefsHelper.clearAll();
+
+              if (!mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
+              );
+            }
+          },
+
+          onCancel: () {
+            Navigator.pop(context);
+          },
+        );
+      },
     );
   }
-}
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +192,9 @@ void _logOut() async {
                   _menuItem(
                     icon: AppAssets.ic_setting,
                     title: s.btn_setting,
-                    onTap: (){DevelopmentAlertDialog.show(context);},
+                    onTap: () {
+                      DevelopmentAlertDialog.show(context);
+                    },
                   ),
                   const SizedBox(height: 24),
                   _logoutButton,
@@ -252,14 +236,15 @@ void _logOut() async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _InfoItem(title: s.dob , value: profile.birthday ?? "-"),
+                  _InfoItem(title: s.dob, value: profile.birthday ?? "-"),
                   _InfoItem(
-                      title: s.input_employee_code,
-                      value: profile.employeeCode ?? "-"),
+                    title: s.input_employee_code,
+                    value: profile.employeeCode ?? "-",
+                  ),
                   _InfoItem(
-                      title: s.phone_number,
-                      value: (profile.phone == true ? "-" : "-"),
-                  )
+                    title: s.phone_number,
+                    value: (profile.phone == true ? "-" : "-"),
+                  ),
                 ],
               ),
             ],
@@ -274,9 +259,10 @@ void _logOut() async {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.avatarFrame, width: 3),
               image: DecorationImage(
-                image: profile.avatarUrl != null
-                    ? NetworkImage(profile.avatarUrl!) as ImageProvider
-                    : AssetImage(AppAssets.img_df_avatar),
+                image:
+                    profile.avatarUrl != null
+                        ? NetworkImage(profile.avatarUrl!) as ImageProvider
+                        : AssetImage(AppAssets.img_df_avatar),
                 fit: BoxFit.cover,
               ),
             ),
@@ -308,10 +294,7 @@ void _logOut() async {
         leading: Image.asset(icon, width: 22, height: 22),
         title: Text(
           title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
         ),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
@@ -320,12 +303,9 @@ void _logOut() async {
   }
 
   Widget get _logoutButton => SizedBox(
-        width: double.infinity,
-        child: PrimaryButton(
-          mainText: "Đăng Xuất",
-          callback: _logOut,
-        ),
-      );
+    width: double.infinity,
+    child: PrimaryButton(mainText: "Đăng Xuất", callback: _logOut),
+  );
 }
 
 class _InfoItem extends StatelessWidget {
@@ -340,10 +320,7 @@ class _InfoItem extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: AppColors.avatarText,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: AppColors.avatarText, fontSize: 12),
           ),
           const SizedBox(height: 4),
           Text(

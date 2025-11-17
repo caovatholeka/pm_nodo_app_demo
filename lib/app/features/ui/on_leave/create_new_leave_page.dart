@@ -11,6 +11,7 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
 import 'package:pm_app/app/features/ui/on_leave/widget/onleave_day_item_widget.dart';
 import 'package:pm_app/app/features/widgets/common_bottom_sheet.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../core/utils/validators.dart';
@@ -22,24 +23,17 @@ import '../../widgets/loading_overlay.dart';
 import '../../widgets/my_app_bar.dart';
 import '../../widgets/primary_button.dart';
 
-
 class CreateNewLeavePage extends StatefulWidget {
   bool? isEdit;
   OnLeaveEntity? detailEntity;
 
-  CreateNewLeavePage({
-    super.key,
-    this.isEdit,
-    this.detailEntity
-  });
-
+  CreateNewLeavePage({super.key, this.isEdit, this.detailEntity});
 
   @override
   State<CreateNewLeavePage> createState() => _CreateNewLeavePageState();
 }
 
 class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
-
   final _dateTypeKey = GlobalKey<FormState>();
   final _fromDateKey = GlobalKey<FormState>();
   final _toDateKey = GlobalKey<FormState>();
@@ -66,11 +60,11 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
   @override
   void initState() {
-     // _createCubit.initData(widget.detailEntity ?? OnLeaveEntity());
+    // _createCubit.initData(widget.detailEntity ?? OnLeaveEntity());
     _createCubit.getListDateTypeLeaves();
     _createCubit.getListTypeLeaves();
 
-    if(widget.isEdit ?? false){
+    if (widget.isEdit ?? false) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _prefillForEdit();
       });
@@ -82,6 +76,31 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   void dispose() {
     // _createCubit.close();
     super.dispose();
+  }
+
+  void _showDialog({
+    required String title,
+    required String message,
+    bool success = true,
+    VoidCallback? onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder:
+          (_) => CustomDialog(
+            iconPath: success ? AppAssets.ic_done : AppAssets.ic_delete,
+            title: title,
+            content: message,
+            success: success,
+            onConfirm: () {
+              Navigator.pop(context);
+              if (onConfirm != null) onConfirm();
+            },
+            onCancel: () => Navigator.pop(context),
+          ),
+    );
   }
 
   // Helper funcs
@@ -99,7 +118,9 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   }
 
   String _fmtTotal(double v) {
-    return (v == v.roundToDouble()) ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
+    return (v == v.roundToDouble())
+        ? v.toStringAsFixed(0)
+        : v.toStringAsFixed(1);
   }
 
   // Edit
@@ -124,7 +145,12 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
         if (e is LeaveDayEntity) {
           final d = _tryParseIso(e.date);
           if (d != null) {
-            out.add(LeaveDayEntity(date: d.toIso8601String(), type: (e.type ?? 'full')));
+            out.add(
+              LeaveDayEntity(
+                date: d.toIso8601String(),
+                type: (e.type ?? 'full'),
+              ),
+            );
           }
         } else if (e is Map) {
           final d = _tryParseIso(e['date'] as String?);
@@ -151,7 +177,6 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     final from = _tryParseIso(detail.dateFrom ?? "");
     final to = _tryParseIso(detail.dateTo);
 
-
     // final description =
     //     (detail as dynamic).description as String? ?? (detail as dynamic).reason as String? ?? '';
     final description = detail.description ?? "";
@@ -165,11 +190,16 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     final lineIds = detail.lineIds ?? [];
     if (from != null) {
       _createCubit.setFromDate(from);
-      fromDateController.text = AppDateUtils.changeIso8601StringToDateTimeString(from.toIso8601String());
+      fromDateController
+          .text = AppDateUtils.changeIso8601StringToDateTimeString(
+        from.toIso8601String(),
+      );
     }
     if (to != null) {
       _createCubit.setToDate(to);
-      toDateController.text = AppDateUtils.changeIso8601StringToDateTimeString(to.toIso8601String());
+      toDateController.text = AppDateUtils.changeIso8601StringToDateTimeString(
+        to.toIso8601String(),
+      );
     }
 
     // danh sach ngay nghi
@@ -197,7 +227,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
         _createCubit.onChangeDateTypeLeaves(
           MasterDataItem(text: holidayStatus, code: holidayStatusId.toString()),
         );
-      } catch (e){
+      } catch (e) {
         logger.d(e);
       }
     }
@@ -208,81 +238,100 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     }
   }
 
-
-  _showDatePicker({DateTime? defaultValue, DateChangedCallback? onConfirm}){
+  _showDatePicker({DateTime? defaultValue, DateChangedCallback? onConfirm}) {
     DatePicker.showDatePicker(
       context,
       showTitleActions: true,
       onConfirm: onConfirm,
       currentTime: defaultValue ?? DateTime.now(),
-      locale: LocaleType.vi
+      locale: LocaleType.vi,
     );
   }
 
-  _openDateTypeLeaveBottomSheet(List<MasterDataItem> list) async{
+  _openDateTypeLeaveBottomSheet(List<MasterDataItem> list) async {
     final item = await showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        useRootNavigator: true,
-        isScrollControlled: true,
-        builder: (BuildContext context) =>
-            CommonBottomSheet(
-              listValues: list,
-              currentValue: _createCubit.state.currentDateLeaveType ,
-              title: "Loại ngày nghỉ",
-            )
+      context: context,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder:
+          (BuildContext context) => CommonBottomSheet(
+            listValues: list,
+            currentValue: _createCubit.state.currentDateLeaveType,
+            title: "Loại ngày nghỉ",
+          ),
     );
 
-    if(item != null ){
-      if((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 &&
-        item.id == 7
-      ){
-        AppSnackBar.showError(title: "Cảnh báo",
-            message: "Quỹ phép của nhân viên ${GlobalData.instance.userProfile?.name ?? ""} không còn đủ !!!");
-      }else{
+    if (item != null) {
+      if ((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 &&
+          item.id == 7) {
+        _showDialog(
+          title: "Cảnh báo",
+          message: "Quỹ phép của nhân viên không còn đủ!",
+          success: false,
+        );
+      } else {
         _createCubit.onChangeDateTypeLeaves(item);
       }
-
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CreateOnLeaveCubit,CreateOnLeaveState>(
+    return BlocConsumer<CreateOnLeaveCubit, CreateOnLeaveState>(
       bloc: _createCubit,
-      buildWhen: (prev,cur) => prev.createStatus != cur.createStatus,
-      listener: (context,state){
-        if(state.createStatus == LoadStatus.LOADING){
+      buildWhen: (prev, cur) => prev.createStatus != cur.createStatus,
+      listener: (context, state) {
+        if (state.createStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
-        }else if(state.createStatus == LoadStatus.SUCCESS){
+        } else if (state.createStatus == LoadStatus.SUCCESS) {
           _createCubit.resetStatus();
           LoadingOverlay.hide(context);
-          AppSnackBar.showInfo(title: "Thông báo",
-            message:  widget.isEdit ?? false ?
-            "Cập nhật đơn xin nghỉ thành công":
-                "Tạo mới đơn nghỉ thành công!"
-           );
-          if(widget.isEdit ?? false){
+          // AppSnackBar.showInfo(
+          //   title: "Thông báo",
+          //   message:
+          //       widget.isEdit ?? false
+          //           ? "Cập nhật đơn xin nghỉ thành công"
+          //           : "Tạo mới đơn nghỉ thành công!",
+          // );
+
+          _showDialog(
+            title: "Thông báo",
+            message:
+                widget.isEdit ?? false
+                    ? "Cập nhật đơn xin nghỉ thành công"
+                    : "Tạo mới đơn nghỉ thành công",
+            success: true,
+          );
+          if (widget.isEdit ?? false) {
             // Navigator.of(context)..pop()..pop();
             Navigator.pop(context);
-            Navigator.pop(context,true);
-          }else{
-            Navigator.pop(context,true);
+            Navigator.pop(context, true);
+          } else {
+            Navigator.pop(context, true);
           }
-
-        }else if(state.createStatus == LoadStatus.FAILURE){
+        } else if (state.createStatus == LoadStatus.FAILURE) {
           _createCubit.resetStatus();
           LoadingOverlay.hide(context);
-          AppSnackBar.showError(title: "Cảnh báo", message: "Có lỗi xảy ra , vui lòng thử lại sau");
-        }else{
+          // AppSnackBar.showError(
+          //   title: "Cảnh báo",
+          //   message: "Có lỗi xảy ra , vui lòng thử lại sau",
+          // );
+
+          _showDialog(
+            title: "Cảnh báo",
+            message: "Có lỗi xảy ra, vui lòng thử lại sau",
+            success: false,
+          );
+        } else {
           // hide progress
           LoadingOverlay.hide(context);
-
         }
       },
-      builder: (context,state){
+      builder: (context, state) {
         return Scaffold(
-          appBar: MyAppBar(titleAppbar: "Tạo yêu cầu nghỉ phép",
+          appBar: MyAppBar(
+            titleAppbar: "Tạo yêu cầu nghỉ phép",
             haveBackButton: true,
           ),
           extendBodyBehindAppBar: true,
@@ -297,21 +346,27 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             ),
             child: Column(
               children: [
-                const SizedBox(height: 120,),
-                Expanded(child: Padding(
-                  padding: const EdgeInsets.only(left: 10,right: 10),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 12),
-                    decoration: BoxDecoration(
+                const SizedBox(height: 120),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
                         color: AppColors.whiteColor,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),)
+                          topRight: Radius.circular(12),
+                        ),
+                      ),
+                      child: _contentBody,
                     ),
-                    child: _contentBody,
                   ),
-                ))
+                ),
               ],
             ),
           ),
@@ -330,11 +385,17 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             title: "Số phép còn lại",
             hintText: "",
             isRequiredField: false,
-            controller: leavesDaysController..text = GlobalData.instance.userProfile?.remainLeave.toString().replaceAll(".0", "") ?? "",
+            controller:
+                leavesDaysController
+                  ..text =
+                      GlobalData.instance.userProfile?.remainLeave
+                          .toString()
+                          .replaceAll(".0", "") ??
+                      "",
             readOnly: true,
           ).paddingOnly(bottom: 20),
           // Loại ngày nghỉ
-          BlocListener<CreateOnLeaveCubit,CreateOnLeaveState>(
+          BlocListener<CreateOnLeaveCubit, CreateOnLeaveState>(
             bloc: _createCubit,
             listenWhen: (prev, cur) => prev.leaveDateType != cur.leaveDateType,
             listener: (context, state) {
@@ -345,32 +406,38 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                 composing: TextRange.empty,
               );
 
-              if(text.isNotEmpty){
+              if (text.isNotEmpty) {
                 _dateTypeKey.currentState?.validate();
               }
             },
-            child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
-                buildWhen: (prev,cur) => prev.leaveDateType != cur.leaveDateType ||
-                  prev.listDateTypeLeaves != cur.listDateTypeLeaves,
-                builder: (context,state){
-                  return Form(
-                    key: _dateTypeKey,
-                    child: InputTextField(
-                      title: "Loại ngày nghỉ",
-                      hintText: "",
-                      isRequiredField: true,
-                      controller: dateTypeController,
-                      enable: true,
-                      readOnly: true,
-                      suffixIcon: AppAssets.icArrowDown,
-                      callback: (){
-                        _openDateTypeLeaveBottomSheet(state.listDateTypeLeaves ?? [],);
-                      },
-                      validator: (value) =>
-                          Validator.validateEmpty(value, "Loại ngày nghỉ"),
-                    ).paddingOnly(bottom: 20),
-                  );
-                }),
+            child: BlocBuilder<CreateOnLeaveCubit, CreateOnLeaveState>(
+              buildWhen:
+                  (prev, cur) =>
+                      prev.leaveDateType != cur.leaveDateType ||
+                      prev.listDateTypeLeaves != cur.listDateTypeLeaves,
+              builder: (context, state) {
+                return Form(
+                  key: _dateTypeKey,
+                  child: InputTextField(
+                    title: "Loại ngày nghỉ",
+                    hintText: "",
+                    isRequiredField: true,
+                    controller: dateTypeController,
+                    enable: true,
+                    readOnly: true,
+                    suffixIcon: AppAssets.icArrowDown,
+                    callback: () {
+                      _openDateTypeLeaveBottomSheet(
+                        state.listDateTypeLeaves ?? [],
+                      );
+                    },
+                    validator:
+                        (value) =>
+                            Validator.validateEmpty(value, "Loại ngày nghỉ"),
+                  ).paddingOnly(bottom: 20),
+                );
+              },
+            ),
           ),
           // Tổng số ngày nghỉ
           InputTextField(
@@ -383,237 +450,323 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           Row(
             children: [
               Expanded(
-                  flex: 1,
-                  child: BlocListener<CreateOnLeaveCubit,CreateOnLeaveState>(
+                flex: 1,
+                child: BlocListener<CreateOnLeaveCubit, CreateOnLeaveState>(
+                  bloc: _createCubit,
+                  listenWhen:
+                      (prev, cur) =>
+                          prev.fromDate != cur.fromDate ||
+                          prev.fromDateTime != cur.fromDateTime,
+                  listener: (context, state) {
+                    String text = state.fromDate ?? "";
+                    fromDateController.value = fromDateController.value
+                        .copyWith(text: text);
+                    if (text.isNotEmpty) {
+                      _fromDateKey.currentState?.validate();
+                    }
+                  },
+                  child: BlocBuilder<CreateOnLeaveCubit, CreateOnLeaveState>(
                     bloc: _createCubit,
-                    listenWhen: (prev,cur) => prev.fromDate != cur.fromDate
-                        || prev.fromDateTime != cur.fromDateTime,
-                    listener: (context,state){
-                      String text = state.fromDate ?? "";
-                      fromDateController.value = fromDateController.value.copyWith(
-                        text: text,
-                      );
-                      if(text.isNotEmpty){
-                        _fromDateKey.currentState?.validate();
-                      }
-                    },
-                    child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
-                        bloc:_createCubit,
-                        buildWhen: (prev,cur) => prev.fromDate != cur.fromDate ||
+                    buildWhen:
+                        (prev, cur) =>
+                            prev.fromDate != cur.fromDate ||
                             prev.fromDateTime != cur.fromDateTime,
-                        builder: (context, state) {
-                          return Form(
-                            key: _fromDateKey,
-                            child: InputTextField(
-                              title: "Từ ngày",
-                              hintText: "",
-                              isRequiredField: true,
-                              enable: true,
-                              readOnly: true,
-                              controller: fromDateController,
-                              suffixIcon: AppAssets.icCalendar,
-                              callback: (){
-                                _showDatePicker(
-                                    defaultValue: state.fromDateTime ?? _initFromDate,
-                                    onConfirm: (selectedDate) {
-                                      _selectedDate = selectedDate;
-                                      if(_createCubit.state.toDateTime != null){
-                                        if (_createCubit.state.toDateTime!.difference(selectedDate).inDays < 0) {
-                                          AppSnackBar.showError(title: "Cảnh báo",message: "Từ ngày không được lớn hơn đến ngày");
-                                          // AppSnackBar.showError(title: S.current.warning, message: S.current.from_time_to_time_validate);
-                                        }else{
-                                          // _createCubit.onChangeLeaveDays(_createCubit.state.toDateTime!.difference(selectedDate).inDays);
-                                          _createCubit.setFromDate(selectedDate);
-                                          final allDays = AppDateUtils.daysBetween(selectedDate, _createCubit.state.toDateTime!);
-                                          listDays.clear();
-                                          for (final e in allDays) {
-                                            listDays.add(LeaveDayEntity(date: e.toIso8601String(), type: 'full'));
-                                          }
-                                          _createCubit.onChangeListLeaveDays(listDays);
-
-                                          // Tổng số ngày
-                                          final total = _sumDaysByType(listDays);
-                                          totalDaysController.text = _fmtTotal(total);
-                                        }
-                                      }else{
-                                        _createCubit.setFromDate(selectedDate);
-                                        listDays.clear();
-                                        _createCubit.onChangeListLeaveDays(listDays);
-                                        totalDaysController.text = '0';
-                                      }
-
+                    builder: (context, state) {
+                      return Form(
+                        key: _fromDateKey,
+                        child: InputTextField(
+                          title: "Từ ngày",
+                          hintText: "",
+                          isRequiredField: true,
+                          enable: true,
+                          readOnly: true,
+                          controller: fromDateController,
+                          suffixIcon: AppAssets.icCalendar,
+                          callback: () {
+                            _showDatePicker(
+                              defaultValue: state.fromDateTime ?? _initFromDate,
+                              onConfirm: (selectedDate) {
+                                _selectedDate = selectedDate;
+                                if (_createCubit.state.toDateTime != null) {
+                                  if (_createCubit.state.toDateTime!
+                                          .difference(selectedDate)
+                                          .inDays <
+                                      0) {
+                                    // AppSnackBar.showError(
+                                    //   title: "Cảnh báo",
+                                    //   message:
+                                    //       "Từ ngày không được lớn hơn đến ngày",
+                                    // );
+                                    _showDialog(
+                                      title: "Cảnh báo",
+                                      message:
+                                          "Từ ngày không được lớn hơn đến ngày",
+                                      success: false,
+                                    );
+                                    // AppSnackBar.showError(title: S.current.warning, message: S.current.from_time_to_time_validate);
+                                  } else {
+                                    // _createCubit.onChangeLeaveDays(_createCubit.state.toDateTime!.difference(selectedDate).inDays);
+                                    _createCubit.setFromDate(selectedDate);
+                                    final allDays = AppDateUtils.daysBetween(
+                                      selectedDate,
+                                      _createCubit.state.toDateTime!,
+                                    );
+                                    listDays.clear();
+                                    for (final e in allDays) {
+                                      listDays.add(
+                                        LeaveDayEntity(
+                                          date: e.toIso8601String(),
+                                          type: 'full',
+                                        ),
+                                      );
                                     }
-                                );
+                                    _createCubit.onChangeListLeaveDays(
+                                      listDays,
+                                    );
+
+                                    // Tổng số ngày
+                                    final total = _sumDaysByType(listDays);
+                                    totalDaysController.text = _fmtTotal(total);
+                                  }
+                                } else {
+                                  _createCubit.setFromDate(selectedDate);
+                                  listDays.clear();
+                                  _createCubit.onChangeListLeaveDays(listDays);
+                                  totalDaysController.text = '0';
+                                }
                               },
-                              validator: (value)
-                              => Validator.validateEmpty(value, "Từ ngày"),
-                            ),
-                          );
-                        }),
-                  )),
-              const SizedBox(width: 8,),
-              Expanded(
-                  flex: 1,
-                  child: BlocListener<CreateOnLeaveCubit,CreateOnLeaveState>(
-                    bloc: _createCubit,
-                    listenWhen: (prev,cur) => prev.toDate != cur.toDate
-                        || prev.toDateTime != cur.toDateTime,
-                    listener: (context,state){
-                      String text = state.toDate ?? "";
-                      toDateController.value = toDateController.value.copyWith(
-                        text: text,
+                            );
+                          },
+                          validator:
+                              (value) =>
+                                  Validator.validateEmpty(value, "Từ ngày"),
+                        ),
                       );
-                      if(text.isNotEmpty){
-                        _toDateKey.currentState?.validate();
-                      }
                     },
-                    child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
-                        bloc:_createCubit,
-                        buildWhen: (prev,cur) => prev.toDate != cur.toDate ||
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 1,
+                child: BlocListener<CreateOnLeaveCubit, CreateOnLeaveState>(
+                  bloc: _createCubit,
+                  listenWhen:
+                      (prev, cur) =>
+                          prev.toDate != cur.toDate ||
+                          prev.toDateTime != cur.toDateTime,
+                  listener: (context, state) {
+                    String text = state.toDate ?? "";
+                    toDateController.value = toDateController.value.copyWith(
+                      text: text,
+                    );
+                    if (text.isNotEmpty) {
+                      _toDateKey.currentState?.validate();
+                    }
+                  },
+                  child: BlocBuilder<CreateOnLeaveCubit, CreateOnLeaveState>(
+                    bloc: _createCubit,
+                    buildWhen:
+                        (prev, cur) =>
+                            prev.toDate != cur.toDate ||
                             prev.toDateTime != cur.toDateTime,
-                        builder: (context, state) {
-                          return Form(
-                            key: _toDateKey,
-                            child: InputTextField(
-                              title: "Đến ngày",
-                              hintText: "",
-                              isRequiredField: true,
-                              enable: true,
-                              readOnly: true,
-                              controller: toDateController,
-                              suffixIcon: AppAssets.icCalendar,
-                              callback: (){
-                                _showDatePicker(
-                                    defaultValue: state.toDateTime ?? _initToDate,
-                                    onConfirm: (selectedDate) {
-                                      _selectedDate = selectedDate;
-                                      if(_createCubit.state.fromDateTime != null){
-                                        if (selectedDate.difference(_createCubit.state.fromDateTime!).inDays < 0) {
-                                          AppSnackBar.showError(title: "Cảnh báo",message: "Từ ngày không được lớn hơn đến ngày");
-                                          // AppSnackBar.showError(title: S.current.warning, message: S.current.from_time_to_time_validate);
-                                        }else{
-                                          _createCubit.setToDate(selectedDate);
-                                          final allDays = AppDateUtils.daysBetween(_createCubit.state.fromDateTime!, selectedDate);
-                                          listDays.clear();
-                                          for (final e in allDays) {
-                                            listDays.add(LeaveDayEntity(date: e.toIso8601String(), type: 'full'));
-                                          }
-                                          _createCubit.onChangeListLeaveDays(listDays);
-
-                                          // Tổng số ngày
-                                          final total = _sumDaysByType(listDays);
-                                          totalDaysController.text = _fmtTotal(total);
-                                        }
-                                      }else{
-                                        _createCubit.setToDate(selectedDate);
-                                        listDays.clear();
-                                        _createCubit.onChangeListLeaveDays(listDays);
-                                        totalDaysController.text = '0';
-                                      }
-
+                    builder: (context, state) {
+                      return Form(
+                        key: _toDateKey,
+                        child: InputTextField(
+                          title: "Đến ngày",
+                          hintText: "",
+                          isRequiredField: true,
+                          enable: true,
+                          readOnly: true,
+                          controller: toDateController,
+                          suffixIcon: AppAssets.icCalendar,
+                          callback: () {
+                            _showDatePicker(
+                              defaultValue: state.toDateTime ?? _initToDate,
+                              onConfirm: (selectedDate) {
+                                _selectedDate = selectedDate;
+                                if (_createCubit.state.fromDateTime != null) {
+                                  if (selectedDate
+                                          .difference(
+                                            _createCubit.state.fromDateTime!,
+                                          )
+                                          .inDays <
+                                      0) {
+                                    // AppSnackBar.showError(
+                                    //   title: "Cảnh báo",
+                                    //   message:
+                                    //       "Từ ngày không được lớn hơn đến ngày",
+                                    // );
+                                    _showDialog(
+                                      title: "Cảnh báo",
+                                      message:
+                                          "Từ ngày không được lớn hơn đến ngày",
+                                      success: false,
+                                    );
+                                    // AppSnackBar.showError(title: S.current.warning, message: S.current.from_time_to_time_validate);
+                                  } else {
+                                    _createCubit.setToDate(selectedDate);
+                                    final allDays = AppDateUtils.daysBetween(
+                                      _createCubit.state.fromDateTime!,
+                                      selectedDate,
+                                    );
+                                    listDays.clear();
+                                    for (final e in allDays) {
+                                      listDays.add(
+                                        LeaveDayEntity(
+                                          date: e.toIso8601String(),
+                                          type: 'full',
+                                        ),
+                                      );
                                     }
-                                );
+                                    _createCubit.onChangeListLeaveDays(
+                                      listDays,
+                                    );
+
+                                    // Tổng số ngày
+                                    final total = _sumDaysByType(listDays);
+                                    totalDaysController.text = _fmtTotal(total);
+                                  }
+                                } else {
+                                  _createCubit.setToDate(selectedDate);
+                                  listDays.clear();
+                                  _createCubit.onChangeListLeaveDays(listDays);
+                                  totalDaysController.text = '0';
+                                }
                               },
-                              validator: (value)
-                              => Validator.validateEmpty(value, "Tới ngày"),
-                            ),
-                          );
-                        }),
-                  ))
+                            );
+                          },
+                          validator:
+                              (value) =>
+                                  Validator.validateEmpty(value, "Tới ngày"),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
             ],
           ).paddingOnly(bottom: 20),
 
           // list danh sach ngay nghi
-          BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
-              bloc: _createCubit,
-              buildWhen: (prev,cur) => prev.listLeaveDays != cur.listLeaveDays,
-              builder: (context,state){
-                return SizedBox(
-                  height: (state.listLeaveDays ?? []).isEmpty ? 0 :
-                    (((state.listLeaveDays ?? []).length >3) ? 300 : (state.listLeaveDays ?? []).length*100),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: (state.listLeaveDays ?? []).map((entity) {
-                        return OnleaveDayItemWidget(
-                          date: entity.date ?? "",
-                          type: (entity.type?.isNotEmpty ?? false) ? (entity.type ?? 'full') : 'full',
-                          onTypeChanged: (newType) {
-                            final idx = listDays.indexWhere((e) => e.date == entity.date);
-                            if (idx != -1) {
-                              listDays[idx] = LeaveDayEntity(
-                                date: listDays[idx].date,
-                                type: newType,
+          BlocBuilder<CreateOnLeaveCubit, CreateOnLeaveState>(
+            bloc: _createCubit,
+            buildWhen: (prev, cur) => prev.listLeaveDays != cur.listLeaveDays,
+            builder: (context, state) {
+              return SizedBox(
+                height:
+                    (state.listLeaveDays ?? []).isEmpty
+                        ? 0
+                        : (((state.listLeaveDays ?? []).length > 3)
+                            ? 300
+                            : (state.listLeaveDays ?? []).length * 100),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children:
+                        (state.listLeaveDays ?? []).map((entity) {
+                          return OnleaveDayItemWidget(
+                            date: entity.date ?? "",
+                            type:
+                                (entity.type?.isNotEmpty ?? false)
+                                    ? (entity.type ?? 'full')
+                                    : 'full',
+                            onTypeChanged: (newType) {
+                              final idx = listDays.indexWhere(
+                                (e) => e.date == entity.date,
                               );
-                              _createCubit.onChangeListLeaveDays(List<LeaveDayEntity>.from(listDays));
+                              if (idx != -1) {
+                                listDays[idx] = LeaveDayEntity(
+                                  date: listDays[idx].date,
+                                  type: newType,
+                                );
+                                _createCubit.onChangeListLeaveDays(
+                                  List<LeaveDayEntity>.from(listDays),
+                                );
 
-                              final total = _sumDaysByType(listDays);
-                              totalDaysController.text = _fmtTotal(total);
-                            }
-                          },
-                        );
-                      }).toList(),
-                    ),
+                                final total = _sumDaysByType(listDays);
+                                totalDaysController.text = _fmtTotal(total);
+                              }
+                            },
+                          );
+                        }).toList(),
                   ),
-                );
-              }),
-
-          const SizedBox(height: 20,),
-          Form(
-              key: _reasonKey,
-              child: BlocListener<CreateOnLeaveCubit,CreateOnLeaveState>(
-                bloc: _createCubit,
-                listenWhen: (prev, cur) => prev.reason != cur.reason,
-                listener: (context, state) {
-                  final text = state.reason ?? "";
-                  reasonController.value = reasonController.value.copyWith(
-                    text: text,
-                    selection: TextSelection.collapsed(offset: text.length),
-                    composing: TextRange.empty,
-                  );
-
-                  if(text.isNotEmpty){
-                    _reasonKey.currentState?.validate();
-                  }
-                },
-                child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
-                  bloc: _createCubit,
-                  buildWhen: (prev,cur) => prev.reason != cur.reason,
-                  builder: (context,state){
-                    return InputTextField(
-                      title: "Lý do nghỉ",
-                      hintText: "",
-                      isRequiredField: true,
-                      enable: true,
-                      controller: reasonController,
-                      maxLine: 5,
-                      onChange: (value){
-                        _reasonKey.currentState!.validate();
-                        _createCubit.onChangeReason(value);
-                      },
-                      validator:  (value) =>
-                          Validator.validateEmpty(value, "Lý do nghỉ"),
-                    );
-                  },
                 ),
-              )),
-          const SizedBox(height: 36,),
+              );
+            },
+          ),
+
+          const SizedBox(height: 20),
+          Form(
+            key: _reasonKey,
+            child: BlocListener<CreateOnLeaveCubit, CreateOnLeaveState>(
+              bloc: _createCubit,
+              listenWhen: (prev, cur) => prev.reason != cur.reason,
+              listener: (context, state) {
+                final text = state.reason ?? "";
+                reasonController.value = reasonController.value.copyWith(
+                  text: text,
+                  selection: TextSelection.collapsed(offset: text.length),
+                  composing: TextRange.empty,
+                );
+
+                if (text.isNotEmpty) {
+                  _reasonKey.currentState?.validate();
+                }
+              },
+              child: BlocBuilder<CreateOnLeaveCubit, CreateOnLeaveState>(
+                bloc: _createCubit,
+                buildWhen: (prev, cur) => prev.reason != cur.reason,
+                builder: (context, state) {
+                  return InputTextField(
+                    title: "Lý do nghỉ",
+                    hintText: "",
+                    isRequiredField: true,
+                    enable: true,
+                    controller: reasonController,
+                    maxLine: 5,
+                    onChange: (value) {
+                      _reasonKey.currentState!.validate();
+                      _createCubit.onChangeReason(value);
+                    },
+                    validator:
+                        (value) => Validator.validateEmpty(value, "Lý do nghỉ"),
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 36),
           PrimaryButton(
-            mainText: "Lưu",//S.current.save,
+            mainText: "Lưu",
             buttonWidth: double.infinity,
             borderRadius: 8,
-            callback: (){
-              // validate
-              final dateTypeValid = _dateTypeKey.currentState?.validate() ?? false;
-              final fromDateValid = _fromDateKey.currentState?.validate() ?? false;
+            callback: () {
+              final dateTypeValid =
+                  _dateTypeKey.currentState?.validate() ?? false;
+              final fromDateValid =
+                  _fromDateKey.currentState?.validate() ?? false;
               final toDateValid = _toDateKey.currentState?.validate() ?? false;
               final reasonValid = _reasonKey.currentState?.validate() ?? false;
-              if(dateTypeValid &&
-                fromDateValid && toDateValid && reasonValid){
-                _createCubit.createOrUpdateLeaveDay();
-              }
-              //
-            },),
 
+              if (dateTypeValid &&
+                  fromDateValid &&
+                  toDateValid &&
+                  reasonValid) {
+                _showDialog(
+                  title: "Xác nhận",
+                  message:
+                      widget.isEdit == true
+                          ? "Bạn có chắc muốn cập nhật đơn nghỉ phép này?"
+                          : "Bạn có chắc muốn tạo mới đơn nghỉ phép?",
+                  success: true,
+                  onConfirm: () {
+                    _createCubit.createOrUpdateLeaveDay();
+                  },
+                );
+              }
+            },
+          ),
         ],
       ),
     );

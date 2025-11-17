@@ -44,9 +44,11 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
       barrierColor: Colors.transparent,
       builder:
           (_) => CustomDialog(
+            iconPath: success ? AppAssets.ic_done : AppAssets.ic_delete,
             title: title,
             content: message,
-            onPressed: () => Navigator.pop(context),
+            success: success,
+            onCancel: () => Navigator.pop(context),
           ),
     );
   }

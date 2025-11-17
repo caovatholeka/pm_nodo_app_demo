@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
@@ -51,9 +52,10 @@ class _ExplanationTabState extends State<ExplanationTab> {
                 showDialog(
                   context: context,
                   builder: (_) => CustomDialog(
+                    iconPath: AppAssets.ic_done,
                     title: "Thành công",
                     content: "Đã gửi giải trình thành công!",
-                    onPressed: () {
+                    onCancel: () {
                       Navigator.of(context).pop();
                     },
                   ),

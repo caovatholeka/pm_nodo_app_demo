@@ -78,4 +78,9 @@ class AppAssets {
 
   static final bgForgotPassword = 'assets/images/img_forgotPassword.png';
   static final loginBG = 'assets/images/imgBGLogin.png';
+
+
+  //Dialog icons
+  static final ic_delete = 'assets/images/icons/ic_delete.png';
+  static final ic_done = 'assets/images/icons/ic_done.png';
 }
