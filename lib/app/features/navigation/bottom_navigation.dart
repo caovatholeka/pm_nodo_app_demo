@@ -34,79 +34,85 @@ class _BottomNavigationState extends State<BottomNavigation> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(8),
-            topRight: Radius.circular(8),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: Offset(0, -5),
+return Scaffold(
+  body: Stack(
+    children: [
+      _pages[_selectedIndex],
+  
+      Positioned(
+        left: 0,
+        right: 0,
+        bottom: 0,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 0),
+          child: Container(
+            margin: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 16,
             ),
-          ],
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.themePrimaryDefault,
+              borderRadius: BorderRadius.circular(40),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(5, (index) {
+                return _buildNavItem(index);
+              }),
+            ),
+          ),
         ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppColors.themePrimaryDefault,
-          unselectedItemColor: AppColors.themeBlackDefault,
-          items: [
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 0 ? SvgPicture.asset(AppAssets.icHomeActive,width: 18,height: 18,) :
-              SvgPicture.asset(AppAssets.icHomeInactive,width: 18,height: 18,),
-              label: "Trang chủ",//S.current.menu_home,
-            ),
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 1 ? SvgPicture.asset(AppAssets.icStaffActive,width: 18,height: 18,) :
-              SvgPicture.asset(AppAssets.icStaffInactive,width: 18,height: 18,),
-              label: "Nhân viên",//S.current.menu_schedule,
-            ),
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 2 ? SvgPicture.asset(AppAssets.icCheckinActivate,width: 16,height: 18,) :
-              SvgPicture.asset(AppAssets.icCheckinInActivate,width: 16,height: 18,),
-              label: "Chấm công"//S.current.menu_attendance,
-            ),
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 3 ? SvgPicture.asset(AppAssets.icOnLeaveActive,width: 18,height: 18,) :
-              SvgPicture.asset(AppAssets.icOnLeaveInactive,width: 18,height: 18,),
-              label: "Nghỉ phép"//S.current.menu_notify,
-            ),
-            BottomNavigationBarItem(
-              icon: _selectedIndex == 4 ? SvgPicture.asset(AppAssets.icAccountActive,width: 18,height: 18,) :
-              SvgPicture.asset(AppAssets.icAccountInactive,width: 18,height: 18,),
-              label: "Cá nhân"//S.current.menu_account,
-            ),
-          ],
-          selectedLabelStyle: const TextStyle(
-            fontSize: 12.0,
-            fontWeight: FontWeight.normal,
-            color: AppColors.themePrimaryDefault,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            fontSize: 11.0,
-            color: AppColors.themeBlackDefault,
-          ),
+      ),
+    ],
+  ),
+);
+
+  }
+
+  Widget _buildNavItem(int index) {
+    final iconsActive = [
+      AppAssets.icHomeActive,
+      AppAssets.icStaffActive,
+      AppAssets.icCheckinActivate,
+      AppAssets.icOnLeaveActive,
+      AppAssets.icAccountActive,
+    ];
+
+    final iconsInactive = [
+      AppAssets.icHomeInactive,
+      AppAssets.icStaffInactive,
+      AppAssets.icCheckinInActivate,
+      AppAssets.icOnLeaveInactive,
+      AppAssets.icAccountInactive,
+    ];
+
+    final isSelected = _selectedIndex == index;
+
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          shape: BoxShape.circle,
+        ),
+        child: SvgPicture.asset(
+          isSelected ? iconsActive[index] : iconsInactive[index],
+          width: 24,
+          height: 24,
+          colorFilter: isSelected
+              ? null
+              : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
       ),
     );
