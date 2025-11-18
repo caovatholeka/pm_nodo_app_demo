@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
+import 'package:pm_app/app/core/utils/widget_to_marker.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+import 'package:pm_app/app/data/models/entities/check_in_info_entity.dart';
 import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
+import 'package:pm_app/app/features/ui/checkin/widget/my_map_marker.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
@@ -40,11 +44,16 @@ class _CheckInPageState extends State<CheckInPage> {
 
   // google maps
   late GoogleMapController mapController;
+  Set<Marker> oldMarkers = {};
+  MapType _mapType = MapType.terrain;
+  Set<Marker> _markers = {};
+  Set<Circle> _circles = {};
 
   StreamSubscription? _locationSubscription;
 
   void _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
+    await _fitToAllCheckIn();
   }
 
 Future<void> _requestLocationPermission() async {
@@ -119,6 +128,45 @@ Future<void> _requestLocationPermission() async {
     _cubit.onChangeActionCheck(actionCheckIn);
   }
 
+  Future _initMarkers(List<CheckInInfoEntity> listCheckins) async {
+    _markers.clear();
+    final markerFutures = listCheckins.map((checkin) async {
+      final icon = await MyMapMarker(infoEntity: checkin).toBitmapDescriptor();
+      return Marker(
+        markerId: MarkerId(checkin.id.toString()),
+        position: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
+        icon: icon,
+        onTap: () {
+          // _showBottomSheet(product, product.propertyUnit?.totalListing ?? 0);
+          // show thong tin
+          logger.d("dia chi check in ::: ${checkin.name}");
+        },
+      );
+    }).toList();
+
+    final circleFutures = listCheckins.map((checkin) async {
+      return Circle(
+        circleId: CircleId('c_${checkin.id}'),
+        center: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
+        radius: 300.0, //checkin.radius ?? 0.0,       // mét
+        strokeWidth: 2,
+        strokeColor: Colors.blue,
+        fillColor: Colors.blue.withOpacity(0.15),
+      );
+    }).toList();
+
+    final newMarkers = Set<Marker>.from(await Future.wait(markerFutures));
+    final newCircles = Set<Circle>.from(await Future.wait(circleFutures));
+
+    if (mounted) {
+      setState(() {
+        _markers = newMarkers;
+        _circles = newCircles;
+      });
+      // setState(() => _markers = newMarkers);
+    }
+  }
+
   // Helpers
   String todayFormatted({Locale? locale, DateTime? now}) {
     final DateTime d = now ?? DateTime.now();
@@ -130,27 +178,51 @@ Future<void> _requestLocationPermission() async {
 
     return '$prefix, $dateStr';
   }
-  DateTime _parseLocal(String s) {
-    return DateTime.parse(s.replaceFirst(' ', 'T'));
+
+  Future<void> _fitToAllCheckIn() async {
+    if ((_cubit.state.listCheckInfos ?? []).isEmpty) return;
+
+    double minLat = (_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0;
+    double maxLat = (_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0;
+    double minLng = (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0;
+    double maxLng = (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0;
+
+    for (final s in (_cubit.state.listCheckInfos ?? [])) {
+      minLat = math.min(minLat, s.latitude);
+      maxLat = math.max(maxLat, s.latitude);
+      minLng = math.min(minLng, s.longitude);
+      maxLng = math.max(maxLng, s.longitude);
+    }
+
+    // Tạo bounds thô theo tâm
+    var bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    // Animate camera theo bounds với padding
+    final padding = 16.0;
+    try {
+      await mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, padding),
+      );
+    } catch (_) {
+      // await mapController.animateCamera(
+      //   CameraUpdate.newCameraPosition(CameraPosition(
+      //     target: LatLng((_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0,
+      //       (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0),
+      //     zoom: _zoomForRadius((_cubit.state.listCheckInfos ?? []).first.radius ?? 0.0),
+      //   )),
+      // );
+    }
   }
 
-  String formatDateTime(String input) {
-    final dt = _parseLocal(input);
-    const weekdaysVI = {
-      DateTime.monday: 'thứ hai',
-      DateTime.tuesday: 'thứ ba',
-      DateTime.wednesday: 'thứ tư',
-      DateTime.thursday: 'thứ năm',
-      DateTime.friday: 'thứ sáu',
-      DateTime.saturday: 'thứ bảy',
-      DateTime.sunday: 'chủ nhật',
-    };
-    final wd = weekdaysVI[dt.weekday]!;
-    final d = dt.day.toString().padLeft(2, '0');
-    final m = dt.month.toString().padLeft(2, '0');
-    final y = dt.year.toString();
-    return '$wd , $d/$m/$y';
+  double _zoomForRadius(double radiusMeters) {
+    double km = (radiusMeters <= 0) ? 0.001 : (radiusMeters / 1000.0);
+    final z = 16.5 - (math.log(km) / math.log(2));
+    return z.clamp(3.0, 21.0).toDouble();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +236,11 @@ Future<void> _requestLocationPermission() async {
           if(state.getCheckInfo == LoadStatus.LOADING ||
               state.updateExplain == LoadStatus.LOADING){
             LoadingOverlay.show(context);
-          } else if(state.checkInStatus == LoadStatus.SUCCESS){
+          }if(state.getCheckInfo == LoadStatus.SUCCESS){
+            LoadingOverlay.hide(context);
+            _initMarkers(state.listCheckInfos ?? []);
+          }
+          else if(state.checkInStatus == LoadStatus.SUCCESS){
             _cubit.onResetState();
             AppSnackBar.showInfo(title: "Chấm công thành công",message:
               "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())}- ${state.currentCheckInEntity?.name} ");
@@ -257,6 +333,8 @@ Future<void> _requestLocationPermission() async {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(12.0),
                 child: GoogleMap(
+                    key: ValueKey(LatLng(state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0)),
+                    mapType: _mapType,
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
                       target: LatLng(
@@ -265,13 +343,16 @@ Future<void> _requestLocationPermission() async {
                       ),
                       zoom: 16.0,
                     ),
-                    markers: <Marker>{marker},
-                    myLocationButtonEnabled: false,
+                    markers: _markers,
+                    circles: _circles,
+                    myLocationButtonEnabled: true,
+                    minMaxZoomPreference: MinMaxZoomPreference(10.0, 20.0),
                     buildingsEnabled: false,
                     zoomControlsEnabled: false,
                     myLocationEnabled: true,
                     mapToolbarEnabled: false,
-                    compassEnabled: false
+                    compassEnabled: false,
+                  zoomGesturesEnabled: false,
                 ),
               );
             }

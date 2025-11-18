@@ -83,4 +83,6 @@ class AppAssets {
   //Dialog icons
   static final ic_delete = 'assets/images/icons/ic_delete.png';
   static final ic_done = 'assets/images/icons/ic_done.png';
+
+  static final icBuildingLine = 'assets/images/icons/ic_building_line.svg';
 }
