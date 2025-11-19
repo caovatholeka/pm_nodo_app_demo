@@ -8,6 +8,8 @@ abstract class UserRepository {
   Future<CommonResponse> getListWorkFlowStages();
   Future<CommonResponse> getListWorkEntryTypes();
   Future<dynamic> forgotPassword(Map<String,dynamic> body); 
+  Future<dynamic> sendOTP(Map<String, dynamic> body);
+  Future<dynamic> verifyOtp(Map<String, dynamic> body);
 }
 
 class UserRepositoryImpl extends UserRepository {
@@ -40,5 +42,15 @@ class UserRepositoryImpl extends UserRepository {
   @override
   Future<CommonResponse> forgotPassword(Map<String,dynamic> body) async {
     return await _apiClient.forgotPassword(body);
+  }
+
+  @override
+  Future<CommonResponse> sendOTP(Map<String,dynamic> body) async {
+    return await _apiClient.sendOTP(body);
+  }
+
+  @override
+  Future<CommonResponse> verifyOtp(Map<String,dynamic> body) async {
+    return await _apiClient.verifyOtp(body);
   }
 }

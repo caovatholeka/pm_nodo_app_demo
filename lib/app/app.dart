@@ -11,6 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
+import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
@@ -142,6 +143,7 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider(create: (context) => sl<OnLeaveRepository>()),
         RepositoryProvider(create: (context) => sl<EmployeeRepository>()),
         RepositoryProvider(create: (context) => sl<WorkEntryRepository>()),
+        RepositoryProvider(create: (context) => sl<UserRepository>()),
       ],
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),

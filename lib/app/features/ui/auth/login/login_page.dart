@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import '../../../../data/models/enums/load_status.dart';
-import '../../../../config/app_config.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/commons/app_colors.dart';
-import '../../../../core/commons/screen_size.dart';
 import '../../../navigation/bottom_navigation.dart';
 import '../../../widgets/input_text_field.dart';
 import '../../../widgets/primary_button.dart';
@@ -25,36 +22,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _userNameKey = GlobalKey<FormState>();
-  final _passwordKey = GlobalKey<FormState>();
+  final _userKey = GlobalKey<FormState>();
+  final _passKey = GlobalKey<FormState>();
 
-  final _userNameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _userCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
 
   final _cubit = sl<LogInCubit>();
 
-  @override
-  void initState() {
-    FlutterNativeSplash.remove();
-    super.initState();
-  }
-
   void _login() {
-    final username = _userNameController.text.trim();
-    final password = _passwordController.text.trim();
-
-    final isUserValid = _userNameKey.currentState?.validate() ?? false;
-    final isPassValid = _passwordKey.currentState?.validate() ?? false;
-
-    if (isUserValid && isPassValid) {
-      _cubit.doLogin(username, password);
+    if ((_userKey.currentState?.validate() ?? false) &&
+        (_passKey.currentState?.validate() ?? false)) {
+      _cubit.doLogin(_userCtrl.text.trim(), _passCtrl.text.trim());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = ScreenSize.of(context).height;
-
     return BlocConsumer<LogInCubit, LoginState>(
       bloc: _cubit,
       listener: (context, state) {
@@ -69,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
           Flushbar(
             message: "Đăng nhập thất bại. Vui lòng thử lại.",
             backgroundColor: Colors.redAccent,
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 2),
             flushbarPosition: FlushbarPosition.TOP,
             margin: const EdgeInsets.all(12),
           ).show(context);
@@ -77,205 +61,253 @@ class _LoginPageState extends State<LoginPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: AppColors.colorPrimary50,
-          body: SizedBox(
-            height: screenHeight,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: screenHeight * 0.45,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(AppAssets.loginBG),
-                        fit: BoxFit.cover,
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppAssets.appBG2),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 140),
+
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 14),
+                              child: Container(
+                                width: double.infinity,
+                                padding:
+                                    const EdgeInsets.fromLTRB(22, 28, 22, 36),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.06),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      AppAssets.appLogo2,
+                                      width: 90,
+                                      height: 90,
+                                    ),
+                                    const SizedBox(height: 4),
+
+                                    const Text(
+                                      "Đăng nhập",
+                                      style: TextStyle(
+                                        fontSize: 26,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 6),
+
+                                    Text(
+                                      "Enter your email and password to log in",
+                                      style: TextStyle(
+                                          fontSize: 14, color: Colors.grey),
+                                    ),
+
+                                    const SizedBox(height: 28),
+
+                                    Form(
+                                      key: _userKey,
+                                      child: InputTextField(
+                                        title: "Tên đăng nhập",
+                                        hintText:
+                                            "Nhập tên đăng nhập của bạn",
+                                        isRequiredField: true,
+                                        bgrColor: true,
+                                        controller: _userCtrl,
+                                        validator: (v) => Validator()
+                                            .validateUserName(v?.trim()),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 18),
+
+                                    Form(
+                                      key: _passKey,
+                                      child: InputTextField(
+                                        title: "Mật khẩu",
+                                        hintText: "Nhập mật khẩu",
+                                        isRequiredField: true,
+                                        bgrColor: true,
+                                        isObscured:
+                                            !(state.showPassword ?? false),
+                                        controller: _passCtrl,
+                                        suffixIcon: (state.showPassword ?? false)
+                                            ? AppAssets.icEyeVisible
+                                            : AppAssets.icEyeClose,
+                                        onSuffixAction: () =>
+                                            _cubit.onShowHidePwd(
+                                                state.showPassword ?? false),
+                                        validator: (v) =>
+                                            Validator.validateEmpty(
+                                                v, "Mật khẩu"),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 12),
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () => _cubit.onRememberMe(
+                                                !(state.rememberMe ?? false),
+                                              ),
+                                              child: Container(
+                                                width: 20,
+                                                height: 20,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      (state.rememberMe ??
+                                                              false)
+                                                          ? AppColors
+                                                              .themePrimaryDefault
+                                                          : Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  border: Border.all(
+                                                    color:
+                                                        Colors.grey.shade400,
+                                                    width: 1.4,
+                                                  ),
+                                                ),
+                                                child: (state.rememberMe ??
+                                                        false)
+                                                    ? const Icon(
+                                                        Icons.check,
+                                                        size: 16,
+                                                        color: Colors.white,
+                                                      )
+                                                    : null,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            const Text("Nhớ tài khoản"),
+                                          ],
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    BlocProvider.value(
+                                                  value: sl<ForgotCubit>(),
+                                                  child:
+                                                      const ForgotPassPage(),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Text(
+                                            "Quên mật khẩu?",
+                                            style: TextStyle(
+                                              color: AppColors
+                                                  .themePrimaryDefault,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 26),
+
+                                    PrimaryButton(
+                                      mainText: "Đăng nhập",
+                                      buttonWidth: double.infinity,
+                                      isLoading: state.loginStatus ==
+                                          LoadStatus.LOADING,
+                                      callback: _login,
+                                    ),
+
+                                    const SizedBox(height: 20),
+
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Text(
+                                          "Don't have an account? ",
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                        Text(
+                                          "Sign Up",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppColors
+                                                .themePrimaryDefault,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            const Spacer(),
+
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 30),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.info_outline,
+                                      size: 16, color: Color(0xFFB5BBC6)),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Color(0xFFB5BBC6),
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-
-                Positioned(
-                  top: screenHeight * 0.14,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: SvgPicture.asset(AppAssets.appLogo, width: 90),
-                  ),
-                ),
-
-                Positioned(
-                  top: screenHeight * 0.28,
-                  left: 16,
-                  right: 16,
-                  child: const Text(
-                    "Hãy đăng nhập vào tài khoản\ncủa bạn",
-                    style: TextStyle(
-                      fontSize: 24,
-                      height: 1.3,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: screenHeight * 0.37,
-                  left: 16,
-                  right: 16,
-                  child: _formContent(screenHeight, state),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
         );
       },
-    );
-  }
-
-  Widget _formContent(double screenHeight, LoginState state) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 30),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Form(
-            key: _userNameKey,
-            child: InputTextField(
-              title: "Tên đăng nhập",
-              hintText: "Nhập tên đăng nhập của bạn",
-              isRequiredField: true,
-              bgrColor: true,
-              controller: _userNameController,
-              maxLength: 255,
-              onChange: (v) => _userNameKey.currentState?.validate(),
-              validator: (v) => Validator().validateUserName(v?.trim()),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          Form(
-            key: _passwordKey,
-            child: InputTextField(
-              title: "Mật khẩu",
-              hintText: "Nhập mật khẩu",
-              isRequiredField: true,
-              bgrColor: true,
-              maxLength: 16,
-              enable: true,
-              isObscured: !(state.showPassword ?? false),
-              controller: _passwordController,
-              onChange: (v) => _passwordKey.currentState?.validate(),
-              suffixIcon:
-                  (state.showPassword ?? false)
-                      ? AppAssets.icEyeVisible
-                      : AppAssets.icEyeClose,
-              onSuffixAction:
-                  () => _cubit.onShowHidePwd(state.showPassword ?? false),
-              validator: (v) => Validator.validateEmpty(v, "Mật khẩu"),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      checkboxTheme: CheckboxThemeData(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        side: const BorderSide(
-                          color: Color(0xFFBFC6D0),
-                          width: 1.4,
-                        ),
-                        visualDensity: const VisualDensity(
-                          horizontal: -3,
-                          vertical: -3,
-                        ),
-                      ),
-                    ),
-                    child: Checkbox(
-                      value: state.rememberMe ?? false,
-                      onChanged: (v) => _cubit.onRememberMe(v ?? false),
-                      activeColor: AppColors.themePrimaryDefault,
-                      checkColor: Colors.white,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-
-                  Text(
-                    "Nhớ tài khoản",
-                    style: TextStyle(
-                      color: AppColors.textNormal,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: AppConfig.fontFamily,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (_) => BlocProvider.value(
-                            value: sl<ForgotCubit>(),
-                            child: const ForgotPassPage(),
-                          ),
-                    ),
-                  );
-                },
-                child: Text(
-                  "Quên mật khẩu?",
-                  style: TextStyle(
-                    color: AppColors.themePrimaryDefault,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: AppConfig.fontFamily,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 28),
-
-          BlocBuilder<LogInCubit, LoginState>(
-            bloc: _cubit,
-            builder: (context, state) {
-              final loading = state.loginStatus == LoadStatus.LOADING;
-              return PrimaryButton(
-                mainText: "Đăng nhập",
-                isLoading: loading,
-                buttonWidth: double.infinity,
-                callback: loading ? null : _login,
-              );
-            },
-          ),
-        ],
-      ),
     );
   }
 }

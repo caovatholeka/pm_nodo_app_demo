@@ -119,6 +119,13 @@ Future<CommonResponse> getListEmployees(
 
   @GET("/attendance/history?date_from=2025-11-17")
   Future<CommonResponse> getListAttendanceHistory();
+
+  //Quên mật khẩu
+  @POST("/users/generate_otp")
+  Future<CommonResponse> sendOTP(@Body() Map<String, dynamic> body);
+  
+  @POST("/users/verify_otp")
+  Future<CommonResponse> verifyOtp(@Body() Map<String, dynamic> body);
 }
 
 

@@ -12,6 +12,7 @@ import 'package:pm_app/app/features/ui/attendance/explanation/explanation_list_c
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
+import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
@@ -167,7 +168,10 @@ Future<void> init() async {
 );
 
   sl.registerLazySingleton<FaceIdRepository>(
-        () => FaceIdRepositoryImpl(sl()),
+    () => FaceIdRepositoryImpl(sl()),
   );
+  
+  sl.registerFactory<OtpVerifyCubit>(() => OtpVerifyCubit(sl()));
+
 
 }

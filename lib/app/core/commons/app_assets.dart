@@ -2,14 +2,17 @@ class AppAssets {
   AppAssets._();
 
   // images
-  static final imgTopBanner = 'assets/images/img_top_bg.jpg';
   static final imgBg2 = 'assets/images/img_bg_2.jpg';
   static final appBg = 'assets/images/app_bg.jpg';
   static final icAttachCamera = 'assets/images/icons/ic_attach_camera.png';
   static final icAttachImage = 'assets/images/icons/ic_attach_image.png';
 
   static final appLogo = 'assets/images/icons/ic_app_logo.svg';
-
+  static final homeBG = 'assets/images/img_homeBG.svg';
+  static final profileBG = 'assets/images/img_profileBG.svg';
+  static final testImg = 'assets/images/img_test.svg';
+  static final appBG2 = 'assets/images/appBG.jpg';
+  static final appLogo2 = 'assets/images/appLogoLogin.jpg';
   /// Bottom nav menu
   static final icHomeActive = 'assets/images/icons/ic_homeTick.svg';
   static final icHomeInactive = 'assets/images/icons/ic_home.svg';

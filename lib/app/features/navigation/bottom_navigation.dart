@@ -45,7 +45,6 @@ return Scaffold(
   body: Stack(
     children: [
       _pages[_selectedIndex],
-  
       Positioned(
         left: 0,
         right: 0,
@@ -60,7 +59,7 @@ return Scaffold(
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.themePrimaryDefault,
+              color: AppColors.profileContainer,
               borderRadius: BorderRadius.circular(40),
             ),
             child: Row(
