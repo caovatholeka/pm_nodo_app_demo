@@ -427,7 +427,9 @@ Expanded(
       : Stack(
           children: [
             RefreshIndicator(
-              onRefresh: () async => _cubit.getListEmployees(),
+              onRefresh: () async {
+                
+              },
               child: ListView.builder(
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -489,6 +491,7 @@ Expanded(
           ],
         ),
 ),
+                        const SizedBox(height: 60,),
 
                       ],
                     ),

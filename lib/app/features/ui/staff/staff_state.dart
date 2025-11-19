@@ -12,7 +12,7 @@ class StaffState extends Equatable {
     this.loadStatus = LoadStatus.INITIAL,
     this.loadEventStatus = LoadStatus.INITIAL,
     this.listEmployees,
-    this.page = 0,
+    this.page = 1,
     this.totalPages = 0,
     this.filterParam, 
   });
