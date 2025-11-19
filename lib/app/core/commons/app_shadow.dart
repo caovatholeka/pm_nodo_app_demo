@@ -10,6 +10,14 @@ class AppShadow {
     ),
   ];
 
+  static const bottomShadow = [
+    BoxShadow(
+      color: Color(0x12000000),
+      blurRadius: 6,
+      offset: Offset(0, -4),
+    )
+  ];
+
   static final pageBoxShadow = [
     BoxShadow(
       color: AppColors.shadowColor,
