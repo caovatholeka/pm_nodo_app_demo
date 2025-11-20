@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 
-import 'package:pm_app/app/data/models/entities/profile_entity.dart';
-import 'package:pm_app/app/features/widgets/custom_dialog.dart';
-import 'package:pm_app/app/features/widgets/my_app_bar.dart';
-import 'package:pm_app/di/di.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../data/models/enums/load_status.dart';
+
+import '../../widgets/custom_dialog.dart';
 import '../../widgets/primary_button.dart';
-import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import '../auth/login/login_page.dart';
 import '../account/change_languge/change_languge_page.dart';
+import '../account/personal_info/personal_info_page.dart';
 import '../account/changepassword/change_password_page.dart';
 import '../account/changepassword/change_password_cubit.dart';
-import '../account/personal_info/personal_info_page.dart';
-import 'package:pm_app/app/features/widgets/development_alert_dialog.dart';
-import 'package:pm_app/app/core/network/api_client.dart';
-import 'package:pm_app/generated/l10n.dart';
+
 import 'account_cubit.dart';
 import 'account_state.dart';
+
+import 'package:pm_app/app/core/network/api_client.dart';
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -32,7 +30,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final _cubit = sl<AccountCubit>();
+  final _cubit = GetIt.I<AccountCubit>();
 
   @override
   void initState() {
@@ -40,235 +38,297 @@ class _AccountPageState extends State<AccountPage> {
     _cubit.fetchUserProfile();
   }
 
-  void _goLangague() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ChangeLanguagePage()),
-    );
-  }
+  void _logout() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return CustomDialog(
+          iconPath: AppAssets.ic_delete,
+          title: "Xác nhận đăng xuất",
+          content: "Bạn có chắc muốn đăng xuất không?",
+          confirmText: "Đăng xuất",
+          cancelText: "Hủy",
+          onConfirm: () async {
+            Navigator.pop(context);
 
-  void _goPassword() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => BlocProvider(
-              create: (_) => sl<ChangePasswordCubit>(),
-              child: const ChangePasswordPage(),
-            ),
-      ),
+            try {
+              final api = GetIt.I<ApiClient>();
+              final token = await SharedPrefsHelper.getToken();
+              if (token?.accessToken != null) {
+                final dio = GetIt.I<Dio>();
+                dio.options.headers['Authorization'] =
+                    'Bearer ${token!.accessToken}';
+                await api.logOut({});
+              }
+            } catch (_) {}
+
+            await SharedPrefsHelper.clearAll();
+
+            if (!mounted) return;
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+              (r) => false,
+            );
+          },
+          success: false,
+          onCancel: () => Navigator.pop(context),
+        );
+      },
     );
   }
 
   void _goInfo() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const PersonalInfoPage()),
+      MaterialPageRoute(builder: (_) => const PersonalInfoPage()),
     );
   }
 
-  void _logOut() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.transparent,
-      builder: (_) {
-        return CustomDialog(
-          iconPath: AppAssets.ic_delete,
-          title: "Xác nhận đăng xuất",
-          content: "Bạn có chắc muốn đăng xuất khỏi tài khoản này không?",
-          success: false,
-          confirmText: "Đăng xuất",
-          cancelText: "Hủy",
+  void _goLanguge() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ChangeLanguagePage()),
+    );
+  }
 
-          onConfirm: () async {
-            Navigator.pop(context);
-
-            try {
-              final apiClient = GetIt.I<ApiClient>();
-              final token = await SharedPrefsHelper.getToken();
-
-              if (token?.accessToken == null) {
-                logger.w("⚠️ Không có accessToken, logout local thôi.");
-              } else {
-                final dio = GetIt.I<Dio>();
-                dio.options.headers['Authorization'] =
-                    'Bearer ${token!.accessToken}';
-                final response = await apiClient.logOut({});
-
-                if (response.code == 200) {
-                  logger.i("✅ Logout API success");
-                } else {
-                  logger.w("⚠️ Logout API failed: ${response.message}");
-                }
-              }
-
-              await SharedPrefsHelper.clearAll();
-
-              if (!mounted) return;
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
-              );
-            } catch (e, s) {
-              logger.e("❌ Lỗi khi logout: $e");
-              logger.e(s);
-
-              await SharedPrefsHelper.clearAll();
-
-              if (!mounted) return;
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
-              );
-            }
-          },
-
-          onCancel: () {
-            Navigator.pop(context);
-          },
-        );
-      },
+  void _goPassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ChangePasswordPage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
     return BlocBuilder<AccountCubit, AccountState>(
       bloc: _cubit,
       builder: (context, state) {
         final profile = state.profile;
+
         return Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: MyAppBar(
-            titleAppbar: s.bottomtab_personal,
-            haveBackButton: false,
-          ),
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(AppAssets.imgBg2),
-                fit: BoxFit.fill,
+          backgroundColor: const Color(0xFFF4F6F8),
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                elevation: 0,
+                pinned: true,
+                expandedHeight: 240,
+                centerTitle: true,
+                title: const Text(
+                  "Cá nhân",
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+
+                flexibleSpace: FlexibleSpaceBar(
+                  background: _header(profile, state.loadStatus),
+                ),
               ),
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 120),
-                  if (state.loadStatus == LoadStatus.LOADING)
-                    const Center(child: CircularProgressIndicator())
-                  else if (profile != null)
-                    _accountInfo(profile)
-                  else
-                    Center(
-                      child: Text(
-                        'Failed to load data',
-                        style: const TextStyle(color: Colors.white),
+
+              SliverToBoxAdapter(
+                child: Container(
+                  width: double.infinity,
+                  color: const Color(0xFFF4F6F8),
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 240,
+                  ),
+
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 18,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 10),
+                        child: Text(
+                          "General",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
                       ),
-                    ),
-                  const SizedBox(height: 24),
-                  _menuItem(
-                    icon: AppAssets.ic_user,
-                    title: s.expenable_personal_profile,
-                    onTap: _goInfo,
+
+                      _roundedMenuContainer(
+                        children: [
+                          _menuItem(
+                            icon: AppAssets.icUser,
+                            title: "Thông tin cá nhân",
+                            onTap: () {
+                              _goInfo();
+                            },
+                          ),
+                          _menuItem(
+                            icon: AppAssets.ic_notification,
+                            title: "Thông báo",
+                            onTap: () {},
+                          ),
+                          _menuItem(
+                            icon: AppAssets.icProtect,
+                            title: "Thiết lập mật khẩu",
+                            onTap: () {
+                              _goPassword();
+                            },
+                          ),
+                          _menuItem(
+                            icon: AppAssets.icLangague,
+                            title: "Ngôn ngữ",
+                            onTap: () {
+                              _goLanguge();
+                            },
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 10),
+                        child: Text(
+                          "About",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+
+                      _roundedMenuContainer(
+                        children: [
+                          _menuItem(
+                            icon: AppAssets.icHelpCenter,
+                            title: "Help Center",
+                            onTap: () {},
+                          ),
+                          _menuItem(
+                            icon: AppAssets.icUser,
+                            title: "Privacy Policy",
+                            onTap: () {},
+                          ),
+                          _menuItem(
+                            icon: AppAssets.icLogout,
+                            title: "Logout",
+                            onTap: _logout,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 40),
+                    ],
                   ),
-                  _menuItem(
-                    icon: AppAssets.ic_langague,
-                    title: s.btn_langauge,
-                    onTap: _goLangague,
-                  ),
-                  _menuItem(
-                    icon: AppAssets.ic_protect,
-                    title: s.btn_changepassword,
-                    onTap: _goPassword,
-                  ),
-                  _menuItem(
-                    icon: AppAssets.ic_setting,
-                    title: s.btn_setting,
-                    onTap: () {
-                      DevelopmentAlertDialog.show(context);
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  _logoutButton,
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _accountInfo(ProfileEntity profile) {
-    final s = S.of(context);
+  Widget _header(profile, LoadStatus status) {
     return Stack(
-      alignment: Alignment.topCenter,
+      alignment: Alignment.bottomCenter,
       children: [
-        Container(
-          margin: const EdgeInsets.only(top: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            color: AppColors.profileContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Text(
-                profile.name ?? "Chưa có tên",
-                style: const TextStyle(
-                  color: AppColors.colorPrimary50,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _InfoItem(title: s.dob, value: profile.birthday ?? "-"),
-                  _InfoItem(
-                    title: s.input_employee_code,
-                    value: profile.employeeCode ?? "-",
-                  ),
-                  _InfoItem(
-                    title: s.phone_number,
-                    value: (profile.phone == true ? "-" : "-"),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        Positioned.fill(
+          child: SvgPicture.asset(AppAssets.profileBG, fit: BoxFit.cover),
         ),
-        Positioned(
-          top: 0,
-          child: Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.avatarFrame, width: 3),
-              image: DecorationImage(
-                image:
-                    profile.avatarUrl != null
-                        ? NetworkImage(profile.avatarUrl!) as ImageProvider
-                        : AssetImage(AppAssets.img_df_avatar),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+
+        Padding(
+          padding: const EdgeInsets.only(bottom: 25),
+          child:
+              status == LoadStatus.LOADING
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : profile != null
+                  ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          image: DecorationImage(
+                            image:
+                                profile.avatarUrl != null
+                                    ? NetworkImage(profile.avatarUrl!)
+                                    : AssetImage(AppAssets.img_df_avatar)
+                                        as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Text(
+                        profile.name ?? "",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 30,
+                        ),
+                        child: Text(
+                          "${profile.jobTitle ?? ''}  •  NV: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
+                          textAlign:
+                              TextAlign.left, 
+                          style: const TextStyle(
+                            color: AppColors.colorPrimary50,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                  : const Text(""),
         ),
       ],
+    );
+  }
+
+  Widget _title(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 10),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: Colors.grey.shade600,
+        ),
+      ),
+    );
+  }
+
+  Widget _roundedMenuContainer({required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(children: children),
     );
   }
 
@@ -276,61 +336,44 @@ class _AccountPageState extends State<AccountPage> {
     required String icon,
     required String title,
     required VoidCallback onTap,
+    Color? textColor,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: Image.asset(icon, width: 22, height: 22),
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  Widget get _logoutButton => SizedBox(
-    width: double.infinity,
-    child: PrimaryButton(mainText: "Đăng Xuất", callback: _logOut),
-  );
-}
-
-class _InfoItem extends StatelessWidget {
-  final String title;
-  final String value;
-  const _InfoItem({required this.title, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: const TextStyle(color: AppColors.avatarText, fontSize: 12),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppColors.colorPrimary50,
-              fontWeight: FontWeight.w600,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              child: Center(
+                child: SvgPicture.asset(icon, width: 20, height: 20),
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w300,
+                  color: textColor ?? Colors.black,
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -26,10 +26,8 @@ class OtpVerifyPage extends StatefulWidget {
 }
 
 class _OtpVerifyPageState extends State<OtpVerifyPage> {
-  final List<TextEditingController> _otpCtrls = List.generate(
-    6,
-    (_) => TextEditingController(),
-  );
+  final List<TextEditingController> _otpCtrls =
+      List.generate(6, (_) => TextEditingController());
 
   Timer? _timer;
   int _timeLeft = 120;
@@ -41,14 +39,17 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   }
 
   void _startTimer() {
-    _timeLeft = 10;
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+    _timeLeft = 120;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_timeLeft == 0) {
-        t.cancel();
+        timer.cancel();
         setState(() {});
       } else {
-        setState(() => _timeLeft--);
+        setState(() {
+          _timeLeft--;
+        });
       }
     });
   }
@@ -61,16 +62,30 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
 
   void _onSubmit() {
     final otp = _otpCtrls.map((e) => e.text).join();
+    if (otp.length != 6) {
+      showDialog(
+        context: context,
+        builder: (_) => CustomDialog(
+          title: "Lỗi",
+          content: "Mã OTP chưa đủ 6 ký tự",
+          iconPath: AppAssets.ic_delete,
+        ),
+      );
+      return;
+    }
 
     context.read<OtpVerifyCubit>().verifyOTP(email: widget.email, otp: otp);
   }
 
   void _onResend() {
+    if (_timeLeft > 0) return; 
+
     context.read<OtpVerifyCubit>().resendOTP(
-      email: widget.email,
-      password: widget.password ?? "",
-      confirmPassword: widget.confirmPassword ?? "",
-    );
+          email: widget.email,
+          password: widget.password ?? "",
+          confirmPassword: widget.confirmPassword ?? "",
+        );
+
     _startTimer();
   }
 
@@ -86,205 +101,178 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OtpVerifyCubit, OtpVerifyState>(
-listener: (context, state) {
-  if (state.errorMessage != null) {
-    showDialog(
-      context: context,
-      builder: (_) => CustomDialog(
-        title: "Lỗi",
-        content: state.errorMessage!,
-        iconPath: AppAssets.ic_delete,
-      ),
-    );
-    return;
-  }
+      listener: (context, state) {
+        if (state.errorMessage != null) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomDialog(
+              title: "Lỗi",
+              content: state.errorMessage!,
+              iconPath: AppAssets.ic_delete,
+            ),
+          );
+          return;
+        }
 
-  if (state.verifyStatus == LoadStatus.SUCCESS) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (route) => false,
-    );
-    return;
-  }
+        if (state.verifyStatus == LoadStatus.SUCCESS) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+            (route) => false,
+          );
+          return;
+        }
 
-  if (state.resendStatus == LoadStatus.SUCCESS) {
-    showDialog(
-      context: context,
-      builder: (_) => CustomDialog(
-        title: "Thành công",
-        content: "Mã OTP mới đã được gửi",
-        iconPath: AppAssets.ic_done,
-      ),
-    );
-  }
-},
+        if (state.resendStatus == LoadStatus.SUCCESS &&
+            state.verifyStatus != LoadStatus.LOADING) {
+          showDialog(
+            context: context,
+            builder: (_) => CustomDialog(
+              title: "Thành công",
+              content: "Mã OTP mới đã được gửi",
+              iconPath: AppAssets.ic_done,
+            ),
+          );
+        }
+      },
       builder: (context, state) {
         return Scaffold(
-          body: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(AppAssets.appBG2),
-                fit: BoxFit.cover,
+          resizeToAvoidBottomInset: true,
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  AppAssets.appBG2,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            child: SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
+
+              SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.92,
+                      padding: const EdgeInsets.fromLTRB(26, 28, 26, 32),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 12,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      child: IntrinsicHeight(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 140),
-                            Center(
-                              child: Container(
-                                width: MediaQuery.of(context).size.width * 0.92,
-                                padding: const EdgeInsets.fromLTRB(
-                                  26,
-                                  28,
-                                  26,
-                                  32,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
+                      child: Column(
+                        children: [
+                          Image.asset(AppAssets.appLogo2, width: 120),
+
+                          const SizedBox(height: 14),
+
+                          const Text(
+                            "Xác thực mã OTP",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          Text(
+                            "Vui lòng nhập mã OTP được gửi đến email của bạn.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade700,
+                              height: 1.35,
+                            ),
+                          ),
+
+                          const SizedBox(height: 26),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: List.generate(6, (i) => _otpBox(i)),
+                          ),
+
+                          const SizedBox(height: 18),
+
+                          _timeLeft > 0
+                              ? Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Image.asset(AppAssets.appLogo2, width: 120),
-                                    const SizedBox(height: 14),
-
-                                    const Text(
-                                      "Xác thực mã OTP",
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-
+                                    const Text("Mã sẽ hết hạn sau ",
+                                        style: TextStyle(fontSize: 13)),
                                     Text(
-                                      "Vui lòng nhập mã OTP được gửi đến email của bạn.",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        height: 1.35,
+                                      _formatTime(),
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.blueAccent,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                    ),
-
-                                    const SizedBox(height: 26),
-
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: List.generate(
-                                        6,
-                                        (index) => _otpBox(index),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 18),
-
-                                    _timeLeft > 0
-                                        ? Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Text(
-                                              "Mã sẽ hết hạn sau ",
-                                              style: TextStyle(fontSize: 13),
-                                            ),
-                                            Text(
-                                              _formatTime(),
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.blueAccent,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                        : GestureDetector(
-                                          onTap:
-                                              state.resendStatus ==
-                                                      LoadStatus.LOADING
-                                                  ? null
-                                                  : _onResend,
-                                          child: const Text(
-                                            "Gửi lại mã OTP",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.blue,
-                                              fontWeight: FontWeight.w600,
-                                              decoration:
-                                                  TextDecoration.underline,
-                                            ),
-                                          ),
-                                        ),
-
-                                    const SizedBox(height: 26),
-
-                                    PrimaryButton(
-                                      mainText: "Xác nhận",
-                                      isLoading:
-                                          state.verifyStatus ==
-                                          LoadStatus.LOADING,
-                                      callback: _onSubmit,
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-
-                            Expanded(child: Container()),
-
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 24,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.info_outline,
-                                    size: 16,
-                                    color: Color(0xFFB5BBC6),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFFB5BBC6),
-                                        height: 1.25,
-                                      ),
+                                )
+                              : GestureDetector(
+                                  onTap: state.resendStatus ==
+                                          LoadStatus.LOADING
+                                      ? null
+                                      : _onResend,
+                                  child: const Text(
+                                    "Gửi lại mã OTP",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                                ),
+
+                          const SizedBox(height: 26),
+
+                          PrimaryButton(
+                            mainText: "Xác nhận",
+                            isLoading:
+                                state.verifyStatus == LoadStatus.LOADING,
+                            callback: _onSubmit,
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
+
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 28,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Icon(Icons.info_outline,
+                          size: 16, color: Color(0xFFB5BBC6)),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFFB5BBC6),
+                            height: 1.25,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
           ),
         );
       },

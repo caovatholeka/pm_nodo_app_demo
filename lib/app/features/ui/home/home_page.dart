@@ -21,7 +21,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _cubit = GetIt.I<AppCubit>();
-  final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -49,10 +48,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final newsCardWidth = screenWidth * 0.45;
-    final newsCardHeight = newsCardWidth * 1.00;
-
     return Scaffold(
       backgroundColor: AppColors.bgGray,
       body: Stack(
@@ -171,6 +166,8 @@ class _HomePageState extends State<HomePage> {
                         "Chấm công",
                         onTap: _goWorkEntry,
                       ),
+                      _item(
+                        AppAssets.ic_work, "Việc cần làm"),
                     ],
                   ),
 
@@ -183,61 +180,6 @@ class _HomePageState extends State<HomePage> {
                           color: AppColors.menuText,
                         ),
                       ),
-                  const SizedBox(height: 12),
-
-                  SizedBox(
-                    height: newsCardHeight,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        NewsCard(
-                          width: newsCardWidth,
-                          height: newsCardHeight,
-                          image: AppAssets.icCheckin,
-                          title: "THÔNG BÁO QUAN TRỌNG",
-                          description: "Cập nhật chính sách mới nhất",
-                          date: "15 tháng 9, 2025",
-                        ),
-                        NewsCard(
-                          width: newsCardWidth,
-                          height: newsCardHeight,
-                          image: AppAssets.icCheckin,
-                          title: "THÔNG BÁO QUAN TRỌNG",
-                          description: "Cập nhật chính sách mới nhất",
-                          date: "15 tháng 9, 2025",
-                        ),
-
-                        NewsCard(
-                          width: newsCardWidth,
-                          height: newsCardHeight,
-                          image: AppAssets.icCheckin,
-                          title: "THÔNG BÁO QUAN TRỌNG",
-                          description: "Cập nhật chính sách mới nhất",
-                          date: "15 tháng 9, 2025",
-                        ),
-
-                        NewsCard(
-                          width: newsCardWidth,
-                          height: newsCardHeight,
-                          image: AppAssets.icCheckin,
-                          title: "THÔNG BÁO QUAN TRỌNG",
-                          description: "Cập nhật chính sách mới nhất",
-                          date: "15 tháng 9, 2025",
-                        ),
-
-                        NewsCard(
-                          width: newsCardWidth,
-                          height: newsCardHeight,
-                          image: AppAssets.icCheckin,
-                          title: "THÔNG BÁO QUAN TRỌNG",
-                          description: "Cập nhật chính sách mới nhất",
-                          date: "15 tháng 9, 2025",
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -260,7 +202,7 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Image.asset(asset, width: 26, height: 26),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Text(
             title,
             style: const TextStyle(fontSize: 13, color: Colors.black),

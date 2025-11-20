@@ -56,31 +56,24 @@ class _ExpandableSectionState extends State<ExpandableSection>
   }
 
   Color getContentBackground() {
-    switch (widget.style) {
-      case ExpandableStyle.primary:
-        return const Color(0xFFF7F7F9);
-      case ExpandableStyle.secondary:
-        return const Color(0xFFF5F6F7);
-      case ExpandableStyle.minimal:
-        return const Color(0xFFFAFAFA);
-    }
+    return Colors.white;
   }
 
   TextStyle getTitleStyle() {
     switch (widget.style) {
       case ExpandableStyle.primary:
-        return const TextStyle(fontSize: 16, fontWeight: FontWeight.w700);
+        return const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF222222));
       case ExpandableStyle.secondary:
-        return const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+        return const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF222222));
       case ExpandableStyle.minimal:
-        return const TextStyle(fontSize: 15, fontWeight: FontWeight.w500);
+        return const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF222222));
     }
   }
 
   Color getArrowColor() {
     switch (widget.style) {
       case ExpandableStyle.primary:
-        return AppColors.themePrimaryDefault; 
+        return AppColors.themePrimaryDefault;
       case ExpandableStyle.secondary:
         return Colors.black54;
       case ExpandableStyle.minimal:
@@ -91,27 +84,23 @@ class _ExpandableSectionState extends State<ExpandableSection>
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          )
-        ],
+        color: const Color(0xFFF2F2F7),
       ),
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        data: Theme.of(context).copyWith(dividerColor: const Color.fromARGB(0, 255, 255, 255)),
         child: ExpansionTile(
           title: Text(widget.title, style: getTitleStyle()),
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           trailing: RotationTransition(
             turns: _arrowAnimation,
-            child: Icon(Icons.keyboard_arrow_up,
-                size: 26, color: getArrowColor()),
+            child: Icon(
+              Icons.keyboard_arrow_up,
+              size: 22,
+              color: getArrowColor(),
+            ),
           ),
           initiallyExpanded: isExpanded,
           onExpansionChanged: _onExpansionChanged,
@@ -119,12 +108,10 @@ class _ExpandableSectionState extends State<ExpandableSection>
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               decoration: BoxDecoration(
                 color: getContentBackground(),
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(12),
-                ),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

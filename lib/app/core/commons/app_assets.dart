@@ -6,6 +6,7 @@ class AppAssets {
   static final appBg = 'assets/images/app_bg.jpg';
   static final icAttachCamera = 'assets/images/icons/ic_attach_camera.png';
   static final icAttachImage = 'assets/images/icons/ic_attach_image.png';
+  static final imgProfileBG = 'assets/images/img_profileBG.svg';
 
   static final appLogo = 'assets/images/icons/ic_app_logo.svg';
   static final homeBG = 'assets/images/img_homeBG.svg';
@@ -52,22 +53,25 @@ class AppAssets {
   static final ic_new_noti = 'assets/images/icons/ic_new_noti.png';
 
   //Main Menu 
-  static final ic_timekeeping = 'assets/images/icons/ic_location.png';
-  static final ic_paper = 'assets/images/icons/ic_paper.png';
-  static final ic_paper2 = 'assets/images/icons/ic_paper2.png';
-  static final ic_employee = 'assets/images/icons/ic_employee.png';
-  static final ic_search = 'assets/images/icons/ic_search.png';
+  static final ic_timekeeping = 'assets/images/icons/ic_checkInH.jpg';
+  static final ic_paper = 'assets/images/icons/ic_attendaceH.jpg';
+  static final ic_paper2 = 'assets/images/icons/ic_onLeaveH.jpg';
+  static final ic_employee = 'assets/images/icons/ic_staffH.jpg';
+  static final ic_work = 'assets/images/icons/ic_penwirte.jpg';
 
 
   //Profile
-  static final ic_setting = 'assets/images/icons/ic_setting.png';
-  static final ic_protect = 'assets/images/icons/ic_protect.png';
-  static final ic_user  = 'assets/images/icons/ic_user_circle.png';
-  static final ic_langague = 'assets/images/icons/ic_langauge.png';
+  static final icProtect = 'assets/images/icons/ic_changepassword.svg';
+  static final icUser  = 'assets/images/icons/ic_personal_info.svg';
+  static final icLangague = 'assets/images/icons/ic_changelaguge.svg';
   static final img_df_avatar = 'assets/images/img_df_avatar_2.png';
+  static final icHelpCenter = 'assets/images/icons/ic_helpCenter.svg';
+  static final icLogout = 'assets/images/icons/ic_logout.svg';
 
   static final icArrowDown = 'assets/images/icons/ic_arrow_down.svg';
   static final icCalendar = 'assets/images/icons/ic_calendar.svg';
+  static final icCamera = 'assets/images/icons/ic_camera.svg';
+  static final icNotificationPF = 'assets/images/icons/ic_profile_notification.svg';
 
   //Activity Icons
   static final icCheckin = 'assets/images/icons/ic_checkin.png';

@@ -27,8 +27,7 @@ class InfoRowSpecial extends StatelessWidget {
             color: Color(0xFF222222),
           ),
         ),
-        const SizedBox(height: 4),
-
+        const SizedBox(height: 6),
         RichText(
           text: TextSpan(
             children: [
@@ -45,21 +44,17 @@ class InfoRowSpecial extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Colors.blue, 
+                  color: Color(0xFF1976D2), 
                 ),
               ),
             ],
           ),
         ),
-
         if (showDivider) ...[
           const SizedBox(height: 12),
-          Divider(
-            height: 1,
-            color: Colors.black.withOpacity(0.1),
-          ),
+          Divider(height: 1, color: Colors.black.withOpacity(0.06)),
           const SizedBox(height: 12),
-        ]
+        ],
       ],
     );
   }
