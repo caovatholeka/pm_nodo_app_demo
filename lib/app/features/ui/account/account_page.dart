@@ -256,21 +256,36 @@ class _AccountPageState extends State<AccountPage> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Container(
-                        width: 90,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                          image: DecorationImage(
-                            image:
-                                profile.avatarUrl != null
-                                    ? NetworkImage(profile.avatarUrl!)
-                                    : AssetImage(AppAssets.img_df_avatar)
-                                        as ImageProvider,
-                            fit: BoxFit.cover,
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                              image: DecorationImage(
+                                image:
+                                    profile.avatarUrl != null
+                                        ? NetworkImage(profile.avatarUrl!)
+                                        : AssetImage(AppAssets.img_df_avatar)
+                                            as ImageProvider,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
+
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.camera_alt, size: 16),
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 12),
@@ -287,13 +302,10 @@ class _AccountPageState extends State<AccountPage> {
                       const SizedBox(height: 6),
 
                       Padding(
-                        padding: const EdgeInsets.only(
-                          right: 30,
-                        ),
+                        padding: const EdgeInsets.only(right: 30),
                         child: Text(
                           "${profile.jobTitle ?? ''}  •  NV: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
-                          textAlign:
-                              TextAlign.left, 
+                          textAlign: TextAlign.left,
                           style: const TextStyle(
                             color: AppColors.colorPrimary50,
                             fontSize: 13,

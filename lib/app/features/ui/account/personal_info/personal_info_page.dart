@@ -33,6 +33,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF4F6F8),
       appBar: MyAppBar(
         titleAppbar: "Cá nhân",
         haveBackButton: true,
@@ -146,17 +147,18 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     ExpandableSection(
                       title: "Hồ sơ cá nhân",
                       initiallyExpanded: true,
-                      style: ExpandableStyle.secondary,
                       children: [
                         InfoBoxSpecial(
                           children: [
                             InfoRow(
                               title: "Tên nhân viên",
                               subtitle: user.name ?? "-",
+                              showDivider: false,
                             ),
                             InfoRow(
                               title: "Email",
                               subtitle: user.email ?? "-",
+                              showDivider: false,
                             ),
                             InfoRow(
                               title: "Địa chỉ",
@@ -170,7 +172,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     ExpandableSection(
                       title: "Thông tin vị trí công tác",
                       initiallyExpanded: true,
-                      style: ExpandableStyle.secondary,
                       children: [
                         InfoBoxSpecial(
                           children: [
@@ -178,12 +179,16 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                               title: user.jobTitle ?? "-",
                               subtitlePrefix: "Chức danh: ",
                               subtitleValue: user.jobTitle ?? "-",
+                              showDivider: false,
                             ),
+                            const SizedBox(height: 12,),
                             InfoRowSpecial(
                               title: user.department?.name ?? "-",
                               subtitlePrefix: "Quản lý: ",
                               subtitleValue: user.manager?.name ?? "-",
+                              showDivider: false,
                             ),
+                            const SizedBox(height: 12,),
                             InfoRowSpecial(
                               title:
                                   user.state == "work" ? "Đang làm việc" : "-",
@@ -198,7 +203,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     ExpandableSection(
                       title: "Khác",
                       initiallyExpanded: true,
-                      style: ExpandableStyle.secondary,
                       children: [
                         InfoBoxSpecial(
                           children: [
