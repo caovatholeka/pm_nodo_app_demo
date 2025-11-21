@@ -6,6 +6,8 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
@@ -238,6 +240,19 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     }
   }
 
+  _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
   _showDatePicker({DateTime? defaultValue, DateChangedCallback? onConfirm}) {
     DatePicker.showDatePicker(
       context,
@@ -331,8 +346,16 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
       builder: (context, state) {
         return Scaffold(
           appBar: MyAppBar(
-            titleAppbar: "Tạo yêu cầu nghỉ phép",
+            titleAppbar:  widget.isEdit == true
+              ? "Cập nhật yêu cầu nghỉ phép"
+              : "Tạo yêu cầu nghỉ phép"
+            ,
             haveBackButton: true,
+            haveActionButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
+            actionCallBack: () {
+              _goNotification();
+            },
           ),
           extendBodyBehindAppBar: true,
           body: Container(
@@ -340,7 +363,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             height: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(AppAssets.appBg),
+                image: AssetImage(AppAssets.appBG2),
                 fit: BoxFit.cover,
               ),
             ),
@@ -381,20 +404,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          InputTextField(
-            title: "Số phép còn lại",
-            hintText: "",
-            isRequiredField: false,
-            controller:
-                leavesDaysController
-                  ..text =
-                      GlobalData.instance.userProfile?.remainLeave
-                          .toString()
-                          .replaceAll(".0", "") ??
-                      "",
-            readOnly: true,
-          ).paddingOnly(bottom: 20),
-          // Loại ngày nghỉ
+          //Loại ngày nghỉ
           BlocListener<CreateOnLeaveCubit, CreateOnLeaveState>(
             bloc: _createCubit,
             listenWhen: (prev, cur) => prev.leaveDateType != cur.leaveDateType,
@@ -439,14 +449,6 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
               },
             ),
           ),
-          // Tổng số ngày nghỉ
-          InputTextField(
-            title: "Tổng số ngày",
-            hintText: "",
-            isRequiredField: false,
-            controller: totalDaysController,
-            readOnly: true,
-          ).paddingOnly(bottom: 20),
           Row(
             children: [
               Expanded(
@@ -465,6 +467,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                       _fromDateKey.currentState?.validate();
                     }
                   },
+
+                  //Chọn ngày nghỉ
                   child: BlocBuilder<CreateOnLeaveCubit, CreateOnLeaveState>(
                     bloc: _createCubit,
                     buildWhen:
@@ -696,7 +700,19 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             },
           ),
 
-          const SizedBox(height: 20),
+          InputTextField(
+            title: "Số phép còn lại",
+            hintText: "",
+            isRequiredField: false,
+            controller:
+                leavesDaysController
+                  ..text =
+                      GlobalData.instance.userProfile?.remainLeave
+                          .toString()
+                          .replaceAll(".0", "") ??
+                      "",
+            readOnly: true,
+          ).paddingOnly(bottom: 20),
           Form(
             key: _reasonKey,
             child: BlocListener<CreateOnLeaveCubit, CreateOnLeaveState>(
@@ -719,7 +735,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                 buildWhen: (prev, cur) => prev.reason != cur.reason,
                 builder: (context, state) {
                   return InputTextField(
-                    title: "Lý do nghỉ",
+                    title: "Lý do",
                     hintText: "",
                     isRequiredField: true,
                     enable: true,

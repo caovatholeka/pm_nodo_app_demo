@@ -14,7 +14,7 @@ class CustomDashView extends StatelessWidget {
       child: const DottedLine(
         direction: Axis.horizontal,
         lineLength: double.infinity,
-        lineThickness: 1.0,
+        lineThickness: 0.5,
         dashLength: 4.0,
         dashColor: AppColors.gray,
         dashGapLength: 4.0,

@@ -42,7 +42,8 @@ class AppColors {
   // nghi phep
   static const Color colorDraft = Color(0xFFC47600);
   static const Color colorApproved = Color(0xFF037847);
-  static const Color colorFinished = Color(0xFF037847);
+  static const Color colorFinished = Color.fromARGB(255, 36, 181, 4);
   static const Color colorCancel = Color(0xFFD21D0D);
+  
 
 }

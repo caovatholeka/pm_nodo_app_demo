@@ -136,7 +136,6 @@ class _OnLeavePageState extends State<OnLeavePage> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.whiteColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
@@ -204,7 +203,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
             },
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
         Expanded(
           flex: 1,
           child: InkWell(
@@ -212,8 +211,8 @@ class _OnLeavePageState extends State<OnLeavePage> {
               _createNewLeave();
             },
             child: Container(
-              height: 44,
-              width: 46,
+              height: 46,
+              width: 50,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
                 color: AppColors.mainPrimaryColor6,
@@ -256,7 +255,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
                   onShowDetail: () {
                     _openDetail(entity);
                   },
-                ).paddingOnly(bottom: 20);
+                ).paddingOnly(bottom: 12);
               },
             ),
           );

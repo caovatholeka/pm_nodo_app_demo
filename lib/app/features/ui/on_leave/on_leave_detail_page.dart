@@ -45,17 +45,18 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
-      builder: (_) => CustomDialog(
-        iconPath: success ? AppAssets.ic_done : AppAssets.ic_delete,
-        title: title,
-        content: message,
-        success: success,
-        onConfirm: () {
-          Navigator.pop(context);
-          if (onConfirm != null) onConfirm();
-        },
-        onCancel: () => Navigator.pop(context),
-      ),
+      builder:
+          (_) => CustomDialog(
+            iconPath: success ? AppAssets.ic_done : AppAssets.ic_delete,
+            title: title,
+            content: message,
+            success: success,
+            onConfirm: () {
+              Navigator.pop(context);
+              if (onConfirm != null) onConfirm();
+            },
+            onCancel: () => Navigator.pop(context),
+          ),
     );
   }
 
@@ -129,10 +130,11 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
     final bool? updated = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CreateNewLeavePage(
-          isEdit: true,
-          detailEntity: _cubit.state.detailEntity,
-        ),
+        builder:
+            (context) => CreateNewLeavePage(
+              isEdit: true,
+              detailEntity: _cubit.state.detailEntity,
+            ),
       ),
     );
     if (updated == true) {
@@ -149,9 +151,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             state.deleteStatus == LoadStatus.LOADING ||
             state.confirmStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
-        }
-
-        else if (state.deleteStatus == LoadStatus.SUCCESS) {
+        } else if (state.deleteStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           _showDialog(
@@ -160,9 +160,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             success: true,
             onConfirm: () => Navigator.pop(context, true),
           );
-        }
-
-        else if (state.confirmStatus == LoadStatus.SUCCESS) {
+        } else if (state.confirmStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           _showDialog(
@@ -171,19 +169,11 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             success: true,
             onConfirm: () => Navigator.pop(context, true),
           );
-        }
-
-        else if (state.confirmStatus == LoadStatus.FAILURE) {
+        } else if (state.confirmStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          _showDialog(
-            title: "Lỗi",
-            message: "Gửi duyệt lỗi!",
-            success: false,
-          );
-        }
-
-        else if (state.deleteStatus == LoadStatus.FAILURE) {
+          _showDialog(title: "Lỗi", message: "Gửi duyệt lỗi!", success: false);
+        } else if (state.deleteStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           _showDialog(
@@ -191,9 +181,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             message: "Không xóa được bản ghi khác nháp!",
             success: false,
           );
-        }
-
-        else {
+        } else {
           LoadingOverlay.hide(context);
         }
       },
@@ -210,7 +198,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             height: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(AppAssets.appBg),
+                image: AssetImage(AppAssets.appBG2),
                 fit: BoxFit.cover,
               ),
             ),
@@ -245,132 +233,140 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
     );
   }
 
-  get _contentBody {
-    return SingleChildScrollView(
-      child: BlocBuilder<DetailOnLeaveCubit, DetailOnLeaveState>(
-        bloc: _cubit,
-        buildWhen: (prev, cur) =>
-            prev.loadStatus != cur.loadStatus ||
-            prev.detailEntity != cur.detailEntity,
-        builder: (context, state) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+get _contentBody {
+  final entity = _cubit.state.detailEntity;
+
+  return SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // CARD TRẮNG
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
             children: [
-              _buildItem("Nhân viên", _cubit.state.detailEntity?.employeeName ?? "")
-                  .paddingOnly(bottom: 8),
+              _buildItem("Nhân viên", entity?.employeeName ?? "")
+                  .paddingOnly(bottom: 12),
               CustomDashView(),
 
-              _buildItem("Phòng ban", _cubit.state.detailEntity?.departmentName ?? "")
-                  .paddingOnly(bottom: 8, top: 8),
+              _buildItem("Phòng ban", entity?.departmentName ?? "")
+                  .paddingOnly(top: 12, bottom: 12),
               CustomDashView(),
 
               _buildItem("Số phép còn lại",
-                      (_cubit.state.detailEntity?.remainLeave ?? 0).toString())
-                  .paddingOnly(bottom: 8, top: 8),
+                      (entity?.remainLeave ?? 0).toString())
+                  .paddingOnly(top: 12, bottom: 12),
               CustomDashView(),
 
-              _buildItem("Loại nghỉ", _cubit.state.detailEntity?.holidayStatus ?? "")
-                  .paddingOnly(bottom: 8, top: 8),
+              _buildItem("Loại nghỉ", entity?.holidayStatus ?? "")
+                  .paddingOnly(top: 12, bottom: 12),
               CustomDashView(),
 
               _buildItem(
                 "Từ ngày",
                 AppDateUtils.changeIso8601StringToDateTimeString(
-                    _cubit.state.detailEntity?.dateFrom),
-              ).paddingOnly(bottom: 8, top: 8),
+                  entity?.dateFrom,
+                ),
+              ).paddingOnly(top: 12, bottom: 12),
               CustomDashView(),
 
               _buildItem(
                 "Đến ngày",
                 AppDateUtils.changeIso8601StringToDateTimeString(
-                    _cubit.state.detailEntity?.dateTo),
-              ).paddingOnly(bottom: 8, top: 8),
+                  entity?.dateTo,
+                ),
+              ).paddingOnly(top: 12, bottom: 12),
               CustomDashView(),
 
               _buildItem(
                 "Lý do nghỉ",
-                _cubit.state.detailEntity?.description ?? "",
-              ).paddingOnly(bottom: 8, top: 8),
+                entity?.description ?? "",
+              ).paddingOnly(top: 12, bottom: 12),
               CustomDashView(),
 
-              _buildStatusRow,
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 12),
+                child: _buildStatusRow,
+              ),
               CustomDashView(),
 
-              _buildItem("Người duyệt", state.detailEntity?.userApprove?.name ?? "")
-                  .paddingOnly(bottom: 8, top: 8),
+              _buildItem(
+                "Người duyệt",
+                entity?.userApprove?.name ?? "",
+              ).paddingOnly(top: 12, bottom: 12),
               CustomDashView(),
-
-              const SizedBox(height: 30),
-
-              state.detailEntity?.leaveStage?.id == 13
-                  ? _bottomSheet
-                  : const SizedBox.shrink(),
-
-              const SizedBox(height: 30),
             ],
-          );
-        },
-      ),
-    );
-  }
-
-  get _bottomSheet {
-    return BlocBuilder<DetailOnLeaveCubit, DetailOnLeaveState>(
-      bloc: _cubit,
-      buildWhen: (prev, cur) => prev.detailEntity != cur.detailEntity,
-      builder: (context, state) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(32, 10, 32, 15),
-          child: SafeArea(
-            child: Row(
-              children: [
-                Expanded(
-                  child: PrimaryButton(
-                    callback: () {
-                      _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
-                    },
-                    mainText: "Gửi duyệt",
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: PrimaryButton(
-                    callback: () => doUpdate(context),
-                    mainText: "Cập nhật",
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: PrimaryButton(
-                    callback: () => showDeleteConfirmDialog(),
-                    mainText: "Xoá",
-                  ),
-                ),
-              ],
-            ),
           ),
-        );
-      },
-    );
-  }
+        ),
+
+        const SizedBox(height: 16),
+
+        if (entity?.leaveStage?.id == 13)
+          _bottomSheet,
+
+        const SizedBox(height: 30),
+      ],
+    ),
+  );
+}
+
+
+
+get _bottomSheet {
+  return Row(
+    children: [
+      Expanded(
+        child: PrimaryButton(
+          mainText: "Xóa",
+          type: PrimaryButtonType.secondary,
+          callback: () => showDeleteConfirmDialog(),
+        ),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: PrimaryButton(
+          mainText: "Gửi duyệt",
+          type: PrimaryButtonType.primary,
+          callback: () {
+            _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
+          },
+        ),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: PrimaryButton(
+          mainText: "Cập nhật",
+          type: PrimaryButtonType.primary,
+          callback: () => doUpdate(context),
+        ),
+      ),
+    ],
+  );
+}
+
 
   void showDeleteConfirmDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
-      builder: (_) => CustomDialog(
-        iconPath: AppAssets.ic_delete,
-        title: "Xác nhận xoá",
-        content: "Bạn có chắc muốn xoá bản ghi này không?",
-        success: false,
-        confirmText: "Xoá",
-        cancelText: "Huỷ",
-        onConfirm: () {
-          Navigator.pop(context);
-          _cubit.deleteOnLeave(_cubit.state.detailEntity?.id ?? 0);
-        },
-      ),
+      builder:
+          (_) => CustomDialog(
+            iconPath: AppAssets.ic_delete,
+            title: "Xác nhận xoá",
+            content: "Bạn có chắc muốn xoá bản ghi này không?",
+            success: false,
+            confirmText: "Xoá",
+            cancelText: "Huỷ",
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.deleteOnLeave(_cubit.state.detailEntity?.id ?? 0);
+            },
+          ),
     );
   }
 
@@ -409,6 +405,8 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   }
 
   get _buildStatusRow {
+    final id = _cubit.state.detailEntity?.leaveStage?.id ?? 0;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -421,18 +419,31 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: getBgColor(_cubit.state.detailEntity?.leaveStage?.id ?? 0),
-            borderRadius: BorderRadius.circular(99),
+            color: getBgColor(id),
+            borderRadius: BorderRadius.circular(20),
           ),
-          child: Text(
-            getStatusTitle(_cubit.state.detailEntity?.leaveStage?.id ?? 0),
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.w500,
-              color: getStatusColor(_cubit.state.detailEntity?.leaveStage?.id ?? 0),
-            ),
+          child: Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: getStatusColor(id),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                getStatusTitle(id),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: getStatusColor(id),
+                ),
+              ),
+            ],
           ),
         ),
       ],

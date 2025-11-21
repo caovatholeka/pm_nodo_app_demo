@@ -61,14 +61,14 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         actions: [
           haveActionButton! && iconPathAsset != null
               ? Container(
-                margin: const EdgeInsets.only(right: 16),
+                margin: const EdgeInsets.only(right: 20),
                 child: InkWell(
                   onTap: actionCallBack,
                   borderRadius: BorderRadius.circular(30),
                   child: SvgPicture.asset(
                     iconPathAsset!,
-                    width: 30,
-                    height: 30,
+                    width: 26,
+                    height: 26,
                   ),
                 ),
               )
