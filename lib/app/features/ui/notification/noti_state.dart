@@ -1,55 +1,42 @@
-import '../../../core/commons/app_assets.dart';
+part of 'noti_cubit.dart';
 
-class NotificationItem {
-  final String title;
-  final String subtitle;
-  final String time;
-  final bool isUnread;
-  final String imagepath;
-  
+class NotiState extends Equatable {
+  final LoadStatus status;
+  final List<NotificationEntity> notifications;
+  final int totalUnread;
+  final int currentPage;
+  final bool canLoadMore;
 
-
-  NotificationItem({
-    required this.title,
-    required this.subtitle,
-    required this.time,
-    required this.isUnread,
-    required this.imagepath
+  const NotiState({
+    this.status = LoadStatus.INITIAL,
+    this.notifications = const [],
+    this.totalUnread = 0,
+    this.currentPage = 1,
+    this.canLoadMore = true,
   });
-}
 
-class NotiState {
-  List<NotificationItem> today = [
-    NotificationItem(
-      title: 'Reminder for your meetings',
-      subtitle: 'Learn more about managing account info and activity',
-      time: '9 phút trước',
-      isUnread: true,
-      imagepath: AppAssets.ic_boxG
-    ),
-    NotificationItem(
-      title: 'Robert mention you!',
-      subtitle: 'Learn more about managing account info and activity',
-      time: '14 phút trước',
-      isUnread: false,
-      imagepath: AppAssets.ic_boxR
-    ),
-  ];
+  NotiState copyWith({
+    LoadStatus? status,
+    List<NotificationEntity>? notifications,
+    int? totalUnread,
+    int? currentPage,
+    bool? canLoadMore,
+  }) {
+    return NotiState(
+      status: status ?? this.status,
+      notifications: notifications ?? this.notifications,
+      totalUnread: totalUnread ?? this.totalUnread,
+      currentPage: currentPage ?? this.currentPage,
+      canLoadMore: canLoadMore ?? this.canLoadMore,
+    );
+  }
 
-  List<NotificationItem> yesterday = [
-    NotificationItem(
-      title: 'Reminder for your serial',
-      subtitle: 'Looking forward to it',
-      time: '9 phút trước',
-      isUnread: true,
-      imagepath: AppAssets.ic_boxY
-    ),
-    NotificationItem(
-      title: 'Reminder for your serial',
-      subtitle: 'Learn more about managing account info and activity',
-      time: '14 phút trước',
-      isUnread: false,
-      imagepath: AppAssets.ic_boxG
-    ),
-  ];
+  @override
+  List<Object?> get props => [
+        status,
+        notifications,
+        totalUnread,
+        currentPage,
+        canLoadMore,
+      ];
 }

@@ -42,6 +42,8 @@ class AppAssets {
   static final ic_boxG = 'assets/images/icons/ic_box_green.png';
   static final ic_boxR = 'assets/images/icons/ic_box_red.png';
   static final ic_boxY = 'assets/images/icons/ic_box_yellow.png';
+  static final icGoBack = 'assets/images/icons/ic_goBack.svg';
+  static final icReadAll = 'assets/images/icons/ic_readAll.svg';
   
   static final ic_read_all = 'assets/images/icons/ic_read_all.png';
   static final ic_notification = 'assets/images/icons/ic_notification.svg';
@@ -92,4 +94,5 @@ class AppAssets {
   static final ic_done = 'assets/images/icons/ic_done.png';
 
   static final icBuildingLine = 'assets/images/icons/ic_building_line.svg';
+  static final icNotificationBell = 'assets/images/icons/ic_notificationBell.svg';
 }

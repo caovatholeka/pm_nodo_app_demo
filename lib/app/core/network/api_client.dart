@@ -29,22 +29,23 @@ abstract class ApiClient {
   //Quên mật khẩu
   @POST("/users/forget_password")
   Future<CommonResponse> forgotPassword(@Body() Map<String, dynamic> body);
+
   /// Đăng xuất
   @POST("/users/do_logout")
   Future<CommonResponse> logOut(@Body() Map<String, dynamic> body);
 
   /// Lấy danh sách nhân viên
-@GET("/employees/employees")
-Future<CommonResponse> getListEmployees(
-  @Query("limit") int? limit,
-  @Query("page") int? offset,
-  @Query("name") String? name,
-  @Query("code") String? code,
-  @Query("email") String? email,
-  @Query("department_id") int? departmentId,
-  @Query("job_title") String? jobTitle,
-  @Query("active") bool? active,
-);
+  @GET("/employees/employees")
+  Future<CommonResponse> getListEmployees(
+    @Query("limit") int? limit,
+    @Query("page") int? offset,
+    @Query("name") String? name,
+    @Query("code") String? code,
+    @Query("email") String? email,
+    @Query("department_id") int? departmentId,
+    @Query("job_title") String? jobTitle,
+    @Query("active") bool? active,
+  );
 
   @GET("/metadata/jobs")
   Future<CommonResponse> getListJobs(
@@ -52,7 +53,7 @@ Future<CommonResponse> getListEmployees(
     @Query("offset") int? offset,
   );
 
-  /// Lấy danh sách phòng ban 
+  /// Lấy danh sách phòng ban
   @GET("/metadata/departments")
   Future<CommonResponse> getListDepartments(
     @Query("limit") int? limit,
@@ -68,8 +69,8 @@ Future<CommonResponse> getListEmployees(
   Future<CommonResponse> getListTimeOnLeaves(
     @Query("limit") int? limit,
     @Query("offset") int? offset,
-      @Query("start_date") String? startDate,
-      @Query("end_date") String? endDate,
+    @Query("start_date") String? startDate,
+    @Query("end_date") String? endDate,
   );
 
   /// Lấy chi tiết đơn xin nghỉ
@@ -78,29 +79,29 @@ Future<CommonResponse> getListEmployees(
 
   /// Xóa đơn xin nghỉ
   @DELETE("/leave/hr_leave/{id}")
-  Future<dynamic> deleteDetailOnLeave( @Path('id') int id);
+  Future<dynamic> deleteDetailOnLeave(@Path('id') int id);
 
   @POST("/leave/hr_leave/save_or_update")
   Future<OnLeaveResponse> saveOrUpdateLeave(@Body() UpdateOnLeaveParam param);
 
   @POST("/leave/hr_leave/confirm_hr_leave")
-  Future<dynamic> confirmHrLeave(@Body() Map<String,dynamic> body);
+  Future<dynamic> confirmHrLeave(@Body() Map<String, dynamic> body);
 
   @GET("/metadata/leave_types")
   Future<CommonResponse> getListLeavesType();
 
   @GET("/work_entry/attendance/by_month")
   Future<List<AttendanceEntity>> getListAttendances(
-      @Query("employee_id") int? employeeId,
-      @Query("month") int? month,
-      @Query("year") int? year,
-      );
+    @Query("employee_id") int? employeeId,
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
 
   @POST('/work_entry/user/entries')
   Future<CommonResponse> getListWorkEntry(@Body() Map<String, dynamic> body);
 
   @POST("/work_entry/send_invalid")
-  Future<CommonResponse> sendInvalid(@Body() Map<String,dynamic> body);
+  Future<CommonResponse> sendInvalid(@Body() Map<String, dynamic> body);
   //
   @GET("/metadata/workflow_stages")
   Future<CommonResponse> getListWorkFlowStages();
@@ -115,7 +116,7 @@ Future<CommonResponse> getListEmployees(
   Future<CommonResponse> userCheckInOut(@Body() FormData? body);
 
   @POST("/attendance/update_explanation")
-  Future<dynamic> updateExplanation(@Body() Map<String,dynamic> body);
+  Future<dynamic> updateExplanation(@Body() Map<String, dynamic> body);
 
   @GET("/attendance/history?date_from=2025-11-17")
   Future<CommonResponse> getListAttendanceHistory();
@@ -123,9 +124,13 @@ Future<CommonResponse> getListEmployees(
   //Quên mật khẩu
   @POST("/users/generate_otp")
   Future<CommonResponse> sendOTP(@Body() Map<String, dynamic> body);
-  
+
   @POST("/users/verify_otp")
   Future<CommonResponse> verifyOtp(@Body() Map<String, dynamic> body);
+
+  @POST("/users/get_notification")
+  Future<CommonResponse> getNotification(@Body() Map<String, dynamic> body);
+
+  @POST("/users/mark_notification_read")
+  Future<CommonResponse> markNotiRead(@Query("noti_id") int id);
 }
-
-

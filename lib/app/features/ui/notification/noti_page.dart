@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
-import '../../../core/commons/app_assets.dart';
-import '../../../core/commons/app_colors.dart';
-import '../../../core/commons/screen_size.dart';
-import '../../navigation/bottom_navigation.dart';
-import 'noti_state.dart';
+import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+
+import 'package:pm_app/app/data/models/entities/notification_entity.dart';
+import 'package:pm_app/app/features/widgets/notification_item.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -14,112 +17,123 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  late NotiState notiState;
   int selectedTab = 0;
+
+  final tabs = ["Tất cả", "Thông báo chung", "Cá nhân", "Chưa đọc"];
 
   @override
   void initState() {
     super.initState();
-    notiState = NotiState();
-  }
-
-  void _goBack() {
-    Navigator.push(context, 
-    MaterialPageRoute(builder: (context) => BottomNavigation())
-    );
+    context.read<NotiCubit>().loadNotifications("all");
   }
 
   @override
   Widget build(BuildContext context) {
-    final screen = ScreenSize.of(context);
-
     return Scaffold(
+      extendBodyBehindAppBar: true,
+
+      appBar: MyAppBar(
+        titleAppbar: "Thông báo",
+        haveBackButton: true,
+        haveActionButton: true,
+        iconPathAsset: AppAssets.icReadAll,
+        actionCallBack: () {
+        },
+      ),
+
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(AppAssets.imgBg2),
+            image: AssetImage(AppAssets.appBG2),
             fit: BoxFit.cover,
           ),
         ),
+
         child: SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                horizontal: screen.width * 0.04,
-                vertical: screen.height * 0.015,
-        ),
-               child: Row(
-               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-               children: [
-              GestureDetector(
-                 onTap: () {
-                  _goBack();
-               },
-                child: Image.asset(
-                AppAssets.ic_arrowB,
-                 width: 28,
-              ),
-            ),
-
-             const Text(
-             "Thông báo",
-             style: TextStyle(
-             fontSize: 20,
-             fontWeight: FontWeight.bold,
-             color: Colors.white,
-            ),
-          ),
-      GestureDetector(
-        onTap: () {
-          print("No Event Yet");
-        },
-        child: Image.asset(
-          AppAssets.ic_read_all,
-          width: 36,
-          height: 36,
-        ),
-      ),
-    ],
-  ),
-),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: screen.height * 0.01),
-                padding: EdgeInsets.symmetric(horizontal: screen.width * 0.02),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildTab("Tất cả", 0),
-                    _buildTab("Chung", 1),
-                    _buildTab("Cá nhân", 2),
-                    _buildTab("Chưa đọc", 3),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 10),
+              _buildTabs(),
+              const SizedBox(height: 10),
 
               Expanded(
                 child: Container(
-                  margin: EdgeInsets.all(screen.width * 0.01),
-                  padding: EdgeInsets.all(screen.width * 0.04),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
+                  padding: const EdgeInsets.only(top: 6),
+                  margin: const EdgeInsets.only(right: 3, left: 3),
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
                   ),
-                  child: ListView(
-                    children: [
-                      const Text("Hôm nay",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(height: screen.height * 0.01),
-                      ...notiState.today.map(_buildNotiItem),
 
-                      SizedBox(height: screen.height * 0.025),
-                      const Text("Hôm qua",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(height: screen.height * 0.01),
-                      ...notiState.yesterday.map(_buildNotiItem),
-                    ],
+                  child: BlocBuilder<NotiCubit, NotiState>(
+                    builder: (context, state) {
+                      final sorted = _sortByDate(state.notifications);
+                      final grouped = _groupByDay(sorted);
+
+                      if (sorted.isEmpty) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 40),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.notifications_off_outlined,
+                                  size: 48,
+                                  color: Colors.grey.withOpacity(0.6),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  "Không có thông báo nào",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      return ListView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 20,
+                        ),
+                        children: [
+                          if (grouped["today"]!.isNotEmpty) ...[
+                            _sectionTitle("Hôm nay"),
+                            const SizedBox(height: 14),
+                            ...grouped["today"]!.map(
+                              (e) => NotificationItem(item: e),
+                            ),
+                            const SizedBox(height: 26),
+                          ],
+
+                          if (grouped["yesterday"]!.isNotEmpty) ...[
+                            _sectionTitle("Hôm qua"),
+                            const SizedBox(height: 14),
+                            ...grouped["yesterday"]!.map(
+                              (e) => NotificationItem(item: e),
+                            ),
+                            const SizedBox(height: 26),
+                          ],
+
+                          if (grouped["others"]!.isNotEmpty) ...[
+                            _sectionTitle("Các ngày trước"),
+                            const SizedBox(height: 14),
+                            ...grouped["others"]!.map(
+                              (e) => NotificationItem(item: e),
+                            ),
+                          ],
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -130,129 +144,147 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  Widget _buildTab(String text, int index) {
-    final bool isSelected = selectedTab == index;
-    return GestureDetector(
-      onTap: () => setState(() => selectedTab = index),
-      child: Column(
-        children: [
-          Text(
-            text,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : Colors.white70,
-            ),
-          ),
-          const SizedBox(height: 4),
-          if (isSelected)
-            Container(
-              width: 30,
-              height: 3,
+  Widget _buildTabs() {
+    return SizedBox(
+      height: 42,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemCount: tabs.length,
+        itemBuilder: (context, i) {
+          final bool isSelected = (i == selectedTab);
+
+          return GestureDetector(
+            onTap: () {
+              setState(() => selectedTab = i);
+
+              final type = switch (i) {
+                0 => "all",
+                1 => "general",
+                2 => "current_user",
+                3 => "unseen",
+                _ => "all",
+              };
+
+              context.read<NotiCubit>().loadNotifications(type);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(2),
+                color:
+                    isSelected ? const Color(0xFF1E88FF) : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color:
+                      isSelected ? Colors.transparent : const Color(0xFFDCE3F2),
+                  width: 1.4,
+                ),
               ),
-            )
-        ],
+              child: Text(
+                tabs[i],
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.white : const Color(0xFF697A98),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
-  Widget _buildNotiItem(NotificationItem item) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: item.isUnread ? Colors.white : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade300,
-            blurRadius: 5,
-            offset: const Offset(2, 2),
+
+  Widget _sectionTitle(String title) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF4A4A4A),
           ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 22,
-                  child: Image.asset(item.imagepath, fit: BoxFit.contain),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              item.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                              softWrap: true,
-                              overflow: TextOverflow.visible,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            item.time,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.subtitle,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.subtitle,
-                          height: 1.4,
-                        ),
-                        softWrap: true,
-                        overflow: TextOverflow.clip,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (item.isUnread)
-            Positioned(
-              bottom: 8,
-              right: 8,
-              child: Container(
-                width: 20,
-                height: 20,
-                decoration: const BoxDecoration(
-                  color: AppColors.newNotification,
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Text(
-                    "2",
-                    style: TextStyle(
-                      color: AppColors.whiteColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Container(height: 1, color: Colors.grey.withOpacity(0.25)),
+        ),
+      ],
     );
+  }
+
+  List<NotificationEntity> _sortByDate(List<NotificationEntity> list) {
+    final cloned = List<NotificationEntity>.from(list);
+    cloned.sort((a, b) {
+      final da = _parseDate(a.createDate);
+      final db = _parseDate(b.createDate);
+      return db.compareTo(da);
+    });
+    return cloned;
+  }
+
+  DateTime _parseDate(String? raw) {
+    try {
+      return DateFormat("dd-MM-yy HH:mm").parse(raw ?? "");
+    } catch (_) {
+      return DateTime(2000);
+    }
+  }
+
+  Map<String, List<NotificationEntity>> _groupByDay(
+    List<NotificationEntity> list,
+  ) {
+    final today = DateTime.now();
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    List<NotificationEntity> todayList = [];
+    List<NotificationEntity> yesterdayList = [];
+    List<NotificationEntity> others = [];
+
+    for (var e in list) {
+      final d = _parseDate(e.createDate);
+
+      if (_isSameDay(d, today)) {
+        todayList.add(e);
+      } else if (_isSameDay(d, yesterday)) {
+        yesterdayList.add(e);
+      } else {
+        others.add(e);
+      }
+    }
+
+    return {"today": todayList, "yesterday": yesterdayList, "others": others};
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+}
+
+String timeAgo(String? rawDate) {
+  if (rawDate == null) return "";
+
+  DateTime date;
+  try {
+    date = DateFormat("dd-MM-yy HH:mm").parse(rawDate);
+  } catch (_) {
+    return rawDate;
+  }
+
+  final now = DateTime.now();
+  final diff = now.difference(date);
+
+  if (diff.inMinutes < 1) {
+    return "Vừa xong";
+  } else if (diff.inMinutes < 60) {
+    return "${diff.inMinutes} phút trước";
+  } else if (diff.inHours < 24) {
+    return "${diff.inHours} giờ trước";
+  } else if (diff.inDays == 1) {
+    return "1 ngày trước";
+  } else {
+    return "${diff.inDays} ngày trước";
   }
 }

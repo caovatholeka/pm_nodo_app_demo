@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../widgets/attendance_status_card.dart';
@@ -31,7 +32,13 @@ class _HomePageState extends State<HomePage> {
   void _goNoti() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => NotificationPage()),
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
     );
   }
 
@@ -166,20 +173,19 @@ class _HomePageState extends State<HomePage> {
                         "Chấm công",
                         onTap: _goWorkEntry,
                       ),
-                      _item(
-                        AppAssets.ic_work, "Việc cần làm"),
+                      _item(AppAssets.ic_work, "Việc cần làm"),
                     ],
                   ),
 
                   const SizedBox(height: 38),
-                      Text(
-                        "Lịch sử chấm công",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.menuText,
-                        ),
-                      ),
+                  Text(
+                    "Lịch sử chấm công",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.menuText,
+                    ),
+                  ),
                 ],
               ),
             ),

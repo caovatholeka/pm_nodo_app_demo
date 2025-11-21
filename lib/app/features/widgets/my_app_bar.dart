@@ -40,41 +40,39 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         title: Text(
           titleAppbar,
           style: const TextStyle(
-            color: Colors.white,
+            color: Color.fromARGB(255, 0, 0, 0),
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w400,
           ),
         ),
 
-        leading: haveBackButton!
-            ? IconButton(
-                onPressed: backAction ??
-                    () {
-                      Navigator.of(context).maybePop();
-                    },
-                icon: Image.asset(
-                  AppAssets.ic_arrowB,
-                  width: 30,
-                  height: 30,
-                ),
-              )
-            : const SizedBox(),
+        leading:
+            haveBackButton!
+                ? IconButton(
+                  onPressed:
+                      backAction ??
+                      () {
+                        Navigator.of(context).maybePop();
+                      },
+                  icon: Image.asset(AppAssets.ic_arrowB, width: 30, height: 30),
+                )
+                : const SizedBox(),
 
         actions: [
           haveActionButton! && iconPathAsset != null
               ? Container(
-                  margin: const EdgeInsets.only(right: 16),
-                  child: InkWell(
-                    onTap: actionCallBack,
-                    borderRadius: BorderRadius.circular(30),
-                    child: SvgPicture.asset(
-                      iconPathAsset!,
-                      width: 30,
-                      height: 30,
-                    ),
+                margin: const EdgeInsets.only(right: 16),
+                child: InkWell(
+                  onTap: actionCallBack,
+                  borderRadius: BorderRadius.circular(30),
+                  child: SvgPicture.asset(
+                    iconPathAsset!,
+                    width: 30,
+                    height: 30,
                   ),
-                )
-              : const SizedBox()
+                ),
+              )
+              : const SizedBox(),
         ],
 
         bottom: bottom,

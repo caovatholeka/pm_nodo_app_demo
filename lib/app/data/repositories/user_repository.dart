@@ -7,9 +7,11 @@ abstract class UserRepository {
 
   Future<CommonResponse> getListWorkFlowStages();
   Future<CommonResponse> getListWorkEntryTypes();
-  Future<dynamic> forgotPassword(Map<String,dynamic> body); 
+  Future<dynamic> forgotPassword(Map<String, dynamic> body);
   Future<dynamic> sendOTP(Map<String, dynamic> body);
   Future<dynamic> verifyOtp(Map<String, dynamic> body);
+  Future<CommonResponse> getNotification(Map<String, dynamic> body);
+  Future<CommonResponse> markNotiRead(int id);
 }
 
 class UserRepositoryImpl extends UserRepository {
@@ -20,18 +22,18 @@ class UserRepositoryImpl extends UserRepository {
   }
 
   @override
-  Future<CommonResponse> getUserProfile(Map<String, dynamic> body) async{
+  Future<CommonResponse> getUserProfile(Map<String, dynamic> body) async {
     return await _apiClient.getUserProfile(body);
   }
 
   @override
   Future<CommonResponse> changeCurrentPass(Map<String, dynamic> body) async {
-      return await _apiClient.changePassword(body);
+    return await _apiClient.changePassword(body);
   }
 
   @override
   Future<CommonResponse> getListWorkFlowStages() async {
-      return await _apiClient.getListWorkFlowStages();
+    return await _apiClient.getListWorkFlowStages();
   }
 
   @override
@@ -40,17 +42,27 @@ class UserRepositoryImpl extends UserRepository {
   }
 
   @override
-  Future<CommonResponse> forgotPassword(Map<String,dynamic> body) async {
+  Future<CommonResponse> forgotPassword(Map<String, dynamic> body) async {
     return await _apiClient.forgotPassword(body);
   }
 
   @override
-  Future<CommonResponse> sendOTP(Map<String,dynamic> body) async {
+  Future<CommonResponse> sendOTP(Map<String, dynamic> body) async {
     return await _apiClient.sendOTP(body);
   }
 
   @override
-  Future<CommonResponse> verifyOtp(Map<String,dynamic> body) async {
+  Future<CommonResponse> verifyOtp(Map<String, dynamic> body) async {
     return await _apiClient.verifyOtp(body);
+  }
+
+  @override
+  Future<CommonResponse> getNotification(Map<String, dynamic> body) async {
+    return await _apiClient.getNotification(body);
+  }
+
+  @override
+  Future<CommonResponse> markNotiRead(int id) {
+    return _apiClient.markNotiRead(id);
   }
 }

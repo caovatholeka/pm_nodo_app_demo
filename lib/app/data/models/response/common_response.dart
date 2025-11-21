@@ -13,6 +13,10 @@ class CommonResponse {
   final int? offset;
   final int? page;
   final int? total_pages;
+
+  @JsonKey(name: "total_unread")
+  final int? totalUnread;
+
   final dynamic data;
   final dynamic optional;
 
@@ -23,7 +27,8 @@ class CommonResponse {
     this.page,
     this.total_pages,
     this.limit,
-    this.offset
+    this.offset,
+    this.totalUnread
   });
 
   factory CommonResponse.fromJson(Map<String, dynamic> json) =>

@@ -28,7 +28,6 @@ class _SplashPageState extends State<SplashPage> {
     _initData();
     _navigationSubscription = _cubit.navigatorController.stream.listen((event) {
       Future.delayed(const Duration(seconds: 1), () {
-        // hide native splash
         FlutterNativeSplash.remove();
         switch (event) {
           case SplashNavigator.OPEN_HOME:
