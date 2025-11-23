@@ -70,8 +70,10 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
   }
 
   getListAttendanceHistory() async {
+    final dateFrom = "2025-11-01";
+    final dateTo = "2025-11-30";
     try{
-      final res = await repository.getListAttendanceHistory();
+      final res = await repository.getListAttendanceHistory(dateFrom,dateTo);
       List<ExplanationEntity>? list;
       if(res.data != null){
         list =  mapList(res.data, ExplanationEntity.fromJson);

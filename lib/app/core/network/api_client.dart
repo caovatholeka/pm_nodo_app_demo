@@ -120,7 +120,10 @@ abstract class ApiClient {
   Future<dynamic> updateExplanation(@Body() Map<String, dynamic> body);
 
   @GET("/attendance/history")
-  Future<CommonResponse> getListAttendanceHistory();
+  Future<CommonResponse> getListAttendanceHistory(
+      @Query("date_from") String? dateFrom,
+      @Query("date_to") String? dateTo,
+      );
 
   //Quên mật khẩu
   @POST("/users/generate_otp")

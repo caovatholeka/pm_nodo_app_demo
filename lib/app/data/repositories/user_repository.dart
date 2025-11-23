@@ -10,14 +10,14 @@ abstract class UserRepository {
   Future<dynamic> forgotPassword(Map<String, dynamic> body);
   Future<dynamic> sendOTP(Map<String, dynamic> body);
   Future<dynamic> verifyOtp(Map<String, dynamic> body);
-<<<<<<< Updated upstream
   Future<CommonResponse> getNotification(Map<String, dynamic> body);
   Future<CommonResponse> markNotiRead(int id);
-=======
 
   // lay trang thai task
   Future<CommonResponse> getTaskStages();
->>>>>>> Stashed changes
+
+  // lay lich su cong
+  Future<CommonResponse> getListAttendanceToday(String? dateFrom,String? dateTo);
 }
 
 class UserRepositoryImpl extends UserRepository {
@@ -72,7 +72,13 @@ class UserRepositoryImpl extends UserRepository {
     return _apiClient.markNotiRead(id);
   }
 
-   Future<CommonResponse> getTaskStages() async {
+  @override
+  Future<CommonResponse> getTaskStages() async {
     return await _apiClient.getTaskStages();
+  }
+
+  @override
+  Future<CommonResponse> getListAttendanceToday(String? dateFrom,String? dateTo) async {
+    return _apiClient.getListAttendanceHistory(dateFrom,dateTo);
   }
 }

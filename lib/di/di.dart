@@ -15,6 +15,7 @@ import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
+import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
@@ -133,6 +134,10 @@ Future<void> init() async {
 
   sl.registerLazySingleton<FaceScanCubit>(
     () => FaceScanCubit(faceIdRepository: sl()),
+  );
+
+  sl.registerLazySingleton<HomeCubit>(
+        () => HomeCubit(userRepository: sl()),
   );
 
   sl.registerLazySingleton<ExplanationCubit>(

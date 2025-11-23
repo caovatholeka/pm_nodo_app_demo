@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
@@ -23,14 +24,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _cubit = GetIt.I<AppCubit>();
+  final _cubit = GetIt.I<HomeCubit>();
+  final _appCubit = GetIt.I<AppCubit>();
+
 
   @override
   void initState() {
-    _cubit.getProfile();
-    if((_cubit.state.listTaskStages ?? []).isEmpty){
-      _cubit.getListTaskStages();
+    _appCubit.getProfile();
+    if((_appCubit.state.listTaskStages ?? []).isEmpty){
+      _appCubit.getListTaskStages();
     }
+    _cubit.getListAttendanceToday();
     super.initState();
   }
 
@@ -96,7 +100,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: BlocBuilder<AppCubit, AppState>(
-                          bloc: _cubit,
+                          bloc: _appCubit,
                           builder: (context, state) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,6 +144,7 @@ class _HomePageState extends State<HomePage> {
                   ),
 
                   const SizedBox(height: 24),
+
 
                   Center(
                     child: Container(
