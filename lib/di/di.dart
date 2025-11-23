@@ -5,6 +5,7 @@ import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
+import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
@@ -21,6 +22,7 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
+import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import '../app/config/app_config.dart';
 import '../app/core/network/api_client.dart';
 import '../app/core/network/api_client_face_id.dart';
@@ -136,10 +138,10 @@ Future<void> init() async {
   sl.registerLazySingleton<ExplanationCubit>(
     () => ExplanationCubit(repository: sl()),
   );
-  //
-  //   sl.registerLazySingleton<WorkEntryCubit>(
-  //   () => WorkEntryCubit(),
-  // );
+
+    sl.registerLazySingleton<TaskCubit>(
+    () => TaskCubit(repository: sl()),
+  );
 
   sl.registerLazySingleton<WorkEntryRepository>(
     () => WorkEntryRepositoryImpl(sl()),
@@ -152,4 +154,7 @@ Future<void> init() async {
   sl.registerFactory<OtpVerifyCubit>(() => OtpVerifyCubit(sl()));
 
   sl.registerFactory<NotiCubit>(() => NotiCubit(userRepository: sl()));
+  sl.registerLazySingleton<TaskRepository>(
+        () => TaskRepositoryImpl(sl()),
+  );
 }

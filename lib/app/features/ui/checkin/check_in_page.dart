@@ -1,12 +1,18 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/core/utils/widget_to_marker.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/models/entities/check_in_info_entity.dart';
 import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
 import 'package:pm_app/app/features/ui/checkin/widget/my_map_marker.dart';
+import 'package:pm_app/app/features/widgets/cached_image_widget.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
@@ -53,7 +59,7 @@ class _CheckInPageState extends State<CheckInPage> {
 
   void _onMapCreated(GoogleMapController controller) async {
     mapController = controller;
-    await _fitToAllCheckIn();
+    // await _fitToAllCheckIn();
   }
 
 Future<void> _requestLocationPermission() async {
@@ -107,7 +113,6 @@ Future<void> _requestLocationPermission() async {
   void initState() {
     _requestLocationPermission();
     _cubit.getListCheckInInfo();
-    getActionCheck();
     super.initState();
   }
 
@@ -119,13 +124,6 @@ Future<void> _requestLocationPermission() async {
   Future<void> _onRefresh() async {
     _requestLocationPermission();
     _cubit.getListCheckInInfo();
-  }
-
-  Future<void> getActionCheck() async {
-    actionCheckIn = await SharedPrefsHelper.getCheckInOutAction();
-
-    // reset khi sang ngay moi
-    _cubit.onChangeActionCheck(actionCheckIn);
   }
 
   Future _initMarkers(List<CheckInInfoEntity> listCheckins) async {
@@ -207,13 +205,13 @@ Future<void> _requestLocationPermission() async {
         CameraUpdate.newLatLngBounds(bounds, padding),
       );
     } catch (_) {
-      // await mapController.animateCamera(
-      //   CameraUpdate.newCameraPosition(CameraPosition(
-      //     target: LatLng((_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0,
-      //       (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0),
-      //     zoom: _zoomForRadius((_cubit.state.listCheckInfos ?? []).first.radius ?? 0.0),
-      //   )),
-      // );
+      await mapController.animateCamera(
+        CameraUpdate.newCameraPosition(CameraPosition(
+          target: LatLng((_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0,
+            (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0),
+          zoom: _zoomForRadius((_cubit.state.listCheckInfos ?? []).first.radius ?? 0.0),
+        )),
+      );
     }
   }
 
@@ -274,44 +272,184 @@ Future<void> _requestLocationPermission() async {
           }
         },
         builder: (context,state){
-          return Scaffold(
-            appBar: AppBar(
-              title: Text("Chấm công"),
-                leading: (widget.isFromHome ?? false)
-                    ? IconButton(
-                  onPressed: () {
-                        Navigator.of(context).maybePop();
-                      },
-                  icon: Image.asset(
-                    AppAssets.ic_arrowB,
-                    width: 30,
-                    height: 30,
-                  ),
-                ) : const SizedBox(),
-            ),
-            body: SizedBox(
-              height: double.infinity,
-              width: double.infinity,
-              child: _bodyContent,
-            )
-          );
+          return BlocBuilder<CheckInCubit,CheckInState>(
+              bloc: _cubit,
+              buildWhen: (prev,cur) => prev.isMapExpanded != cur.isMapExpanded,
+              builder: (context,state){
+                return state.isMapExpanded ?
+                _mapZoomFullScreen :
+                _mapNormalScreen;
+              });
+
         });
+  }
+
+  get _mapNormalScreen {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Chấm công"),
+          flexibleSpace: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppAssets.appbarBg),
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          leading: (widget.isFromHome ?? false)
+              ? IconButton(
+            onPressed: () {
+              Navigator.of(context).maybePop();
+            },
+            icon: Image.asset(
+              AppAssets.ic_arrowB,
+              width: 30,
+              height: 30,
+            ),
+          ) : const SizedBox(),
+        ),
+        body: Container(
+          height: double.infinity,
+          width: double.infinity,
+          color: AppColors.bodyColor,
+          child: SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 16,right: 16),
+              child: _bodyContent
+          ),
+        )
+    );
+  }
+  get _mapZoomFullScreen{
+    return Scaffold(
+      body: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: Stack(
+          children: [
+            _mapWidget,
+            Positioned(
+                bottom: 100,
+                left: 18,
+                right: 18,
+              child: Container(
+                width: double.infinity,
+                color: Colors.transparent,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 100,
+                      color: AppColors.whiteColor.withOpacity(0.8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Vị trí đã chọn",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600
+                            ),).paddingOnly(bottom: 6),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(AppAssets.icCheckinPlace,width: 18,height: 22,
+                                color: AppColors.themePrimaryDefault,).paddingOnly(right: 8),
+                              Text(_cubit.state.currentCheckInEntity?.name ?? "",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400
+                                ),),
+                            ],
+                          )
+                        ],
+                      ),
+                    ).paddingOnly(bottom: 16),
+                    PrimaryButton(
+                      callback: (){
+                        _cubit.onExpandMap();
+                      },
+                        mainText: "Xong").paddingOnly(bottom: 20)
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      )
+    );
   }
 
   get _bodyContent{
     return RefreshIndicator(
       onRefresh: _onRefresh,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-              flex: 7,
+          const SizedBox(height: 12,),
+          Text(DateFormat('H:mm a').format(DateTime.now()),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w600,
+              color: AppColors.colorSuccess500
+            ),
+            textAlign: TextAlign.center,
+          ).paddingOnly(bottom: 16),
+         InkWell(
+           onTap: (){
+             // thuc hien check in
+             doCheckIn();
+           },
+           child: SvgPicture.asset(AppAssets.camScan,width: 80,height: 80,),
+         ).paddingOnly(bottom: 16),
+
+          Text("Nhận dạng khuôn mặt",
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                color: AppColors.themeBlackDefault
+            ),
+            textAlign: TextAlign.center,
+          ).paddingOnly(bottom: 12),
+          Text("Đảm bảo bạn đang ở văn phòng và nơi có đủ ảnh sáng \n "
+              "để nhận diện được khuôn mặt một cách tối ưu",
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: AppColors.neutral400
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+          ).paddingOnly(bottom: 16),
+          SizedBox(
+            height: ScreenSize.of(context).height*0.4,
+              width: double.infinity,
               child: _mapWidget
-          ),
-          Expanded(
-              flex: 3,
-              child: _checkInfoWidget
-          ),
+          ).paddingOnly(bottom: 16),
+          BlocBuilder<CheckInCubit,CheckInState>(
+              bloc: _cubit,
+              buildWhen: (prev,cur) => prev.currentCheckInEntity != cur.currentCheckInEntity,
+              builder: (context,state){
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SvgPicture.asset(AppAssets.icCheckinPlace,width: 18,height: 22,
+                      color: AppColors.themePrimaryDefault,),
+                    const SizedBox(width: 8,),
+                    Text(state.currentCheckInEntity?.name ?? "",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),)
+                  ],
+                );
+              })
+
         ],
       ),
     );
@@ -322,7 +460,8 @@ Future<void> _requestLocationPermission() async {
       height: double.infinity,
       child: BlocBuilder<CheckInCubit,CheckInState>(
           bloc: _cubit,
-          buildWhen: (prev,cur) => prev.position != cur.position,
+          buildWhen: (prev,cur) => prev.position != cur.position ||
+            prev.isMapExpanded != cur.isMapExpanded,
           builder: (context,state){
             if (state.position != null) {
               var marker = Marker(
@@ -330,36 +469,125 @@ Future<void> _requestLocationPermission() async {
                 position: LatLng(state.position!.latitude,
                     state.position!.longitude),
               );
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(12.0),
-                child: GoogleMap(
-                    key: ValueKey(LatLng(state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0)),
-                    mapType: _mapType,
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(
-                        state.position!.latitude,
-                        state.position!.longitude,
-                      ),
-                      zoom: 16.0,
+              return Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: GoogleMap(
+                        key: ValueKey(LatLng(state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0)),
+                        mapType: _mapType,
+                        onMapCreated: _onMapCreated,
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(
+                            state.position!.latitude,
+                            state.position!.longitude,
+                          ),
+                          zoom: 15.0,
+                        ),
+                        markers: _markers,
+                        // circles: _circles,
+                        myLocationButtonEnabled: false,
+                        buildingsEnabled: false,
+                        zoomControlsEnabled: false,
+                        myLocationEnabled: true,
+                        mapToolbarEnabled: false,
+                        compassEnabled: false
                     ),
-                    markers: _markers,
-                    circles: _circles,
-                    myLocationButtonEnabled: true,
-                    minMaxZoomPreference: MinMaxZoomPreference(10.0, 20.0),
-                    buildingsEnabled: false,
-                    zoomControlsEnabled: false,
-                    myLocationEnabled: true,
-                    mapToolbarEnabled: false,
-                    compassEnabled: false,
-                  zoomGesturesEnabled: false,
-                ),
+                  ),
+                  !(state.isMapExpanded ?? false) ?
+                  Positioned(
+                      top: 12,
+                      right: 12,
+                      child: InkWell(
+                        onTap: (){
+                          _cubit.onExpandMap();
+                        },
+                        child: SvgPicture.asset(AppAssets.icExpandOut,width: 24,),
+                      )) : const SizedBox.shrink()
+                ],
               );
             }
             return SizedBox(child: Center(child: CircularProgressIndicator(),),);
           }),
     );
   }
+
+  // checkin success
+  get _checkInSuccess {
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.only(left: 16,right: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12,),
+              SvgPicture.asset(AppAssets.icCheckinSuccess),
+              Text("Chấm công thành công",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.themeBlackDefault
+                ),
+              ).paddingOnly(bottom: 6),
+              Text(AppDateUtils.getCurrentTimeAM(),
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.colorSuccess500
+                ),
+              ).paddingOnly(bottom: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 70,
+                    width: 70,
+                    child: CachedImageWidget(urlImage: ""),
+                  ).paddingOnly(right: 6),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        GlobalData.instance.userProfile?.name ?? "",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.themeBlackDefault
+                        ),
+                      ).paddingOnly(bottom: 5),
+                      Text(
+                        GlobalData.instance.userProfile?.jobTitle ?? "",
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.neutral500
+                        ),
+                      ).paddingOnly(bottom: 5),
+                      Text(
+                        GlobalData.instance.userProfile?.employeeCode ?? "",
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.neutral500
+                        ),
+                      )
+                    ],
+                  ),
+                  
+                  SvgPicture.asset(AppAssets.icSuccess)
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 
   get _checkInfoWidget {
     return BlocBuilder<CheckInCubit,CheckInState>(

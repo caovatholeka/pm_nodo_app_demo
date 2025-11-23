@@ -4,6 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/staff/staff_page.dart';
+import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../widgets/attendance_status_card.dart';
@@ -26,6 +28,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _cubit.getProfile();
+    if((_cubit.state.listTaskStages ?? []).isEmpty){
+      _cubit.getListTaskStages();
+    }
     super.initState();
   }
 
@@ -42,6 +47,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _openStaffPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true,)),
+    );
+  }
+
   void _goAttendanceData() {
     Navigator.push(
       context,
@@ -51,6 +63,10 @@ class _HomePageState extends State<HomePage> {
 
   void _goWorkEntry() {
     Navigator.push(context, MaterialPageRoute(builder: (_) => WorkEntryPage()));
+  }
+
+  void _openTaskList() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => TaskManagePage()));
   }
 
   @override
@@ -161,7 +177,9 @@ class _HomePageState extends State<HomePage> {
                     mainAxisSpacing: 24,
                     crossAxisSpacing: 16,
                     children: [
-                      _item(AppAssets.ic_employee, "Nhân viên"),
+                      _item(AppAssets.ic_employee, "Nhân viên",
+                        onTap: _openStaffPage
+                      ),
                       _item(
                         AppAssets.ic_paper,
                         "Dữ liệu công",
@@ -173,7 +191,10 @@ class _HomePageState extends State<HomePage> {
                         "Chấm công",
                         onTap: _goWorkEntry,
                       ),
-                      _item(AppAssets.ic_work, "Việc cần làm"),
+                      _item(
+                        AppAssets.ic_work, "Việc cần làm",
+                        onTap: _openTaskList
+                      ),
                     ],
                   ),
 

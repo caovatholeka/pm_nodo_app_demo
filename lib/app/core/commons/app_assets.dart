@@ -95,4 +95,18 @@ class AppAssets {
 
   static final icBuildingLine = 'assets/images/icons/ic_building_line.svg';
   static final icNotificationBell = 'assets/images/icons/ic_notificationBell.svg';
+
+  static final appbarBg = 'assets/images/app_bar_bg.jpg';
+  static final camScan = 'assets/images/icons/ic_cam_scan.svg';
+  static final icCheckinPlace = 'assets/images/icons/ic_checkin_place.svg';
+  static final icExpandOut = 'assets/images/icons/ic_expand_out.svg';
+  static final icPlace = 'assets/images/icons/ic_location.svg';
+  static final faceRecog = 'assets/images/face_recognition.svg';
+
+  static final icCheckinSuccess = 'assets/images/icons/ic_checkin_success.svg';
+  static final icCheckinFailed = 'assets/images/icons/ic_checkin_failed.svg';
+
+  static final icSuccess = 'assets/images/icons/ic_success.svg';
+  static final icFailed = 'assets/images/icons/ic_failed.svg';
+  static final icStar = 'assets/images/icons/ic_star.svg';
 }

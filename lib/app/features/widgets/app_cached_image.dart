@@ -95,63 +95,58 @@ class AppCircleAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isValidUrl = url.isNotEmpty; //Uri.tryParse(url)?.isAbsolute == true;
-    final bytes = Utils().decodeBase64(url);
+    bool isValidUrl = Uri.tryParse(url)?.isAbsolute == true;
+    // final bytes = Utils().decodeBase64(url);
 
-    return url.isNotEmpty ? Container(
+    return isValidUrl ? Container(
       width: size ?? double.infinity,
       height: size ?? double.infinity,
       decoration: BoxDecoration(
-        color: Colors.amber,
+        color: Colors.white,
         borderRadius: BorderRadius.circular((size ?? 0) / 2),
       ),
       child: Stack(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular((size ?? 0) / 2),
-            child: SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-              child: Image(
-                image: Utils().providerFromBase64OrAsset(
-                  url,
-                  fallbackAssetPath: AppAssets.img_df_avatar,
-                ),
-                width: 58,
-                height: 58,
-                fit: BoxFit.cover,
-              ),
-              // child: Image.memory(
-              //   bytes,
-              //   fit: BoxFit.cover,
-              //   gaplessPlayback: true,
-              //   filterQuality: FilterQuality.high,
-              // )
-            ),
-            // child: CachedNetworkImage(
-            //   imageUrl: url,
-            //   progressIndicatorBuilder: (context, url, downloadProgress) {
-            //     return SizedBox(
-            //       width: size,
-            //       height: size,
-            //       child: CircularProgressIndicator(
-            //         value: downloadProgress.progress,
-            //         strokeWidth: 2,
-            //       ),
-            //     );
-            //   },
-            //   errorWidget: (context, url, error) {
-            //     return SizedBox(
-            //       width: double.infinity,
-            //       height: double.infinity,
-            //       child: Image.asset(
-            //         AppAssets.appLogo,
-            //         fit: BoxFit.cover,
-            //       ),
-            //     );
-            //   },
-            //   fit: BoxFit.fill,
+            // child: SizedBox(
+            //   width: double.infinity,
+            //   height: double.infinity,
+            //   child: Image(
+            //     image: Utils().providerFromBase64OrAsset(
+            //       url,
+            //       fallbackAssetPath: AppAssets.img_df_avatar,
+            //     ),
+            //     width: 58,
+            //     height: 58,
+            //     fit: BoxFit.cover,
+            //   ),
             // ),
+
+            child: CachedNetworkImage(
+              imageUrl: url,
+              progressIndicatorBuilder: (context, url, downloadProgress) {
+                return SizedBox(
+                  width: size,
+                  height: size,
+                  child: CircularProgressIndicator(
+                    value: downloadProgress.progress,
+                    strokeWidth: 2,
+                  ),
+                );
+              },
+              errorWidget: (context, url, error) {
+                return SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: Image.asset(
+                    AppAssets.appLogo,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
+              fit: BoxFit.fill,
+            ),
           ),
           (isEdit ?? false) ? Positioned(
               bottom: 6,

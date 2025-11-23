@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
+import 'package:pm_app/app/data/models/param/create_task_param.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/param/create_leave_param.dart';
@@ -118,7 +119,7 @@ abstract class ApiClient {
   @POST("/attendance/update_explanation")
   Future<dynamic> updateExplanation(@Body() Map<String, dynamic> body);
 
-  @GET("/attendance/history?date_from=2025-11-17")
+  @GET("/attendance/history")
   Future<CommonResponse> getListAttendanceHistory();
 
   //Quên mật khẩu
@@ -133,4 +134,36 @@ abstract class ApiClient {
 
   @POST("/users/mark_notification_read")
   Future<CommonResponse> markNotiRead(@Query("noti_id") int id);
+  
+  // task
+  // lay danh sach task
+  @GET("/tasks/tasks")
+  Future<CommonResponse> getListTask(
+      @Query("name") String? name,
+      @Query("stage_id") int? stageId,
+      );
+
+  // lay ds task stage
+  @GET("/tasks/task_stages")
+  Future<CommonResponse> getTaskStages();
+
+  // update task stage
+  @POST("/tasks/update_task_stage")
+  Future<dynamic> updateTaskStage(@Body() Map<String, dynamic> body);
+
+  @GET("/users/get_users")
+  Future<CommonResponse> getListUser();
+
+  @POST("/tasks/create_task")
+  Future<dynamic> createTask(@Body() CreateTaskParam param);
+
+
+  @GET("/tasks/detail_task/{id}")
+  Future<CommonResponse> getDetailTask(@Path("id") int id);
+
+  @POST("/tasks/delete_task")
+  Future<dynamic> deleteTask(@Body() Map<String, dynamic> body);
+
+  @POST("/tasks/update_task")
+  Future<CommonResponse> updateTask(@Body() CreateTaskParam body);
 }

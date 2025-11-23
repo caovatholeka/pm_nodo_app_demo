@@ -76,8 +76,7 @@ dependencies:
   google_mlkit_face_detection: ^0.11.0
 #  google_mlkit_commons: ^0.11.0
   image: ^4.2.0
-
-
+  tflite_flutter: ^0.12.1
 
 dev_dependencies:
   flutter_test:
@@ -102,6 +101,8 @@ flutter:
   assets:
      - assets/images/icons/
      - assets/images/
+     - assets/models/ultraface_320.tflite
+     - assets/models/antispoof_rgb_80.tflite
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

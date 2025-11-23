@@ -20,6 +20,7 @@ import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'widget/camera_cover_preview.dart';
 import 'widget/center_face_guide_painter.dart';
 import 'widget/face_guide_painter.dart';
+import 'widget/mask_with_wave.dart';
 
 class FaceAttendancePage extends StatefulWidget {
   final File? stillImage;
@@ -30,11 +31,16 @@ class FaceAttendancePage extends StatefulWidget {
 }
 
 class _FaceAttendancePageState extends State<FaceAttendancePage>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   // cubit
   final _cubit = GetIt.I.get<FaceScanCubit>();
 
   CameraController? _cam;
+
+  bool _scanStarted = false;
+  late final AnimationController _scanCtrl;
+  late final Animation<double> _scanAnim;
+
   late final FaceDetector _detector;
   bool _isBusy = false;
   bool _initialized = false;
@@ -76,6 +82,12 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } else {
       _initCamera();
     }
+
+    _scanCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _scanAnim = CurvedAnimation(parent: _scanCtrl, curve: Curves.easeInOut);
   }
   @override
   void dispose() {
@@ -83,6 +95,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     _stopCamera();
     _cubit.onResetStatus();
     _detector.close();
+    _scanCtrl.dispose();
     super.dispose();
   }
 
@@ -114,7 +127,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       await _cam!.setZoomLevel(1.0);
       await _cam!.setFlashMode(FlashMode.off);
       await _cam!.lockCaptureOrientation(DeviceOrientation.portraitUp);
-      await _cam!.startImageStream(_processFrame);
+      // await _cam!.startImageStream(_processFrame);
       if (mounted) setState(() => _initialized = true);
     } catch (e) {
       if (mounted) {
@@ -132,6 +145,15 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     try {
       await _cam?.dispose();
     } catch (_) {}
+  }
+
+  void _onTapShutter() {
+    if (_scanStarted) return;
+    setState(() => _scanStarted = true);
+    _scanCtrl
+      ..duration = const Duration(milliseconds: 2800)
+      ..repeat(reverse: false);
+    // _scanCtrl.repeat(reverse: true);
   }
 
   Future<void> _processFrame(CameraImage image) async {
@@ -204,8 +226,9 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       final outFile = await File(outPath).writeAsBytes(bytes, flush: true);
 
       // call api check face
-      _cubit.onChangeFilePath(outFile.path);
-      _cubit.searchFace(outFile);
+      // Comment test
+      // _cubit.onChangeFilePath(outFile.path);
+      // _cubit.searchFace(outFile);
       if (!mounted) return;
       // Navigator.pop(context, base64);
     } catch (e) {
@@ -379,9 +402,6 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
             AppSnackBar.showError(title: "Thất bại",
                 message: state.scanMsg ?? "Không tìm thấy thông tin người dùng!");
 
-            // Cho phép  người dùng thử lại
-            // try { await _cam?.startImageStream(_processFrame); } catch (_) {}
-            // _isCapturing = false;
           }else{
             LoadingOverlay.hide(context);
           }
@@ -396,12 +416,25 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
             else
               const Center(child: CircularProgressIndicator(color: Colors.white)),
 
-            if (camReady)
-              IgnorePointer(
-                child: CustomPaint(
-                  painter: CenteredFaceGuidePainter(),
-                  size: Size.infinite,
-                ),
+            // if (camReady && !_scanStarted)
+            //   IgnorePointer(
+            //     child: CustomPaint(
+            //       painter: CenteredFaceGuidePainter(),
+            //       size: Size.infinite,
+            //     ),
+            //   ),
+
+            if (camReady && _scanStarted)
+              FaceMaskWithWave(
+                anim: _scanAnim,
+                countdown: const Duration(seconds: 5),
+                onCountdownDone: () async {
+                  try {
+                    if (_cam != null && _cam!.value.isInitialized) {
+                      await _cam!.startImageStream(_processFrame);
+                    }
+                  } catch (_) {}
+                },
               ),
 
             SafeArea(
@@ -423,28 +456,86 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                 ),
               ),
             ),
-            BlocBuilder<FaceScanCubit, FaceScanState>(
-              buildWhen: (prev, cur) => prev.isFaceValid != cur.isFaceValid,
-              builder: (context, state) {
-                if (state.isFaceValid) return const SizedBox.shrink();
-                return Positioned(
-                  left: 0, right: 0, bottom: 28 + MediaQuery.of(context).padding.bottom,
-                  child: Center(
+
+            Positioned(
+              left: 16, right: 16,
+              bottom: 125 + MediaQuery.of(context).padding.bottom,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: !_scanStarted ? Text(
+                    'Nhấp vào nút này để bắt đầu và đảm bảo máy ảnh của bạn đã được thiết lập và sẵn sàng',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w400),
+                  ) : const SizedBox.shrink(),
+                ),
+              ),
+            ),
+
+            if (camReady && !_scanStarted)
+              Positioned(
+                left: 0, right: 0,
+                bottom: 40,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: _onTapShutter,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      width: 76, height: 76,
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.45),
-                        borderRadius: BorderRadius.circular(8),
+                        shape: BoxShape.circle,
+                        color: Colors.transparent,
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.25),
+                            blurRadius: 10, spreadRadius: 1, offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'Đưa khuôn mặt vào gần khung hình',
-                        style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                      child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+
+            // BlocBuilder<FaceScanCubit, FaceScanState>(
+            //   buildWhen: (prev, cur) => prev.isFaceValid != cur.isFaceValid,
+            //   builder: (context, state) {
+            //     if (state.isFaceValid || !_scanStarted) return const SizedBox.shrink();
+            //     return Positioned(
+            //       left: 0, right: 0,
+            //       bottom: 110 + MediaQuery.of(context).padding.bottom,
+            //       child: Center(
+            //         child: Container(
+            //           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            //           decoration: BoxDecoration(
+            //             color: Colors.black.withOpacity(0.45),
+            //             borderRadius: BorderRadius.circular(8),
+            //           ),
+            //           child: const Text(
+            //             'Đưa khuôn mặt vào gần khung hình',
+            //             style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+            //           ),
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // ),
           ],
         ),
       ),

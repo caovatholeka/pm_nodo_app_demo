@@ -23,8 +23,7 @@ class MyMapMarker extends StatelessWidget {
       height: 28,
       width: 28,
       color: Colors.transparent,
-      child: SvgPicture.asset(AppAssets.icBuildingLine,width: 24,height: 24
-        ,color: AppColors.themePrimaryDefault,),
+      child: SvgPicture.asset(AppAssets.icCheckinPlace,width: 24,height: 28),
       // decoration: BoxDecoration(
       //   color: AppColors.themePrimaryDefault,
       //   border: Border.all(

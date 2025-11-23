@@ -11,6 +11,21 @@ class AppDateUtils {
     }
   }
 
+  static String? parseDateToYMD(String? input) {
+    if (input == null || input.trim().isEmpty) return null;
+    try {
+      return DateFormat('yyyy-MM-dd')
+          .format(DateFormat('dd/MM/yyyy').parseStrict(input.trim()));
+    } catch (_) {
+      return null;
+    }
+  }
+
+ static String? parseBirthdayDate(String s) {
+    final dt = DateFormat('yyyy-MM-dd HH:mm:ss').parse(s);
+    return DateFormat('yyyy-MM-dd').format(dt);
+  }
+
   static String changeIso8601StringToDateTimeString(String? iso8601String) {
     try {
       DateTime dateTime = DateTime.parse(iso8601String ?? '');
@@ -51,5 +66,11 @@ class AppDateUtils {
     if (totalDays <= 0) return <DateTime>[];
 
     return List.generate(totalDays, (i) => s.add(Duration(days: i)));
+  }
+
+  static String getCurrentTimeAM() {
+    final now = DateTime.now();
+    final formatter = DateFormat('hh:mm a'); // 12h + AM/PM
+    return formatter.format(now);
   }
 }

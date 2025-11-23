@@ -11,6 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
+import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -18,6 +19,7 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart'
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
+import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
@@ -132,6 +134,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<ExplanationCubit>()),
       BlocProvider(create: (context) => sl<ExplanationListCubit>()),
       BlocProvider(create: (context) => sl<FaceScanCubit>()),
+      BlocProvider(create: (context) => sl<TaskCubit>()),
     ];
   }
 
@@ -144,6 +147,7 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider(create: (context) => sl<EmployeeRepository>()),
         RepositoryProvider(create: (context) => sl<WorkEntryRepository>()),
         RepositoryProvider(create: (context) => sl<UserRepository>()),
+        RepositoryProvider(create: (context) => sl<TaskRepository>()),
       ],
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),

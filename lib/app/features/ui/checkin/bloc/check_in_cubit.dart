@@ -104,6 +104,15 @@ class CheckInCubit extends Cubit<CheckInState> {
     }
   }
 
+  void onChangeCurrentCheckInPlace(CheckInInfoEntity check){
+    emit(state.copyWith(currentCheckInEntity : check));
+  }
+
+  void onExpandMap(){
+    bool expand = state.isMapExpanded;
+    emit(state.copyWith(isMapExpanded : !expand));
+  }
+
   void doCheckOutGps(String file,) async{
     logger.d("Check-Out");
     emit(state.copyWith(checkOutStatus: LoadStatus.LOADING));

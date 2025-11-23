@@ -10,8 +10,14 @@ abstract class UserRepository {
   Future<dynamic> forgotPassword(Map<String, dynamic> body);
   Future<dynamic> sendOTP(Map<String, dynamic> body);
   Future<dynamic> verifyOtp(Map<String, dynamic> body);
+<<<<<<< Updated upstream
   Future<CommonResponse> getNotification(Map<String, dynamic> body);
   Future<CommonResponse> markNotiRead(int id);
+=======
+
+  // lay trang thai task
+  Future<CommonResponse> getTaskStages();
+>>>>>>> Stashed changes
 }
 
 class UserRepositoryImpl extends UserRepository {
@@ -64,5 +70,9 @@ class UserRepositoryImpl extends UserRepository {
   @override
   Future<CommonResponse> markNotiRead(int id) {
     return _apiClient.markNotiRead(id);
+  }
+
+   Future<CommonResponse> getTaskStages() async {
+    return await _apiClient.getTaskStages();
   }
 }

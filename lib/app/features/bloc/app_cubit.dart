@@ -10,6 +10,7 @@ import '../../core/commons/global_data.dart';
 import '../../core/helper/response_mapper.dart';
 import '../../core/logger/logger.dart';
 import '../../data/local/shared_prefs_helper.dart';
+import '../../data/models/entities/task_stage_entity.dart';
 import '../../data/models/entities/token_entity.dart';
 import '../../data/models/enums/load_status.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -109,6 +110,20 @@ class AppCubit extends Cubit<AppState> {
       }
     }catch(e){
       logger.d(e);
+    }
+  }
+
+  getListTaskStages() async {
+    try{
+      final res = await userRepository.getTaskStages();
+      List<TaskStageEntity>? list;
+      if(res.data != null){
+        list = mapList(res.data, TaskStageEntity.fromJson);
+        emit(state.copyWith(listTaskStages: list));
+      }
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(listTaskStages: []));
     }
   }
 

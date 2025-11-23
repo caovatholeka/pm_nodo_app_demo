@@ -23,6 +23,8 @@ class CheckInState extends Equatable {
 
   final bool hasLateOrEarly;
 
+  final bool isMapExpanded;
+
   const CheckInState({
     this.checkInStatus = LoadStatus.INITIAL,
     this.checkOutStatus = LoadStatus.INITIAL,
@@ -37,7 +39,8 @@ class CheckInState extends Equatable {
     this.errStatus,
     this.checkInOutResponse,
     this.actionCheck,
-    this.hasLateOrEarly = false
+    this.hasLateOrEarly = false,
+    this.isMapExpanded = false
   });
 
   CheckInState copyWith({
@@ -54,7 +57,8 @@ class CheckInState extends Equatable {
     CheckInInfoEntity? currentCheckInEntity,
     CheckInOutEntity? checkInOutResponse,
     String? actionCheck,
-    bool? hasLateOrEarly
+    bool? hasLateOrEarly,
+    bool? isMapExpanded
   }){
     return CheckInState(
         checkInStatus: checkInStatus ?? this.checkInStatus,
@@ -70,7 +74,8 @@ class CheckInState extends Equatable {
         currentCheckInEntity: currentCheckInEntity ?? this.currentCheckInEntity,
       checkInOutResponse: checkInOutResponse ?? this.checkInOutResponse,
       actionCheck: actionCheck ?? this.actionCheck,
-      hasLateOrEarly: hasLateOrEarly ?? this.hasLateOrEarly
+      hasLateOrEarly: hasLateOrEarly ?? this.hasLateOrEarly,
+      isMapExpanded: isMapExpanded ?? this.isMapExpanded
     );
   }
 
@@ -89,6 +94,7 @@ class CheckInState extends Equatable {
     currentCheckInEntity,
     checkInOutResponse,
     actionCheck,
-    hasLateOrEarly
+    hasLateOrEarly,
+    isMapExpanded
   ];
 }
