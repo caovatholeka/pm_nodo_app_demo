@@ -14,22 +14,22 @@ class LeaveBalanceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity, 
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: AppShadow.boxShadowNormal,
+        // boxShadow: AppShadow.boxShadowNormal,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween, 
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
-            'Số ngày nghỉ phép còn lại:',
+            'Số phép còn lại',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
+              fontSize: 13,
+              color: AppColors.textGrayB3,
+              fontWeight: FontWeight.w400,
             ),
           ),
           Text(

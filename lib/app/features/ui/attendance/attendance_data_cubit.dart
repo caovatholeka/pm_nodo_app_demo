@@ -18,7 +18,7 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
 
   AttendanceDataCubit({required this.repository}) : super(AttendanceDataState());
 
-
+ // lay danh sach cham cong
   Future<void> getListAttendances(DateTime anyMonth) async{
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try{
@@ -66,6 +66,27 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
       logger.d(e);
       logger.d(s);
       emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  // lay chi tiet cham cong
+  Future<void> getDetailWorkEntry(int detailId) async{
+    emit(state.copyWith(detailStatus: LoadStatus.LOADING));
+    try{
+      final res = await repository.getDetailWorkEntry(detailId);
+
+      List<WorkEntity>? list;
+      if(res.data != null){
+        list = mapList(res.data, WorkEntity.fromJson);
+        if(list.isNotEmpty){
+          emit(state.copyWith(detailStatus: LoadStatus.SUCCESS,listDetailEntry: list));
+        }else{
+          emit(state.copyWith(detailStatus: LoadStatus.SUCCESS,listDetailEntry: []));
+        }
+      }
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(detailStatus: LoadStatus.FAILURE));
     }
   }
 

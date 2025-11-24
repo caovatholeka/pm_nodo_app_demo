@@ -9,18 +9,24 @@ class UserEntity {
   @JsonKey()
   String? name;
 
+  @JsonKey()
+  String? avatar;
+
   UserEntity({
     this.id,
     this.name,
+    this.avatar
   });
 
   UserEntity copyWith({
     int? id,
     String? name,
+    String? avatar,
   }) {
     return UserEntity(
       id: id ?? this.id,
       name: name ?? this.name,
+      avatar: avatar ?? this.avatar
     );
   }
 

@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/data/models/entities/task_entity.dart';
+import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
+import 'package:pm_app/app/features/widgets/custom_input_dialog.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../widgets/attendance_status_card.dart';
@@ -15,6 +21,7 @@ import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import '../attendance/attendance_data_page.dart';
 import '../attendance/explanation/explanation_approval_page.dart';
 import '../notification/noti_page.dart';
+import '../task/widget/list_task_item.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,7 +41,10 @@ class _HomePageState extends State<HomePage> {
     if((_appCubit.state.listTaskStages ?? []).isEmpty){
       _appCubit.getListTaskStages();
     }
+
     _cubit.getListAttendanceToday();
+    _cubit.getListNewTasks();
+
     super.initState();
   }
 
@@ -69,6 +79,22 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => WorkEntryPage()));
   }
 
+  void _openCheckIn(){
+    Navigator.push(context, MaterialPageRoute(builder: (_) =>
+        CheckInPage(
+          isFromHome: true,
+        )
+    ));
+  }
+
+  void _openOnLeave(){
+    Navigator.push(context, MaterialPageRoute(builder: (_) =>
+        OnLeavePage(
+          isFromHome: true,
+        )
+    ));
+  }
+
   void _openTaskList() {
     Navigator.push(context, MaterialPageRoute(builder: (_) => TaskManagePage()));
   }
@@ -95,6 +121,7 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
@@ -204,20 +231,61 @@ class _HomePageState extends State<HomePage> {
                   ),
 
                   const SizedBox(height: 38),
-                  Text(
-                    "Lịch sử chấm công",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.menuText,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Việc cần làm",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.menuText,
+                        ),
+                      ),
+                      InkWell(
+                        onTap: _openTaskList,
+                        child: Text(
+                          "Xem tất cả",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.menuText,
+                          ),
+                        ),
+                      )
+                    ],
                   ),
+                  const SizedBox(height: 16,),
+                  _listTask,
+                  const SizedBox(height: 60,),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  get _listTask {
+    return BlocBuilder<HomeCubit,HomeState>(
+      bloc: _cubit,
+      buildWhen: (prev,cur) => prev.listNewTasks != cur.listNewTasks,
+      builder: (context,state){
+        return Column(
+          children: (state.listNewTasks ??[]).map((task){
+            return ListTaskItem(entity: task,
+              isShowNote: true,
+              onAddTaskNote: (){
+                onTaskTakeNote(task);
+              },
+              onShowChangeStatus: (){
+                // _updateTaskStatus(entity);
+              },
+            ).paddingOnly(bottom: 20);
+          }).toList(),
+        );
+      },
     );
   }
 
@@ -242,5 +310,21 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  // helper funcs
+  void onTaskTakeNote(TaskEntity entity) async{
+    final note = await CustomInputDialog.show(
+      context,
+      title: 'Ghi chú công việc',
+      content: '',
+      hintText: '',
+      maxLines: 4,
+    );
+
+    if (note != null) {
+      logger.d("noteee :: $note");
+      // call api take note
+    }
   }
 }

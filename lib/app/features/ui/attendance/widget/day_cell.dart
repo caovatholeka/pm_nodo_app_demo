@@ -9,6 +9,7 @@ class DayCell extends StatelessWidget {
 
   const DayCell({this.date, this.code, this.dimmed = false,
     this.isSelected = false, this.onTap});
+
   const DayCell.empty()
       : date = null, code = null, dimmed = true,isSelected = false, onTap = null;
 
@@ -32,7 +33,7 @@ class DayCell extends StatelessWidget {
     final bgDecoration = isSelected
         ? BoxDecoration(
       color: Colors.blue,
-      borderRadius: BorderRadius.circular(10),
+      shape: BoxShape.circle,
     )
         : (isToday
         ? const BoxDecoration(
@@ -41,7 +42,7 @@ class DayCell extends StatelessWidget {
 
     String textDay = '${date!.day}';
     if((code ?? "") == "MS" || (code ?? "") == "C"){
-      textDay = '${date!.day} \n .';
+      textDay = '${date!.day}';
     }
     return InkWell(
       onTap: onTap,
@@ -58,6 +59,7 @@ class DayCell extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
+                fontSize: 16,
                 color: isToday
                     ? Colors.white
                     : color.withOpacity(dimmed ? 0.35 : 1.0),

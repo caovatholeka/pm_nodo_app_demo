@@ -137,7 +137,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<HomeCubit>(
-        () => HomeCubit(userRepository: sl()),
+        () => HomeCubit(userRepository: sl(), taskRepository: sl()),
   );
 
   sl.registerLazySingleton<ExplanationCubit>(
