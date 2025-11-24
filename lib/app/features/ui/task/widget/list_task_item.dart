@@ -10,12 +10,16 @@ class ListTaskItem extends StatelessWidget {
   final TaskEntity entity;
   final VoidCallback? onShowDetail;
   final VoidCallback? onShowChangeStatus;
+  final VoidCallback? onAddTaskNote;
+  final bool? isShowNote;
 
   ListTaskItem(
       {Key? key,
         required this.entity,
         this.onShowDetail,
-        this.onShowChangeStatus
+        this.onShowChangeStatus,
+        this.onAddTaskNote,
+        this.isShowNote
       })
       : super(key: key);
 
@@ -182,8 +186,23 @@ class ListTaskItem extends StatelessWidget {
                 height: 32,
                 width: double.infinity,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Spacer(),
+                    (isShowNote ?? false) ?
+                    InkWell(
+                      onTap: onAddTaskNote,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add,size: 21,).paddingOnly(right: 6),
+                          Text("Ghi chú kết quả", style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textGray600
+                          ),)
+                        ],
+                      ),
+                    ) : Spacer(),
                     Row(
                       children: [
                         Text("19/11/2025 15:04:09",

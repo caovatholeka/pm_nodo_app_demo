@@ -91,12 +91,17 @@ abstract class ApiClient {
   @GET("/metadata/leave_types")
   Future<CommonResponse> getListLeavesType();
 
+  //Danh sách chấm công
   @GET("/work_entry/attendance/by_month")
   Future<List<AttendanceEntity>> getListAttendances(
     @Query("employee_id") int? employeeId,
     @Query("month") int? month,
     @Query("year") int? year,
   );
+
+  // Chi tiết chấm công
+  @GET("/work_entry/attendance_detail")
+  Future<CommonResponse> getDetailWorkEntry(@Query("attendance_id") int? attendanceId,);
 
   @POST('/work_entry/user/entries')
   Future<CommonResponse> getListWorkEntry(@Body() Map<String, dynamic> body);

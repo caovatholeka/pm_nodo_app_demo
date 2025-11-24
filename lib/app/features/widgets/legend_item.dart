@@ -3,26 +3,35 @@ import 'package:flutter/material.dart';
 class LegendItem extends StatelessWidget {
   const LegendItem({
     super.key,
-    required this.iconPath,
+    this.iconPath,
     required this.label,
+    required this.color
   });
 
-  final String iconPath;
+  final String? iconPath;
   final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Image.asset(
-          iconPath,
-          width: 16,
-          height: 16,
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: color,
+              width: 3
+            )
+          ),
         ),
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 14),
+          style: const TextStyle(fontSize: 12.5
+          ),
         ),
       ],
     );

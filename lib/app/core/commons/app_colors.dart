@@ -39,6 +39,7 @@ class AppColors {
   static const Color textGray600 = Color(0xFF535862);
   static const Color textGray500 = Color(0xFF717680);
   static const Color textBlack600 = Color(0xFF282828);
+  static const Color textGrayB3 = Color(0xFF8F9BB3);
 
   static const Color newNotification = Color.fromRGBO(15, 150, 135, 1);
   static const Color subtitle = Color.fromRGBO(81, 89, 120, 1);

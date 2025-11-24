@@ -8,6 +8,8 @@ import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanatio
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/development_alert_dialog.dart';
 
+import '../../../core/commons/app_colors.dart';
+
 
 class AttendanceDataPage extends StatefulWidget {
   const AttendanceDataPage({super.key});
@@ -21,6 +23,9 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
   late TabController _tabController;
 
   final _cubit = GetIt.I<AttendanceDataCubit>();
+
+  late PageController _pageController;
+  int activeIndex = 0;
 
   @override
   void initState() {
@@ -38,6 +43,7 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.bodyColor,
       appBar: MyAppBar(
         titleAppbar: "Dữ liệu chấm công",
         haveBackButton: true,
@@ -47,49 +53,45 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
       ),
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Image.asset(
-              AppAssets.imgBg2,
-              fit: BoxFit.cover,
-            ),
-          ),
           SafeArea(
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: TabBar(
-                    controller: _tabController,
-                    indicator: const UnderlineTabIndicator(
-                      borderSide: BorderSide(width: 3, color: Colors.white),
-                      insets: EdgeInsets.symmetric(horizontal: 32.0),
+                  padding: const EdgeInsets.only(left : 16,right:16,top: 6),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AppColors.whiteColor,
+                      borderRadius: BorderRadius.all(Radius.circular(10))
                     ),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white70,
-                    dividerColor: Colors.transparent,
-                    labelStyle: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                    child: TabBar(
+                      padding: const EdgeInsets.symmetric(horizontal: 2,vertical: 2),
+                      controller: _tabController,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicatorPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 14),
+                      indicator: BoxDecoration(
+                          color: Color(0xFFF3F3F3),
+                          borderRadius: BorderRadius.circular(6),
+                      ),
+                      labelColor:AppColors.themePrimaryDefault,
+                      unselectedLabelColor: AppColors.themeBlackDefault,
+                      dividerColor: Colors.transparent,
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                      tabs: const [
+                        Tab(text: "Dữ liệu chấm công"),
+                        Tab(text: "Giải trình công"),
+                      ],
                     ),
-                    tabs: const [
-                      Tab(text: "Dữ liệu chấm công"),
-                      Tab(text: "Giải trình công"),
-                    ],
                   ),
                 ),
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.only(top: 12),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
-                      ),
-                      boxShadow: AppShadow.pageBoxShadow,
-                    ),
+                    padding: const EdgeInsets.only(left: 16, right: 16),
                     child: TabBarView(
                       controller: _tabController,
                       children: [

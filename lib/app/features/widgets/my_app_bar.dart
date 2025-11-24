@@ -47,15 +47,26 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-
-        leading: haveBackButton!
-            ? _AppBarBackButton(
-                icon: AppAssets.icBack,
-                onTap: backAction ?? () {
-                  Navigator.of(context).maybePop();
-                },
-              )
-            : const SizedBox(),
+        flexibleSpace: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(AppAssets.appbarBg),
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+        leading:
+            haveBackButton!
+                ? Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: GestureDetector(
+                      onTap: backAction ?? () {Navigator.of(context).maybePop(); },
+                      child: SvgPicture.asset(AppAssets.icBack,width: 30,height: 30,)
+                  ),
+                )
+                : const SizedBox(),
 
         actions: [
           haveActionButton! && iconPathAsset != null

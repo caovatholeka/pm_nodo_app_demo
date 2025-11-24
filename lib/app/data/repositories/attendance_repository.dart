@@ -5,6 +5,9 @@ import '../models/response/common_response.dart';
 abstract class AttendanceRepository {
   Future<List<AttendanceEntity>> getListAttendances(int? employeeId, int? month, int? year);
   Future<CommonResponse> getListAttendanceHistory(String? dateFrom,String? dateTo);
+  // chi tiet cham cong
+  Future<CommonResponse> getDetailWorkEntry(int attendanceId);
+
 }
 
 class AttendanceRepositoryImpl extends AttendanceRepository {
@@ -20,5 +23,10 @@ class AttendanceRepositoryImpl extends AttendanceRepository {
   @override
   Future<CommonResponse> getListAttendanceHistory(String? dateFrom,String? dateTo) async {
     return _apiClient.getListAttendanceHistory(dateFrom,dateTo);
+  }
+
+  @override
+  Future<CommonResponse> getDetailWorkEntry(int attendanceId) async {
+    return await _apiClient.getDetailWorkEntry(attendanceId);
   }
 }
