@@ -37,7 +37,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        leadingWidth: 60,
+        // leadingWidth: 60,
 
         title: Text(
           titleAppbar,
@@ -63,7 +63,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                   padding: const EdgeInsets.only(left: 16),
                   child: GestureDetector(
                       onTap: backAction ?? () {Navigator.of(context).maybePop(); },
-                      child: SvgPicture.asset(AppAssets.icBack,width: 30,height: 30,)
+                      child: SvgPicture.asset(AppAssets.icBack)
                   ),
                 )
                 : const SizedBox(),

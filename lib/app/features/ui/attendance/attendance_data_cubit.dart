@@ -18,6 +18,13 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
 
   AttendanceDataCubit({required this.repository}) : super(AttendanceDataState());
 
+  resetStatus(){
+    emit(state.copyWith(
+      loadStatus: LoadStatus.INITIAL,
+      detailStatus: LoadStatus.INITIAL
+    ));
+  }
+
  // lay danh sach cham cong
   Future<void> getListAttendances(DateTime anyMonth) async{
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));

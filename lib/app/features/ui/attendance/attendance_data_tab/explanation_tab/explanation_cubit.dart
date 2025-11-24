@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/helper/response_mapper.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
+import 'package:pm_app/app/data/models/entities/work_entry_entity.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/di/di.dart';
 
 import '../../../../../core/commons/global_data.dart';
@@ -25,6 +28,10 @@ class ExplanationCubit extends Cubit<ExplanationState> {
   void resetSubmitSuccess() {
   emit(state.copyWith(submitSuccess: false));
 }
+
+  resetStatus(){
+    emit(state.copyWith(sendInvalidStatus: LoadStatus.INITIAL));
+  }
 
 
   // Future<void> fetchProfile() async {
@@ -70,12 +77,19 @@ class ExplanationCubit extends Cubit<ExplanationState> {
       final param = {
         "limit": 20,
         "offset": 0,
-        "date_from": "2025-10-01",
-        "date_to": "2025-10-30"
+        // "date_from": "2025-10-01",
+        // "date_to": "2025-10-30"
       };
       final res = await repository.getWorkEntries(param);
+      List<WorkEntryEntity>? list;
       if(res.data != null){
-        logger.d("resss ::: ${res.data.toString()}");
+        list = mapList(res.data, WorkEntryEntity.fromJson);
+
+        if(list.isNotEmpty){
+          emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listWorkEntries: list));
+        }else{
+          emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listWorkEntries: []));
+        }
       }
     }catch(e,s){
       logger.d(e);
@@ -84,6 +98,28 @@ class ExplanationCubit extends Cubit<ExplanationState> {
     }
   }
 
+  Future<void> sendInvalidReason(String date) async {
+    emit(state.copyWith(sendInvalidStatus: LoadStatus.LOADING));
+
+    try{
+      final param = {
+        "employee_id": GlobalData.instance.userProfile?.employeeId,
+        "date": date,
+        "date_start_employee_commit": 8.5,
+        "date_stop_employee_commit": 18.0,
+        "note": state.reason,
+      };
+      final res = await repository.sendInvalid(param);
+      if(res.data != null){
+        emit(state.copyWith(sendInvalidStatus: LoadStatus.SUCCESS));
+      }
+    }catch(e){
+      logger.d(e);
+      emit(state.copyWith(sendInvalidStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  /*
   Future<void> sendInvalidReason() async {
     emit(state.copyWith(isLoading: true, submitSuccess: false));
 
@@ -121,5 +157,17 @@ class ExplanationCubit extends Cubit<ExplanationState> {
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
+  }
+   */
+
+  void onChangeReason(String reason) {
+    logger.d("reson :: $reason");
+    emit(state.copyWith(reason: reason));
+  }
+
+  Future<void> setYearMonth(int year, int month) async {
+    emit(state.copyWith(selectedYear: year,
+        selectedMonth: month));
+    // await getListAttendances(DateTime(year, month , 1));
   }
 }

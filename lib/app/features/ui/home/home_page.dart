@@ -275,9 +275,9 @@ class _HomePageState extends State<HomePage> {
         return Column(
           children: (state.listNewTasks ??[]).map((task){
             return ListTaskItem(entity: task,
-              isShowNote: true,
+              isShowNote: false,
               onAddTaskNote: (){
-                onTaskTakeNote(task);
+                // onTaskTakeNote(task);
               },
               onShowChangeStatus: (){
                 // _updateTaskStatus(entity);

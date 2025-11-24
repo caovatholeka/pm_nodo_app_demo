@@ -106,6 +106,6 @@ class AppAssets {
   static final icSuccess = 'assets/images/icons/ic_success.svg';
   static final icFailed = 'assets/images/icons/ic_failed.svg';
   static final icStar = 'assets/images/icons/ic_star.svg';
-  static final icBack = 'assets/images/icons/icBack.svg';
+  static final icBack = 'assets/images/icons/ic_back.svg';
   static final icNotificationPF = 'assets/images/icons/icNotificationPF.svg';
 }

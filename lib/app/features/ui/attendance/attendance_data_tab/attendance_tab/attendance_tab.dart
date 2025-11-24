@@ -114,11 +114,13 @@ class _AttendanceTabState extends State<AttendanceTab> {
             state.detailStatus == LoadStatus.LOADING){
             LoadingOverlay.show(context);
           }else if(state.detailStatus == LoadStatus.SUCCESS){
+            widget.cubit.resetStatus();
             LoadingOverlay.hide(context);
             // show popup
             _showSelectedDayDialog(state.listDetailEntry?.first ?? WorkEntity());
           }
           else{
+            widget.cubit.resetStatus();
             LoadingOverlay.hide(context);
           }
         },
@@ -184,12 +186,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                       List<WorkEntity> entries = state.entriesByDate?[key] ?? const [];
                       if(entries.isNotEmpty){
                         // show popup
-                        logger.d("entry selected :: ${entries.first.id} ");
                         widget.cubit.getDetailWorkEntry(entries.first.id ?? 0);
-                        // String day = Utils().dayLabel(date);
-                        // widget.cubit.onChangeSelectedDateTime(day);
-                        // widget.cubit.onChangeSelectedEntries(entries);
-                        // widget.cubit.onChangeSelectedDate(date);
                       }
 
                     },
