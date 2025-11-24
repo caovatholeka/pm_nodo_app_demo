@@ -31,7 +31,6 @@ class AppAssets {
   static final icAccountInactive = 'assets/images/icons/ic_profile.svg';
 
   static final blockBg1 = 'assets/images/icons/block_bg_1.svg';
-  static final icBack = 'assets/images/icons/ic_back.svg';
 
   static final icEyeVisible = 'assets/images/icons/ic_eye_visible.svg';
   static final icEyeClose = 'assets/images/icons/ic_eye_close.svg';
@@ -42,7 +41,6 @@ class AppAssets {
   static final ic_boxG = 'assets/images/icons/ic_box_green.png';
   static final ic_boxR = 'assets/images/icons/ic_box_red.png';
   static final ic_boxY = 'assets/images/icons/ic_box_yellow.png';
-  static final icGoBack = 'assets/images/icons/ic_goBack.svg';
   static final icReadAll = 'assets/images/icons/ic_readAll.svg';
   
   static final ic_read_all = 'assets/images/icons/ic_read_all.png';
@@ -73,7 +71,6 @@ class AppAssets {
   static final icArrowDown = 'assets/images/icons/ic_arrow_down.svg';
   static final icCalendar = 'assets/images/icons/ic_calendar.svg';
   static final icCamera = 'assets/images/icons/ic_camera.svg';
-  static final icNotificationPF = 'assets/images/icons/ic_profile_notification.svg';
 
   //Activity Icons
   static final icCheckin = 'assets/images/icons/ic_checkin.png';
@@ -109,4 +106,6 @@ class AppAssets {
   static final icSuccess = 'assets/images/icons/ic_success.svg';
   static final icFailed = 'assets/images/icons/ic_failed.svg';
   static final icStar = 'assets/images/icons/ic_star.svg';
+  static final icBack = 'assets/images/icons/icBack.svg';
+  static final icNotificationPF = 'assets/images/icons/icNotificationPF.svg';
 }

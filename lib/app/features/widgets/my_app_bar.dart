@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   MyAppBar({
@@ -36,42 +37,32 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
+        leadingWidth: 60,
 
         title: Text(
           titleAppbar,
           style: const TextStyle(
-            color: Color.fromARGB(255, 0, 0, 0),
+            color: Colors.white, 
             fontSize: 18,
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w600,
           ),
         ),
 
-        leading:
-            haveBackButton!
-                ? IconButton(
-                  onPressed:
-                      backAction ??
-                      () {
-                        Navigator.of(context).maybePop();
-                      },
-                  icon: Image.asset(AppAssets.ic_arrowB, width: 30, height: 30),
-                )
-                : const SizedBox(),
+        leading: haveBackButton!
+            ? _AppBarBackButton(
+                icon: AppAssets.icBack,
+                onTap: backAction ?? () {
+                  Navigator.of(context).maybePop();
+                },
+              )
+            : const SizedBox(),
 
         actions: [
           haveActionButton! && iconPathAsset != null
-              ? Container(
-                margin: const EdgeInsets.only(right: 20),
-                child: InkWell(
+              ? _AppBarActionButton(
+                  icon: iconPathAsset!,
                   onTap: actionCallBack,
-                  borderRadius: BorderRadius.circular(30),
-                  child: SvgPicture.asset(
-                    iconPathAsset!,
-                    width: 26,
-                    height: 26,
-                  ),
-                ),
-              )
+                )
               : const SizedBox(),
         ],
 
@@ -85,4 +76,76 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       (bottom != null)
           ? const Size.fromHeight(112.0)
           : const Size.fromHeight(kToolbarHeight);
+}
+
+class _AppBarBackButton extends StatelessWidget {
+  final String icon;
+  final VoidCallback? onTap;
+
+  const _AppBarBackButton({
+    required this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 16), 
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          width: 44,  
+          height: 44,    
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16), 
+            color: Colors.white,
+          ),
+          alignment: Alignment.center,
+          child: SvgPicture.asset(
+            icon,
+            width: 16, 
+            height: 16,
+            color: Colors.black, 
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AppBarActionButton extends StatelessWidget {
+  final String icon;
+  final VoidCallback? onTap;
+
+  const _AppBarActionButton({
+    required this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          alignment: Alignment.center,
+          child: SvgPicture.asset(
+            icon,
+            width: 20,
+            height: 20,
+            color: AppColors.themePrimaryDefault,
+          ),
+        ),
+      ),
+    );
+  }
 }

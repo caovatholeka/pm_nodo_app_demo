@@ -14,7 +14,6 @@ import '../auth/login/login_page.dart';
 import '../account/change_languge/change_languge_page.dart';
 import '../account/personal_info/personal_info_page.dart';
 import '../account/changepassword/change_password_page.dart';
-import '../account/changepassword/change_password_cubit.dart';
 
 import 'account_cubit.dart';
 import 'account_state.dart';
@@ -124,11 +123,6 @@ class _AccountPageState extends State<AccountPage> {
                     color: Colors.white,
                   ),
                 ),
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-
                 flexibleSpace: FlexibleSpaceBar(
                   background: _header(profile, state.loadStatus),
                 ),
@@ -138,10 +132,6 @@ class _AccountPageState extends State<AccountPage> {
                 child: Container(
                   width: double.infinity,
                   color: const Color(0xFFF4F6F8),
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height - 240,
-                  ),
-
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 18,
@@ -150,7 +140,7 @@ class _AccountPageState extends State<AccountPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 10),
+                        padding: const EdgeInsets.only(left: 4, bottom: 8),
                         child: Text(
                           "General",
                           style: TextStyle(
@@ -166,36 +156,30 @@ class _AccountPageState extends State<AccountPage> {
                           _menuItem(
                             icon: AppAssets.icUser,
                             title: "Thông tin cá nhân",
-                            onTap: () {
-                              _goInfo();
-                            },
+                            onTap: _goInfo,
                           ),
                           _menuItem(
-                            icon: AppAssets.ic_notification,
+                            icon: AppAssets.icNotificationPF,
                             title: "Thông báo",
                             onTap: () {},
                           ),
                           _menuItem(
                             icon: AppAssets.icProtect,
                             title: "Thiết lập mật khẩu",
-                            onTap: () {
-                              _goPassword();
-                            },
+                            onTap: _goPassword,
                           ),
                           _menuItem(
                             icon: AppAssets.icLangague,
                             title: "Ngôn ngữ",
-                            onTap: () {
-                              _goLanguge();
-                            },
+                            onTap: _goLanguge,
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 12),
 
                       Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 10),
+                        padding: const EdgeInsets.only(left: 4, bottom: 8),
                         child: Text(
                           "About",
                           style: TextStyle(
@@ -226,7 +210,7 @@ class _AccountPageState extends State<AccountPage> {
                         ],
                       ),
 
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -245,7 +229,6 @@ class _AccountPageState extends State<AccountPage> {
         Positioned.fill(
           child: SvgPicture.asset(AppAssets.profileBG, fit: BoxFit.cover),
         ),
-
         Padding(
           padding: const EdgeInsets.only(bottom: 25),
           child:
@@ -275,7 +258,6 @@ class _AccountPageState extends State<AccountPage> {
                               ),
                             ),
                           ),
-
                           Container(
                             width: 28,
                             height: 28,
@@ -287,9 +269,7 @@ class _AccountPageState extends State<AccountPage> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 12),
-
                       Text(
                         profile.name ?? "",
                         style: const TextStyle(
@@ -298,9 +278,7 @@ class _AccountPageState extends State<AccountPage> {
                           color: Colors.white,
                         ),
                       ),
-
                       const SizedBox(height: 6),
-
                       Padding(
                         padding: const EdgeInsets.only(right: 30),
                         child: Text(
@@ -317,20 +295,6 @@ class _AccountPageState extends State<AccountPage> {
                   : const Text(""),
         ),
       ],
-    );
-  }
-
-  Widget _title(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: Colors.grey.shade600,
-        ),
-      ),
     );
   }
 
@@ -353,17 +317,16 @@ class _AccountPageState extends State<AccountPage> {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
         child: Row(
           children: [
-            Container(
+            SizedBox(
               width: 40,
               height: 40,
               child: Center(
                 child: SvgPicture.asset(icon, width: 20, height: 20),
               ),
             ),
-
             const SizedBox(width: 14),
             Expanded(
               child: Text(
@@ -375,10 +338,9 @@ class _AccountPageState extends State<AccountPage> {
                 ),
               ),
             ),
-
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
-              child: const Icon(
+            const Padding(
+              padding: EdgeInsets.only(right: 6),
+              child: Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
                 color: Colors.grey,

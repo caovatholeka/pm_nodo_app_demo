@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class OtpVerifyPage extends StatefulWidget {
   final String email;
@@ -63,14 +63,13 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   void _onSubmit() {
     final otp = _otpCtrls.map((e) => e.text).join();
     if (otp.length != 6) {
-      showDialog(
-        context: context,
-        builder: (_) => CustomDialog(
-          title: "Lỗi",
-          content: "Mã OTP chưa đủ 6 ký tự",
-          iconPath: AppAssets.ic_delete,
-        ),
-      );
+      Flushbar(
+        message: "Mã OTP chưa đủ 6 ký tự",
+        backgroundColor: Colors.redAccent,
+        duration: const Duration(seconds: 2),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(12),
+      ).show(context);
       return;
     }
 
@@ -78,7 +77,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   }
 
   void _onResend() {
-    if (_timeLeft > 0) return; 
+    if (_timeLeft > 0) return;
 
     context.read<OtpVerifyCubit>().resendOTP(
           email: widget.email,
@@ -103,14 +102,13 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
     return BlocConsumer<OtpVerifyCubit, OtpVerifyState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
-          showDialog(
-            context: context,
-            builder: (_) => CustomDialog(
-              title: "Lỗi",
-              content: state.errorMessage!,
-              iconPath: AppAssets.ic_delete,
-            ),
-          );
+          Flushbar(
+            message: state.errorMessage!,
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 2),
+            flushbarPosition: FlushbarPosition.TOP,
+            margin: const EdgeInsets.all(12),
+          ).show(context);
           return;
         }
 
@@ -125,14 +123,13 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
 
         if (state.resendStatus == LoadStatus.SUCCESS &&
             state.verifyStatus != LoadStatus.LOADING) {
-          showDialog(
-            context: context,
-            builder: (_) => CustomDialog(
-              title: "Thành công",
-              content: "Mã OTP mới đã được gửi",
-              iconPath: AppAssets.ic_done,
-            ),
-          );
+          Flushbar(
+            message: "Mã OTP mới đã được gửi",
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            flushbarPosition: FlushbarPosition.TOP,
+            margin: const EdgeInsets.all(12),
+          ).show(context);
         }
       },
       builder: (context, state) {
