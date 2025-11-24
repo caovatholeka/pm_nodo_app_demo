@@ -49,6 +49,9 @@ class EmployeeEntity {
   @JsonKey()
   bool? active;
 
+  @JsonKey(name:"date_join_company")
+  String? dateJoinCompany;
+
 
   EmployeeEntity({
     this.id,
@@ -66,6 +69,7 @@ class EmployeeEntity {
     this.phone,
     this.currentAddress,
     this.birthday,
+    this.dateJoinCompany
   });
 
   EmployeeEntity copyWith({
@@ -84,6 +88,7 @@ class EmployeeEntity {
     String? phone,
     bool? currentAddress,
     String? birthday,
+    String? dateJoinCompany
   }) {
     return EmployeeEntity(
       id: id ?? this.id,
@@ -101,6 +106,7 @@ class EmployeeEntity {
       phone: phone ?? this.phone,
       currentAddress: currentAddress ?? this.currentAddress,
       birthday: birthday ?? this.birthday,
+      dateJoinCompany: dateJoinCompany ?? this.dateJoinCompany,
     );
   }
 

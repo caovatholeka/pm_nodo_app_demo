@@ -44,7 +44,7 @@ class InfoRowSpecial extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF1976D2), 
+                  color: Color.fromARGB(255, 19, 117, 254), 
                 ),
               ),
             ],

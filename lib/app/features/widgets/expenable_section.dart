@@ -62,11 +62,23 @@ class _ExpandableSectionState extends State<ExpandableSection>
   TextStyle getTitleStyle() {
     switch (widget.style) {
       case ExpandableStyle.primary:
-        return const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF222222));
+        return const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF222222),
+        );
       case ExpandableStyle.secondary:
-        return const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF222222));
+        return const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF222222),
+        );
       case ExpandableStyle.minimal:
-        return const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Color(0xFF222222));
+        return const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: Color.fromARGB(255, 118, 118, 118),
+        );
     }
   }
 
@@ -85,19 +97,19 @@ class _ExpandableSectionState extends State<ExpandableSection>
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: const Color.fromARGB(0, 255, 255, 255)),
+        data: Theme.of(
+          context,
+        ).copyWith(dividerColor: const Color.fromARGB(0, 255, 255, 255)),
         child: ExpansionTile(
           title: Text(widget.title, style: getTitleStyle()),
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 10),
           trailing: RotationTransition(
             turns: _arrowAnimation,
             child: Icon(
               Icons.keyboard_arrow_up,
-              size: 22,
+              size: 20,
               color: getArrowColor(),
             ),
           ),
@@ -107,16 +119,18 @@ class _ExpandableSectionState extends State<ExpandableSection>
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              decoration: BoxDecoration(
-                color: getContentBackground(),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(12),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: widget.children,
               ),
-            )
+            ),
           ],
         ),
       ),

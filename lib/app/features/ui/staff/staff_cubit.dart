@@ -6,6 +6,7 @@ import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import '../../../core/logger/logger.dart';
+
 part 'staff_state.dart';
 
 class StaffCubit extends Cubit<StaffState> {
@@ -15,70 +16,100 @@ class StaffCubit extends Cubit<StaffState> {
 
   static const int page = 1;
   static const int limit = 10;
-  Future<void> getListEmployees() async {
-    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
-    try {
-      final results = await repository.getListEmployees(
-        limit: limit,
-        page: page,
-      );
 
-      List<EmployeeEntity> employees = [];
-      if (results.data != null) {
-        employees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
-      }
+  Future<void> getListEmployees({
+    String? query,
+    EmployeeFilterParam? filter,
+  }) async {
+    final trimmedQuery = query?.trim();
+    final bool isSearching = trimmedQuery != null && trimmedQuery.isNotEmpty;
 
-      emit(state.copyWith(
-        listEmployees: employees,
-        loadStatus: LoadStatus.SUCCESS,
-      ));
-    } catch (e) {
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
-    }
-  }
+    final EmployeeFilterParam? effectiveFilter = isSearching ? null : filter;
 
-  Future<void> searchEmployees(String query) async {
-    final q = query.trim();
-    if (q.isEmpty) {
-      await getListEmployees();
-      return;
-    }
+    emit(
+      state.copyWith(
+        loadStatus: LoadStatus.LOADING,
+        page: 1,
+        listEmployees: [],
+        totalPages: 1,
+        filterParam: effectiveFilter,
+      ),
+    );
 
-    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
+    String? nameParam;
+    String? codeParam;
+    int? departmentId;
+    String? jobTitle;
+    bool? active;
 
-    try {
-      String? nameParam;
-      String? codeParam;
-
-      final isCode = RegExp(r'^[0-9]+$').hasMatch(q) || q.toUpperCase().startsWith('NV');
-      if (isCode) {
+    if (isSearching) {
+      final q = trimmedQuery!;
+      if (RegExp(r'^[0-9]+$').hasMatch(q)) {
         codeParam = q;
       } else {
         nameParam = q;
       }
+    } else if (effectiveFilter != null) {
+      nameParam = effectiveFilter.name;
+      codeParam = effectiveFilter.code;
+      departmentId = effectiveFilter.departmentId;
+      jobTitle = effectiveFilter.jobTitle;
+      active = effectiveFilter.active;
+    }
 
+    try {
       final results = await repository.getListEmployees(
-        limit: limit,
+        limit: (isSearching || effectiveFilter != null) ? 100 : limit,
         page: 1,
         name: nameParam,
         code: codeParam,
+        departmentId: departmentId,
+        jobTitle: jobTitle,
+        active: active,
       );
 
       List<EmployeeEntity> employees = [];
       if (results.data != null) {
-        employees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
+        employees = mapList<EmployeeEntity>(
+          results.data,
+          EmployeeEntity.fromJson,
+        );
       }
 
-      emit(state.copyWith(
-        listEmployees: employees,
-        loadStatus: LoadStatus.SUCCESS,
-      ));
+      emit(
+        state.copyWith(
+          listEmployees: employees,
+          loadStatus: LoadStatus.SUCCESS,
+          page: 1,
+          totalPages:
+              (isSearching || effectiveFilter != null)
+                  ? 1
+                  : results.total_pages,
+          filterParam: effectiveFilter,
+        ),
+      );
     } catch (e) {
+      logger.d(e);
       emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
     }
   }
 
+  void clearFilter() {
+    emit(
+      state.copyWith(
+        filterParam: null,
+        page: 1,
+        totalPages: 1,
+        listEmployees: [],
+      ),
+    );
+
+    getListEmployees();
+  }
+
   void onLoadMore() async {
+    if (state.filterParam != null) return;
+
     final currentPage = state.page;
     final totalPages = state.totalPages;
 
@@ -95,87 +126,41 @@ class StaffCubit extends Cubit<StaffState> {
     emit(state.copyWith(loadEventStatus: LoadStatus.LOADING_MORE));
     try {
       final nextOffset = currentPage + 1;
-      final results = await repository.getListEmployees(limit: limit, page: nextOffset);
+      final results = await repository.getListEmployees(
+        limit: limit,
+        page: nextOffset,
+      );
 
       List<EmployeeEntity> newPage = [];
       if (results.data != null) {
-        newPage = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
+        newPage = mapList<EmployeeEntity>(
+          results.data,
+          EmployeeEntity.fromJson,
+        );
       }
 
-      final existing = List<EmployeeEntity>.from(state.listEmployees ?? const []);
+      final existing = List<EmployeeEntity>.from(
+        state.listEmployees ?? const [],
+      );
       final merged = [...existing, ...newPage];
 
-      emit(state.copyWith(
-        loadStatus: LoadStatus.SUCCESS,
-        loadEventStatus: LoadStatus.SUCCESS,
-        listEmployees: merged,
-        page: results.page,
-        totalPages: results.total_pages,
-      ));
+      emit(
+        state.copyWith(
+          loadStatus: LoadStatus.SUCCESS,
+          loadEventStatus: LoadStatus.SUCCESS,
+          listEmployees: merged,
+          page: results.page,
+          totalPages: results.total_pages,
+        ),
+      );
     } catch (e) {
       logger.d(e);
-      emit(state.copyWith(
-        loadStatus: LoadStatus.FAILURE,
-        loadEventStatus: LoadStatus.FAILURE,
-      ));
+      emit(
+        state.copyWith(
+          loadStatus: LoadStatus.FAILURE,
+          loadEventStatus: LoadStatus.FAILURE,
+        ),
+      );
     }
   }
-
-Future<void> filterEmployees(EmployeeFilterParam param) async {
-  final hasNoFilter = (param.name == null || param.name!.isEmpty) &&
-      (param.code == null || param.code!.isEmpty) &&
-      (param.email == null || param.email!.isEmpty) &&
-      param.departmentId == null &&
-      (param.jobTitle == null || param.jobTitle!.isEmpty) &&
-      param.active == null;
-
-  if (hasNoFilter) {
-    return;
-  }
-
-  emit(state.copyWith(loadStatus: LoadStatus.LOADING));
-
-  try {
-    final results = await repository.getListEmployees(
-      limit: limit,
-      page: 1,
-      name: param.name,
-      code: param.code,
-      email: param.email,
-      departmentId: param.departmentId,
-      jobTitle: param.jobTitle,
-      active: param.active,
-    );
-
-    List<EmployeeEntity> employees = [];
-    if (results.data != null) {
-      employees = mapList<EmployeeEntity>(results.data, EmployeeEntity.fromJson);
-    }
-
-    emit(state.copyWith(
-      listEmployees: employees,
-      loadStatus: LoadStatus.SUCCESS,
-      filterParam: param,
-    ));
-  } catch (e) {
-    emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
-  }
-}
-
-Future<void> clearFilter() async {
-  emit(const StaffState(
-    loadStatus: LoadStatus.LOADING,
-    loadEventStatus: LoadStatus.INITIAL,
-    listEmployees: [],
-    page: 0,
-    totalPages: 0,
-  ));
-
-  try {
-    await getListEmployees();
-  } catch (e) {
-    emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
-  }
-}
-
 }

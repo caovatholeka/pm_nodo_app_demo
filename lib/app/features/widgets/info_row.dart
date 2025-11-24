@@ -20,7 +20,7 @@ class InfoRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: TextStyle(fontSize: 13, color: Color(0xFF9B9B9B))),
-        SizedBox(height: 6),
+        SizedBox(height: 1),
         Text(
           subtitle,
           style: TextStyle(

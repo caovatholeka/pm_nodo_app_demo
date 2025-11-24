@@ -147,6 +147,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     ExpandableSection(
                       title: "Hồ sơ cá nhân",
                       initiallyExpanded: true,
+                      style: ExpandableStyle.minimal,
                       children: [
                         InfoBoxSpecial(
                           children: [
@@ -171,6 +172,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     ),
                     ExpandableSection(
                       title: "Thông tin vị trí công tác",
+                      style: ExpandableStyle.minimal,
                       initiallyExpanded: true,
                       children: [
                         InfoBoxSpecial(
@@ -203,6 +205,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     ExpandableSection(
                       title: "Khác",
                       initiallyExpanded: true,
+                      style: ExpandableStyle.minimal,
                       children: [
                         InfoBoxSpecial(
                           children: [

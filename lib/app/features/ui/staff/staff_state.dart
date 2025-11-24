@@ -7,6 +7,7 @@ class StaffState extends Equatable {
   final int page;
   final int totalPages;
   final EmployeeFilterParam? filterParam;
+  
 
   const StaffState({
     this.loadStatus = LoadStatus.INITIAL,
@@ -24,6 +25,7 @@ class StaffState extends Equatable {
     int? page,
     int? totalPages,
     EmployeeFilterParam? filterParam,
+    bool clearFilter = false,
   }) {
     return StaffState(
       loadStatus: loadStatus ?? this.loadStatus,
@@ -31,7 +33,7 @@ class StaffState extends Equatable {
       listEmployees: listEmployees ?? this.listEmployees,
       page: page ?? this.page,
       totalPages: totalPages ?? this.totalPages,
-      filterParam: filterParam ?? this.filterParam,
+      filterParam: clearFilter ? null : (filterParam ?? this.filterParam),
     );
   }
 
