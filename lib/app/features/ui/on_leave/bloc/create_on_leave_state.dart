@@ -2,14 +2,15 @@ part of 'create_on_leave_cubit.dart';
 
 class CreateOnLeaveState extends Equatable {
   final LoadStatus createStatus;
-  String? leaveDateType;
-  String? leaveType;
+  final LoadStatus getTypeStatus;
+  String? leaveDateType; // loại ngày nghỉ
+  String? leaveType; // loại
   DateTime? fromDateTime;
   DateTime? toDateTime;
-  String? fromDate;
-  String? toDate;
-  String? reason;
-  String? leaveDays;
+  String? fromDate; // từ ngày
+  String? toDate;  // đến ngày
+  String? reason; // lý do
+  String? leaveDays; // số ngày nghỉ
 
   // loại ngày nghỉ
   List<MasterDataItem>? listDateTypeLeaves;
@@ -23,6 +24,7 @@ class CreateOnLeaveState extends Equatable {
   MasterDataItem? currentLeaveType;
 
   CreateOnLeaveState({
+    this.getTypeStatus = LoadStatus.INITIAL,
     this.createStatus = LoadStatus.INITIAL,
     this.leaveDateType,
     this.leaveType,
@@ -42,6 +44,7 @@ class CreateOnLeaveState extends Equatable {
   CreateOnLeaveState copyWith({
     bool resetDateTime = false,
     LoadStatus? createStatus,
+    LoadStatus? getTypeStatus,
     String? leaveDateType,
     String? leaveType,
     DateTime? fromDateTime,
@@ -60,6 +63,7 @@ class CreateOnLeaveState extends Equatable {
   }) {
     return CreateOnLeaveState(
       createStatus: createStatus ?? this.createStatus,
+      getTypeStatus: getTypeStatus ?? this.getTypeStatus,
       leaveDateType: leaveDateType ?? this.leaveDateType,
       leaveType: leaveType ?? this.leaveType,
       fromDateTime: resetDateTime ? null : (fromDateTime ?? this.fromDateTime),
@@ -79,6 +83,7 @@ class CreateOnLeaveState extends Equatable {
   @override
   List<Object?> get props => [
     createStatus,
+    getTypeStatus,
     leaveDateType,
     leaveType,
     fromDateTime,

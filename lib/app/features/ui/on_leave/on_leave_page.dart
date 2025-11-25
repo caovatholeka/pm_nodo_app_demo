@@ -103,6 +103,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bodyColor,
       appBar: MyAppBar(
         titleAppbar: "Quản lý nghỉ phép",
         haveActionButton: true,
@@ -112,50 +113,27 @@ class _OnLeavePageState extends State<OnLeavePage> {
           _goNotification();
         },
       ),
-      extendBodyBehindAppBar: true,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(AppAssets.appBG2),
-            fit: BoxFit.cover,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(padding: const EdgeInsets.only(left: 16, right: 16,top: 24),
+            child: _filterWidget,
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            const SizedBox(height: 120),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        _filterWidget,
-                        _listWidget,
-                        const SizedBox(height: 32),
-                      ],
-                    ),
-                  ),
-                ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _listWidget,
+                  const SizedBox(height: 32),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 48,)
+        ],
       ),
     );
   }
@@ -203,7 +181,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
             },
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 12),
         Expanded(
           flex: 1,
           child: InkWell(
@@ -211,14 +189,14 @@ class _OnLeavePageState extends State<OnLeavePage> {
               _createNewLeave();
             },
             child: Container(
-              height: 46,
-              width: 50,
+              height: 44,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(10)),
                 color: AppColors.mainPrimaryColor6,
               ),
+              padding: const EdgeInsets.all(12),
               child: Center(
-                child: Icon(Icons.add, color: AppColors.whiteColor),
+                child: Icon(Icons.add, color: AppColors.whiteColor, size: 16,),
               ),
             ),
           ),

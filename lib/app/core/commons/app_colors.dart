@@ -56,8 +56,8 @@ class AppColors {
   static const Color bgGray = Color(0xFFF5F6F9);
 
   // nghi phep
-  static const Color colorDraft = Color(0xFFC47600);
-  static const Color colorApproved = Color(0xFF037847);
+  static const Color colorDraft = Color(0xFFFF9900);
+  static const Color colorApproved = Color(0xFF006CFF);
   static const Color colorFinished = Color.fromARGB(255, 36, 181, 4);
   static const Color colorCancel = Color(0xFFD21D0D);
   

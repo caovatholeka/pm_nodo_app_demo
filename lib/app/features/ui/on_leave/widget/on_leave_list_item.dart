@@ -108,12 +108,10 @@ class OnLeaveListItem extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Thanh màu bo góc bên trong nhờ ClipRRect phía ngoài
                 Container(
                   width: 4,
                   decoration: BoxDecoration(
                     color: getStatusColor(statusId),
-                    // không cần radius lớn ở đây vì ClipRRect sẽ xử lý phần bo
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10),
                       bottomLeft: Radius.circular(10),
