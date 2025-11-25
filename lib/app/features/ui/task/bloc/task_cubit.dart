@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/helper/response_mapper.dart';
@@ -29,6 +30,7 @@ class TaskCubit extends Cubit<TaskState> {
       loadDetailStatus: LoadStatus.INITIAL,
       deleteStatus: LoadStatus.INITIAL,
       updateStatus: LoadStatus.INITIAL,
+      currentUsers: []
     ));
   }
 
@@ -152,14 +154,19 @@ class TaskCubit extends Cubit<TaskState> {
       }
       CreateTaskParam createParam = CreateTaskParam(
         name: state.taskName,
-        deadLine: state.deadlineTime,
+        deadLine: AppDateUtils.parseDateToYMD(state.deadlineTime), // state.deadlineTime,
         desc: state.description,
         userIds: userIds,
         priority: state.taskPriority ? 1 : 0
       );
 
-      await repository.createTask(createParam);
-      emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
+      final res =  await repository.createTask(createParam);
+      if(res.data != null){
+        emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
+      }else{
+        emit(state.copyWith(createStatus: LoadStatus.FAILURE));
+      }
+
     }catch(e){
       logger.d(e);
       emit(state.copyWith(createStatus: LoadStatus.FAILURE));
@@ -229,16 +236,24 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   getListStages() async {
-    try{
+    emit(state.copyWith(getStageStatus: LoadStatus.LOADING));
+    try{  
       final res = await repository.getTaskStages();
       List<TaskStageEntity>? list;
       if(res.data != null){
         list = mapList(res.data, TaskStageEntity.fromJson);
-        emit(state.copyWith(listTaskStages: list));
+        if(list.isNotEmpty){
+          emit(state.copyWith(getStageStatus: LoadStatus.SUCCESS,listTaskStages: list));
+          onChangeCurrentTabItem(list.first);
+          getListTasks();
+        }else{
+          emit(state.copyWith(getStageStatus: LoadStatus.FAILURE, listTaskStages: []));
+        }
+
       }
     }catch(e){
       logger.d(e);
-      emit(state.copyWith(listTaskStages: []));
+      emit(state.copyWith(getStageStatus: LoadStatus.FAILURE, listTaskStages: []));
     }
   }
 

@@ -8,7 +8,7 @@ abstract class TaskRepository {
   Future<CommonResponse> getTaskStages();
   Future<dynamic> updateTaskStage(Map<String, dynamic> body);
   Future<CommonResponse> getListUser();
-  Future<dynamic> createTask(CreateTaskParam body);
+  Future<CommonResponse> createTask(CreateTaskParam body);
   Future<CommonResponse> getDetailTask(int id);
   Future<dynamic> deleteTask(Map<String, dynamic> body);
   Future<CommonResponse> updateTask(CreateTaskParam body);
@@ -42,7 +42,7 @@ class TaskRepositoryImpl extends TaskRepository {
   }
 
   @override
-  Future<dynamic> createTask(CreateTaskParam body) async {
+  Future<CommonResponse> createTask(CreateTaskParam body) async {
     return await _apiClient.createTask(body);
   }
 

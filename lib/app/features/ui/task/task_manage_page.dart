@@ -48,9 +48,10 @@ class _TaskManagePageState extends State<TaskManagePage> {
   }
 
   initData() async {
-     _tabs = _appCubit.state.listTaskStages ?? [];
-     _cubit.onChangeCurrentTabItem(_tabs.first);
-    _cubit.getListTasks();
+     // _tabs = _appCubit.state.listTaskStages ?? [];
+     await _cubit.getListStages();
+     // _cubit.onChangeCurrentTabItem(_tabs.first);
+    // _cubit.getListTasks();
   }
 
   Future _onRefresh() async {
@@ -106,8 +107,13 @@ class _TaskManagePageState extends State<TaskManagePage> {
         bloc: _cubit,
         listenWhen: (prev,cur) => prev.loadStatus != cur.loadStatus,
         listener: (context,state){
-          if(state.updateStageStatus == LoadStatus.LOADING){
+          if(state.updateStageStatus == LoadStatus.LOADING ||
+            state.getStageStatus == LoadStatus.LOADING){
             LoadingOverlay.show(context);
+          }
+          else if(state.getStageStatus == LoadStatus.SUCCESS){
+            LoadingOverlay.hide(context);
+            _tabs = List.from(state.listTaskStages ?? []);
           }
           if(state.updateStageStatus == LoadStatus.SUCCESS){
             LoadingOverlay.hide(context);
@@ -287,7 +293,9 @@ class _TaskManagePageState extends State<TaskManagePage> {
         buildWhen: (prev,cur) => prev.loadStatus != cur.loadStatus ||
           prev.listTasks != cur.listTasks,
         builder: (context,state){
-          return RefreshIndicator(
+          return state.loadStatus == LoadStatus.LOADING ?
+             const Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) :
+           RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView.builder(
                 padding: const EdgeInsets.only(top: 20),

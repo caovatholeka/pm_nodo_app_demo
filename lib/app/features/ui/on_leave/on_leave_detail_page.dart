@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
+import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
@@ -154,33 +155,40 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         } else if (state.deleteStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          _showDialog(
-            title: "Thành công",
-            message: "Xoá bản ghi thành công!",
-            success: true,
-            onConfirm: () => Navigator.pop(context, true),
-          );
+          Navigator.pop(context, true);
+          AppSnackBar.showInfo(title: "Thành công",message: "Xoá bản ghi thành công!");
+
+          // _showDialog(
+          //   title: "Thành công",
+          //   message: "Xoá bản ghi thành công!",
+          //   success: true,
+          //   onConfirm: () => Navigator.pop(context, true),
+          // );
         } else if (state.confirmStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          _showDialog(
-            title: "Thành công",
-            message: "Đã gửi duyệt thành công!",
-            success: true,
-            onConfirm: () => Navigator.pop(context, true),
-          );
+          Navigator.pop(context, true);
+          AppSnackBar.showInfo(title: "Thành công",message: "Đã gửi duyệt thành công!");
+          // _showDialog(
+          //   title: "Thành công",
+          //   message: "Đã gửi duyệt thành công!",
+          //   success: true,
+          //   onConfirm: () => Navigator.pop(context, true),
+          // );
         } else if (state.confirmStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          _showDialog(title: "Lỗi", message: "Gửi duyệt lỗi!", success: false);
+          AppSnackBar.showError(title: "Cảnh báo",message: "Gửi duyệt không thành công!");
+          // _showDialog(title: "Lỗi", message: "Gửi duyệt lỗi!", success: false);
         } else if (state.deleteStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          _showDialog(
-            title: "Lỗi",
-            message: "Không xóa được bản ghi khác nháp!",
-            success: false,
-          );
+          AppSnackBar.showError(title: "Cảnh báo",message: "Không xóa được bản ghi khác nháp!");
+          // _showDialog(
+          //   title: "Lỗi",
+          //   message: "Không xóa được bản ghi khác nháp!",
+          //   success: false,
+          // );
         } else {
           LoadingOverlay.hide(context);
         }
@@ -188,46 +196,36 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
 
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: AppColors.bodyColor,
           appBar: MyAppBar(
             titleAppbar: "Chi tiết yêu cầu nghỉ phép",
             haveBackButton: true,
           ),
-          extendBodyBehindAppBar: true,
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(AppAssets.appBG2),
-                fit: BoxFit.cover,
-              ),
-            ),
+          // extendBodyBehindAppBar: true,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.only(left: 16,right: 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 120),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.whiteColor,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: _contentBody,
+                const SizedBox(height: 24,),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(16)
                     ),
                   ),
+                  child: _contentBody,
                 ),
               ],
             ),
           ),
+          bottomSheet: _bottomSheet,
         );
       },
     );
@@ -236,116 +234,102 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
 get _contentBody {
   final entity = _cubit.state.detailEntity;
 
-  return SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // CARD TRẮNG
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            children: [
-              _buildItem("Nhân viên", entity?.employeeName ?? "")
-                  .paddingOnly(bottom: 12),
-              CustomDashView(),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildItem("Nhân viên", entity?.employeeName ?? "")
+          .paddingOnly(bottom: 12),
+      CustomDashView(),
 
-              _buildItem("Phòng ban", entity?.departmentName ?? "")
-                  .paddingOnly(top: 12, bottom: 12),
-              CustomDashView(),
+      _buildItem("Phòng ban", entity?.departmentName ?? "")
+          .paddingOnly(top: 12, bottom: 12),
+      CustomDashView(),
 
-              _buildItem("Số phép còn lại",
-                      (entity?.remainLeave ?? 0).toString())
-                  .paddingOnly(top: 12, bottom: 12),
-              CustomDashView(),
+      // _buildItem("Số phép còn lại",
+      //         (entity?.remainLeave ?? 0).toString())
+      //     .paddingOnly(top: 12, bottom: 12),
+      // CustomDashView(),
 
-              _buildItem("Loại nghỉ", entity?.holidayStatus ?? "")
-                  .paddingOnly(top: 12, bottom: 12),
-              CustomDashView(),
+      _buildItem("Loại nghỉ", entity?.holidayStatus ?? "")
+          .paddingOnly(top: 12, bottom: 12),
+      CustomDashView(),
 
-              _buildItem(
-                "Từ ngày",
-                AppDateUtils.changeIso8601StringToDateTimeString(
-                  entity?.dateFrom,
-                ),
-              ).paddingOnly(top: 12, bottom: 12),
-              CustomDashView(),
-
-              _buildItem(
-                "Đến ngày",
-                AppDateUtils.changeIso8601StringToDateTimeString(
-                  entity?.dateTo,
-                ),
-              ).paddingOnly(top: 12, bottom: 12),
-              CustomDashView(),
-
-              _buildItem(
-                "Lý do nghỉ",
-                entity?.description ?? "",
-              ).paddingOnly(top: 12, bottom: 12),
-              CustomDashView(),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 12),
-                child: _buildStatusRow,
-              ),
-              CustomDashView(),
-
-              _buildItem(
-                "Người duyệt",
-                entity?.userApprove?.name ?? "",
-              ).paddingOnly(top: 12, bottom: 12),
-              CustomDashView(),
-            ],
-          ),
+      _buildItem(
+        "Từ ngày",
+        AppDateUtils.changeIso8601StringToDateTimeString(
+          entity?.dateFrom,
         ),
+      ).paddingOnly(top: 12, bottom: 12),
+      CustomDashView(),
 
-        const SizedBox(height: 16),
+      _buildItem(
+        "Đến ngày",
+        AppDateUtils.changeIso8601StringToDateTimeString(
+          entity?.dateTo,
+        ),
+      ).paddingOnly(top: 12, bottom: 12),
+      CustomDashView(),
 
-        if (entity?.leaveStage?.id == 13)
-          _bottomSheet,
+      _buildItem(
+        "Lý do nghỉ",
+        entity?.description ?? "",
+      ).paddingOnly(top: 12, bottom: 12),
+      CustomDashView(),
 
-        const SizedBox(height: 30),
-      ],
-    ),
+      Padding(
+        padding: const EdgeInsets.only(top: 12, bottom: 12),
+        child: _buildStatusRow,
+      ),
+      CustomDashView(),
+
+      _buildItem(
+        "Người duyệt",
+        entity?.userApprove?.name ?? "",
+      ).paddingOnly(top: 12, bottom: 12),
+
+      const SizedBox(height: 30),
+    ],
   );
 }
 
 
 
 get _bottomSheet {
-  return Row(
-    children: [
-      Expanded(
-        child: PrimaryButton(
-          mainText: "Xóa",
-          type: PrimaryButtonType.secondary,
-          callback: () => showDeleteConfirmDialog(),
+  return (_cubit.state.detailEntity?.leaveStage?.id == 13) ?
+  Container(
+    margin: const EdgeInsets.only(left: 16,right: 16,bottom: 36),
+    width: double.infinity,
+    height: 46,
+    child: Row(
+      children: [
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Xóa",
+            type: PrimaryButtonType.secondary,
+            callback: () => showDeleteConfirmDialog(),
+          ),
         ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: PrimaryButton(
-          mainText: "Gửi duyệt",
-          type: PrimaryButtonType.primary,
-          callback: () {
-            _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
-          },
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Gửi duyệt",
+            type: PrimaryButtonType.primary,
+            callback: () {
+              _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
+            },
+          ),
         ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: PrimaryButton(
-          mainText: "Cập nhật",
-          type: PrimaryButtonType.primary,
-          callback: () => doUpdate(context),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Cập nhật",
+            type: PrimaryButtonType.primary,
+            callback: () => doUpdate(context),
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    ),
+  ) : const SizedBox.shrink();
 }
 
 

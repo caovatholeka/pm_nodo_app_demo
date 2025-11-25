@@ -2,6 +2,7 @@ part of 'task_cubit.dart';
 
 class TaskState extends Equatable {
   final LoadStatus loadStatus;
+  final LoadStatus getStageStatus;
   final LoadStatus updateStageStatus;
   final LoadStatus createStatus;
   final LoadStatus loadDetailStatus;
@@ -28,6 +29,7 @@ class TaskState extends Equatable {
 
   const TaskState({
     this.loadStatus = LoadStatus.INITIAL,
+    this.getStageStatus = LoadStatus.INITIAL,
     this.updateStageStatus = LoadStatus.INITIAL,
     this.createStatus = LoadStatus.INITIAL,
     this.loadDetailStatus = LoadStatus.INITIAL,
@@ -51,6 +53,7 @@ class TaskState extends Equatable {
 
   TaskState copyWith({
     LoadStatus? loadStatus,
+    LoadStatus? getStageStatus,
     LoadStatus? updateStageStatus,
     LoadStatus? createStatus,
     LoadStatus? loadDetailStatus,
@@ -73,6 +76,7 @@ class TaskState extends Equatable {
   }) {
     return TaskState(
       loadStatus: loadStatus ?? this.loadStatus,
+      getStageStatus: getStageStatus ?? this.getStageStatus,
       updateStageStatus: updateStageStatus ?? this.updateStageStatus,
       createStatus: createStatus ?? this.createStatus,
       loadDetailStatus: loadDetailStatus ?? this.loadDetailStatus,
@@ -98,6 +102,7 @@ class TaskState extends Equatable {
   @override
   List<Object?> get props => [
     loadStatus,
+    getStageStatus,
     updateStageStatus,
     createStatus,
     loadDetailStatus,

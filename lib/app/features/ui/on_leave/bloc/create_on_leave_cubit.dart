@@ -30,6 +30,8 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
         leaveDays:"",
         leaveDateType:"",
         leaveType:"",
+      fromDate: "",
+      toDate: "",
         currentDateLeaveType:MasterDataItem(),
       listLeaveDays:[],
       resetDateTime: true,
@@ -54,7 +56,6 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
         name: state.reason,
         leaveDays: state.listLeaveDays
       );
-      logger.d("update parram :: ${param.toJson()}");
       final res = await repository.saveOrUpdateHrLeave(param);
       if((res.lines ?? []).isNotEmpty){
         emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
