@@ -217,7 +217,9 @@ class _HomePageState extends State<HomePage> {
                         "Dữ liệu công",
                         onTap: _goAttendanceData,
                       ),
-                      _item(AppAssets.ic_paper2, "Nghỉ phép"),
+                      _item(AppAssets.ic_paper2, "Nghỉ phép",
+                        onTap: _openOnLeave
+                      ),
                       _item(
                         AppAssets.ic_timekeeping,
                         "Chấm công",

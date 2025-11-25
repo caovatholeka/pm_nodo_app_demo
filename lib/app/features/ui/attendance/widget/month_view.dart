@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 
 import 'day_cell.dart';
@@ -26,8 +27,8 @@ class MonthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final first = DateTime(month.year, month.month, 1);
-    // CN là cột đầu tiên → offset = Sun=0, Mon=1..Sat=6
-    final offset = first.weekday % 7; // Mon=1..Sun=0
+    final int offset = first.weekday - 1;
+
     final firstOfGrid = first.subtract(Duration(days: offset));
     // Lưới cố định 6 hàng × 7 cột = 42
     const totalCells = 42;
@@ -39,8 +40,13 @@ class MonthView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
           child: Row(
             children: const [
-              WeekCell('CN'), WeekCell('T2'), WeekCell('T3'),
-              WeekCell('T4'), WeekCell('T5'), WeekCell('T6'), WeekCell('T7'),
+              WeekCell('T2'),
+              WeekCell('T3'),
+              WeekCell('T4'),
+              WeekCell('T5'),
+              WeekCell('T6'),
+              WeekCell('T7'),
+              WeekCell('CN'),
             ],
           ),
         ),

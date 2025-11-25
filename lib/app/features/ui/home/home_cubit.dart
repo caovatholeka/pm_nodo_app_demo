@@ -50,8 +50,10 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
     String? name;
     int stagId = 1;
+    int page = 1;
+    int limit = 5;
     try {
-      final res = await taskRepository.getListTask(name,stagId);
+      final res = await taskRepository.getListTask(name,stagId,page,limit);
       TaskDataEntity? taskData;
       if(res.data != null){
         taskData = mapObject(res.data, TaskDataEntity.fromJson);

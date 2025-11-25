@@ -369,7 +369,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                 buildWhen: (prev, cur) => prev.description != cur.description,
                                 builder: (context, state) {
                                   return InputTextField(
-                                    title: "Lý do nghỉ",
+                                    title: "mô tả",
                                     hintText: "",
                                     isRequiredField: true,
                                     enable: true,
