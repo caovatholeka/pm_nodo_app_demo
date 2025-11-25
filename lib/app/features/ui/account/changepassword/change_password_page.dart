@@ -99,7 +99,11 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
       },
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: MyAppBar(titleAppbar: "Đổi mật khẩu", haveBackButton: true),
+        appBar: MyAppBar(
+          titleAppbar: "Đổi mật khẩu",
+           haveBackButton: true,
+           isTransparent: true,
+        ),
         body: Container(
           width: double.infinity,
           height: double.infinity,
