@@ -38,6 +38,7 @@ class _NotificationPageState extends State<NotificationPage> {
         haveActionButton: true,
         iconPathAsset: AppAssets.icReadAll,
         actionCallBack: () {
+          context.read<NotiCubit>().markRead(markAll: true);
         },
       ),
 

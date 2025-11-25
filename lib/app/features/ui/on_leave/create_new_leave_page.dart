@@ -778,6 +778,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                   success: true,
                   onConfirm: () {
                     _createCubit.createOrUpdateLeaveDay();
+                    Navigator.of(context).maybePop();
                   },
                 );
               }

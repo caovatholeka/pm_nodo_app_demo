@@ -49,16 +49,6 @@
         if (hasText != _isSearchActive) {
           setState(() => _isSearchActive = hasText);
         }
-
-        if (_debounce?.isActive ?? false) _debounce?.cancel();
-
-        _debounce = Timer(const Duration(milliseconds: 400), () {
-          if (text.isEmpty) {
-            _cubit.getListEmployees();
-          } else {
-            _cubit.getListEmployees(query: text);
-          }
-        });
       });
     }
 
@@ -316,7 +306,8 @@
 
     void _onSearchPressed() {
       final query = _searchController.text.trim();
-      _cubit.getListEmployees(query: query.trim());
+      if(query.isEmpty) return;
+       _cubit.getListEmployees(query: query);
     }
 
     @override

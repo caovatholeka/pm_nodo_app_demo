@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/notification_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
@@ -73,25 +74,12 @@ class NotiCubit extends Cubit<NotiState> {
     }
   }
 
-  Future<void> markOneRead(int id) async {
+  Future<void> markRead({required bool markAll, int? id}) async {
     try {
-      final res = await userRepository.markNotiRead(id);
-
-      if (res.code == 200) {
-        final updatedList =
-            state.notifications.map((e) {
-              if (e.id == id) {
-                return e.copyWith(isSeen: true);
-              }
-              return e;
-            }).toList();
-
-        final unread = updatedList.where((e) => e.isSeen == false).length;
-
-        emit(state.copyWith(notifications: updatedList, totalUnread: unread));
-      }
-    } catch (e) {
-      print("error: $e");
+      final body = {"mark_all": markAll ? "True" : "False", "noti_id": id ?? 0};
+    } catch (e, s) {
+      logger.e("markRead error: $e");
+      logger.d("where: $s");
     }
   }
 }

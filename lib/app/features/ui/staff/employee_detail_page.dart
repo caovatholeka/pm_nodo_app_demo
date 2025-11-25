@@ -74,6 +74,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
           appBar: MyAppBar(
             titleAppbar: "Chi tiết nhân viên",
             haveBackButton: true,
+            isTransparent: true,
             backAction: () => Navigator.pop(context),
           ),
           body: Builder(
@@ -109,7 +110,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                       ),
                       child: Container(
                         width: double.infinity,
-                        height: 250,
+                        height: 280,
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
