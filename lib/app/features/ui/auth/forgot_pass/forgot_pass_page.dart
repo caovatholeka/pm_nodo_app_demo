@@ -155,7 +155,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                             validator:
                                 (v) => Validator().validateEmail(v?.trim()),
                           ),
-
+                          const SizedBox(height: 10,),
                           InputTextField(
                             title: "Mật khẩu mới",
                             hintText: "Nhập mật khẩu mới của bạn",
@@ -169,7 +169,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                   "Mật khẩu",
                                 ),
                           ),
-
+                          const SizedBox(height: 10,),
                           InputTextField(
                             title: "Xác nhận mật khẩu mới",
                             hintText: "Xác nhận mật khẩu mới của bạn",
