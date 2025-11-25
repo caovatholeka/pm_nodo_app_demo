@@ -26,14 +26,43 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
 
   final _formKey = GlobalKey<FormState>();
 
+  void _showError(String msg) {
+    Flushbar(
+      message: msg,
+      backgroundColor: Colors.redAccent,
+      margin: const EdgeInsets.all(12),
+      borderRadius: BorderRadius.circular(12),
+      duration: const Duration(seconds: 2),
+      flushbarPosition: FlushbarPosition.TOP,
+      icon: const Icon(Icons.error, color: Colors.white),
+    ).show(context);
+  }
+
   void _submit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<ForgotCubit>().submitForgotRequest(
-        email: _userCtrl.text.trim(),
-        password: _passCtrl.text.trim(),
-        confirmPassword: _confirmCtrl.text.trim(),
-      );
+    final username = _userCtrl.text.trim();
+    final pass = _passCtrl.text.trim();
+    final confirm = _confirmCtrl.text.trim();
+
+    if (username.isEmpty && pass.isEmpty && confirm.isEmpty) {
+      _showError("Vui lòng nhập đầy đủ thông tin!");
+    } else if (username.isEmpty) {
+      _showError("Vui lòng nhập tên đăng nhập!");
+    } else if (pass.isEmpty) {
+      _showError("Vui lòng nhập mật khẩu!");
+    } else if (confirm.isEmpty) {
+      _showError("Vui lòng xác nhận mật khẩu");
+    } else if(pass != confirm) {
+      _showError("Vui lòng xác nhận đúng mật khẩu bạn đã nhập!");
     }
+     else if (!(_formKey.currentState?.validate() ?? false)) {
+      _showError("Thông tin chưa hợp lệ. Vui lòng kiểm tra lại!");
+      return;
+    }
+    context.read<ForgotCubit>().submitForgotRequest(
+      email: username,
+      password: pass,
+      confirmPassword: confirm,
+    );
   }
 
   @override
@@ -155,7 +184,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                             validator:
                                 (v) => Validator().validateEmail(v?.trim()),
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(height: 10),
                           InputTextField(
                             title: "Mật khẩu mới",
                             hintText: "Nhập mật khẩu mới của bạn",
@@ -169,7 +198,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                   "Mật khẩu",
                                 ),
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(height: 10),
                           InputTextField(
                             title: "Xác nhận mật khẩu mới",
                             hintText: "Xác nhận mật khẩu mới của bạn",

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -75,6 +77,19 @@ class _AccountPageState extends State<AccountPage> {
           onCancel: () => Navigator.pop(context),
         );
       },
+    );
+  }
+
+  void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
     );
   }
 
@@ -161,7 +176,9 @@ class _AccountPageState extends State<AccountPage> {
                           _menuItem(
                             icon: AppAssets.icNotificationPF,
                             title: "Thông báo",
-                            onTap: () {},
+                            onTap: () {
+                              _goNotification();
+                            },
                           ),
                           _menuItem(
                             icon: AppAssets.icProtect,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
@@ -30,12 +29,13 @@ class _LoginPageState extends State<LoginPage> {
 
   final _cubit = sl<LogInCubit>();
 
-  void _login() {
+  void _login() {  
     if ((_userKey.currentState?.validate() ?? false) &&
         (_passKey.currentState?.validate() ?? false)) {
       _cubit.doLogin(_userCtrl.text.trim(), _passCtrl.text.trim());
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
