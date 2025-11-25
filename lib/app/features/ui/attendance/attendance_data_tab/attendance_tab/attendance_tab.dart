@@ -157,7 +157,8 @@ class _AttendanceTabState extends State<AttendanceTab> {
           prev.loadStatus != cur.loadStatus ||
           prev.listAttendances != cur.listAttendances ||
           prev.attendanceDateMap != cur.attendanceDateMap ||
-          prev.focusedMonth != cur.focusedMonth,
+          prev.focusedMonth != cur.focusedMonth ||
+          prev.selectedDate != cur.selectedDate,
         builder: (context,state){
           return Container(
             padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 8),
@@ -180,10 +181,11 @@ class _AttendanceTabState extends State<AttendanceTab> {
                     entriesByDate: state.entriesByDate ?? {},
                     loading: state.loadStatus == LoadStatus.LOADING ? true : false,
                     error: "",//state.error,
+                    selectedDate: state.selectedDate,
                     onTapDay: (date) {
-                      logger.d("date selected :: ${date.day} ");
                       final key = DateTime(date.year, date.month, date.day);
                       List<WorkEntity> entries = state.entriesByDate?[key] ?? const [];
+                      widget.cubit.onChangeSelectedDate(date);
                       if(entries.isNotEmpty){
                         // show popup
                         widget.cubit.getDetailWorkEntry(entries.first.id ?? 0);

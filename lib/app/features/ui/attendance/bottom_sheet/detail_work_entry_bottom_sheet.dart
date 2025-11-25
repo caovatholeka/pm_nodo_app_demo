@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
+import 'package:pm_app/app/core/utils/utils.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+
+import '../../../../core/utils/date_utils.dart';
 
 class DetailWorkEntryBottomSheet extends StatefulWidget {
   final WorkEntity? workEntity;
@@ -22,6 +26,17 @@ class DetailWorkEntryBottomSheet extends StatefulWidget {
 }
 
 class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet> {
+
+  String toHHmm(String input) {
+    try {
+      final dt = DateTime.parse(input.replaceFirst(' ', 'T'));
+      return DateFormat('HH:mm').format(dt);
+    } catch (e) {
+      return "";
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -51,7 +66,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                             color: AppColors.themeBlackDefault
                           ),
                         ),
-                        Text(widget.date ?? "",
+                        Text(AppDateUtils.changeIso8601StringToDateTimeString(widget.date ?? ""),
                           style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -86,7 +101,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                                 isRequiredField: false,
                                 enable: true,
                                 readOnly: true,
-                                controller: TextEditingController(text: "${widget.workEntity?.dateStart ?? 0.0}"),
+                                controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStart ?? "")),
                               ),
                             ),
                             const SizedBox(width: 12,),
@@ -98,7 +113,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                                 isRequiredField: false,
                                 enable: true,
                                 readOnly: true,
-                                controller: TextEditingController(text: "${widget.workEntity?.dateStop ?? 0.0}"),
+                                controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStop ?? "")),
                               ),
                             )
                           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 
 class DayCell extends StatelessWidget {
   final DateTime? date;
@@ -7,19 +8,50 @@ class DayCell extends StatelessWidget {
   final bool isSelected;
   final VoidCallback? onTap;
 
-  const DayCell({this.date, this.code, this.dimmed = false,
-    this.isSelected = false, this.onTap});
+  const DayCell({
+    this.date,
+    this.code,
+    this.dimmed = false,
+    this.isSelected = false,
+    this.onTap,
+  });
 
   const DayCell.empty()
-      : date = null, code = null, dimmed = true,isSelected = false, onTap = null;
+      : date = null,
+        code = null,
+        dimmed = true,
+        isSelected = false,
+        onTap = null;
 
   Color _textColor() {
     switch ((code ?? '').toUpperCase()) {
-      case 'X':case 'working_days':  return Color(0xFF41B100); // đúng giờ
-      case 'MS': return Color(0xFFF69212); // đi muộn về sớm
-      case 'C':  return Color(0xFFDA3535); // không chấm công
-      case 'CT': return Color(0xFF71717A); // cuối tuần
-      default:   return Color(0xFF232120); // khác : nghỉ phép, nghỉ không lương, thiếu giờ vào/ra
+      case 'X':
+        return const Color(0xFF41B100); // Công đi làm
+      case 'MS':
+        return const Color(0xFFD9A8CC); // đi muộn về sớm
+      case 'C':
+        return const Color(0xFFDA3535); // chưa chấm công
+      case 'CT':
+        return const Color(0xFFA5A5A9); // nghỉ cuối tuần
+
+      case 'TR':
+        return const Color(0xFf2C00CC); // thiếu giờ ra
+      case 'TV':
+        return const Color(0xFF9F5D00); // thiếu giờ vào
+
+      case 'working_days':
+        return const Color(0xFF0088FF); // Công thực tế
+
+      case 'P':
+        return const Color(0xFFF49E00); // nghỉ phép
+
+      case 'KL':
+        return const Color(0xFFDC00C6); // nghỉ không lương
+
+      case 'NX':
+        return const Color(0xFF00D3D6); // nửa ngày công
+      default:
+        return const Color(0xFF232120); // khác
     }
   }
 
@@ -30,20 +62,23 @@ class DayCell extends StatelessWidget {
     final isToday = _sameDate(date!, DateTime.now());
     final color = _textColor();
 
-    final bgDecoration = isSelected
-        ? BoxDecoration(
-      color: Colors.blue,
+    final BoxDecoration? bgDecoration = isSelected
+        ? const BoxDecoration(
+      color: Color(0xFF5AC60D),
       shape: BoxShape.circle,
     )
         : (isToday
         ? const BoxDecoration(
-        color: Colors.green, shape: BoxShape.circle)
+      color: AppColors.themePrimaryDefault,
+      shape: BoxShape.circle,
+    )
         : null);
 
     String textDay = '${date!.day}';
-    if((code ?? "") == "MS" || (code ?? "") == "C"){
+    if ((code ?? "") == "MS" || (code ?? "") == "C") {
       textDay = '${date!.day}';
     }
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -51,7 +86,6 @@ class DayCell extends StatelessWidget {
         decoration: const BoxDecoration(color: Colors.white),
         child: Center(
           child: Container(
-            // today
             padding: const EdgeInsets.all(8),
             decoration: bgDecoration,
             child: Text(
@@ -60,7 +94,7 @@ class DayCell extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
-                color: isToday
+                color: (isToday)
                     ? Colors.white
                     : color.withOpacity(dimmed ? 0.35 : 1.0),
               ),

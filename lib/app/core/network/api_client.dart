@@ -149,6 +149,8 @@ abstract class ApiClient {
   Future<CommonResponse> getListTask(
       @Query("name") String? name,
       @Query("stage_id") int? stageId,
+      @Query("limit") int? limit,
+      @Query("page") int? page,
       );
 
   // lay ds task stage

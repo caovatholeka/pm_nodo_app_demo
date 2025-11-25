@@ -3,7 +3,8 @@ import '../models/param/create_task_param.dart';
 import '../models/response/common_response.dart';
 
 abstract class TaskRepository {
-  Future<CommonResponse> getListTask(String? name, int? stageId);
+  Future<CommonResponse> getListTask(String? name, int? stageId,
+      int? page, int? limit);
   Future<CommonResponse> getTaskStages();
   Future<dynamic> updateTaskStage(Map<String, dynamic> body);
   Future<CommonResponse> getListUser();
@@ -21,8 +22,8 @@ class TaskRepositoryImpl extends TaskRepository {
   }
 
   @override
-  Future<CommonResponse> getListTask(String? name, int? stageId) async {
-    return await _apiClient.getListTask(name, stageId);
+  Future<CommonResponse> getListTask(String? name, int? stageId, int? page, int? limit) async {
+    return await _apiClient.getListTask(name, stageId,page,limit);
   }
 
   @override

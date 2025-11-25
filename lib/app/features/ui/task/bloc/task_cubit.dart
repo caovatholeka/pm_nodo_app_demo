@@ -44,9 +44,11 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   getListTasks() async {
+    int page = 1;
+    int limit = 100;
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try {
-      final res = await repository.getListTask(state.query,state.currentTabItem?.id);
+      final res = await repository.getListTask(state.query,state.currentTabItem?.id,page,limit);
       TaskDataEntity? taskData;
       if(res.data != null){
         taskData = mapObject(res.data, TaskDataEntity.fromJson);
