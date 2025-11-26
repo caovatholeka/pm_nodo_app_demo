@@ -69,8 +69,11 @@ class RppgTracker {
     for (int n = 0; n < m; n++) {
       final k = n - mid;
       double hd;
-      if (k == 0) hd = (w2 - w1)/math.pi;
-      else hd = (math.sin(w2*k) - math.sin(w1*k)) / (math.pi*k);
+      if (k == 0) {
+        hd = (w2 - w1)/math.pi;
+      } else {
+        hd = (math.sin(w2*k) - math.sin(w1*k)) / (math.pi*k);
+      }
       final w = 0.54 - 0.46 * math.cos(2*math.pi*n/(m-1)); // Hamming
       h[n] = hd * w;
     }
@@ -79,10 +82,14 @@ class RppgTracker {
 
   List<double> _fftMag(List<double> x) {
     int n = 1;
-    while (n < x.length) n <<= 1;
+    while (n < x.length) {
+      n <<= 1;
+    }
     final re = Float64List(n);
     final im = Float64List(n);
-    for (int i=0;i<x.length;i++) re[i] = x[i];
+    for (int i=0;i<x.length;i++) {
+      re[i] = x[i];
+    }
 
     _fft(re, im); // in-place
     final mag = List<double>.generate(n, (i)=> math.sqrt(re[i]*re[i] + im[i]*im[i]));

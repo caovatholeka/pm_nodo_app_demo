@@ -30,7 +30,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
       List.generate(6, (_) => TextEditingController());
 
   Timer? _timer;
-  int _timeLeft = 120;
+  int _timeLeft = 300;
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
 
   void _startTimer() {
     _timer?.cancel();
-    _timeLeft = 120;
+    _timeLeft = 300;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_timeLeft == 0) {

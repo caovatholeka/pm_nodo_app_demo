@@ -14,22 +14,22 @@ class SelectUserBottomSheet extends StatefulWidget {
   final ValueChanged<List<UserEntity>>? onUsersSelected;
   final List<UserEntity>? listCurrentUsers;
 
-  SelectUserBottomSheet({
-    Key? key,
+  const SelectUserBottomSheet({
+    super.key,
     this.listUsers,
     this.onUsersSelected,
     this.listCurrentUsers
-  }): super(key: key);
+  });
 
   @override
   State<SelectUserBottomSheet> createState() => _SelectUserBottomSheetState();
 }
 
 class _SelectUserBottomSheetState extends State<SelectUserBottomSheet> {
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   final TextEditingController _searchController  = TextEditingController();
-  FocusNode _focusSearch = FocusNode();
+  final FocusNode _focusSearch = FocusNode();
 
   List<UserEntity> listUserSelected = [];
   List<UserEntity> _filteredUsers = [];

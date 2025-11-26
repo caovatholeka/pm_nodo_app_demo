@@ -1,7 +1,5 @@
-import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:geolocator/geolocator.dart';
 
 import '../../core/network/api_client.dart';
 import '../models/response/common_response.dart';

@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/commons/app_assets.dart';
 import '../../core/commons/app_colors.dart';
-import '../../core/utils/utils.dart';
 
 class AppCacheImage extends StatelessWidget {
   final String url;

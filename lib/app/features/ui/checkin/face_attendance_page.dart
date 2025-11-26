@@ -59,7 +59,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   bool _canManualCapture = false;
 
   // hướng trung tâm : dk ban đầu chỉ cần hướng trung tâm
-  Rect _guideRect = Rect.zero;
+  final Rect _guideRect = Rect.zero;
 
 
   @override

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/ui/attendance/explanation/explanation_list_cubit.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
-import 'package:pm_app/app/features/widgets/explanation_card.dart';
 
 class WorkEntryPage extends StatefulWidget {
   const WorkEntryPage({super.key});

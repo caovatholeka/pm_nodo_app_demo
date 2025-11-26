@@ -1,16 +1,10 @@
-import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/helper/response_mapper.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
-import 'package:pm_app/app/core/network/api_client.dart';
-import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_entry_entity.dart';
-import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
-import 'package:pm_app/app/features/widgets/loading_overlay.dart';
-import 'package:pm_app/di/di.dart';
 
 import '../../../../../core/commons/global_data.dart';
 import '../../../../../data/models/enums/load_status.dart';

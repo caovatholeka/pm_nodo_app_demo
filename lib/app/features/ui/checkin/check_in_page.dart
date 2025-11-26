@@ -51,7 +51,7 @@ class _CheckInPageState extends State<CheckInPage> {
   // google maps
   late GoogleMapController mapController;
   Set<Marker> oldMarkers = {};
-  MapType _mapType = MapType.terrain;
+  final MapType _mapType = MapType.terrain;
   Set<Marker> _markers = {};
   Set<Circle> _circles = {};
 
@@ -729,7 +729,7 @@ Future<void> _requestLocationPermission() async {
   Future<String?> showLateEarlyDialog(
       BuildContext context) async {
     final reasonController = TextEditingController();
-    final _reasonKey = GlobalKey<FormState>();
+    final reasonKey = GlobalKey<FormState>();
 
     return showDialog<String?>(
       context: context,
@@ -763,7 +763,7 @@ Future<void> _requestLocationPermission() async {
 
                   // TextField lý do
                  Form(
-                   key: _reasonKey,
+                   key: reasonKey,
                    child: InputTextField(
                        title: "",
                        disableTitle: true,
@@ -773,7 +773,7 @@ Future<void> _requestLocationPermission() async {
                      maxLine: 3,
                      controller: reasonController,
                      onChange: (val){
-                       _reasonKey.currentState!.validate();
+                       reasonKey.currentState!.validate();
                      },
                      validator: (val)
                       => Validator.validateEmpty(val, "Lý do"),
@@ -784,7 +784,7 @@ Future<void> _requestLocationPermission() async {
 
                   FilledButton(
                     onPressed :(){
-                      final reasonValid = _reasonKey.currentState?.validate() ?? false;
+                      final reasonValid = reasonKey.currentState?.validate() ?? false;
                       if(reasonValid){
                         String reason = reasonController.text.trim();
                         // Navigator.of(ctx).pop(reason);

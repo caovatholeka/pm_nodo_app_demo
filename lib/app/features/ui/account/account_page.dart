@@ -11,7 +11,6 @@ import '../../../core/commons/app_colors.dart';
 import '../../../data/models/enums/load_status.dart';
 
 import '../../widgets/custom_dialog.dart';
-import '../../widgets/primary_button.dart';
 import '../auth/login/login_page.dart';
 import '../account/change_languge/change_languge_page.dart';
 import '../account/personal_info/personal_info_page.dart';

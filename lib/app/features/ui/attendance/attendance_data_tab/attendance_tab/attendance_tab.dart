@@ -521,8 +521,8 @@ class YearMonthPicker extends CommonPickerModel {
     required DateTime currentTime,
     DateTime? minTime,
     DateTime? maxTime,
-    LocaleType? locale,
-  }) : super(locale: locale) {
+    super.locale,
+  }) {
     this.currentTime = currentTime;
     this.minTime = minTime ?? DateTime(2000, 1, 1);
     this.maxTime = maxTime ?? DateTime(2100, 12, 31);

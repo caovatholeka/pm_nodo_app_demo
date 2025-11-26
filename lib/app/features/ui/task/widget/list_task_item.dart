@@ -13,15 +13,14 @@ class ListTaskItem extends StatelessWidget {
   final VoidCallback? onAddTaskNote;
   final bool? isShowNote;
 
-  ListTaskItem(
-      {Key? key,
+  const ListTaskItem(
+      {super.key,
         required this.entity,
         this.onShowDetail,
         this.onShowChangeStatus,
         this.onAddTaskNote,
         this.isShowNote
-      })
-      : super(key: key);
+      });
 
 
   Color getStatusColor(String code){

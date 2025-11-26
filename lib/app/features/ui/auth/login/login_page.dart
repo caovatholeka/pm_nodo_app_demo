@@ -29,13 +29,40 @@ class _LoginPageState extends State<LoginPage> {
 
   final _cubit = sl<LogInCubit>();
 
-  void _login() {  
-    if ((_userKey.currentState?.validate() ?? false) &&
-        (_passKey.currentState?.validate() ?? false)) {
-      _cubit.doLogin(_userCtrl.text.trim(), _passCtrl.text.trim());
+  void _login() {
+    final username = _userCtrl.text.trim();
+    final password = _passCtrl.text.trim();
+    if (username.isEmpty && password.isEmpty) {
+      _showError("Vui lòng nhập tên đăng nhập và mật khẩu!");
+      return;
     }
+    if (username.isEmpty) {
+      _showError("Vui lòng nhập tên đăng nhập!");
+      return;
+    }
+    if (password.isEmpty) {
+      _showError("Vui lòng nhập mật khẩu!");
+      return;
+    }
+    if (!(_userKey.currentState?.validate() ?? false) ||
+        !(_passKey.currentState?.validate() ?? false)) {
+      _showError("Thông tin không hợp lệ. Vui lòng kiểm tra lại!");
+      return;
+    }
+
+    _cubit.doLogin(username, password);
   }
-  
+
+  void _showError(String msg) {
+    Flushbar(
+      message: msg,
+      backgroundColor: Colors.redAccent,
+      duration: const Duration(seconds: 2),
+      flushbarPosition: FlushbarPosition.TOP,
+      margin: const EdgeInsets.all(12),
+      borderRadius: BorderRadius.circular(10),
+    ).show(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
 
         if (state.loginStatus == LoadStatus.FAILURE) {
           Flushbar(
-            message: "Đăng nhập thất bại. Vui lòng thử lại.",
+            message: "Sai tên đăng nhập hoặc mật khẩu.",
             backgroundColor: Colors.redAccent,
             duration: const Duration(seconds: 2),
             flushbarPosition: FlushbarPosition.TOP,
@@ -242,7 +269,6 @@ class _LoginPageState extends State<LoginPage> {
                                     state.loginStatus == LoadStatus.LOADING,
                                 callback: _login,
                               ),
-
                             ],
                           ),
                         ),

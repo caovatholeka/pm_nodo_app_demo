@@ -50,7 +50,7 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
       }
 
 
-      if(res != null && res.isNotEmpty){
+      if(res.isNotEmpty){
         for (AttendanceEntity wd in res) {
           String code = '';
           for (WorkEntity e in wd.workEntries ?? []) {

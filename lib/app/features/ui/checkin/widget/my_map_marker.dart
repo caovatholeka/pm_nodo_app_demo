@@ -12,9 +12,9 @@ class MyMapMarker extends StatelessWidget {
   CheckInInfoEntity? infoEntity;
 
   MyMapMarker({
-    Key? key,
+    super.key,
     this.infoEntity,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

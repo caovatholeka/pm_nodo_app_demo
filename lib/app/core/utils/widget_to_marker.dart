@@ -1,4 +1,5 @@
 /// Src: https://github.com/Mohamedfaroouk/widget_to_marker/tree/main
+library;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 

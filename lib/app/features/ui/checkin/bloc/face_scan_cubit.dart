@@ -10,7 +10,6 @@ import 'package:pm_app/app/data/repositories/face_id_repository.dart';
 
 import '../../../../data/models/entities/face_search_response_entity.dart';
 import '../../../../data/models/enums/load_status.dart';
-import '../../../../data/repositories/check_in_repository.dart';
 
 part 'face_scan_state.dart';
 

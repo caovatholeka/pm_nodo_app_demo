@@ -43,7 +43,7 @@ class StaffCubit extends Cubit<StaffState> {
     bool? active;
 
     if (isSearching) {
-      final q = trimmedQuery!;
+      final q = trimmedQuery;
       if (RegExp(r'^[0-9]+$').hasMatch(q)) {
         codeParam = q;
       } else {

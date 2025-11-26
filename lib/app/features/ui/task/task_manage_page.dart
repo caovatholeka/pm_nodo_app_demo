@@ -1,10 +1,8 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_stage_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -17,7 +15,6 @@ import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
-import '../../../data/models/entities/master_data_item.dart';
 import '../../bloc/app_cubit.dart';
 import '../../widgets/input_text_field.dart';
 

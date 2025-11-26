@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class WeekCell extends StatelessWidget {
   final String label;
-  const WeekCell(this.label);
+  const WeekCell(this.label, {super.key});
 
   @override
   Widget build(BuildContext context) {

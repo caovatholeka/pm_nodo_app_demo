@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pm_app/app/data/models/entities/profile_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_stage_entity.dart';
 import 'package:pm_app/app/data/models/entities/user_entity.dart';
 

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:pm_app/app/data/models/entities/department_entity.dart';
-import 'package:pm_app/app/data/models/entities/job_title_entity.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';

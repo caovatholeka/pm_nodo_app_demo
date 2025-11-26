@@ -8,7 +8,7 @@ class DayCell extends StatelessWidget {
   final bool isSelected;
   final VoidCallback? onTap;
 
-  const DayCell({
+  const DayCell({super.key, 
     this.date,
     this.code,
     this.dimmed = false,
@@ -16,7 +16,7 @@ class DayCell extends StatelessWidget {
     this.onTap,
   });
 
-  const DayCell.empty()
+  const DayCell.empty({super.key})
       : date = null,
         code = null,
         dimmed = true,

@@ -14,7 +14,7 @@ class MonthView extends StatelessWidget {
   final ValueChanged<DateTime>? onTapDay;
   final DateTime? selectedDate;
 
-  const MonthView({
+  const MonthView({super.key, 
     required this.month,
     required this.dayDisplay,
     required this.entriesByDate,

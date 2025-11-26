@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/param/employee_filter_param.dart';
 import 'package:pm_app/app/data/local/master_data.dart';
-import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/employee_detail_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';

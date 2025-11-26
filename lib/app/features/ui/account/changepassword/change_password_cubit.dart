@@ -13,7 +13,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
   final UserRepository userRepository;
 
   ChangePasswordCubit({required this.userRepository})
-      : super(ChangePasswordState());
+    : super(ChangePasswordState());
 
   Future<void> changePassword({
     required String currentPassword,
@@ -22,66 +22,75 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
   }) async {
     if (newPassword != confirmPassword) {
       if (isClosed) return;
-      emit(state.copyWith(
-        status: LoadStatus.FAILURE,
-        message: "Mật khẩu xác nhận không trùng khớp",
-      ));
+      emit(
+        state.copyWith(
+          status: LoadStatus.FAILURE,
+          message: "Mật khẩu xác nhận không trùng khớp",
+        ),
+      );
       return;
     }
 
-    if (isClosed) return;
     emit(state.copyWith(status: LoadStatus.LOADING));
 
     try {
       final tokenEntity = await SharedPrefsHelper.getToken();
-      logger.d("🔑 Token lấy được: ${tokenEntity?.toJson()}");
-      final token = tokenEntity?.accessToken ?? tokenEntity?.accessToken;
+      final token = tokenEntity?.accessToken;
 
       if (token == null || token.isEmpty) {
-        if (isClosed) return;
-        emit(state.copyWith(
-          status: LoadStatus.FAILURE,
-          message: "Token không hợp lệ hoặc chưa đăng nhập",
-        ));
+        emit(
+          state.copyWith(
+            status: LoadStatus.FAILURE,
+            message: "Token không hợp lệ hoặc chưa đăng nhập",
+          ),
+        );
         return;
       }
-
-      logger.d("🔐 Token dùng đổi mật khẩu: $token");
 
       final body = {
         "old_password": currentPassword,
         "new_password": newPassword,
         "retype_new_password": confirmPassword,
       };
-      
-      final CommonResponse response =
-          await userRepository.changeCurrentPass(body);
 
-      if (isClosed) return;
-      emit(state.copyWith(
-        status: LoadStatus.SUCCESS,
-        message: response.message ?? "Đổi mật khẩu thành công!",
-      ));
+      final CommonResponse response = await userRepository.changeCurrentPass(
+        body,
+      );
+
+      if (response.code != 200) {
+        emit(
+          state.copyWith(
+            status: LoadStatus.FAILURE,
+            message: response.message ?? "Đổi mật khẩu thất bại!",
+          ),
+        );
+        return;
+      }
+
+      emit(
+        state.copyWith(
+          status: LoadStatus.SUCCESS,
+          message: response.message ?? "Đổi mật khẩu thành công!",
+        ),
+      );
     } on DioException catch (e) {
-      final msg = e.response?.data?["detail"]?["message"] ??
+      final msg =
+          e.response?.data?["detail"]?["message"] ??
           e.response?.data?["message"] ??
           "Không thể đổi mật khẩu. Vui lòng thử lại!";
 
-      logger.e("❌ Lỗi đổi mật khẩu: $msg");
-
-      if (isClosed) return;
-      emit(state.copyWith(
-        status: LoadStatus.FAILURE,
-        message: msg,
-      ));
+      if (!isClosed) {
+        emit(state.copyWith(status: LoadStatus.FAILURE, message: msg));
+      }
     } catch (e) {
-      logger.e("⚠️ Lỗi khác: $e");
-
-      if (isClosed) return;
-      emit(state.copyWith(
-        status: LoadStatus.FAILURE,
-        message: e.toString(),
-      ));
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            status: LoadStatus.FAILURE,
+            message: "Lỗi không xác định: $e",
+          ),
+        );
+      }
     }
   }
 }

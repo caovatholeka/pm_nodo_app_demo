@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_stage_entity.dart';
 import 'package:pm_app/app/features/ui/task/widget/status_widget.dart';
 

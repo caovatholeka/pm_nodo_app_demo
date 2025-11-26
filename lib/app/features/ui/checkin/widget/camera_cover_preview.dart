@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class CameraCoverPreview extends StatelessWidget {
   final CameraController controller;
-  const CameraCoverPreview({required this.controller});
+  const CameraCoverPreview({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class CameraCoverPreview extends StatelessWidget {
       builder: (context, constraints) {
         final size = constraints.biggest;
         final deviceRatio = size.width / size.height;
-        final previewSize = controller!.value.previewSize!;
+        final previewSize = controller.value.previewSize!;
         final previewRatio = previewSize.height / previewSize.width;
 
         return Transform.scale(
@@ -20,7 +20,7 @@ class CameraCoverPreview extends StatelessWidget {
           child: Center(
             child: AspectRatio(
               aspectRatio: previewRatio,
-              child: CameraPreview(controller!),
+              child: CameraPreview(controller),
             ),
           ),
         );

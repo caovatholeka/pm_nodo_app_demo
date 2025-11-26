@@ -12,7 +12,7 @@ class FaceMaskWithWave extends StatefulWidget {
   final Duration countdown;            // ví dụ: Duration(seconds: 4)
   final VoidCallback onCountdownDone;  // gọi khi hết countdown -> bắt đầu scan
 
-  const FaceMaskWithWave({
+  const FaceMaskWithWave({super.key, 
     required this.anim,
     required this.countdown,
     required this.onCountdownDone,

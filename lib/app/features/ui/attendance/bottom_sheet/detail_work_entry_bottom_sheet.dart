@@ -14,11 +14,11 @@ class DetailWorkEntryBottomSheet extends StatefulWidget {
   final WorkEntity? workEntity;
   final String? date;
 
-  DetailWorkEntryBottomSheet({
-    Key? key,
+  const DetailWorkEntryBottomSheet({
+    super.key,
     this.workEntity,
     this.date,
-  }): super(key: key);
+  });
 
 
   @override

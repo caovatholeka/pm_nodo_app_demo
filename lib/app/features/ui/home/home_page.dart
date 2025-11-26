@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
 
 
                   Center(
-                    child: Container(
+                    child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.92,
                       child: AttendanceStatusCard(
                         dateText: DateFormat(

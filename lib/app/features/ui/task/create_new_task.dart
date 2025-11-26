@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/user_entity.dart';
@@ -20,7 +19,6 @@ import '../../../core/commons/app_assets.dart';
 import '../../../core/utils/validators.dart';
 import '../../widgets/custom_dialog.dart';
 import '../../widgets/input_text_field.dart';
-import '../../widgets/primary_button.dart';
 
 class CreateNewTask extends StatefulWidget {
   bool? isEdit;

@@ -108,7 +108,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                         bottomLeft: Radius.circular(32),
                         bottomRight: Radius.circular(32),
                       ),
-                      child: Container(
+                      child: SizedBox(
                         width: double.infinity,
                         height: 280,
                         child: Stack(

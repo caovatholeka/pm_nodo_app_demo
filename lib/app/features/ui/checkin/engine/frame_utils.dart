@@ -109,7 +109,9 @@ class FrameUtils {
   /// Mean channel G trên ROI (RGB u8 [H,W,3])
   static double meanGreen(Uint8List rgb) {
     double s = 0;
-    for (int i = 1; i < rgb.length; i += 3) s += rgb[i];
+    for (int i = 1; i < rgb.length; i += 3) {
+      s += rgb[i];
+    }
     return s / (rgb.length / 3);
   }
 

@@ -43,11 +43,13 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       body: BlocBuilder<PersonalCubit, PersonalState>(
         bloc: _cubit,
         builder: (context, state) {
-          if (state.isLoading)
+          if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
+          }
           final user = state.profile;
-          if (user == null)
+          if (user == null) {
             return const Center(child: Text("Lỗi tải thông tin"));
+          }
 
           return CustomScrollView(
             slivers: [
@@ -57,7 +59,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                     bottomLeft: Radius.circular(32),
                     bottomRight: Radius.circular(32),
                   ),
-                  child: Container(
+                  child: SizedBox(
                     width: double.infinity,
                     height: 280,
                     child: Stack(
