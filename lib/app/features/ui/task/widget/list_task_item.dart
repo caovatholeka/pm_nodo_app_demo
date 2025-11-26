@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/features/ui/task/widget/status_widget.dart';
 
@@ -205,7 +206,7 @@ class ListTaskItem extends StatelessWidget {
                     ) : Spacer(),
                     Row(
                       children: [
-                        Text("19/11/2025 15:04:09",
+                        Text(AppDateUtils.changeIso8601StringToDateTimeString(entity.createdDate ?? ""),
                           style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w400,

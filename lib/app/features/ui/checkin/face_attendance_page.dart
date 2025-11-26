@@ -226,9 +226,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       final outFile = await File(outPath).writeAsBytes(bytes, flush: true);
 
       // call api check face
-      // Comment test
-      // _cubit.onChangeFilePath(outFile.path);
-      // _cubit.searchFace(outFile);
+      _cubit.onChangeFilePath(outFile.path);
+      _cubit.searchFace(outFile);
       if (!mounted) return;
       // Navigator.pop(context, base64);
     } catch (e) {

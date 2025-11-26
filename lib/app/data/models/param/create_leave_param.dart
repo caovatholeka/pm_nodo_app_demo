@@ -5,6 +5,9 @@ part 'create_leave_param.g.dart';
 
 @JsonSerializable()
 class UpdateOnLeaveParam {
+  @JsonKey(name: "id")
+  int? id;
+
   @JsonKey(name: "employee_id")
   int? employeeId;
 
@@ -27,6 +30,7 @@ class UpdateOnLeaveParam {
   List<LeaveDayEntity>? leaveDays;
 
   UpdateOnLeaveParam({
+    this.id,
     this.employeeId,
     this.holidayStatusId,
     this.departmentId,
@@ -37,6 +41,7 @@ class UpdateOnLeaveParam {
   });
 
 UpdateOnLeaveParam copyWith({
+  int? id,
   int? employeeId,
   int? holidayStatusId,
   int? departmentId,
@@ -46,6 +51,7 @@ UpdateOnLeaveParam copyWith({
   List<LeaveDayEntity>? leaveDays,
   }) {
     return UpdateOnLeaveParam(
+      id: id ?? this.id,
       employeeId: employeeId ?? this.employeeId,
       holidayStatusId: holidayStatusId ?? this.holidayStatusId,
       departmentId: departmentId ?? this.departmentId,
@@ -58,5 +64,13 @@ UpdateOnLeaveParam copyWith({
 
   factory UpdateOnLeaveParam.fromJson(Map<String, dynamic> json) => _$UpdateOnLeaveParamFromJson(json);
 
-  Map<String, dynamic> toJson() => _$UpdateOnLeaveParamToJson(this);
+  // Map<String, dynamic> toJson() => _$UpdateOnLeaveParamToJson(this);
+  Map<String, dynamic> toJson(){
+    final map = _$UpdateOnLeaveParamToJson(this);
+    map.removeWhere((key, value) =>
+    value == null ||
+        (value is String && value.trim().isEmpty) ||
+        (value is List && value.isEmpty));
+    return map;
+  }
 }

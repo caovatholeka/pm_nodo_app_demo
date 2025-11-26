@@ -34,6 +34,9 @@ class TaskEntity {
   @JsonKey(name: "task_type")
   String? taskType;
 
+  @JsonKey(name: "created_date")
+  String? createdDate;
+
   TaskEntity({
     this.id,
     this.name,
@@ -44,6 +47,7 @@ class TaskEntity {
     this.assigner,
     this.userIds,
     this.taskType,
+    this.createdDate
   });
 
   TaskEntity copyWith({
@@ -55,7 +59,8 @@ class TaskEntity {
     String? priority,
     UserEntity? assigner,
     List<UserEntity>? userIds,
-    String? taskType
+    String? taskType,
+    String? createdDate
 }) {
     return TaskEntity(
         id: id ?? this.id,
@@ -67,6 +72,7 @@ class TaskEntity {
         assigner: assigner ?? this.assigner,
         userIds: userIds ?? this.userIds,
         taskType: taskType ?? this.taskType,
+      createdDate: createdDate ?? this.createdDate
     );
   }
 
