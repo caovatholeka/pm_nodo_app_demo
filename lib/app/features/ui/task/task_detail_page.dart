@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
@@ -159,7 +160,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
                                const SizedBox(height: 8,),
                                _buildItem("Hạn chót",
-                                   state.detailTask?.deadline ?? "")
+                                   AppDateUtils.changeIso8601StringToDateTimeString(state.detailTask?.deadline ?? "") )
                                    .paddingOnly(bottom: 8),
                                CustomDashView(),
 

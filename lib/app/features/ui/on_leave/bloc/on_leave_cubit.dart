@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 
 import '../../../../core/helper/response_mapper.dart';
 import '../../../../core/logger/logger.dart';
@@ -19,14 +20,15 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
 
     try{
-
-      int limit = 10;
-      int offset  = 0;
+      int limit = 20;
+      int page  = 1;
       String? startDate;
       String? endDate;
       final results = await repository.getListTimeOnLeaves(limit,
-          offset,state.startDateFilter,
-          state.endDateFilter);
+          page,
+          AppDateUtils.parseDateToYMD(state.startDateFilter),
+          AppDateUtils.parseDateToYMD(state.endDateFilter)
+      );
       List<OnLeaveEntity>? listLeaves;
       if(results.data != null){
         listLeaves =  mapList<OnLeaveEntity>(results.data, OnLeaveEntity.fromJson);

@@ -11,6 +11,11 @@ class AppDateUtils {
     }
   }
 
+  String formatIsoToYyyyMmDd(String input) {
+    final dt = DateTime.parse(input);
+    return DateFormat('yyyy-MM-dd').format(dt);
+  }
+
   static String? parseDateToYMD(String? input) {
     if (input == null || input.trim().isEmpty) return null;
     try {

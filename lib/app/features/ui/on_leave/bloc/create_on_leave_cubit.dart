@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -26,16 +27,23 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   void resetStatus(){
     emit(state.copyWith(
         createStatus: LoadStatus.INITIAL,
-        reason:"",
-        leaveDays:"",
-        leaveDateType:"",
-        leaveType:"",
+     updateStatus: LoadStatus.INITIAL
+    ));
+  }
+
+  void resetData(){
+    emit(state.copyWith(
+      reason:"",
+      leaveDays:"",
+      leaveDateType:"",
+      leaveType:"",
       fromDate: "",
       toDate: "",
-        currentDateLeaveType:MasterDataItem(),
+      currentDateLeaveType:MasterDataItem(),
       listLeaveDays:[],
       resetDateTime: true,
     ));
+
   }
 
   void initData(OnLeaveEntity entity){
@@ -44,25 +52,60 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
     ));
   }
 
-  void createOrUpdateLeaveDay() async{
+  void createLeaveDay() async{
     emit(state.copyWith(createStatus: LoadStatus.LOADING));
     try{
       final UpdateOnLeaveParam param = UpdateOnLeaveParam(
         employeeId: GlobalData.instance.userProfile?.employeeId,
         holidayStatusId: state.currentDateLeaveType?.id,
         departmentId: GlobalData.instance.userProfile?.department?.id,
-        requestDateFrom: AppUtil().parseDateToYMD(state.fromDate),
-        requestDateTo: AppUtil().parseDateToYMD(state.toDate),
+        requestDateFrom: AppDateUtils.parseDateToYMD(state.fromDate),
+        requestDateTo: AppDateUtils.parseDateToYMD(state.toDate),
         name: state.reason,
         leaveDays: state.listLeaveDays
       );
       final res = await repository.saveOrUpdateHrLeave(param);
       if((res.lines ?? []).isNotEmpty){
         emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
+      }else{
+        emit(state.copyWith(createStatus: LoadStatus.FAILURE));
       }
-    }catch(e){
+    }on DioException catch(e){
       logger.d(e);
-      emit(state.copyWith(createStatus: LoadStatus.FAILURE));
+      final res = e.response!.data as Map<String, dynamic>;
+      logger.d("errror ::: ${res["message"]} ${res["status"]}");
+      emit(state.copyWith(createStatus: LoadStatus.FAILURE,
+          // errMsg: res["message"],
+          // errStatus: res["status"]
+      ));
+      // emit(state.copyWith(createStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void updateLeaveDay(int id) async{
+    emit(state.copyWith(updateStatus: LoadStatus.LOADING));
+    try{
+      final UpdateOnLeaveParam param = UpdateOnLeaveParam(
+        id: id,
+          employeeId: GlobalData.instance.userProfile?.employeeId,
+          holidayStatusId: state.currentDateLeaveType?.id,
+          departmentId: GlobalData.instance.userProfile?.department?.id,
+          requestDateFrom: AppDateUtils.parseDateToYMD(state.fromDate),
+          requestDateTo: AppDateUtils.parseDateToYMD(state.toDate),
+          name: state.reason,
+          leaveDays: state.listLeaveDays
+      );
+      final res = await repository.saveOrUpdateHrLeave(param);
+      if((res.lines ?? []).isNotEmpty){
+        emit(state.copyWith(updateStatus: LoadStatus.SUCCESS));
+      }else{
+        emit(state.copyWith(updateStatus: LoadStatus.FAILURE));
+      }
+    }on DioException catch(e){
+      logger.d(e);
+      final res = e.response!.data as Map<String, dynamic>;
+      logger.d("errror ::: ${res["message"]} ${res["status"]}");
+      emit(state.copyWith(updateStatus: LoadStatus.FAILURE));
     }
   }
 
@@ -114,7 +157,6 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   }
 
   void onChangeListLeaveDays(List<LeaveDayEntity> list) async{
-    logger.d("list day ::: $list");
     emit(state.copyWith(listLeaveDays: []));
     emit(state.copyWith(listLeaveDays: list));
   }
@@ -126,7 +168,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   }
 
   void setFromDate(DateTime dateTime) {
-    String formattedDate = DateFormat(AppConfig.iso8601Format).format(dateTime.toUtc());
+    String formattedDate = DateFormat(AppConfig.birthdayReservedFormat).format(dateTime);
     emit(state.copyWith(fromDate: AppDateUtils.changeIso8601StringToDateTimeString(formattedDate), fromDateTime: dateTime));
   }
 
@@ -135,7 +177,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   }
 
   void setToDate(DateTime dateTime) {
-    String formattedDate = DateFormat(AppConfig.iso8601Format).format(dateTime.toUtc());
+    String formattedDate = DateFormat(AppConfig.birthdayReservedFormat).format(dateTime);
     emit(state.copyWith(toDate: AppDateUtils.changeIso8601StringToDateTimeString(formattedDate), toDateTime: dateTime));
   }
 

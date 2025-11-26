@@ -82,7 +82,7 @@ class TaskState extends Equatable {
       createStatus: createStatus ?? this.createStatus,
       loadDetailStatus: loadDetailStatus ?? this.loadDetailStatus,
       deleteStatus: deleteStatus ?? this.deleteStatus,
-      updateStatus: updateStageStatus ?? this.updateStatus,
+      updateStatus: updateStatus ?? this.updateStatus,
       listTasks: listTasks ?? this.listTasks,
       listTaskStages: listTaskStages ?? this.listTaskStages,
       detailTask: detailTask ?? this.detailTask,

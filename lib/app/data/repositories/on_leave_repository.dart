@@ -6,7 +6,7 @@ import '../models/response/common_response.dart';
 import '../models/response/on_leave_response.dart';
 
 abstract class OnLeaveRepository {
-  Future<CommonResponse> getListTimeOnLeaves(int limit,int offset, String? startDate, String? endDate);
+  Future<CommonResponse> getListTimeOnLeaves(int limit,int page, String? startDate, String? endDate);
   Future<OnLeaveEntity> getDetailOnLeave(int id);
   Future<dynamic> deleteDetailOnLeave( int id);
   Future<OnLeaveResponse> saveOrUpdateHrLeave(UpdateOnLeaveParam param);
@@ -22,8 +22,8 @@ class OnLeaveRepositoryImpl extends OnLeaveRepository {
   }
 
   @override
-  Future<CommonResponse> getListTimeOnLeaves(int limit, int offset, String? startDate, String? endDate) async {
-    return _apiClient.getListTimeOnLeaves(limit,offset,startDate,endDate);
+  Future<CommonResponse> getListTimeOnLeaves(int limit, int page, String? startDate, String? endDate) async {
+    return _apiClient.getListTimeOnLeaves(limit,page,startDate,endDate);
   }
 
   @override

@@ -12,6 +12,7 @@ import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
+import '../../../core/utils/date_utils.dart';
 import '../../../data/models/entities/on_leave_entity.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../widgets/custom_calendar_range_sheet.dart';
@@ -30,6 +31,8 @@ class OnLeavePage extends StatefulWidget {
 class _OnLeavePageState extends State<OnLeavePage> {
   final _cubit = GetIt.I.get<OnLeaveCubit>();
   ScrollController controller = ScrollController();
+
+  TextEditingController filterController = TextEditingController();
 
   @override
   void initState() {
@@ -139,70 +142,83 @@ class _OnLeavePageState extends State<OnLeavePage> {
   }
 
   get _filterWidget {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          flex: 8,
-          child: InputTextField(
-            title: "",
-            hintText: "",
-            isRequiredField: false,
-            disableTitle: true,
-            enable: true,
-            readOnly: true,
-            suffixIcon: AppAssets.icCalendar,
-            callback: () async {
-              // open custom calendar
-              final res = await showModalBottomSheet<DateTimeRange>(
-                context: context,
-                isScrollControlled: true,
-                showDragHandle: true,
-                backgroundColor: Colors.white,
-                builder:
-                    (_) =>
+    return BlocBuilder<OnLeaveCubit,OnLeaveState>(
+      bloc: _cubit,
+      buildWhen: (prev,cur) => prev.startDateFilter != cur.startDateFilter ||
+        prev.endDateFilter != cur.endDateFilter,
+      builder: (context,state){
+        String week = "";
+        if((state.startDateFilter ?? "").isNotEmpty){
+          week = "${state.startDateFilter} - ${state.endDateFilter}";
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 8,
+              child: InputTextField(
+                title: "",
+                hintText: "",
+                isRequiredField: false,
+                disableTitle: true,
+                enable: true,
+                readOnly: true,
+                controller: filterController..text = week,
+                suffixIcon: AppAssets.icCalendar,
+                callback: () async {
+                  // open custom calendar
+                  final res = await showModalBottomSheet<DateTimeRange>(
+                    context: context,
+                    isScrollControlled: true,
+                    showDragHandle: true,
+                    backgroundColor: Colors.white,
+                    builder:
+                        (_) =>
                         CalendarRangeSheet(initial: selectedWeek, locale: "en"),
-              );
+                  );
 
-              if (res != null) {
-                selectedWeek = res;
-                // String week = selectedWeek.toYmdLabel();
-                String start = _df.format(selectedWeek.start);
-                String end = _df.format(selectedWeek.end);
-                if (start != end) {
-                  _cubit.onChangeDateFilter(start, end);
-                } else {
-                  _cubit.onChangeDateFilter("", "");
-                }
-                // call api search
-                _cubit.getListOnLeaveTimes();
-              }
-            },
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          flex: 1,
-          child: InkWell(
-            onTap: () {
-              _createNewLeave();
-            },
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                color: AppColors.mainPrimaryColor6,
-              ),
-              padding: const EdgeInsets.all(12),
-              child: Center(
-                child: Icon(Icons.add, color: AppColors.whiteColor, size: 16,),
+                  if (res != null) {
+                    selectedWeek = res;
+                    // String week = selectedWeek.toYmdLabel();
+                    String start = _df.format(selectedWeek.start);
+                    String end = _df.format(selectedWeek.end);
+                    if (start != end) {
+                      _cubit.onChangeDateFilter(start, end);
+                    } else {
+                      _cubit.onChangeDateFilter("", "");
+                    }
+                    // call api search
+                    _cubit.getListOnLeaveTimes();
+                  }
+                },
               ),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 1,
+              child: InkWell(
+                onTap: () {
+                  _createNewLeave();
+                },
+                child: Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: AppColors.mainPrimaryColor6,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Center(
+                    child: Icon(Icons.add, color: AppColors.whiteColor, size: 16,),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
+
   }
 
   get _listWidget {

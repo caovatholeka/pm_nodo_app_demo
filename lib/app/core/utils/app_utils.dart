@@ -1,15 +1,15 @@
 import 'package:intl/intl.dart';
 
 class AppUtil {
-  String? parseDateToYMD(String? input) {
-    if (input == null || input.trim().isEmpty) return null;
-    try {
-      return DateFormat('yyyy-MM-dd')
-          .format(DateFormat('dd/MM/yyyy').parseStrict(input.trim()));
-    } catch (_) {
-      return null;
-    }
-  }
+  // String? parseDateToYMD(String? input) {
+  //   if (input == null || input.trim().isEmpty) return null;
+  //   try {
+  //     return DateFormat('yyyy-MM-dd')
+  //         .format(DateFormat('dd/MM/yyyy').parseStrict(input.trim()));
+  //   } catch (_) {
+  //     return null;
+  //   }
+  // }
 
   String? extractTime(String? input) {
     if(input == null){

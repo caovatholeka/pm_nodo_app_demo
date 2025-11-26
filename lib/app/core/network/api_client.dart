@@ -69,7 +69,7 @@ abstract class ApiClient {
   @GET("/leave/get_hr_leave")
   Future<CommonResponse> getListTimeOnLeaves(
     @Query("limit") int? limit,
-    @Query("offset") int? offset,
+    @Query("page") int? page,
     @Query("start_date") String? startDate,
     @Query("end_date") String? endDate,
   );

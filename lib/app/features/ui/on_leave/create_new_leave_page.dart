@@ -59,6 +59,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
   final ScrollController _scrollController = ScrollController();
   List<LeaveDayEntity> listDays = [];
+  late var totalLeaveDays = 0;
 
   @override
   void initState() {
@@ -78,6 +79,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   @override
   void dispose() {
     _createCubit.resetStatus();
+    _createCubit.resetData();
     super.dispose();
   }
 
@@ -107,6 +109,10 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   }
 
   // Helper funcs
+  String _formatYyyyMmDd(DateTime d) {
+    return AppDateUtils().formatIsoToYyyyMmDd(d.toIso8601String());
+  }
+
   double _sumDaysByType(List<LeaveDayEntity> days) {
     double sum = 0;
     for (final d in days) {
@@ -150,7 +156,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           if (d != null) {
             out.add(
               LeaveDayEntity(
-                date: d.toIso8601String(),
+                date: _formatYyyyMmDd(d), //d.toIso8601String(),
                 type: (e.type ?? 'full'),
               ),
             );
@@ -159,7 +165,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           final d = _tryParseIso(e['date'] as String?);
           final t = (e['type'] as String?) ?? 'full';
           if (d != null) {
-            out.add(LeaveDayEntity(date: d.toIso8601String(), type: t));
+            out.add(LeaveDayEntity(date: _formatYyyyMmDd(d), type: t));
           }
         }
       }
@@ -168,7 +174,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
     final allDays = AppDateUtils.daysBetween(from, to);
     for (final d in allDays) {
-      out.add(LeaveDayEntity(date: d.toIso8601String(), type: 'full'));
+      out.add(LeaveDayEntity(date:_formatYyyyMmDd(d), type: 'full'));
     }
     return out;
   }
@@ -213,10 +219,12 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
       // leave type
       final total = _sumDaysByType(listDays);
       totalDaysController.text = _fmtTotal(total);
+      totalLeaveDays = int.parse(_fmtTotal(total));
     } else {
       listDays = [];
       _createCubit.onChangeListLeaveDays(listDays);
       totalDaysController.text = '0';
+      totalLeaveDays = 0;
     }
 
     //lý do
@@ -277,34 +285,41 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             title: "Loại ngày nghỉ",
           ),
     );
+    _createCubit.onChangeDateTypeLeaves(item);
 
-    if (item != null) {
-      if ((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 &&
-          item.id == 7) {
-        AppSnackBar.showWarning(
-          title: "Cảnh báo",
-          message: "Quỹ phép của nhân viên không còn đủ!",
-        );
-      } else {
-        _createCubit.onChangeDateTypeLeaves(item);
-      }
-    }
+    // if (item != null && item.id == 7) {
+    //   if ((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 ||
+    //       (GlobalData.instance.userProfile?.remainLeave ?? 0) <
+    //           int.parse(totalDaysController.text)
+    //   ) {
+    //     AppSnackBar.showWarning(
+    //       title: "Cảnh báo",
+    //       message: "Quỹ phép của nhân viên không còn đủ!",
+    //     );
+    //   } else {
+    //     _createCubit.onChangeDateTypeLeaves(item);
+    //   }
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<CreateOnLeaveCubit, CreateOnLeaveState>(
       bloc: _createCubit,
-      buildWhen: (prev, cur) => prev.createStatus != cur.createStatus,
+      buildWhen: (prev, cur) => prev.createStatus != cur.createStatus ||
+        prev.updateStatus != cur.updateStatus,
       listener: (context, state) {
         if (state.createStatus == LoadStatus.LOADING ||
-          state.getTypeStatus == LoadStatus.LOADING) {
+          state.getTypeStatus == LoadStatus.LOADING
+        || state.updateStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
         }
         else if(state.getTypeStatus == LoadStatus.SUCCESS){
           LoadingOverlay.hide(context);
         }
-        else if (state.createStatus == LoadStatus.SUCCESS) {
+        else if (state.createStatus == LoadStatus.SUCCESS ||
+            state.updateStatus == LoadStatus.SUCCESS
+        ) {
           _createCubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(
@@ -322,7 +337,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           } else {
             Navigator.pop(context, true);
           }
-        } else if (state.createStatus == LoadStatus.FAILURE) {
+        } else if (state.createStatus == LoadStatus.FAILURE ||
+          state.updateStatus == LoadStatus.FAILURE) {
           _createCubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
@@ -428,7 +444,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                                 for (final e in allDays) {
                                                   listDays.add(
                                                     LeaveDayEntity(
-                                                      date: e.toIso8601String(),
+                                                      date: _formatYyyyMmDd(e),
                                                       type: 'full',
                                                     ),
                                                   );
@@ -495,7 +511,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                                 for (final e in allDays) {
                                                   listDays.add(
                                                     LeaveDayEntity(
-                                                      date: e.toIso8601String(),
+                                                      date:_formatYyyyMmDd(e),
                                                       type: 'full',
                                                     ),
                                                   );
@@ -611,10 +627,11 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                           _createCubit.onChangeReason(value);
                         },
                       ),
-                      const SizedBox(height: 100,)
+                      const SizedBox(height: 20,)
                     ],
                   ),
                 ),
+                const SizedBox(height: 40,)
               ],
             ),
           ),
@@ -642,7 +659,9 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           }
           return InkWell(
             onTap:isEnable ? (){
-              _createCubit.createOrUpdateLeaveDay();
+              (widget.isEdit ?? false) ?
+                  _doUpdate(): _doCreate();
+
             } : (){},
             child: Container(
               margin: const EdgeInsets.only(left: 16,right: 16,bottom: 36),
@@ -655,7 +674,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                   borderRadius: BorderRadius.all(Radius.circular(6))
               ),
               child: Center(
-                child: Text((widget.isEdit ?? false) ? "Xác nhận" : "Lưu",
+                child: Text("Lưu",
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -669,6 +688,58 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
         });
 
   }
+
+  _doUpdate(){
+    if(_createCubit.state.currentDateLeaveType?.id == 7){
+      if ((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 ||
+          (GlobalData.instance.userProfile?.remainLeave ?? 0) <
+              double.parse(totalDaysController.text)
+      ) {
+        AppSnackBar.showWarning(
+          title: "Cảnh báo",
+          message: "Quỹ phép của nhân viên không còn đủ!",
+        );
+      } else {
+        _showUpdate();
+      }
+    }else{
+      _showUpdate();
+    }
+
+  }
+
+  _showUpdate(){
+    _showDialog(
+      title: "Xác nhận",
+      message:"Thông tin sẽ được thay đổi. Bạn chắc chắn "
+          "muốn thay đổi thông tin này?",
+      success: true,
+      onConfirm: () {
+        _createCubit.updateLeaveDay(widget.detailEntity?.id ?? 0);
+        Navigator.of(context).maybePop();
+      },
+    );
+  }
+
+  _doCreate(){
+    if(_createCubit.state.currentDateLeaveType?.id == 7){
+      if ((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 ||
+          (GlobalData.instance.userProfile?.remainLeave ?? 0) <
+              double.parse(totalDaysController.text)
+      ) {
+        AppSnackBar.showWarning(
+          title: "Cảnh báo",
+          message: "Quỹ phép của nhân viên không còn đủ!",
+        );
+      } else {
+        _createCubit.createLeaveDay();
+      }
+    }else{
+      _createCubit.createLeaveDay();
+    }
+  }
+
+  // Remove
   get _contentBody {
     return SingleChildScrollView(
       child: Column(
@@ -785,7 +856,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                     for (final e in allDays) {
                                       listDays.add(
                                         LeaveDayEntity(
-                                          date: e.toIso8601String(),
+                                          date: _formatYyyyMmDd(e),
                                           type: 'full',
                                         ),
                                       );
@@ -880,7 +951,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                     for (final e in allDays) {
                                       listDays.add(
                                         LeaveDayEntity(
-                                          date: e.toIso8601String(),
+                                          date: _formatYyyyMmDd(e),
                                           type: 'full',
                                         ),
                                       );
@@ -979,7 +1050,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                           : "Bạn có chắc muốn tạo mới đơn nghỉ phép?",
                   success: true,
                   onConfirm: () {
-                    _createCubit.createOrUpdateLeaveDay();
+                    _createCubit.updateLeaveDay(widget.detailEntity?.id ?? 0);
                     Navigator.of(context).maybePop();
                   },
                 );

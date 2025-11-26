@@ -47,7 +47,8 @@ class TaskCubit extends Cubit<TaskState> {
   initUpdateState(TaskEntity task){
     emit(state.copyWith(
       taskName: task.name,
-      deadlineTime: AppDateUtils.parseBirthdayDate(task.deadline ?? ""),
+      deadlineDateTime:  AppDateUtils.convertStringDateToDateTime(task.deadline ?? ""),
+      deadlineTime: AppDateUtils.changeIso8601StringToDateTimeString(task.deadline ?? ""),
       description: task.description,
       taskPriority: task.priority.toString() == "1" ? true : false,
       strUsers: task.userIds?.map((user) => user.name).toList().join(","),
@@ -143,7 +144,7 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   void setDeadlineDate(DateTime dateTime) {
-    String formattedDate = DateFormat(AppConfig.birthdayReservedFormat).format(dateTime.toUtc());
+    String formattedDate = DateFormat(AppConfig.birthdayReservedFormat).format(dateTime);
     emit(state.copyWith(deadlineTime: AppDateUtils.changeIso8601StringToDateTimeString(formattedDate), deadlineDateTime: dateTime));
   }
 
@@ -227,7 +228,7 @@ class TaskCubit extends Cubit<TaskState> {
     final CreateTaskParam param = CreateTaskParam(
       taskId: taskId,
         name: state.taskName,
-        deadLine: state.deadlineTime,
+        deadLine: AppDateUtils.parseDateToYMD(state.deadlineTime),
         desc: state.description,
         userIds: userIds,
         priority: state.taskPriority ? 1 : 0

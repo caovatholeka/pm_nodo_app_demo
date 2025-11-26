@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/user_entity.dart';
@@ -121,6 +122,8 @@ class _CreateNewTaskState extends State<CreateNewTask> {
   Widget build(BuildContext context) {
     return BlocConsumer<TaskCubit,TaskState>(
         bloc: _cubit,
+        listenWhen: (prev,cur) => prev.createStatus != cur.loadStatus ||
+          prev.updateStatus != cur.updateStatus,
         listener: (context,state){
           if(state.createStatus == LoadStatus.LOADING ||
             state.updateStatus == LoadStatus.LOADING){
@@ -328,7 +331,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                           title: "Hạn chót",
                                           hintText: "",
                                           isRequiredField: true,
-                                          controller: dateLineController,
+                                          controller: dateLineController..text = state.deadlineTime ?? "",
                                           enable: true,
                                           readOnly: true,
                                           suffixIcon: AppAssets.icCalendar,
@@ -337,7 +340,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                                 defaultValue:  state.deadlineDateTime,
                                                 onConfirm: (selectedDate) {
                                                   _selectedDate = selectedDate;
-                                                  // validate to date so với hôm nay , nếu có
+                                                  logger.d("selectedDate :: ${selectedDate.toIso8601String()}");
                                                   _cubit.setDeadlineDate(selectedDate);
                                                 }
                                             );
@@ -544,7 +547,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
       builder: (_) => CustomDialog(
         iconPath: AppAssets.ic_done,
         title: "Xác nhận",
-        content: "Thông tin sẽ được thay. Bạn chắc chắn muốn thay đổi thông tin này?",
+        content: "Thông tin sẽ được thay đổi. Bạn chắc chắn muốn thay đổi thông tin này?",
         success: true,
         confirmText: "Cập Nhật",
         cancelText: "Huỷ bỏ",
