@@ -15,6 +15,8 @@ import 'package:pm_app/app/features/ui/checkin/widget/my_map_marker.dart';
 import 'package:pm_app/app/features/widgets/cached_image_widget.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/app/features/widgets/square_avatar.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/utils/utils.dart';
@@ -49,7 +51,7 @@ class _CheckInPageState extends State<CheckInPage> {
   String actionCheckIn = "";
 
   // google maps
-  late GoogleMapController mapController;
+  GoogleMapController? _mapController;
   Set<Marker> oldMarkers = {};
   final MapType _mapType = MapType.terrain;
   Set<Marker> _markers = {};
@@ -58,8 +60,11 @@ class _CheckInPageState extends State<CheckInPage> {
   StreamSubscription? _locationSubscription;
 
   void _onMapCreated(GoogleMapController controller) async {
-    mapController = controller;
+    _mapController = controller;
     // await _fitToAllCheckIn();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _moveCameraToCurrentPlace();
+    });
   }
 
 Future<void> _requestLocationPermission() async {
@@ -118,6 +123,8 @@ Future<void> _requestLocationPermission() async {
 
   @override
   void dispose() {
+    _locationSubscription?.cancel();
+    _mapController?.dispose();
     super.dispose();
   }
 
@@ -135,7 +142,6 @@ Future<void> _requestLocationPermission() async {
         position: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
         icon: icon,
         onTap: () {
-          // _showBottomSheet(product, product.propertyUnit?.totalListing ?? 0);
           // show thong tin
           logger.d("dia chi check in ::: ${checkin.name}");
         },
@@ -143,13 +149,14 @@ Future<void> _requestLocationPermission() async {
     }).toList();
 
     final circleFutures = listCheckins.map((checkin) async {
+      final r = (checkin.radius ?? 200.0).toDouble();
       return Circle(
         circleId: CircleId('c_${checkin.id}'),
         center: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
-        radius: 300.0, //checkin.radius ?? 0.0,       // mét
+        radius: r,
         strokeWidth: 2,
-        strokeColor: Colors.blue,
-        fillColor: Colors.blue.withOpacity(0.15),
+        strokeColor: Color(0xFFCE0000).withOpacity(0.2),
+        fillColor: Color(0xFFCE0000).withOpacity(0.2),
       );
     }).toList();
 
@@ -177,6 +184,51 @@ Future<void> _requestLocationPermission() async {
     return '$prefix, $dateStr';
   }
 
+  Future<void> _moveCameraToCurrentPlace() async {
+    if (!mounted) return;
+    if (_mapController == null) return;
+
+    final state = _cubit.state;
+
+    final e = state.currentCheckInEntity ??
+        (state.listCheckInfos != null && state.listCheckInfos!.isNotEmpty
+            ? state.listCheckInfos!.first
+            : null);
+
+    if (e == null) {
+      if (state.position != null) {
+        await _mapController!.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(state.position!.latitude, state.position!.longitude),
+              zoom: 16,
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    final target = LatLng(e.latitude ?? 0.0, e.longitude ?? 0.0);
+    final radius = (e.radius ?? 200.0);
+
+    final zoom = _zoomForRadius(radius);
+
+    try {
+      await _mapController!.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: target,
+            zoom: zoom,
+          ),
+        ),
+      );
+    } catch (err, st) {
+      logger.e("moveCamera error: $err\n$st");
+    }
+  }
+
+
   Future<void> _fitToAllCheckIn() async {
     if ((_cubit.state.listCheckInfos ?? []).isEmpty) return;
 
@@ -201,11 +253,11 @@ Future<void> _requestLocationPermission() async {
     // Animate camera theo bounds với padding
     final padding = 16.0;
     try {
-      await mapController.animateCamera(
+      await _mapController?.animateCamera(
         CameraUpdate.newLatLngBounds(bounds, padding),
       );
     } catch (_) {
-      await mapController.animateCamera(
+      await _mapController?.animateCamera(
         CameraUpdate.newCameraPosition(CameraPosition(
           target: LatLng((_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0,
             (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0),
@@ -216,9 +268,12 @@ Future<void> _requestLocationPermission() async {
   }
 
   double _zoomForRadius(double radiusMeters) {
-    double km = (radiusMeters <= 0) ? 0.001 : (radiusMeters / 1000.0);
-    final z = 16.5 - (math.log(km) / math.log(2));
-    return z.clamp(3.0, 21.0).toDouble();
+    if (radiusMeters <= 0) radiusMeters = 200;
+
+    final scale = radiusMeters / 500;
+    final zoom = 15 - (math.log(scale) / math.ln2);
+
+    return zoom.clamp(12.0, 19.0).toDouble();
   }
 
 
@@ -236,9 +291,10 @@ Future<void> _requestLocationPermission() async {
             LoadingOverlay.show(context);
           }if(state.getCheckInfo == LoadStatus.SUCCESS){
             LoadingOverlay.hide(context);
-            _initMarkers(state.listCheckInfos ?? []);
+            await _initMarkers(state.listCheckInfos ?? []);
+            await _moveCameraToCurrentPlace();
           }
-          else if(state.checkInStatus == LoadStatus.SUCCESS){
+          if(state.checkInStatus == LoadStatus.SUCCESS){
             _cubit.onResetState();
             AppSnackBar.showInfo(title: "Chấm công thành công",message:
               "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())}- ${state.currentCheckInEntity?.name} ");
@@ -250,15 +306,14 @@ Future<void> _requestLocationPermission() async {
                   state.checkInOutResponse?.id ?? 0);
               }
             }
-          }else if(state.checkOutStatus == LoadStatus.SUCCESS){
+          }if(state.checkOutStatus == LoadStatus.SUCCESS){
             _cubit.onResetState();
             AppSnackBar.showInfo(title:"Chấm công thành công",message:  "${state.checkInOutResponse?.datetime} - ${state.currentCheckInEntity?.name} ");
           }
-          else if(state.updateExplain == LoadStatus.SUCCESS){
+          if(state.updateExplain == LoadStatus.SUCCESS){
             _cubit.onResetState();
             AppSnackBar.showInfo(title:"Thành Công",message: "Giải trình công thành công");
-          }
-          else if(state.checkInStatus == LoadStatus.FAILURE ||
+          }if(state.checkInStatus == LoadStatus.FAILURE ||
               state.checkOutStatus == LoadStatus.FAILURE){
             _cubit.onResetState();
             if((state.errStatus ?? "").contains("ERROR.")){
@@ -286,38 +341,18 @@ Future<void> _requestLocationPermission() async {
 
   get _mapNormalScreen {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Chấm công"),
-          flexibleSpace: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(AppAssets.appbarBg),
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-          leading: (widget.isFromHome ?? false)
-              ? IconButton(
-            onPressed: () {
-              Navigator.of(context).maybePop();
-            },
-            icon: Image.asset(
-              AppAssets.ic_arrowB,
-              width: 30,
-              height: 30,
-            ),
-          ) : const SizedBox(),
-        ),
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          color: AppColors.bodyColor,
-          child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 16,right: 16),
-              child: _bodyContent
-          ),
+        backgroundColor: AppColors.bodyColor,
+        appBar: MyAppBar(
+          titleAppbar: "Chấm công",
+          haveBackButton: (widget.isFromHome ?? false) ? true : false,
+          haveActionButton: true,
+          iconPathAsset: AppAssets.icNotificationBell,
+          actionCallBack: () {
+
+          },),
+        body: SingleChildScrollView(
+            padding: const EdgeInsets.only(left: 16,right: 16),
+            child:  _bodyContent
         )
     );
   }
@@ -400,13 +435,25 @@ Future<void> _requestLocationPermission() async {
             ),
             textAlign: TextAlign.center,
           ).paddingOnly(bottom: 16),
-         InkWell(
-           onTap: (){
-             // thuc hien check in
-             doCheckIn();
-           },
-           child: SvgPicture.asset(AppAssets.camScan,width: 80,height: 80,),
-         ).paddingOnly(bottom: 16),
+
+         BlocBuilder<CheckInCubit,CheckInState>(
+             bloc: _cubit,
+             buildWhen: (prev,cur) => prev.checkInStatus != cur.checkInStatus,
+             builder: (context,state){
+               final isLoading = state.checkInStatus == LoadStatus.LOADING;
+
+               return isLoading ?
+               SizedBox(height: 60,width: 60,
+                child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),
+               ):
+               InkWell(
+                 onTap: isLoading ? (){} : (){
+                   // thuc hien check in
+                   doCheckIn();
+                 },
+                 child: SvgPicture.asset(AppAssets.camScan,width: 60,height: 60,),
+               ).paddingOnly(bottom: 16);
+             }),
 
           Text("Nhận dạng khuôn mặt",
             style: TextStyle(
@@ -458,57 +505,70 @@ Future<void> _requestLocationPermission() async {
     return SizedBox(
       width: double.infinity,
       height: double.infinity,
-      child: BlocBuilder<CheckInCubit,CheckInState>(
-          bloc: _cubit,
-          buildWhen: (prev,cur) => prev.position != cur.position ||
+      child: BlocBuilder<CheckInCubit, CheckInState>(
+        bloc: _cubit,
+        buildWhen: (prev, cur) =>
+        prev.position != cur.position ||
             prev.isMapExpanded != cur.isMapExpanded,
-          builder: (context,state){
-            if (state.position != null) {
-              var marker = Marker(
-                markerId: const MarkerId('place_name'),
-                position: LatLng(state.position!.latitude,
-                    state.position!.longitude),
-              );
-              return Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
-                    child: GoogleMap(
-                        key: ValueKey(LatLng(state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0)),
-                        mapType: _mapType,
-                        onMapCreated: _onMapCreated,
-                        initialCameraPosition: CameraPosition(
-                          target: LatLng(
-                            state.position!.latitude,
-                            state.position!.longitude,
-                          ),
-                          zoom: 15.0,
-                        ),
-                        markers: _markers,
-                        // circles: _circles,
-                        myLocationButtonEnabled: false,
-                        buildingsEnabled: false,
-                        zoomControlsEnabled: false,
-                        myLocationEnabled: true,
-                        mapToolbarEnabled: false,
-                        compassEnabled: false
+        builder: (context, state) {
+          if (state.position == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final isExpanded = state.isMapExpanded ?? false;
+
+          // GoogleMap
+          Widget mapChild = GoogleMap(
+            key: const ValueKey('checkin_map'),
+            mapType: _mapType,
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: LatLng(
+                state.position!.latitude,
+                state.position!.longitude,
+              ),
+              zoom: 13.0,
+            ),
+            markers: _markers,
+            circles: _circles,
+            myLocationButtonEnabled: false,
+            buildingsEnabled: false,
+            zoomControlsEnabled: false,
+            myLocationEnabled: true,
+            mapToolbarEnabled: false,
+            compassEnabled: false,
+          );
+
+          if (!isExpanded) {
+            mapChild = ClipRRect(
+              borderRadius: BorderRadius.circular(12.0),
+              child: mapChild,
+            );
+          }
+
+          return Stack(
+            children: [
+              Positioned.fill(child: mapChild),
+
+              if (!isExpanded)
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: InkWell(
+                    onTap: () async {
+                      await _moveCameraToCurrentPlace();
+                      _cubit.onExpandMap();
+                    },
+                    child: SvgPicture.asset(
+                      AppAssets.icExpandOut,
+                      width: 24,
                     ),
                   ),
-                  !(state.isMapExpanded ?? false) ?
-                  Positioned(
-                      top: 12,
-                      right: 12,
-                      child: InkWell(
-                        onTap: (){
-                          _cubit.onExpandMap();
-                        },
-                        child: SvgPicture.asset(AppAssets.icExpandOut,width: 24,),
-                      )) : const SizedBox.shrink()
-                ],
-              );
-            }
-            return SizedBox(child: Center(child: CircularProgressIndicator(),),);
-          }),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -525,61 +585,171 @@ Future<void> _requestLocationPermission() async {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 12,),
-              SvgPicture.asset(AppAssets.icCheckinSuccess),
+              SvgPicture.asset(AppAssets.icCheckinSuccess,width: 76,height: 76,),
               Text("Chấm công thành công",
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
                   color: AppColors.themeBlackDefault
                 ),
-              ).paddingOnly(bottom: 6),
+              ).paddingOnly(bottom: 6,top: 8),
               Text(AppDateUtils.getCurrentTimeAM(),
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.w600,
                   color: AppColors.colorSuccess500
                 ),
               ).paddingOnly(bottom: 10),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 70,
-                    width: 70,
-                    child: CachedImageWidget(urlImage: ""),
-                  ).paddingOnly(right: 6),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        GlobalData.instance.userProfile?.name ?? "",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.themeBlackDefault
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.whiteColor,
+                  borderRadius: BorderRadius.all(Radius.circular(16))
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AvatarSquare(imageUrl: GlobalData.instance.userProfile?.avatarUrl ?? "").paddingOnly(right: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              GlobalData.instance.userProfile?.name ?? "",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.themeBlackDefault
+                              ),
+                            ).paddingOnly(bottom: 5),
+                            Text(
+                              GlobalData.instance.userProfile?.jobTitle ?? "",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.neutral500
+                              ),
+                            ).paddingOnly(bottom: 5),
+                            Text(
+                              GlobalData.instance.userProfile?.employeeCode ?? "",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.neutral500
+                              ),
+                            )
+                          ],
                         ),
-                      ).paddingOnly(bottom: 5),
-                      Text(
-                        GlobalData.instance.userProfile?.jobTitle ?? "",
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.neutral500
+                      ],
+                    ),
+                    SvgPicture.asset(AppAssets.icSuccess)
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10,),
+              Text("Tuyệt vời!Điểm danh của bạn đã được ghi nhận\n thành công "
+                  ".Chúc bạn một ngày tốt !",
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.neutral400
+                ),
+                textAlign: TextAlign.center,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  get _checkInFailure {
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.only(left: 16,right: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12,),
+              SvgPicture.asset(AppAssets.icCheckinFailed,width: 76,height: 76,),
+              Text("Chấm công thất bại",
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.themeBlackDefault
+                ),
+              ).paddingOnly(bottom: 6,top: 8),
+              Text(AppDateUtils.getCurrentTimeAM(),
+                style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textRed
+                ),
+              ).paddingOnly(bottom: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+                decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: BorderRadius.all(Radius.circular(16))
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        AvatarSquare(imageUrl: GlobalData.instance.userProfile?.avatarUrl ?? "").paddingOnly(right: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              GlobalData.instance.userProfile?.name ?? "",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.themeBlackDefault
+                              ),
+                            ).paddingOnly(bottom: 5),
+                            Text(
+                              GlobalData.instance.userProfile?.jobTitle ?? "",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.neutral500
+                              ),
+                            ).paddingOnly(bottom: 5),
+                            Text(
+                              GlobalData.instance.userProfile?.employeeCode ?? "",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.neutral500
+                              ),
+                            )
+                          ],
                         ),
-                      ).paddingOnly(bottom: 5),
-                      Text(
-                        GlobalData.instance.userProfile?.employeeCode ?? "",
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.neutral500
-                        ),
-                      )
-                    ],
-                  ),
-                  
-                  SvgPicture.asset(AppAssets.icSuccess)
-                ],
+                      ],
+                    ),
+                    SvgPicture.asset(AppAssets.icFailed)
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10,),
+              Text("Bạn không ở gần vị trí chấm công.Vui lòng đến gần hơn và thử lại",
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.neutral400
+                ),
+                textAlign: TextAlign.center,
               )
             ],
           ),
