@@ -29,23 +29,27 @@ class _StaffPageState extends State<StaffPage> {
   final double _scrollThreshold = 100;
   bool _isSearchActive = false;
 
-  EmployeeFilterParam? _activeFilter; 
+  EmployeeFilterParam? _activeFilter;
 
   @override
   void initState() {
     super.initState();
 
-    if (_cubit.state.listEmployees == null ||
-        _cubit.state.listEmployees!.isEmpty) {
-      _cubit.getListEmployees();
-    }
+    _cubit.getListEmployees();
 
     _scrollController.addListener(_onMaxScroll);
 
     _searchController.addListener(() {
-      final hasText = _searchController.text.trim().isNotEmpty;
+      final text = _searchController.text.trim();
+      final hasText = text.isNotEmpty;
+
       if (hasText != _isSearchActive) {
         setState(() => _isSearchActive = hasText);
+
+        if (!hasText) {
+          _activeFilter = null;
+          _cubit.getListEmployees();
+        }
       }
     });
   }
@@ -68,44 +72,53 @@ class _StaffPageState extends State<StaffPage> {
     }
   }
 
-Future<void> _openFilterSheet() async {
-  final departments = await MasterData.getDepartmentsFromApi();
-  final jobTitles = await MasterData.getJobTitlesFromApi();
-  final statuses = MasterData.employeeStatuses;
+  Future<void> _openFilterSheet() async {
+    final departments = await MasterData.getDepartmentsFromApi();
+    final jobTitles = await MasterData.getJobTitlesFromApi();
+    final statuses = MasterData.employeeStatuses;
 
-  final result = await showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (context) {
-      return AdvancedFilterSheet(
-        departments: departments,
-        jobTitles: jobTitles,
-        statuses: statuses,
-        savedFilter: _activeFilter,
-      );
-    },
-  );
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return AdvancedFilterSheet(
+          departments: departments,
+          jobTitles: jobTitles,
+          statuses: statuses,
+          savedFilter: _activeFilter,
+        );
+      },
+    );
 
-  if (result == "clear_filter") {
-    _activeFilter = null;   
-    _cubit.getListEmployees(filter: null);
-    return;
+    if (result == "clear_filter") {
+      _activeFilter = null;
+      _cubit.getListEmployees(filter: null);
+      return;
+    }
+
+    if (result is EmployeeFilterParam) {
+      _activeFilter = result;
+      _searchController.clear();
+      _isSearchActive = false;
+      _cubit.getListEmployees(filter: result);
+    }
   }
-
-  if (result is EmployeeFilterParam) {
-    _activeFilter = result; 
-    _cubit.getListEmployees(filter: result);
-  }
-}
 
   void _onSearchPressed() {
     final query = _searchController.text.trim();
-    if (query.isEmpty) return;
 
+    if (query.isEmpty) {
+      _activeFilter = null;
+      _cubit.getListEmployees();
+      setState(() => _isSearchActive = false);
+      return;
+    }
+
+    // Có text => tìm kiếm
     _activeFilter = null;
     _cubit.getListEmployees(query: query);
   }
@@ -136,7 +149,8 @@ Future<void> _openFilterSheet() async {
               builder: (context, state) {
                 if (state.loadStatus == LoadStatus.FAILURE) {
                   return const Center(
-                      child: Text("Không thể tải danh sách nhân viên"));
+                    child: Text("Không thể tải danh sách nhân viên"),
+                  );
                 }
 
                 return Padding(
@@ -179,9 +193,10 @@ Future<void> _openFilterSheet() async {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 6,
-              offset: const Offset(0, 2))
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          )
         ],
       ),
       child: Row(
@@ -228,8 +243,11 @@ Future<void> _openFilterSheet() async {
                 color: const Color(0xFF0062FF),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.tune_rounded,
-                  color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.tune_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -252,7 +270,10 @@ Future<void> _openFilterSheet() async {
               ? "Không có kết quả nào phù hợp bộ lọc"
               : "Không có nhân viên nào",
           style: const TextStyle(
-              fontSize: 15, color: Colors.black54, fontWeight: FontWeight.w500),
+            fontSize: 15,
+            color: Colors.black54,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       );
     }
@@ -280,21 +301,26 @@ Future<void> _openFilterSheet() async {
                   title: Text(
                     emp.name ?? "Không có tên",
                     style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                        fontSize: 15),
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      fontSize: 15,
+                    ),
                   ),
                   subtitle: Text(
                     "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
                     style: const TextStyle(
-                        color: Colors.black54, fontSize: 13, height: 1.3),
+                      color: Colors.black54,
+                      fontSize: 13,
+                      height: 1.3,
+                    ),
                   ),
                   trailing: Text(
                     emp.code != null ? "NV${emp.code}" : "",
                     style: const TextStyle(
-                        color: Color.fromARGB(255, 0, 98, 255),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14),
+                      color: Color.fromARGB(255, 0, 98, 255),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
                   onTap: () {
                     Navigator.push(
