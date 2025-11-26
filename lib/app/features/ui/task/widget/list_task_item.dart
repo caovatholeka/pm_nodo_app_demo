@@ -147,7 +147,7 @@ class ListTaskItem extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                     color: AppColors.textGray600
                   ),),
-                  Text(entity.deadline ?? "",
+                  Text(AppDateUtils.changeIso8601StringToDateTimeString(entity.deadline ?? "") ,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,

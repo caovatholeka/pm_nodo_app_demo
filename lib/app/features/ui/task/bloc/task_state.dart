@@ -52,6 +52,7 @@ class TaskState extends Equatable {
   });
 
   TaskState copyWith({
+    bool resetDateTime = false,
     LoadStatus? loadStatus,
     LoadStatus? getStageStatus,
     LoadStatus? updateStageStatus,
@@ -93,7 +94,7 @@ class TaskState extends Equatable {
       listUsers: listUsers ?? this.listUsers,
       currentUsers: currentUsers ?? this.currentUsers,
       strUsers: strUsers ?? this.strUsers,
-      deadlineDateTime: deadlineDateTime ?? this.deadlineDateTime,
+      deadlineDateTime: resetDateTime ? null : (deadlineDateTime ?? this.deadlineDateTime),
       deadlineTime: deadlineTime ?? this.deadlineTime,
       description: description ?? this.description
     );

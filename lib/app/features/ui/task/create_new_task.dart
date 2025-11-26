@@ -70,6 +70,8 @@ class _CreateNewTaskState extends State<CreateNewTask> {
 
   @override
   void dispose() {
+    _cubit.resetStatus();
+    _cubit.resetData();
     super.dispose();
   }
 
@@ -185,217 +187,224 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                 children: [
                   SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          color: AppColors.whiteColor,
-                          borderRadius: BorderRadius.all(Radius.circular(6))
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Form(
-                            key: _titleKey,
-                            child: BlocListener<TaskCubit, TaskState>(
-                              bloc: _cubit,
-                              listenWhen: (prev, cur) => prev.taskName != cur.taskName,
-                              listener: (context, state) {
-                                final text = state.taskName ?? "";
-                                taskNameController.value = taskNameController.value.copyWith(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: text.length),
-                                  composing: TextRange.empty,
-                                );
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                              color: AppColors.whiteColor,
+                              borderRadius: BorderRadius.all(Radius.circular(6))
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Form(
+                                key: _titleKey,
+                                child: BlocListener<TaskCubit, TaskState>(
+                                  bloc: _cubit,
+                                  listenWhen: (prev, cur) => prev.taskName != cur.taskName,
+                                  listener: (context, state) {
+                                    final text = state.taskName ?? "";
+                                    taskNameController.value = taskNameController.value.copyWith(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: text.length),
+                                      composing: TextRange.empty,
+                                    );
 
-                                if (text.isNotEmpty) {
-                                  _titleKey.currentState?.validate();
-                                }
-                              },
-                              child: BlocBuilder<TaskCubit, TaskState>(
-                                bloc: _cubit,
-                                buildWhen: (prev, cur) => prev.taskName != cur.taskName,
-                                builder: (context, state) {
-                                  return InputTextField(
-                                    title: "Tiêu đề",
-                                    hintText: "",
-                                    isRequiredField: true,
-                                    enable: true,
-                                    controller: taskNameController,
-                                    onChange: (value) {
-                                      _titleKey.currentState!.validate();
-                                      _cubit.onChangeTaskName(value);
+                                    if (text.isNotEmpty) {
+                                      _titleKey.currentState?.validate();
+                                    }
+                                  },
+                                  child: BlocBuilder<TaskCubit, TaskState>(
+                                    bloc: _cubit,
+                                    buildWhen: (prev, cur) => prev.taskName != cur.taskName,
+                                    builder: (context, state) {
+                                      return InputTextField(
+                                        title: "Tiêu đề",
+                                        hintText: "",
+                                        isRequiredField: true,
+                                        enable: true,
+                                        controller: taskNameController,
+                                        onChange: (value) {
+                                          _titleKey.currentState!.validate();
+                                          _cubit.onChangeTaskName(value);
+                                        },
+                                        validator:
+                                            (value) => Validator.validateEmpty(value, "Tiêu đề"),
+                                      );
                                     },
-                                    validator:
-                                        (value) => Validator.validateEmpty(value, "Tiêu đề"),
-                                  );
-                                },
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(height: 16,),
-                          _priorityWidget,
-                          const SizedBox(height: 16,),
-                          InputTextField(
-                            title: "Loại công việc",
-                            hintText: "",
-                            isRequiredField: false,
-                            controller:
-                            taskTypeController
-                              ..text = "Thông thường",
-                            readOnly: true,
-                          ).paddingOnly(bottom: 16),
+                              const SizedBox(height: 16,),
+                              _priorityWidget,
+                              const SizedBox(height: 16,),
+                              InputTextField(
+                                title: "Loại công việc",
+                                hintText: "",
+                                isRequiredField: false,
+                                controller:
+                                taskTypeController
+                                  ..text = "Thông thường",
+                                readOnly: true,
+                              ).paddingOnly(bottom: 16),
 
-                          InputTextField(
-                            title: "Người giao việc",
-                            hintText: "",
-                            isRequiredField: false,
-                            controller:
-                            assignerController
-                              ..text = GlobalData.instance.userProfile?.name ?? "",
-                            readOnly: true,
-                          ).paddingOnly(bottom: 16),
+                              InputTextField(
+                                title: "Người giao việc",
+                                hintText: "",
+                                isRequiredField: false,
+                                controller:
+                                assignerController
+                                  ..text = GlobalData.instance.userProfile?.name ?? "",
+                                readOnly: true,
+                              ).paddingOnly(bottom: 16),
 
-                          Form(
-                            key: _userKey,
-                            child: BlocListener<TaskCubit,TaskState>(
-                              bloc: _cubit,
-                              listenWhen: (prev, cur) => prev.currentUsers != cur.currentUsers ||
-                                  prev.strUsers != cur.strUsers,
-                              listener: (context, state) {
-                                final text = state.strUsers ?? "";
-                                userController.value = userController.value.copyWith(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: text.length),
-                                  composing: TextRange.empty,
-                                );
-
-                                if(text.isNotEmpty){
-                                  _userKey.currentState?.validate();
-                                }
-                              },
-                              child: BlocBuilder<TaskCubit,TaskState>(
+                              Form(
+                                key: _userKey,
+                                child: BlocListener<TaskCubit,TaskState>(
                                   bloc: _cubit,
-                                  buildWhen: (prev,cur) => prev.strUsers != cur.strUsers ||
-                                      prev.currentUsers != cur.currentUsers ||
-                                      prev.listUsers != cur.listUsers,
-                                  builder: (context,state){
-                                    return InputTextField(
-                                      title: "Người được phân công",
-                                      hintText: "",
-                                      isRequiredField: true,
-                                      controller: userController,
-                                      enable: true,
-                                      readOnly: true,
-                                      suffixIcon: AppAssets.icArrowDown,
-                                      callback: (){
-                                        _openUsersBottomSheet(state.listUsers ?? []);
-                                      },
-                                      validator: (value) =>
-                                          Validator.validateEmpty(value, "Người được phân công "),
-                                    ).paddingOnly(bottom: 20);
-                                  }),
-                            ),
-                          ),
+                                  listenWhen: (prev, cur) => prev.currentUsers != cur.currentUsers ||
+                                      prev.strUsers != cur.strUsers,
+                                  listener: (context, state) {
+                                    final text = state.strUsers ?? "";
+                                    userController.value = userController.value.copyWith(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: text.length),
+                                      composing: TextRange.empty,
+                                    );
 
-                          Form(
-                            key: _dateLineKey,
-                            child: BlocListener<TaskCubit,TaskState>(
-                              bloc: _cubit,
-                              listenWhen: (prev, cur) => prev.deadlineDateTime != cur.deadlineDateTime ||
-                                  prev.deadlineTime != cur.deadlineTime,
-                              listener: (context, state) {
-                                final text = state.deadlineTime ?? "";
-                                dateLineController.value = dateLineController.value.copyWith(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: text.length),
-                                  composing: TextRange.empty,
-                                );
+                                    if(text.isNotEmpty){
+                                      _userKey.currentState?.validate();
+                                    }
+                                  },
+                                  child: BlocBuilder<TaskCubit,TaskState>(
+                                      bloc: _cubit,
+                                      buildWhen: (prev,cur) => prev.strUsers != cur.strUsers ||
+                                          prev.currentUsers != cur.currentUsers ||
+                                          prev.listUsers != cur.listUsers,
+                                      builder: (context,state){
+                                        return InputTextField(
+                                          title: "Người được phân công",
+                                          hintText: "",
+                                          isRequiredField: true,
+                                          controller: userController,
+                                          enable: true,
+                                          readOnly: true,
+                                          suffixIcon: AppAssets.icArrowDown,
+                                          callback: (){
+                                            _openUsersBottomSheet(state.listUsers ?? []);
+                                          },
+                                          validator: (value) =>
+                                              Validator.validateEmpty(value, "Người được phân công "),
+                                        ).paddingOnly(bottom: 20);
+                                      }),
+                                ),
+                              ),
 
-                                if(text.isNotEmpty){
-                                  _dateLineKey.currentState?.validate();
-                                }
-                              },
-                              child: BlocBuilder<TaskCubit,TaskState>(
+                              Form(
+                                key: _dateLineKey,
+                                child: BlocListener<TaskCubit,TaskState>(
                                   bloc: _cubit,
-                                  buildWhen: (prev,cur) => prev.deadlineDateTime != cur.deadlineDateTime ||
+                                  listenWhen: (prev, cur) => prev.deadlineDateTime != cur.deadlineDateTime ||
                                       prev.deadlineTime != cur.deadlineTime,
-                                  builder: (context,state){
-                                    return InputTextField(
-                                      title: "Hạn chót",
-                                      hintText: "",
-                                      isRequiredField: true,
-                                      controller: dateLineController,
-                                      enable: true,
-                                      readOnly: true,
-                                      suffixIcon: AppAssets.icCalendar,
-                                      callback: (){
-                                        _showDatePicker(
-                                            defaultValue:  state.deadlineDateTime,
-                                            onConfirm: (selectedDate) {
-                                              _selectedDate = selectedDate;
-                                              // validate to date so với hôm nay , nếu có
-                                              _cubit.setDeadlineDate(selectedDate);
-                                            }
-                                        );
-                                      },
-                                      validator: (value) =>
-                                          Validator.validateEmpty(value, "Hạn chót"),
-                                    ).paddingOnly(bottom: 20);
-                                  }),
-                            ),
-                          ),
+                                  listener: (context, state) {
+                                    final text = state.deadlineTime ?? "";
+                                    dateLineController.value = dateLineController.value.copyWith(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: text.length),
+                                      composing: TextRange.empty,
+                                    );
 
-                          Form(
-                            key: _descriptionKey,
-                            child: BlocListener<TaskCubit, TaskState>(
-                              bloc: _cubit,
-                              listenWhen: (prev, cur) => prev.description != cur.description,
-                              listener: (context, state) {
-                                final text = state.description ?? "";
-                                descriptionController.value = descriptionController.value.copyWith(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: text.length),
-                                  composing: TextRange.empty,
-                                );
-
-                                if (text.isNotEmpty) {
-                                  _descriptionKey.currentState?.validate();
-                                }
-                              },
-                              child: BlocBuilder<TaskCubit, TaskState>(
-                                bloc: _cubit,
-                                buildWhen: (prev, cur) => prev.description != cur.description,
-                                builder: (context, state) {
-                                  return InputTextField(
-                                    title: "mô tả",
-                                    hintText: "",
-                                    isRequiredField: true,
-                                    enable: true,
-                                    controller: descriptionController,
-                                    maxLine: 5,
-                                    onChange: (value) {
-                                      _descriptionKey.currentState!.validate();
-                                      _cubit.onChangeDescription(value);
-                                    },
-                                    validator:
-                                        (value) => Validator.validateEmpty(value, "Mô tả"),
-                                  );
-                                },
+                                    if(text.isNotEmpty){
+                                      _dateLineKey.currentState?.validate();
+                                    }
+                                  },
+                                  child: BlocBuilder<TaskCubit,TaskState>(
+                                      bloc: _cubit,
+                                      buildWhen: (prev,cur) => prev.deadlineDateTime != cur.deadlineDateTime ||
+                                          prev.deadlineTime != cur.deadlineTime,
+                                      builder: (context,state){
+                                        return InputTextField(
+                                          title: "Hạn chót",
+                                          hintText: "",
+                                          isRequiredField: true,
+                                          controller: dateLineController,
+                                          enable: true,
+                                          readOnly: true,
+                                          suffixIcon: AppAssets.icCalendar,
+                                          callback: (){
+                                            _showDatePicker(
+                                                defaultValue:  state.deadlineDateTime,
+                                                onConfirm: (selectedDate) {
+                                                  _selectedDate = selectedDate;
+                                                  // validate to date so với hôm nay , nếu có
+                                                  _cubit.setDeadlineDate(selectedDate);
+                                                }
+                                            );
+                                          },
+                                          validator: (value) =>
+                                              Validator.validateEmpty(value, "Hạn chót"),
+                                        ).paddingOnly(bottom: 20);
+                                      }),
+                                ),
                               ),
-                            ),
+
+                              Form(
+                                key: _descriptionKey,
+                                child: BlocListener<TaskCubit, TaskState>(
+                                  bloc: _cubit,
+                                  listenWhen: (prev, cur) => prev.description != cur.description,
+                                  listener: (context, state) {
+                                    final text = state.description ?? "";
+                                    descriptionController.value = descriptionController.value.copyWith(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: text.length),
+                                      composing: TextRange.empty,
+                                    );
+
+                                    if (text.isNotEmpty) {
+                                      _descriptionKey.currentState?.validate();
+                                    }
+                                  },
+                                  child: BlocBuilder<TaskCubit, TaskState>(
+                                    bloc: _cubit,
+                                    buildWhen: (prev, cur) => prev.description != cur.description,
+                                    builder: (context, state) {
+                                      return InputTextField(
+                                        title: "mô tả",
+                                        hintText: "",
+                                        isRequiredField: true,
+                                        enable: true,
+                                        controller: descriptionController,
+                                        maxLine: 5,
+                                        onChange: (value) {
+                                          _descriptionKey.currentState!.validate();
+                                          _cubit.onChangeDescription(value);
+                                        },
+                                        validator:
+                                            (value) => Validator.validateEmpty(value, "Mô tả"),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 24,),
+                        _bottomSheet,
+                        const SizedBox(height: 24,),
+                      ],
                     ),
                   ),
-                  Positioned(
-                      bottom: 40,
-                      left: 16,
-                      right: 16,
-                      child: SizedBox(
-                          width: double.infinity,
-                          child: _bottomSheet
-                      ))
+                  // Positioned(
+                  //     bottom: 40,
+                  //     left: 16,
+                  //     right: 16,
+                  //     child: SizedBox(
+                  //         width: double.infinity,
+                  //         child: _bottomSheet
+                  //     ))
                 ],
               ),
             ),
@@ -433,67 +442,70 @@ class _CreateNewTaskState extends State<CreateNewTask> {
   }
 
   get _bottomSheet {
-    return Row(
-      children: [
-        Expanded(
-          child: InkWell(
-            onTap: (){
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 14,vertical: 16),
-              decoration: BoxDecoration(
-                color: AppColors.whiteColor,
-                borderRadius: BorderRadius.all(Radius.circular(6)),
-                border: Border.all(
-                  width: 1,
-                  color: AppColors.themeBlackDefault.withOpacity(0.1),
+    return Padding(
+      padding: const EdgeInsets.only(left: 12,right: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: (){
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.whiteColor,
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                  border: Border.all(
+                    width: 1,
+                    color: AppColors.themeBlackDefault.withOpacity(0.1),
+                  ),
                 ),
-              ),
-              child: Text(
-                "Huỷ",
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.themePrimaryDefault
+                child: Text(
+                  "Huỷ",
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.themePrimaryDefault
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: InkWell(
-            onTap: (){
-              (widget.isEdit ?? false) ?
-               doUpdateTask() : createNewTask();
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 14,vertical: 16),
-              decoration: BoxDecoration(
-                color: AppColors.themePrimaryDefault,
-                borderRadius: BorderRadius.all(Radius.circular(6)),
-                border: Border.all(
-                  width: 1,
-                  color: AppColors.themeBlackDefault.withOpacity(0.1),
+          const SizedBox(width: 10),
+          Expanded(
+            child: InkWell(
+              onTap: (){
+                (widget.isEdit ?? false) ?
+                 doUpdateTask() : createNewTask();
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.themePrimaryDefault,
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                  border: Border.all(
+                    width: 1,
+                    color: AppColors.themeBlackDefault.withOpacity(0.1),
+                  ),
                 ),
-              ),
-              child: Text(
-                (widget.isEdit ?? false) ? "Xác Nhận" : "Lưu",
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.whiteColor
+                child: Text(
+                  (widget.isEdit ?? false) ? "Xác Nhận" : "Lưu",
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.whiteColor
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

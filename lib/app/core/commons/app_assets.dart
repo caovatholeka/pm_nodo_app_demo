@@ -108,4 +108,7 @@ class AppAssets {
   static final icStar = 'assets/images/icons/ic_star.svg';
   static final icBack = 'assets/images/icons/ic_back.svg';
   static final icNotificationPF = 'assets/images/icons/icNotificationPF.svg';
+
+  static final icSearch = 'assets/images/icons/ic_search.svg';
+  static final icClose = 'assets/images/icons/ic_close.svg';
 }

@@ -29,7 +29,18 @@ class TaskCubit extends Cubit<TaskState> {
       loadDetailStatus: LoadStatus.INITIAL,
       deleteStatus: LoadStatus.INITIAL,
       updateStatus: LoadStatus.INITIAL,
-      currentUsers: []
+      currentUsers: [],
+      resetDateTime: true,
+    ));
+  }
+
+  resetData(){
+    emit(state.copyWith(
+        listUsers:[],
+        strUsers: "",
+      currentUsers: [],
+      deadlineTime: "",
+      resetDateTime: true,
     ));
   }
 

@@ -229,44 +229,6 @@ Future<void> _requestLocationPermission() async {
   }
 
 
-  Future<void> _fitToAllCheckIn() async {
-    if ((_cubit.state.listCheckInfos ?? []).isEmpty) return;
-
-    double minLat = (_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0;
-    double maxLat = (_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0;
-    double minLng = (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0;
-    double maxLng = (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0;
-
-    for (final s in (_cubit.state.listCheckInfos ?? [])) {
-      minLat = math.min(minLat, s.latitude);
-      maxLat = math.max(maxLat, s.latitude);
-      minLng = math.min(minLng, s.longitude);
-      maxLng = math.max(maxLng, s.longitude);
-    }
-
-    // Tạo bounds thô theo tâm
-    var bounds = LatLngBounds(
-      southwest: LatLng(minLat, minLng),
-      northeast: LatLng(maxLat, maxLng),
-    );
-
-    // Animate camera theo bounds với padding
-    final padding = 16.0;
-    try {
-      await _mapController?.animateCamera(
-        CameraUpdate.newLatLngBounds(bounds, padding),
-      );
-    } catch (_) {
-      await _mapController?.animateCamera(
-        CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng((_cubit.state.listCheckInfos ?? []).first.latitude ?? 0.0,
-            (_cubit.state.listCheckInfos ?? []).first.longitude ?? 0.0),
-          zoom: _zoomForRadius((_cubit.state.listCheckInfos ?? []).first.radius ?? 0.0),
-        )),
-      );
-    }
-  }
-
   double _zoomForRadius(double radiusMeters) {
     if (radiusMeters <= 0) radiusMeters = 200;
 

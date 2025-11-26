@@ -51,5 +51,13 @@ class CreateTaskParam {
 
   factory CreateTaskParam.fromJson(Map<String, dynamic> json) => _$CreateTaskParamFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CreateTaskParamToJson(this);
+  // Map<String, dynamic> toJson() => _$CreateTaskParamToJson(this);
+  Map<String, dynamic> toJson(){
+    final map = _$CreateTaskParamToJson(this);
+    map.removeWhere((key, value) =>
+    value == null ||
+        (value is String && value.trim().isEmpty) ||
+        (value is List && value.isEmpty));
+    return map;
+  }
 }

@@ -230,7 +230,7 @@ class _InputTextFieldState extends State<InputTextField> {
                               ),
                               child: SvgPicture.asset(
                                 widget.suffixIcon!,
-                                width: 14,
+                                width: 12,
                                 color: const Color(0xff666666),
                               ),
                             ),

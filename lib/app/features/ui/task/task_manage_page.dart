@@ -1,8 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/screen_size.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_stage_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -31,8 +34,9 @@ class _TaskManagePageState extends State<TaskManagePage> {
   final _appCubit = GetIt.I<AppCubit>();
 
   ScrollController controller = ScrollController();
+  TextEditingController _searchController = TextEditingController();
 
-  late final List<TaskStageEntity> _tabs;
+  // late final List<TaskStageEntity> _tabs;
   @override
   void initState() {
     initData();
@@ -87,7 +91,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => TaskStageBottomSheet(
-        listStages: _tabs,
+        listStages: _cubit.state.listTaskStages,
         currentTaskStatus: entity.stage?.code ?? "",
       ),
     );
@@ -96,6 +100,10 @@ class _TaskManagePageState extends State<TaskManagePage> {
       // update
       _cubit.updateTaskStage((entity.id ?? 0).toString(), picked.id ?? 0);
     }
+  }
+
+  void dismissKeyboard() {
+    FocusScope.of(context).requestFocus(FocusNode());
   }
 
   @override
@@ -110,7 +118,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
           }
           else if(state.getStageStatus == LoadStatus.SUCCESS){
             LoadingOverlay.hide(context);
-            _tabs = List.from(state.listTaskStages ?? []);
+            // _tabs = List.from(state.listTaskStages ?? []);
           }
           if(state.updateStageStatus == LoadStatus.SUCCESS){
             LoadingOverlay.hide(context);
@@ -145,7 +153,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
                 ),
               ),
             ),
-            body: SingleChildScrollView(
+            body: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -154,8 +162,10 @@ class _TaskManagePageState extends State<TaskManagePage> {
                 children: [
                   _filterWidget,
                   _tabWidget,
-                  _listTasksWidget,
-                  const SizedBox(height: 40,)
+                  Flexible(
+                    // width: double.infinity,
+                    child:_listTasksWidget
+                  ),
                 ],
               ),
             ),
@@ -170,18 +180,36 @@ class _TaskManagePageState extends State<TaskManagePage> {
       children: [
         Expanded(
           flex: 8,
-          child: InputTextField(
-            title: "",
-            hintText: "Tìm kiếm công việc",
-            isRequiredField: false,
-            disableTitle: true,
-            enable: true,
-            onChange: (val){
-              _cubit.onChangeQuery(val);
-            },
-            // suffixIcon: AppAssets.,
+          child: BlocBuilder<TaskCubit,TaskState>(
+              bloc: _cubit,
+              buildWhen: (prev,cur) => prev.query != cur.query,
+              builder: (context, state){
+                return InputTextField(
+                  title: "",
+                  hintText: "Tìm kiếm công việc",
+                  isRequiredField: false,
+                  disableTitle: true,
+                  enable: true,
+                  controller: _searchController..text = state.query ?? "",
+                  onChange: (val){
+                    _cubit.onChangeQuery(val);
+                  },
+                  suffixIcon: (state.query ?? "").isNotEmpty ?  AppAssets.icClose : null,
+                  onSuffixAction: (){
+                    _cubit.onChangeQuery("");
+                    _cubit.getListTasks();
+                  },
+                  prefixWidget: InkWell(
+                    onTap: (){
+                      dismissKeyboard();
+                      _cubit.getListTasks();
+                    },
+                    child:  SvgPicture.asset(AppAssets.icSearch,width: 18,),
+                  ),
 
-          ),
+                );
+              })
+
         ),
         const SizedBox(width: 8,),
         Expanded(
@@ -211,7 +239,8 @@ class _TaskManagePageState extends State<TaskManagePage> {
       child: BlocBuilder<TaskCubit,TaskState>(
           bloc: _cubit,
           buildWhen: (prev,cur) => prev.loadStatus != cur.loadStatus ||
-              prev.currentTabIndex != cur.currentTabIndex,
+              prev.currentTabIndex != cur.currentTabIndex ||
+              prev.listTaskStages != cur.listTaskStages,
           builder: (context,state){
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,9 +251,9 @@ class _TaskManagePageState extends State<TaskManagePage> {
                     physics: const ClampingScrollPhysics(),
                     // padding: const EdgeInsets.only(left: 10, right: 10),
                     scrollDirection: Axis.horizontal,
-                    itemCount: _tabs.length,
+                    itemCount: (state.listTaskStages ?? []).length,
                     itemBuilder: (buildContext, index) {
-                      TaskStageEntity item = _tabs[index];
+                      TaskStageEntity item = (state.listTaskStages ?? [])[index];
                       return InkWell(
                         onTap: (){
                           // on change tabs
@@ -235,7 +264,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
                           }
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           decoration: BoxDecoration(
                             color: (index == state.currentTabIndex) ? AppColors.themePrimaryDefault :
                                   AppColors.whiteColor,
@@ -292,7 +321,9 @@ class _TaskManagePageState extends State<TaskManagePage> {
         builder: (context,state){
           return state.loadStatus == LoadStatus.LOADING ?
              const Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) :
-           RefreshIndicator(
+
+          ((state.listTasks ??[]).isNotEmpty ?
+          RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView.builder(
                 padding: const EdgeInsets.only(top: 20),
@@ -308,8 +339,9 @@ class _TaskManagePageState extends State<TaskManagePage> {
                     onShowChangeStatus: (){
                       _updateTaskStatus(entity);
                     },
-                  ).paddingOnly(bottom: 20);
+                  ).paddingOnly(bottom: 30);
                 }),
+            ) : Center(child: Text("Không có dữ liệu"),)
           );
         });
   }
