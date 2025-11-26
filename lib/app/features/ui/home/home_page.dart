@@ -13,15 +13,19 @@ import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/app/features/widgets/custom_input_dialog.dart';
+
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../widgets/attendance_status_card.dart';
-import '../../widgets/news_card.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import '../attendance/attendance_data_page.dart';
-import '../attendance/explanation/explanation_approval_page.dart';
 import '../notification/noti_page.dart';
 import '../task/widget/list_task_item.dart';
+
+extension ScaleExt on BuildContext {
+  double sw(double v) => MediaQuery.of(this).size.width * v;
+  double sh(double v) => MediaQuery.of(this).size.height * v;
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,234 +38,66 @@ class _HomePageState extends State<HomePage> {
   final _cubit = GetIt.I<HomeCubit>();
   final _appCubit = GetIt.I<AppCubit>();
 
-
   @override
   void initState() {
     _appCubit.getProfile();
-    if((_appCubit.state.listTaskStages ?? []).isEmpty){
+
+    if ((_appCubit.state.listTaskStages ?? []).isEmpty) {
       _appCubit.getListTaskStages();
     }
 
     _cubit.getListAttendanceToday();
     _cubit.getListNewTasks();
-
     super.initState();
-  }
-
-  void _goNoti() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => BlocProvider(
-              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
-              child: const NotificationPage(),
-            ),
-      ),
-    );
-  }
-
-  void _openStaffPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true,)),
-    );
-  }
-
-  void _goAttendanceData() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => AttendanceDataPage()),
-    );
-  }
-
-  void _goWorkEntry() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => WorkEntryPage()));
-  }
-
-  void _openCheckIn(){
-    Navigator.push(context, MaterialPageRoute(builder: (_) =>
-        CheckInPage(
-          isFromHome: true,
-        )
-    ));
-  }
-
-  void _openOnLeave(){
-    Navigator.push(context, MaterialPageRoute(builder: (_) =>
-        OnLeavePage(
-          isFromHome: true,
-        )
-    ));
-  }
-
-  void _openTaskList() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => TaskManagePage()));
   }
 
   @override
   Widget build(BuildContext context) {
+    final headerHeight = context.sh(0.30);
+
     return Scaffold(
       backgroundColor: AppColors.bgGray,
       body: Stack(
         children: [
           ClipRRect(
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(context.sw(0.05)),
+              bottomRight: Radius.circular(context.sw(0.05)),
             ),
             child: SizedBox(
-              height: 290,
               width: double.infinity,
-              child: SvgPicture.asset(AppAssets.homeBG, fit: BoxFit.fill),
+              height: headerHeight,
+              child: SvgPicture.asset(AppAssets.homeBG, fit: BoxFit.cover),
             ),
           ),
+
           SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.sw(0.04),
+                    vertical: context.sh(0.015),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: BlocBuilder<AppCubit, AppState>(
-                          bloc: _appCubit,
-                          builder: (context, state) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Hi ${state.userProfile?.name ?? ""} 👋',
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  "Let's Find Your Work!",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: _goNoti,
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: SvgPicture.asset(
-                            AppAssets.ic_notification,
-                            width: 24,
-                          ),
-                        ),
-                      ),
+                      _header(context),
+                      SizedBox(height: context.sh(0.02)),
+                      _attendanceCard(context),
+                      SizedBox(height: context.sh(0.03)),
+                      _utilitiesTitle(context),
+                      SizedBox(height: context.sh(0.015)),
+                      _utilitiesGrid(context),
+                      SizedBox(height: context.sh(0.006)),
+                      _taskTitle(context),
+                      SizedBox(height: context.sh(0.002)),
                     ],
                   ),
+                ),
 
-                  const SizedBox(height: 24),
-
-
-                  Center(
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.92,
-                      child: AttendanceStatusCard(
-                        dateText: DateFormat(
-                          "d 'tháng' M, yyyy",
-                          "vi",
-                        ).format(DateTime.now()),
-                        checkInTime: "08.30 AM",
-                        checkOutTime: "06.00 PM",
-                        checkInStatus: "Done at 08.22 AM",
-                        checkOutStatus: "Not yet",
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  const Text(
-                    "Tiện ích",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.menuText,
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 24,
-                    crossAxisSpacing: 16,
-                    children: [
-                      _item(AppAssets.ic_employee, "Nhân viên",
-                        onTap: _openStaffPage
-                      ),
-                      _item(
-                        AppAssets.ic_paper,
-                        "Dữ liệu công",
-                        onTap: _goAttendanceData,
-                      ),
-                      _item(AppAssets.ic_paper2, "Nghỉ phép",
-                        onTap: _openOnLeave
-                      ),
-                      _item(
-                        AppAssets.ic_timekeeping,
-                        "Chấm công",
-                        onTap: _goWorkEntry,
-                      ),
-                      _item(
-                        AppAssets.ic_work, "Việc cần làm",
-                        onTap: _openTaskList
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 38),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Việc cần làm",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.menuText,
-                        ),
-                      ),
-                      InkWell(
-                        onTap: _openTaskList,
-                        child: Text(
-                          "Xem tất cả",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.menuText,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 16,),
-                  _listTask,
-                  const SizedBox(height: 60,),
-                ],
-              ),
+                Expanded(child: _taskList(context)),
+              ],
             ),
           ),
         ],
@@ -269,64 +105,192 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  get _listTask {
-    return BlocBuilder<HomeCubit,HomeState>(
-      bloc: _cubit,
-      buildWhen: (prev,cur) => prev.listNewTasks != cur.listNewTasks,
-      builder: (context,state){
-        return Column(
-          children: (state.listNewTasks ??[]).map((task){
-            return ListTaskItem(entity: task,
-              isShowNote: false,
-              onAddTaskNote: (){
-                // onTaskTakeNote(task);
-              },
-              onShowChangeStatus: (){
-                // _updateTaskStatus(entity);
-              },
-            ).paddingOnly(bottom: 20);
-          }).toList(),
+  Widget _header(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: BlocBuilder<AppCubit, AppState>(
+            bloc: _appCubit,
+            builder: (context, state) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Hi ${state.userProfile?.name ?? ""} 👋",
+                    style: TextStyle(
+                      fontSize: context.sw(0.06),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: context.sh(0.006)),
+                  Text(
+                    "Let's Find Your Work!",
+                    style: TextStyle(
+                      fontSize: context.sw(0.035),
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (_) =>
+                      GetIt.I<NotiCubit>()..loadNotifications("all"),
+                  child: const NotificationPage(),
+                ),
+              ),
+            );
+          },
+          child: Container(
+            padding: EdgeInsets.all(context.sw(0.03)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(context.sw(0.04)),
+            ),
+            child: SvgPicture.asset(
+              AppAssets.ic_notification,
+              width: context.sw(0.065),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _attendanceCard(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: context.sw(0.92),
+        child: AttendanceStatusCard(
+          dateText:
+              DateFormat("d 'tháng' M, yyyy", "vi").format(DateTime.now()),
+          checkInTime: "08.30 AM",
+          checkOutTime: "06.00 PM",
+          checkInStatus: "Done at 08.22 AM",
+          checkOutStatus: "Not yet",
+        ),
+      ),
+    );
+  }
+
+  Widget _utilitiesTitle(BuildContext context) {
+    return Text(
+      "Tiện ích",
+      style: TextStyle(
+        fontSize: context.sw(0.045),
+        fontWeight: FontWeight.bold,
+        color: AppColors.menuText,
+      ),
+    );
+  }
+
+  Widget _utilitiesGrid(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = constraints.maxWidth;
+        const idealWidth = 90;
+        final crossAxisCount = (screenWidth / idealWidth).floor().clamp(3, 4);
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: 5,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: context.sh(0.02),
+            crossAxisSpacing: context.sw(0.03),
+          ),
+          itemBuilder: (_, index) {
+            final map = [
+              {"a": AppAssets.ic_employee, "t": "Nhân viên"},
+              {"a": AppAssets.ic_paper, "t": "Dữ liệu công"},
+              {"a": AppAssets.ic_paper2, "t": "Nghỉ phép"},
+              {"a": AppAssets.ic_timekeeping, "t": "Chấm công"},
+              {"a": AppAssets.ic_work, "t": "Việc cần làm"},
+            ];
+            return _gridItem(context, map[index]["a"]!, map[index]["t"]!);
+          },
         );
       },
     );
   }
 
-  Widget _item(String asset, String title, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Image.asset(asset, width: 26, height: 26),
+  Widget _gridItem(BuildContext context, String asset, String title) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(context.sw(0.035)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(context.sw(0.04)),
           ),
-          const SizedBox(height: 5),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 13, color: Colors.black),
+          child: Image.asset(
+            asset,
+            width: context.sw(0.065),
+            height: context.sw(0.065),
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: context.sh(0.008)),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: context.sw(0.032),
+            color: Colors.black,
+          ),
+        ),
+      ],
     );
   }
 
-  // helper funcs
-  void onTaskTakeNote(TaskEntity entity) async{
-    final note = await CustomInputDialog.show(
-      context,
-      title: 'Ghi chú công việc',
-      content: '',
-      hintText: '',
-      maxLines: 4,
+  Widget _taskTitle(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Việc cần làm",
+          style: TextStyle(
+            fontSize: context.sw(0.045),
+            fontWeight: FontWeight.w700,
+            color: AppColors.menuText,
+          ),
+        ),
+        Text(
+          "Xem tất cả",
+          style: TextStyle(
+            fontSize: context.sw(0.033),
+            color: AppColors.menuText,
+          ),
+        ),
+      ],
     );
-
-    if (note != null) {
-      logger.d("noteee :: $note");
-      // call api take note
-    }
   }
+
+  Widget _taskList(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      bloc: _cubit,
+      buildWhen: (prev, cur) => prev.listNewTasks != cur.listNewTasks,
+      builder: (context, state) {
+        final tasks = state.listNewTasks ?? [];
+
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
+          itemCount: tasks.length,
+          itemBuilder: (context, index) {
+            return ListTaskItem(
+              entity: tasks[index],
+              isShowNote: false,
+            ).paddingOnly(bottom: context.sh(0.02));
+          },
+        );
+      },
+    );
+  } 
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 
@@ -119,6 +120,8 @@ class _AccountPageState extends State<AccountPage> {
       bloc: _cubit,
       builder: (context, state) {
         final profile = state.profile;
+        final screen = ScreenSize.of(context);
+        final appBarHeight = screen.height * 0.24;
 
         return Scaffold(
           backgroundColor: const Color(0xFFF4F6F8),
@@ -127,7 +130,7 @@ class _AccountPageState extends State<AccountPage> {
               SliverAppBar(
                 elevation: 0,
                 pinned: true,
-                expandedHeight: 240,
+                expandedHeight: appBarHeight,
                 centerTitle: true,
                 title: const Text(
                   "Cá nhân",
@@ -147,7 +150,7 @@ class _AccountPageState extends State<AccountPage> {
                   width: double.infinity,
                   color: const Color(0xFFF4F6F8),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 10,
                     vertical: 18,
                   ),
                   child: Column(
@@ -175,9 +178,7 @@ class _AccountPageState extends State<AccountPage> {
                           _menuItem(
                             icon: AppAssets.icNotificationPF,
                             title: "Thông báo",
-                            onTap: () {
-                              _goNotification();
-                            },
+                            onTap: () => _goNotification(),
                           ),
                           _menuItem(
                             icon: AppAssets.icProtect,
@@ -192,7 +193,7 @@ class _AccountPageState extends State<AccountPage> {
                         ],
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 6),
 
                       Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 8),
@@ -239,14 +240,30 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Widget _header(profile, LoadStatus status) {
+    final screen = ScreenSize.of(context);
+
+    final avatarSize = screen.width * 0.18;
+    final cameraSize = avatarSize * 0.28;
+    final nameFontSize = screen.width * 0.045;
+    final subInfoFontSize = screen.width * 0.028;
+    final spacing12 = screen.width * 0.03;
+    final spacing6 = screen.width * 0.015;
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
         Positioned.fill(
-          child: SvgPicture.asset(AppAssets.profileBG, fit: BoxFit.cover),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(26),
+              bottomRight: Radius.circular(26),
+            ),
+            child: SvgPicture.asset(AppAssets.profileBG, fit: BoxFit.cover),
+          ),
         ),
+
         Padding(
-          padding: const EdgeInsets.only(bottom: 25),
+          padding: EdgeInsets.only(bottom: screen.height * 0.032),
           child:
               status == LoadStatus.LOADING
                   ? const CircularProgressIndicator(color: Colors.white)
@@ -259,11 +276,14 @@ class _AccountPageState extends State<AccountPage> {
                         alignment: Alignment.bottomRight,
                         children: [
                           Container(
-                            width: 90,
-                            height: 90,
+                            width: avatarSize,
+                            height: avatarSize,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: avatarSize * 0.05,
+                              ),
                               image: DecorationImage(
                                 image:
                                     profile.avatarUrl != null
@@ -275,40 +295,47 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ),
                           Container(
-                            width: 28,
-                            height: 28,
+                            width: cameraSize,
+                            height: cameraSize,
                             decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.camera_alt, size: 16),
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: cameraSize * 0.55,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+
+                      SizedBox(height: spacing12),
+
                       Text(
                         profile.name ?? "",
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: nameFontSize,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 6),
+
+                      SizedBox(height: spacing6),
+
                       Padding(
-                        padding: const EdgeInsets.only(right: 30),
+                        padding: EdgeInsets.only(right: screen.width * 0.08),
                         child: Text(
                           "${profile.jobTitle ?? ''}  •  NV: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
                           textAlign: TextAlign.left,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.colorPrimary50,
-                            fontSize: 13,
+                            fontSize: subInfoFontSize,
                           ),
                         ),
                       ),
                     ],
                   )
-                  : const Text(""),
+                  : const SizedBox.shrink(),
         ),
       ],
     );

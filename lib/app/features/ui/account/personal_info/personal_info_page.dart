@@ -37,7 +37,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       appBar: MyAppBar(
         titleAppbar: "Cá nhân",
         haveBackButton: true,
-        isTransparent: true,
+        isTransparent: false,
         backAction: () => Navigator.pop(context),
       ),
       body: BlocBuilder<PersonalCubit, PersonalState>(

@@ -47,7 +47,7 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
         titleAppbar: "Dữ liệu chấm công",
         haveBackButton: true,
         haveActionButton: true,
-        iconPathAsset: AppAssets.ic_bell,
+        iconPathAsset: AppAssets.icNotificationBell,
         actionCallBack: () => DevelopmentAlertDialog.show(context),
       ),
       body: Stack(

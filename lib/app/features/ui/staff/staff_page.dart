@@ -118,7 +118,6 @@ class _StaffPageState extends State<StaffPage> {
       return;
     }
 
-    // Có text => tìm kiếm
     _activeFilter = null;
     _cubit.getListEmployees(query: query);
   }
