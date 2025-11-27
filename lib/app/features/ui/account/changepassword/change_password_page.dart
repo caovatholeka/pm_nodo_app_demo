@@ -179,6 +179,40 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                           child: SingleChildScrollView(
                             child: Column(
                               children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "* ",
+                                            style: TextStyle(
+                                              color:
+                                                  Colors.red,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text:
+                                                "Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.",
+                                            style: TextStyle(
+                                              color:
+                                                  AppColors.subtitle, 
+                                              fontSize: 13,
+                                              height: 1.3,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10,),
+
                                 InputTextField(
                                   controller: currentController,
                                   hintText: "Nhập mật khẩu hiện tại",
