@@ -1,18 +1,24 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:pm_app/app/core/service/firebase_messaging_service.dart';
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
   static Future<void> initialize() async {
-    const AndroidInitializationSettings androidInitializationSettings =
+    const AndroidInitializationSettings androidInit =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: androidInitializationSettings);
+    const InitializationSettings settings =
+        InitializationSettings(android: androidInit);
 
-    await _plugin.initialize(initializationSettings);
+    await _plugin.initialize(
+      settings,
+      onDidReceiveNotificationResponse: (response) {
+        FirebaseMessagingService.openFromLocalNotification();
+      },
+    );
 
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'high_importance_channel',
