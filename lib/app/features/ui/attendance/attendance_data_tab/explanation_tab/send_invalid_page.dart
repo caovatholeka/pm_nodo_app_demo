@@ -46,12 +46,14 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
   @override
   void dispose() {
     super.dispose();
+    _cubit.resetData();
   }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ExplanationCubit,ExplanationState>(
         bloc: _cubit,
-        listenWhen: (prev,cur) => prev.sendInvalidStatus != cur.sendInvalidStatus,
+        listenWhen: (prev,cur) => prev.sendInvalidStatus != cur.sendInvalidStatus ||
+          prev.errorMsg != cur.errorMsg,
       listener: (context,state){
         if(state.sendInvalidStatus == LoadStatus.LOADING){
           LoadingOverlay.show(context);
@@ -60,7 +62,13 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(title: "Thông báo",message: "Đơn giải trình của bạn đã được gửi đi thành công!!");
           Navigator.pop(context,true);
-        }else{
+        }
+        else if(state.sendInvalidStatus == LoadStatus.FAILURE){
+          _cubit.resetStatus();
+          LoadingOverlay.hide(context);
+          AppSnackBar.showWarning(title: "Cảnh báo",message: state.errorMsg);
+        }
+        else{
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
         }
@@ -117,28 +125,43 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                           children: [
                             Expanded(
                                 flex: 1,
-                                child: InputTextField(
-                                  title: "Giờ đến",
-                                  hintText: "",
-                                  isRequiredField: false,
-                                  enable: true,
-                                  inputType: TextInputType.number,
-                                  controller: startTimeController,
-                                  // controller: TextEditingController(text:
-                                  //   Utils().toHhMm(widget.workEntryEntity?.dateStart ?? "")),
-                                ),),
+                                child: BlocBuilder<ExplanationCubit,ExplanationState>(
+                                    bloc: _cubit,
+                                    buildWhen: (prev,cur) => prev.startTime != cur.startTime,
+                                    builder: (context,state){
+                                      return InputTextField(
+                                        title: "Giờ đến",
+                                        hintText: "00:00",
+                                        isRequiredField: false,
+                                        enable: widget.workEntryEntity?.state == "hr_confirm" ? false : true,
+                                        controller: startTimeController..text = widget.workEntryEntity?.state == "hr_confirm" ?
+                                          Utils().formatHmTime(widget.workEntryEntity?.dateStart ?? "") : state.startTime ?? "",
+                                        onChange: (val) {
+                                          _cubit.onChangeStartTime(val);
+                                        },
+                                      );
+                                    })
+                                ),
                             const SizedBox(width: 12,),
                             Expanded(
                               flex: 1,
-                              child: InputTextField(
-                                title: "Giờ về",
-                                hintText: "",
-                                isRequiredField: false,
-                                enable: true,
-                                controller: endTimeController,
-                                // controller: TextEditingController(text:
-                                // Utils().toHhMm(widget.workEntryEntity?.dateStop ?? "")),
-                              ),),
+                              child: BlocBuilder<ExplanationCubit,ExplanationState>(
+                                  bloc: _cubit,
+                                  buildWhen: (prev,cur) => prev.endTime != cur.endTime,
+                                  builder: (context,state){
+                                    return InputTextField(
+                                      title: "Giờ về",
+                                      hintText: "00:00",
+                                      isRequiredField: false,
+                                      enable: widget.workEntryEntity?.state == "hr_confirm" ? false : true,
+                                      controller: endTimeController..text = widget.workEntryEntity?.state == "hr_confirm" ?
+                                        Utils().formatHmTime(widget.workEntryEntity?.dateStop ?? "") : state.endTime ?? "",
+                                      onChange: (val) {
+                                        _cubit.onChangeEndTime(val);
+                                      },
+                                    );
+                                  })
+                              ,),
                           ],
                         ),
                         const SizedBox(height: 12,),
@@ -186,10 +209,7 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
           }
           return InkWell(
             onTap:isEnable ? (){
-              _cubit.sendInvalidReason(widget.workEntryEntity?.date ?? "" , 
-                double.tryParse(startTimeController.text),
-                double.tryParse(endTimeController.text)
-              );
+              _cubit.sendInvalidReason(widget.workEntryEntity?.date ?? "");
             } : (){},
             child: Container(
               margin: const EdgeInsets.only(left: 16,right: 16,bottom: 24),

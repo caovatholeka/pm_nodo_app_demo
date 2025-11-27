@@ -3,8 +3,10 @@ part of 'explanation_cubit.dart';
 class ExplanationState extends Equatable {
   final bool isLoading;
   final ProfileEntity? profile;
-  final String? error;
+  final String? errorMsg;
   final String? reason;
+  final String? startTime;
+  final String? endTime;
   final bool submitSuccess;
   final LoadStatus loadStatus;
   final LoadStatus sendInvalidStatus;
@@ -20,8 +22,10 @@ class ExplanationState extends Equatable {
     this.sendInvalidStatus = LoadStatus.INITIAL,
     this.isLoading = false,
     this.profile,
-    this.error,
+    this.errorMsg,
     this.reason,
+    this.startTime,
+    this.endTime,
     this.submitSuccess = false,
     this.selectedYear,
     this.selectedMonth,
@@ -33,8 +37,10 @@ class ExplanationState extends Equatable {
     LoadStatus? sendInvalidStatus,
     bool? isLoading,
     ProfileEntity? profile,
-    String? error,
+    String? errorMsg,
     String? reason,
+    String? startTime,
+    String? endTime,
     bool? submitSuccess,
     int? selectedMonth,
     int? selectedYear,
@@ -45,8 +51,10 @@ class ExplanationState extends Equatable {
       sendInvalidStatus: sendInvalidStatus ?? this.sendInvalidStatus,
       isLoading: isLoading ?? this.isLoading,
       profile: profile ?? this.profile,
-      error: error,
+        errorMsg: errorMsg ?? this.errorMsg,
       reason: reason ?? this.reason,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
       submitSuccess: submitSuccess ?? this.submitSuccess,
       selectedMonth: selectedMonth ?? this.selectedMonth,
       selectedYear: selectedYear ?? this.selectedYear,
@@ -58,7 +66,8 @@ class ExplanationState extends Equatable {
   List<Object?> get props => [loadStatus,
     sendInvalidStatus,
     isLoading, profile,
-    error, reason,
+    errorMsg, reason,
+    startTime,endTime,
     submitSuccess,
     selectedYear,
     selectedMonth,

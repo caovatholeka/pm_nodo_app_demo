@@ -82,7 +82,7 @@ class ExplanationItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16,),
-                      Text(Utils().toHhMm(workEntryEntity.dateStart ?? ""),
+                      Text(Utils().formatHmTime(workEntryEntity.dateStart ?? ""),
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -98,7 +98,7 @@ class ExplanationItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16,),
-                      Text(Utils().toHhMm(workEntryEntity.dateStop ?? "") ,
+                      Text(Utils().formatHmTime(workEntryEntity.dateStop ?? "") ,
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,

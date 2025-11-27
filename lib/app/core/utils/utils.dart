@@ -194,6 +194,48 @@ class Utils {
     }
   }
 
+
+  String formatHmTime(String datetime) {
+    try{
+      final dt = DateFormat("yyyy-MM-dd HH:mm").parse(datetime);
+      return DateFormat("hh:mm").format(dt);
+    }catch(_){
+      return "";
+    }
+  }
+
+  String formatHmaTime(String datetime) {
+    try{
+      final dt = DateFormat("yyyy-MM-dd HH:mm").parse(datetime);
+      return DateFormat("hh:mm a", "en_US").format(dt);
+    }catch(_){
+      return "";
+    }
+  }
+
+  double? stringTimeToFloat(String? time) {
+    try {
+      if (time == null) return null;
+
+      final trimmed = time.trim();
+      if (trimmed.isEmpty) return null;
+
+      final parts = trimmed.split(':');
+      if (parts.length != 2) return null;
+
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+
+      if (hour < 0 || hour > 23) return null;
+      if (minute < 0 || minute > 59) return null;
+
+      return hour + (minute / 60.0);
+    } catch (_) {
+      return null;
+    }
+  }
+
+
   Future<void> openUrl(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {

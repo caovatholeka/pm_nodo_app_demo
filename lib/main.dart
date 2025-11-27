@@ -19,7 +19,7 @@ void main() {
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    await FirebaseMessagingService.initializeFCM();
+    FirebaseMessagingService.initializeFCM();
 
     await di.init();
 

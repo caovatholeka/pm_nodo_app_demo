@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/helper/response_mapper.dart';
@@ -7,6 +10,7 @@ import 'package:pm_app/app/data/models/entities/work_entry_entity.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 
 import '../../../../../core/commons/global_data.dart';
+import '../../../../../core/utils/utils.dart';
 import '../../../../../data/models/enums/load_status.dart';
 
 part 'explanation_state.dart';
@@ -27,7 +31,12 @@ class ExplanationCubit extends Cubit<ExplanationState> {
     emit(state.copyWith(sendInvalidStatus: LoadStatus.INITIAL));
   }
 
-
+  resetData(){
+    emit(state.copyWith(reason:"",
+      startTime: "",
+      endTime: ""
+    ));
+  }
 
   Future<void> getListWorkEntries() async {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
@@ -63,72 +72,61 @@ class ExplanationCubit extends Cubit<ExplanationState> {
     return lastDay.toString();
   }
 
-  Future<void> sendInvalidReason(String date ,
-      double? startTime, double? endTime) async {
+  Future<void> sendInvalidReason(String date) async {
     emit(state.copyWith(sendInvalidStatus: LoadStatus.LOADING));
-
     try{
       final param = {
         "employee_id": GlobalData.instance.userProfile?.employeeId,
         "date": date,
-        "date_start_employee_commit": startTime ?? 8.5,
-        "date_stop_employee_commit": endTime ?? 18.0,
+        "date_start_employee_commit": Utils().stringTimeToFloat(state.startTime) ?? 8.5,
+        "date_stop_employee_commit": Utils().stringTimeToFloat(state.endTime) ?? 18.0,
         "note": state.reason,
       };
       final res = await repository.sendInvalid(param);
       if(res.data != null){
         emit(state.copyWith(sendInvalidStatus: LoadStatus.SUCCESS));
+      }else{
+        emit(state.copyWith(sendInvalidStatus: LoadStatus.FAILURE,errorMsg: res.message));
       }
-    }catch(e){
-      logger.d(e);
-      emit(state.copyWith(sendInvalidStatus: LoadStatus.FAILURE));
+    }on DioException catch(e){
+      String errMsg = 'Có lỗi xảy ra, vui lòng thử lại sau';
+
+      if (e.response != null && e.response?.data != null) {
+        final data = e.response!.data;
+
+        // Trường hợp BE trả map JSON: {"code":404,"message":"***"}
+        if (data is Map<String, dynamic>) {
+          errMsg = data['message']?.toString() ?? errMsg;
+        }
+        // Trường hợp Retrofit/Dio trả về String JSON, ví dụ: '{"code":404,"message":"***"}'
+        else if (data is String) {
+          try {
+            final map = jsonDecode(data);
+            if (map is Map<String, dynamic>) {
+              errMsg = map['message']?.toString() ?? errMsg;
+            }
+          } catch (_) {
+
+          }
+        }
+        logger.d(e);
+        logger.d("err msg :: $errMsg");
+        emit(state.copyWith(sendInvalidStatus: LoadStatus.FAILURE,errorMsg: errMsg));
+      }
     }
   }
 
-  /*
-  Future<void> sendInvalidReason() async {
-    emit(state.copyWith(isLoading: true, submitSuccess: false));
-
-    try {
-      final profile = state.profile;
-
-      if (profile == null || state.reason == null || state.reason!.isEmpty) {
-        emit(state.copyWith(isLoading: false, error: "Thiếu thông tin"));
-        return;
-      }
-
-      final now = DateTime.now();
-      final date = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-
-      double startTime = now.millisecondsSinceEpoch / 1000;
-      double stopTime = now.add(const Duration(hours: 8)).millisecondsSinceEpoch / 1000;
-
-      final body = {
-        "employee_id": GlobalData.instance.userProfile?.employeeId ?? 0,
-        "department_id": profile.department?.id,
-        "date": date,
-        "date_start_employee_commit": startTime,
-        "date_stop_employee_commit": stopTime,
-        "note": state.reason,
-      };
-
-      await sl<ApiClient>().sendInvalid(body);
-
-      emit(state.copyWith(
-        isLoading: false,
-        reason: "",
-        submitSuccess: true, 
-      ));
-
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-    }
-  }
-   */
 
   void onChangeReason(String reason) {
-    logger.d("reson :: $reason");
     emit(state.copyWith(reason: reason));
+  }
+
+  void onChangeStartTime(String start) {
+    emit(state.copyWith(startTime: start));
+  }
+
+  void onChangeEndTime(String end) {
+    emit(state.copyWith(endTime: end));
   }
 
   Future<void> setYearMonth(int year, int month) async {

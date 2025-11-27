@@ -242,11 +242,6 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
         logger.d(e);
       }
     }
-    try {
-      leavesDaysController.text = (remainLeave.toDouble()).toStringAsFixed(1);
-    } catch (_) {
-      leavesDaysController.text = remainLeave.toString();
-    }
   }
 
   _goNotification() {

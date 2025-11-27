@@ -320,6 +320,7 @@ class _ExplanationTabState extends State<ExplanationTab> {
     if (m < 1)  { m = 12; y -= 1; }
 
     _cubit.setYearMonth(y, m);
+    _cubit.getListWorkEntries();
   }
 
   Widget _buildReadOnlyField(String label, String value) {

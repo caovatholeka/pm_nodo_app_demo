@@ -10,11 +10,13 @@ plugins {
 android {
     namespace = "com.nodo.pm_app"
     compileSdk = 36
+    ndkVersion = "27.0.12077973"
+
 
     defaultConfig {
         applicationId = "com.nodo.pm_app"
-        minSdk = flutter.minSdkVersion
-        targetSdk = 34
+        minSdk = 23
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
     }

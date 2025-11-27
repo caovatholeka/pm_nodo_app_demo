@@ -11,6 +11,8 @@ import '../../../firebase_options.dart';
 
 import 'package:pm_app/app/core/commons/global_data.dart';
 
+import '../logger/logger.dart';
+
 class FirebaseMessagingService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
@@ -27,11 +29,10 @@ class FirebaseMessagingService {
 
     navigator.push(
       MaterialPageRoute(
-        builder:
-            (_) => BlocProvider(
-              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
-              child: const NotificationPage(),
-            ),
+        builder: (_) => BlocProvider(
+          create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+          child: const NotificationPage(),
+        ),
       ),
     );
   }
@@ -54,22 +55,57 @@ class FirebaseMessagingService {
     return null;
   }
 
-  static Future<void> initializeFCM() async {
-    FirebaseMessaging.onBackgroundMessage(backgroundHandler);
+  /// Khởi tạo FCM,
+  static Future<void> initializeFCM({int retry = 0}) async {
+    const maxRetry = 3;
 
-    await _messaging.requestPermission();
-    final token = await _messaging.getToken();
-    final deviceId = await _getDeviceId();
-    print("🔔 FCM TOKEN: $token");
-    print("📱 DEVICE ID: $deviceId");
+    try {
+      FirebaseMessaging.onBackgroundMessage(backgroundHandler);
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("🟢 Foreground FCM: ${message.notification?.title}");
-    });
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      logger.d("💙 FCM permission: ${settings.authorizationStatus}");
 
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      print("🟡 Clicked notification → open NotificationPage");
-      _openNotificationPage();
-    });
+      // Lấy token
+      final token = await _messaging.getToken();
+      final deviceId = await _getDeviceId();
+      logger.d("🔔 FCM TOKEN: $token");
+      logger.d("📱 DEVICE ID: $deviceId");
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        logger.d("🟢 Foreground FCM: ${message.notification?.title}");
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((message) {
+        logger.d("🟡 Clicked notification → open NotificationPage");
+        _openNotificationPage();
+      });
+    } on FirebaseException catch (e, s) {
+      if (e.plugin == 'firebase_messaging') {
+        logger.d(
+            "FCM FirebaseException: ${e.code} - ${e.message} (retry = $retry)");
+        logger.d('$s');
+
+        final msg = (e.message ?? '').toLowerCase();
+        final isNetworkLost = msg.contains('network connection was lost') ||
+            msg.contains('network') ||
+            msg.contains('connection');
+
+
+        if (isNetworkLost && retry < maxRetry) {
+          await Future.delayed(const Duration(seconds: 2));
+          return initializeFCM(retry: retry + 1);
+        }
+      } else {
+        logger.d("Firebase other error: $e");
+        logger.d('$s');
+      }
+    } catch (e, s) {
+      logger.d("Unexpected FCM error: $e");
+      logger.d('$s');
+    }
   }
 }

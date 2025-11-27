@@ -314,74 +314,32 @@ class _AttendanceTabState extends State<AttendanceTab> {
                   builder: (context,state){
                     return state.isLegendExpand ? Padding(
                       padding: const EdgeInsets.only(left: 16,right: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                flex: 1,
-                                child: legend.LegendItem(color: Color(0xFF41B100), label: "Công đi làm"),),
-                              Expanded(
-                                flex: 1,
-                                child: legend.LegendItem(color: Color(0xFFD9A8CC), label: "Đi muộn / Về sớm"),),
+                              legend.LegendItem(color: Color(0xFF41B100), label: "Công đi làm"),
+                              const SizedBox(height: 8,),
+                              legend.LegendItem(color: Color(0xFFDA3535), label: "Chưa chấm công"),
+                              const SizedBox(height: 8,),
+                              legend.LegendItem(color: Color(0xFf2C00CC), label: "Thiếu giờ ra"),
+                              const SizedBox(height: 8,),
+                              legend.LegendItem(color: Color(0xFFDC00C6), label: "Nghỉ không lương"),
                             ],
                           ),
-                          const SizedBox(height: 8,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                flex: 1,
-                                child: legend.LegendItem(color: Color(0xFFDA3535), label: "Chưa chấm công"),),
-                              Expanded(
-                                flex: 1,
-                                child: legend.LegendItem(color: Color(0xFFA5A5A9), label: "Nghỉ cuối tuần"),),
-
+                              legend.LegendItem(color: Color(0xFFD9A8CC), label: "Đi muộn / Về sớm"),
+                              const SizedBox(height: 8,),
+                              legend.LegendItem(color: Color(0xFFA5A5A9), label: "Nghỉ cuối tuần"),
+                              const SizedBox(height: 8,),
+                              legend.LegendItem(color: Color(0xFF9F5D00), label: "Thiếu giờ vào"),
+                              const SizedBox(height: 8,),
+                              legend.LegendItem(color: Color(0xFF00D3D6), label: "Nửa ngày công"),
                             ],
-                          ),
-                          const SizedBox(height: 8,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child:  legend.LegendItem(color: Color(0xFf2C00CC), label: "Thiếu giờ ra"),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: legend.LegendItem(color: Color(0xFF9F5D00), label: "Thiếu giờ vào"),)
-                            ],
-                          ),
-                          const SizedBox(height: 8,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: legend.LegendItem(color: Color(0xFF0088FF), label: "Công thực tế"),),
-
-                              Expanded(
-                                flex: 1,
-                                child:legend.LegendItem(color: Color(0xFFF49E00), label: "Nghỉ phép"),),
-
-
-                            ],
-                          ),
-                          const SizedBox(height: 8,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: legend.LegendItem(color: Color(0xFFDC00C6), label: "Nghỉ không lương"),
-                              ),
-                              Expanded(
-                                  flex:1,
-                                  child: legend.LegendItem(color: Color(0xFF00D3D6), label: "Nửa ngày công"),)
-
-                            ]
                           )
                         ],
                       ),
