@@ -41,17 +41,17 @@ class WorkEntity {
   WorkShiftEntity? shift;
 
   @JsonKey(name: "work_time")
-  double? workTime;
+  String? workTime;
 
   @JsonKey(name: "late_time")
-  double? lateTime;
+  String? lateTime;
 
   @JsonKey(name: "early_time")
-  double? earlyTime;
+  String? earlyTime;
 
 
   @JsonKey(name: "total_invalid_time")
-  double? totalInvalidTime;
+  String? totalInvalidTime;
 
   @JsonKey(name: "date_start_employee_commit")
   double? dateStartEmployeeCommit;
@@ -103,10 +103,10 @@ class WorkEntity {
     WorkEntryTypeEntity? workEntryType,
     String? state,
     WorkShiftEntity? shift,
-    double? workTime,
-    double? lateTime,
-    double? earlyTime,
-    double? totalInvalidTime,
+    String? workTime,
+    String? lateTime,
+    String? earlyTime,
+    String? totalInvalidTime,
     double? dateStartEmployeeCommit,
     double? dateStopEmployeeCommit,
     String? note,

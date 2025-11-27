@@ -52,7 +52,8 @@ class _AttendanceTabState extends State<AttendanceTab> {
     // get list attendance
     widget.cubit.setYearMonth(DateTime.now().year, DateTime.now().month);
     widget.cubit.getListAttendances(DateTime(DateTime.now().year,DateTime.now().month));  //DateTime.now()
-    widget.cubit.getListAttendanceHistory();
+    widget.cubit.onChangeSelectedDate(DateTime.now());
+    // widget.cubit.getListAttendanceHistory();
     super.initState();
   }
 
@@ -269,69 +270,126 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
   // Widgets
   Widget _buildLegend() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-                flex: 1,
-                child: legend.LegendItem(color: Color(0xFF41B100), label: "Công đi làm"),),
-            Expanded(
-                flex: 1,
-                child: legend.LegendItem(color: Color(0xFFD9A8CC), label: "Đi muộn / Về sớm"),),
-            Expanded(
-                flex: 1,
-                child: legend.LegendItem(color: Color(0xFFDA3535), label: "Chưa chấm công"),)
+    return BlocBuilder<AttendanceDataCubit,AttendanceDataState>(
+        bloc: widget.cubit,
+        buildWhen: (prev,cur) => prev.isLegendExpand != cur.isLegendExpand,
+        builder: (context,state){
+          return Column(
+            children: [
+              InkWell(
+                onTap: (){
+                  widget.cubit.changeIsLegendExpand();
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 36,
+                  padding: const EdgeInsets.only(left: 10,right: 10),
+                  decoration: BoxDecoration(
+                      color: Color(0xFFE4F0FF),
+                      borderRadius: BorderRadius.all(Radius.circular(6))
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Trạng thái chấm công",
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.themePrimaryDefault
+                            ),
+                        ),
+                        state.isLegendExpand ? Icon(Icons.expand_less,color: AppColors.themePrimaryDefault)
+                            : Icon(Icons.expand_more, color: AppColors.themePrimaryDefault,)
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12,),
+              BlocBuilder<AttendanceDataCubit,AttendanceDataState>(
+                  bloc: widget.cubit,
+                  buildWhen: (prev,cur) => prev.isLegendExpand != cur.isLegendExpand,
+                  builder: (context,state){
+                    return state.isLegendExpand ? Padding(
+                      padding: const EdgeInsets.only(left: 16,right: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: legend.LegendItem(color: Color(0xFF41B100), label: "Công đi làm"),),
+                              Expanded(
+                                flex: 1,
+                                child: legend.LegendItem(color: Color(0xFFD9A8CC), label: "Đi muộn / Về sớm"),),
+                            ],
+                          ),
+                          const SizedBox(height: 8,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: legend.LegendItem(color: Color(0xFFDA3535), label: "Chưa chấm công"),),
+                              Expanded(
+                                flex: 1,
+                                child: legend.LegendItem(color: Color(0xFFA5A5A9), label: "Nghỉ cuối tuần"),),
 
-          ],
-        ),
-        const SizedBox(height: 8,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-                flex: 1,
-                child: legend.LegendItem(color: Color(0xFFA5A5A9), label: "Nghỉ cuối tuần"),),
-            Expanded(
-              flex: 1,
-              child:  legend.LegendItem(color: Color(0xFf2C00CC), label: "Thiếu giờ ra"),
-            ),
-            Expanded(
-                flex: 1,
-                child: legend.LegendItem(color: Color(0xFF9F5D00), label: "Thiếu giờ vào"),)
-          ],
-        ),
-        const SizedBox(height: 8,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 1,
-              child: legend.LegendItem(color: Color(0xFF0088FF), label: "Công thực tế"),),
+                            ],
+                          ),
+                          const SizedBox(height: 8,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child:  legend.LegendItem(color: Color(0xFf2C00CC), label: "Thiếu giờ ra"),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: legend.LegendItem(color: Color(0xFF9F5D00), label: "Thiếu giờ vào"),)
+                            ],
+                          ),
+                          const SizedBox(height: 8,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: legend.LegendItem(color: Color(0xFF0088FF), label: "Công thực tế"),),
 
-            Expanded(
-              flex: 1,
-              child:legend.LegendItem(color: Color(0xFFF49E00), label: "Nghỉ phép"),),
+                              Expanded(
+                                flex: 1,
+                                child:legend.LegendItem(color: Color(0xFFF49E00), label: "Nghỉ phép"),),
 
-            Expanded(
-              flex: 1,
-              child:   legend.LegendItem(color: Color(0xFFDC00C6), label: "Nghỉ không lương"),
-            ),
 
-          ],
-        ),
-        const SizedBox(height: 8,),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            legend.LegendItem(color: Color(0xFF00D3D6), label: "Nửa ngày công"),
-            Spacer()
-          ],
-        ),
-      ],
-    );
+                            ],
+                          ),
+                          const SizedBox(height: 8,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: legend.LegendItem(color: Color(0xFFDC00C6), label: "Nghỉ không lương"),
+                              ),
+                              Expanded(
+                                  flex:1,
+                                  child: legend.LegendItem(color: Color(0xFF00D3D6), label: "Nửa ngày công"),)
+
+                            ]
+                          )
+                        ],
+                      ),
+                    ) : SizedBox.shrink() ;
+                  })
+            ],
+          );
+        });
   }
 
   Widget _buildActivityHeader() {
@@ -351,10 +409,13 @@ class _AttendanceTabState extends State<AttendanceTab> {
   Widget _buildActivityList() {
     return BlocBuilder<AttendanceDataCubit,AttendanceDataState>(
       bloc: widget.cubit,
-      buildWhen: (prev,cur) => prev.listAttendanceHistory != cur.listAttendanceHistory,
+      buildWhen: (prev,cur) => prev.listAttendanceHistory != cur.listAttendanceHistory
+        || prev.historyStatus != cur.historyStatus,
       builder: (context,state){
-        if((state.listAttendanceHistory ??[]).isNotEmpty){
-          return Column(
+        return state.historyStatus == LoadStatus.LOADING ?
+          Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) :
+        ((state.listAttendanceHistory ??[]).isNotEmpty) ?
+          Column(
             children: (state.listAttendanceHistory ?? []).map((his) {
               String status = "Đúng giờ";
               if(his.isEarly ?? false){
@@ -363,20 +424,15 @@ class _AttendanceTabState extends State<AttendanceTab> {
                 status = "Đi muộn";
               }
               return ActivityItem(
-                        icon: his.action == "check_in" ? AppAssets.icCheckin : AppAssets.icCheckout,
-                        title: his.action == "check_in" ?  "Check In" : "Check Out",
-                        time: formatTimeAmPm(his.datetime ?? ""),
-                        subtitle: formatDateTime(his.datetime ?? ""),
-                        status: status,
-                      );
+                icon: his.action == "check_in" ? AppAssets.icCheckin : AppAssets.icCheckout,
+                title: his.action == "check_in" ?  "Check In" : "Check Out",
+                time: formatTimeAmPm(his.datetime ?? ""),
+                subtitle: formatDateTime(his.datetime ?? ""),
+                status: status,
+              );
             }).toList(),
-          );
-        }else {
-          return Center(child: Text(
-            "Chưa có dữ liệu"
-          ),);
-        }
-      },
+          ) : Center(child: Text("Chưa có dữ liệu"),);
+      }
     );
 
   }

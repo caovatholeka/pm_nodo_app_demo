@@ -42,9 +42,10 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
     return Container(
       height: ScreenSize.of(context).height*0.9,
       color: Colors.transparent,
-      child: Padding(padding: const EdgeInsets.only(left: 16,right: 16,bottom: 100),
+      child: Padding(padding: const EdgeInsets.only(left: 16,right: 16,bottom: 60),
         child: Container(
           width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 2,vertical: 6),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -142,7 +143,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                                 isRequiredField: false,
                                 enable: true,
                                 readOnly: true,
-                                controller: TextEditingController(text: "${widget.workEntity?.lateTime ?? 0.0}"),
+                                controller: TextEditingController(text: widget.workEntity?.lateTime ?? ""),
                               ),
                             ),
                             const SizedBox(width: 12,),
@@ -154,7 +155,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                                 isRequiredField: false,
                                 enable: true,
                                 readOnly: true,
-                                controller: TextEditingController(text: "${widget.workEntity?.earlyTime ?? 0.0}"),
+                                controller: TextEditingController(text: widget.workEntity?.earlyTime ?? ""),
                               ),
                             )
                           ],
@@ -170,7 +171,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                                 isRequiredField: false,
                                 enable: true,
                                 readOnly: true,
-                                controller: TextEditingController(text: "${widget.workEntity?.workTime ?? 0.0}"),
+                                controller: TextEditingController(text: widget.workEntity?.workTime ?? ""),
                               ),
                             ),
                             const SizedBox(width: 12,),
@@ -182,7 +183,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                                 isRequiredField: false,
                                 enable: true,
                                 readOnly: true,
-                                controller: TextEditingController(text: "${widget.workEntity?.totalInvalidTime ?? 0.0}"),
+                                controller: TextEditingController(text: widget.workEntity?.totalInvalidTime ?? ""),
                               ),
                             )
                           ],

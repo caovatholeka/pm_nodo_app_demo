@@ -3,6 +3,7 @@ part of 'attendance_data_cubit.dart';
 class AttendanceDataState extends Equatable {
   final LoadStatus loadStatus;
   final LoadStatus detailStatus;
+  final LoadStatus historyStatus;
   final ProfileEntity? profile; 
   final List<DateTime> checkInDays; 
   final bool isMonthView; 
@@ -22,10 +23,12 @@ class AttendanceDataState extends Equatable {
 
   // detail cham cong
   final List<WorkEntity>? listDetailEntry;
+  final bool isLegendExpand;
 
    AttendanceDataState({
     this.loadStatus = LoadStatus.INITIAL,
      this.detailStatus = LoadStatus.INITIAL,
+     this.historyStatus = LoadStatus.INITIAL,
     this.profile,
     this.checkInDays = const [],
     this.isMonthView = true,
@@ -40,12 +43,14 @@ class AttendanceDataState extends Equatable {
     this.attendanceDateMap,
     this.entriesByDate,
      this.listAttendanceHistory,
-     this.listDetailEntry
+     this.listDetailEntry,
+     this.isLegendExpand = false,
   });
 
   AttendanceDataState copyWith({
     LoadStatus? loadStatus,
     LoadStatus? detailStatus,
+    LoadStatus? historyStatus,
     ProfileEntity? profile,
     List<DateTime>? checkInDays,
     bool? isMonthView,
@@ -60,11 +65,13 @@ class AttendanceDataState extends Equatable {
     List<WorkEntity>? listSelectedEntries,
     Map<DateTime, List<WorkEntity>>? entriesByDate,
     List<ExplanationEntity>? listAttendanceHistory,
-    List<WorkEntity>? listDetailEntry
+    List<WorkEntity>? listDetailEntry,
+    bool? isLegendExpand
   }) {
     return AttendanceDataState(
       loadStatus: loadStatus ?? this.loadStatus,
       detailStatus: detailStatus ?? this.detailStatus,
+      historyStatus: historyStatus ?? this.historyStatus,
       profile: profile ?? this.profile,
       checkInDays: checkInDays ?? this.checkInDays,
       isMonthView: isMonthView ?? this.isMonthView,
@@ -79,7 +86,8 @@ class AttendanceDataState extends Equatable {
       attendanceDateMap: attendanceDateMap ?? this.attendanceDateMap,
       entriesByDate: entriesByDate ?? this.entriesByDate,
         listAttendanceHistory : listAttendanceHistory ?? this.listAttendanceHistory,
-      listDetailEntry: listDetailEntry ?? this.listDetailEntry
+      listDetailEntry: listDetailEntry ?? this.listDetailEntry,
+      isLegendExpand: isLegendExpand ?? this.isLegendExpand
     );
   }
 
@@ -87,6 +95,7 @@ class AttendanceDataState extends Equatable {
   List<Object?> get props => [
     loadStatus,
     detailStatus,
+    historyStatus,
     profile,
     checkInDays,
     isMonthView,
@@ -101,6 +110,7 @@ class AttendanceDataState extends Equatable {
     entriesByDate,
     listSelectedEntries,
     listAttendanceHistory,
-    listDetailEntry
+    listDetailEntry,
+    isLegendExpand
       ];
 }

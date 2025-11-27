@@ -28,51 +28,17 @@ class ExplanationCubit extends Cubit<ExplanationState> {
   }
 
 
-  // Future<void> fetchProfile() async {
-  //   emit(state.copyWith(isLoading: true, error: null));
-  //
-  //   try {
-  //     final token = await SharedPrefsHelper.getToken();
-  //     final accessToken = token?.accessToken;
-  //
-  //     if (accessToken == null || accessToken.isEmpty) {
-  //       emit(state.copyWith(isLoading: false, error: "Không có token"));
-  //       return;
-  //     }
-  //
-  //     final parts = accessToken.split('.');
-  //     final payloadPart = parts[0];
-  //     final decoded = utf8.decode(base64Url.decode(base64Url.normalize(payloadPart)));
-  //     final data = json.decode(decoded);
-  //     final userId = data['uid'];
-  //
-  //     if (userId == null) {
-  //       emit(state.copyWith(isLoading: false, error: "Token không hợp lệ"));
-  //       return;
-  //     }
-  //
-  //     final repo = sl<UserRepository>();
-  //     final resp = await repo.getUserProfile({"user_id": userId});
-  //
-  //     final rawData = resp.data;
-  //     final jsonData = rawData['data'] ?? rawData;
-  //
-  //     final profile = ProfileEntity.fromJson(Map<String, dynamic>.from(jsonData));
-  //
-  //     emit(state.copyWith(profile: profile, isLoading: false));
-  //   } catch (e) {
-  //     emit(state.copyWith(isLoading: false, error: e.toString()));
-  //   }
-  // }
 
   Future<void> getListWorkEntries() async {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try {
       final param = {
-        "limit": 20,
-        "offset": 0,
-        // "date_from": "2025-10-01",
-        // "date_to": "2025-10-30"
+        "limit": 40,
+        "page": 1,
+        "date_from": "${state.selectedYear}-${state.selectedMonth}-01",
+        "date_to": "${state.selectedYear}-${state.selectedMonth}-"
+            "${getLastDayOfMonth(state.selectedYear ?? DateTime.now().year
+            ,state.selectedMonth ?? DateTime.now().month)}"
       };
       final res = await repository.getWorkEntries(param);
       List<WorkEntryEntity>? list;
@@ -92,15 +58,21 @@ class ExplanationCubit extends Cubit<ExplanationState> {
     }
   }
 
-  Future<void> sendInvalidReason(String date) async {
+  String getLastDayOfMonth(int year, int month) {
+    final lastDay = DateTime(year, month + 1, 0).day;
+    return lastDay.toString();
+  }
+
+  Future<void> sendInvalidReason(String date ,
+      double? startTime, double? endTime) async {
     emit(state.copyWith(sendInvalidStatus: LoadStatus.LOADING));
 
     try{
       final param = {
         "employee_id": GlobalData.instance.userProfile?.employeeId,
         "date": date,
-        "date_start_employee_commit": 8.5,
-        "date_stop_employee_commit": 18.0,
+        "date_start_employee_commit": startTime ?? 8.5,
+        "date_stop_employee_commit": endTime ?? 18.0,
         "note": state.reason,
       };
       final res = await repository.sendInvalid(param);

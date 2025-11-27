@@ -29,6 +29,9 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
   final _cubit = GetIt.I.get<ExplanationCubit>();
   final TextEditingController controller = TextEditingController();
 
+  final TextEditingController startTimeController = TextEditingController();
+  final TextEditingController endTimeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -118,10 +121,11 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                                   title: "Giờ đến",
                                   hintText: "",
                                   isRequiredField: false,
-                                  readOnly: true,
-                                  enable: false,
-                                  controller: TextEditingController(text:
-                                    Utils().toHhMm(widget.workEntryEntity?.dateStart ?? "")),
+                                  enable: true,
+                                  inputType: TextInputType.number,
+                                  controller: startTimeController,
+                                  // controller: TextEditingController(text:
+                                  //   Utils().toHhMm(widget.workEntryEntity?.dateStart ?? "")),
                                 ),),
                             const SizedBox(width: 12,),
                             Expanded(
@@ -130,10 +134,10 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                                 title: "Giờ về",
                                 hintText: "",
                                 isRequiredField: false,
-                                readOnly: true,
-                                enable: false,
-                                controller: TextEditingController(text:
-                                Utils().toHhMm(widget.workEntryEntity?.dateStop ?? "")),
+                                enable: true,
+                                controller: endTimeController,
+                                // controller: TextEditingController(text:
+                                // Utils().toHhMm(widget.workEntryEntity?.dateStop ?? "")),
                               ),),
                           ],
                         ),
@@ -182,7 +186,10 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
           }
           return InkWell(
             onTap:isEnable ? (){
-              _cubit.sendInvalidReason(widget.workEntryEntity?.date ?? "");
+              _cubit.sendInvalidReason(widget.workEntryEntity?.date ?? "" , 
+                double.tryParse(startTimeController.text),
+                double.tryParse(endTimeController.text)
+              );
             } : (){},
             child: Container(
               margin: const EdgeInsets.only(left: 16,right: 16,bottom: 24),

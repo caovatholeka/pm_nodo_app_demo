@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -50,6 +51,41 @@ class _HomePageState extends State<HomePage> {
     _cubit.getListNewTasks();
     super.initState();
   }
+
+  void _openStaffPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true,)),
+    );
+  }
+
+  void _goAttendanceData() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AttendanceDataPage()),
+    );
+  }
+
+  void _openCheckIn(){
+    Navigator.push(context, MaterialPageRoute(builder: (_) =>
+        CheckInPage(
+          isFromHome: true,
+        )
+    ));
+  }
+
+  void _openOnLeave(){
+    Navigator.push(context, MaterialPageRoute(builder: (_) =>
+        OnLeavePage(
+          isFromHome: true,
+        )
+    ));
+  }
+
+  void _openTaskList() {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => TaskManagePage()));
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -210,43 +246,60 @@ class _HomePageState extends State<HomePage> {
           ),
           itemBuilder: (_, index) {
             final map = [
-              {"a": AppAssets.ic_employee, "t": "Nhân viên"},
-              {"a": AppAssets.ic_paper, "t": "Dữ liệu công"},
-              {"a": AppAssets.ic_paper2, "t": "Nghỉ phép"},
-              {"a": AppAssets.ic_timekeeping, "t": "Chấm công"},
-              {"a": AppAssets.ic_work, "t": "Việc cần làm"},
+              {"a": AppAssets.ic_employee, "t": "Nhân viên", "code":"nv"},
+              {"a": AppAssets.ic_paper, "t": "Dữ liệu công", "code":"dlc"},
+              {"a": AppAssets.ic_paper2, "t": "Nghỉ phép", "code" : "np"},
+              {"a": AppAssets.ic_timekeeping, "t": "Chấm công", "code":"cc"},
+              {"a": AppAssets.ic_work, "t": "Việc cần làm", "code":"cv"},
             ];
-            return _gridItem(context, map[index]["a"]!, map[index]["t"]!);
+            return _gridItem(context, map[index]["a"]!, map[index]["t"]!,
+                map[index]["code"]!);
           },
         );
       },
     );
   }
 
-  Widget _gridItem(BuildContext context, String asset, String title) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.all(context.sw(0.035)),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(context.sw(0.04)),
+  Widget _gridItem(BuildContext context,  String asset, String title,String code) {
+    return InkWell(
+      onTap: (){
+        switch(code){
+          case "nv":
+            _openStaffPage();
+          case "dlc":
+            _goAttendanceData();
+          case "np":
+            _openOnLeave();
+          case "cc":
+            _openCheckIn();
+          case "cv":
+            _openTaskList();
+        }
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(context.sw(0.035)),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(context.sw(0.04)),
+            ),
+            child: Image.asset(
+              asset,
+              width: context.sw(0.065),
+              height: context.sw(0.065),
+            ),
           ),
-          child: Image.asset(
-            asset,
-            width: context.sw(0.065),
-            height: context.sw(0.065),
+          SizedBox(height: context.sh(0.008)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: context.sw(0.032),
+              color: Colors.black,
+            ),
           ),
-        ),
-        SizedBox(height: context.sh(0.008)),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: context.sw(0.032),
-            color: Colors.black,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -276,20 +329,25 @@ class _HomePageState extends State<HomePage> {
   Widget _taskList(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(
       bloc: _cubit,
-      buildWhen: (prev, cur) => prev.listNewTasks != cur.listNewTasks,
+      buildWhen: (prev, cur) => prev.listNewTasks != cur.listNewTasks ||
+        prev.loadDataStatus != cur.loadDataStatus,
       builder: (context, state) {
         final tasks = state.listNewTasks ?? [];
-
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
-          itemCount: tasks.length,
-          itemBuilder: (context, index) {
-            return ListTaskItem(
-              entity: tasks[index],
-              isShowNote: false,
-            ).paddingOnly(bottom: context.sh(0.02));
-          },
+        return state.loadDataStatus == LoadStatus.LOADING ?
+            Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) :
+        (tasks.isNotEmpty ?
+          ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
+            itemCount: tasks.length,
+            itemBuilder: (context, index) {
+              return ListTaskItem(
+                entity: tasks[index],
+                isShowNote: false,
+              ).paddingOnly(bottom: context.sh(0.02));
+            },
+          ) : Text("Chưa có việc cần làm")
         );
+
       },
     );
   } 

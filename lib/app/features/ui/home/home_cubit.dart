@@ -62,7 +62,7 @@ class HomeCubit extends Cubit<HomeState> {
       if((taskData?.items ?? []).isNotEmpty){
         emit(state.copyWith(loadDataStatus: LoadStatus.SUCCESS,listNewTasks: taskData?.items ?? []));
       }else{
-        emit(state.copyWith(loadDataStatus: LoadStatus.SUCCESS,listNewTasks: []));
+        emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE,listNewTasks: []));
       }
     }catch(e,s){
       logger.d(e);

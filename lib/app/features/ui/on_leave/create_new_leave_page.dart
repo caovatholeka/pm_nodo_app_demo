@@ -287,19 +287,6 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     );
     _createCubit.onChangeDateTypeLeaves(item);
 
-    // if (item != null && item.id == 7) {
-    //   if ((GlobalData.instance.userProfile?.remainLeave ?? 0) <= 0 ||
-    //       (GlobalData.instance.userProfile?.remainLeave ?? 0) <
-    //           int.parse(totalDaysController.text)
-    //   ) {
-    //     AppSnackBar.showWarning(
-    //       title: "Cảnh báo",
-    //       message: "Quỹ phép của nhân viên không còn đủ!",
-    //     );
-    //   } else {
-    //     _createCubit.onChangeDateTypeLeaves(item);
-    //   }
-    // }
   }
 
   @override

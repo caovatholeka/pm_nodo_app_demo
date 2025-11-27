@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/work_entry_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/send_invalid_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 
@@ -177,7 +178,10 @@ class _ExplanationTabState extends State<ExplanationTab> {
         buildWhen: (prev,cur) => prev.loadStatus != cur.loadStatus ||
             prev.listWorkEntries != cur.listWorkEntries,
         builder: (context,state){
-          return RefreshIndicator(
+          return state.loadStatus == LoadStatus.LOADING ? 
+              Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) 
+              : ((state.listWorkEntries ?? []).isNotEmpty ?
+          RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView.builder(
                 padding: const EdgeInsets.only(top: 12),
@@ -189,11 +193,16 @@ class _ExplanationTabState extends State<ExplanationTab> {
                   return ExplanationItem(
                     workEntryEntity: entity,
                     onExplain: () async{
-                     await _sendInvalid(entity);
+                      await _sendInvalid(entity);
                     },
                   );
                 }),
+          ):Center(child: Text("Không có dữ liệu"))
           );
+          /*
+          return ;
+          
+           */
         });
   }
   // chon time
@@ -209,6 +218,7 @@ class _ExplanationTabState extends State<ExplanationTab> {
               defaultValue: DateTime(s.selectedYear ?? DateTime.now().year , s.selectedMonth ?? DateTime.now().month , 1),
               onConfirm: (month, year) {
                 _cubit.setYearMonth(int.parse(year) , int.parse(month));
+                _cubit.getListWorkEntries();
               },
             );
           },

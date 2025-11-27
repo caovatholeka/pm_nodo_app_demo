@@ -91,15 +91,17 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
           emit(state.copyWith(detailStatus: LoadStatus.SUCCESS,listDetailEntry: []));
         }
       }
-    }catch(e){
+    }catch(e,s){
       logger.d(e);
+      logger.d(s);
       emit(state.copyWith(detailStatus: LoadStatus.FAILURE));
     }
   }
 
   getListAttendanceHistory() async {
-    final dateFrom = "2025-11-01";
-    final dateTo = "2025-11-30";
+    final dateFrom = formatToYyyyMmDd(state.selectedDate ?? DateTime.now());
+    final dateTo = formatToYyyyMmDd(state.selectedDate ?? DateTime.now());
+    emit(state.copyWith(historyStatus: LoadStatus.LOADING));
     try{
       final res = await repository.getListAttendanceHistory(dateFrom,dateTo);
       List<ExplanationEntity>? list;
@@ -108,13 +110,14 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
       }
 
       if((list ?? []).isNotEmpty){
-        emit(state.copyWith(listAttendanceHistory: list));
+        emit(state.copyWith(historyStatus: LoadStatus.SUCCESS,listAttendanceHistory: list));
       }else{
-        emit(state.copyWith(listAttendanceHistory: []));
+        emit(state.copyWith(historyStatus: LoadStatus.FAILURE,listAttendanceHistory: []));
       }
-    }catch(e){
+    }catch(e,s){
       logger.d(e);
-      emit(state.copyWith(listAttendanceHistory: []));
+      logger.d("format invalid : $s");
+      emit(state.copyWith(historyStatus: LoadStatus.FAILURE,listAttendanceHistory: []));
     }
   }
 
@@ -127,6 +130,12 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
 
   onChangeSelectedDate(DateTime date){
     emit(state.copyWith(selectedDate: date));
+    getListAttendanceHistory();
+  }
+
+  void changeIsLegendExpand() {
+    bool value = state.isLegendExpand;
+    emit(state.copyWith(isLegendExpand: !value));
   }
 
   Future<void> nextMonth() async {
@@ -145,5 +154,14 @@ class AttendanceDataCubit extends Cubit<AttendanceDataState> {
     emit(state.copyWith(selectedYear: year.toString(),
         selectedMonth: month.toString(), focusedMonth:DateTime(year,month,1)));
     await getListAttendances(DateTime(year, month , 1));
+  }
+
+  String formatToYyyyMmDd(DateTime date) {
+    try{
+      return DateFormat('yyyy-MM-dd').format(date);
+    }catch(_){
+      return "";
+    }
+
   }
 }
