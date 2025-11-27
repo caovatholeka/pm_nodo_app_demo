@@ -12,6 +12,7 @@ import 'package:pm_app/app/features/widgets/info_box_special.dart';
 import 'package:pm_app/app/features/widgets/info_row_special.dart';
 import 'package:pm_app/app/features/widgets/info_row.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:flutter/rendering.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({super.key});
@@ -22,6 +23,8 @@ class PersonalInfoPage extends StatefulWidget {
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final _cubit = GetIt.I.get<PersonalCubit>();
+
+  bool _showAppBar = true; // 👈 Thêm biến điều khiển AppBar
 
   @override
   void initState() {
@@ -34,12 +37,25 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFFF4F6F8),
-      appBar: MyAppBar(
-        titleAppbar: "Cá nhân",
-        haveBackButton: true,
-        isTransparent: false,
-        backAction: () => Navigator.pop(context),
+
+      // 👇 Appbar có thể ẩn / hiện
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: AnimatedOpacity(
+          opacity: _showAppBar ? 1 : 0,
+          duration: const Duration(milliseconds: 250),
+          child: IgnorePointer(
+            ignoring: !_showAppBar,
+            child: MyAppBar(
+              titleAppbar: "Cá nhân",
+              haveBackButton: true,
+              isTransparent: true,
+              backAction: () => Navigator.pop(context),
+            ),
+          ),
+        ),
       ),
+
       body: BlocBuilder<PersonalCubit, PersonalState>(
         bloc: _cubit,
         builder: (context, state) {
@@ -51,185 +67,194 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             return const Center(child: Text("Lỗi tải thông tin"));
           }
 
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(32),
-                    bottomRight: Radius.circular(32),
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 280,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned.fill(
-                          child: SvgPicture.asset(
-                            AppAssets.imgProfileBG,
-                            fit: BoxFit.cover,
+          return NotificationListener<UserScrollNotification>(
+            onNotification: (scroll) {
+              if (scroll.direction == ScrollDirection.reverse) {
+                if (_showAppBar) setState(() => _showAppBar = false);
+              } else if (scroll.direction == ScrollDirection.forward) {
+                if (!_showAppBar) setState(() => _showAppBar = true);
+              }
+              return true;
+            },
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 280,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned.fill(
+                            child: SvgPicture.asset(
+                              AppAssets.imgProfileBG,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        Positioned(
-                          top: 110,
-                          child: Column(
-                            children: [
-                              Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  Container(
-                                    width: 96,
-                                    height: 96,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
+                          Positioned(
+                            top: 110,
+                            child: Column(
+                              children: [
+                                Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    Container(
+                                      width: 96,
+                                      height: 96,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 3,
+                                        ),
+                                        image: DecorationImage(
+                                          image: (user.avatarUrl != null &&
+                                                  user.avatarUrl!.isNotEmpty)
+                                              ? NetworkImage(user.avatarUrl!)
+                                              : AssetImage(
+                                                  AppAssets.img_df_avatar,
+                                                ) as ImageProvider,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
-                                        width: 3,
+                                        shape: BoxShape.circle,
                                       ),
-                                      image: DecorationImage(
-                                        image:
-                                            (user.avatarUrl != null &&
-                                                    user.avatarUrl!.isNotEmpty)
-                                                ? NetworkImage(user.avatarUrl!)
-                                                : AssetImage(
-                                                      AppAssets.img_df_avatar,
-                                                    )
-                                                    as ImageProvider,
-                                        fit: BoxFit.cover,
+                                      child: const Icon(
+                                        Icons.camera_alt,
+                                        size: 16,
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    width: 28,
-                                    height: 28,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.camera_alt,
-                                      size: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                user.name ?? "-",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 15),
-                                child: Text(
-                                  "${user.jobTitle ?? ""} • ${user.employeeCode ?? ""} • ${user.phone ?? ""}",
+                                const SizedBox(height: 10),
+                                Text(
+                                  user.name ?? "-",
                                   style: const TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
                                     color: Colors.white,
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 6),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 15),
+                                  child: Text(
+                                    "${user.jobTitle ?? ""} • ${user.employeeCode ?? ""} • ${user.phone ?? ""}",
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    ExpandableSection(
-                      title: "Hồ sơ cá nhân",
-                      initiallyExpanded: true,
-                      style: ExpandableStyle.minimal,
-                      children: [
-                        InfoBoxSpecial(
-                          children: [
-                            InfoRow(
-                              title: "Tên nhân viên",
-                              subtitle: user.name ?? "-",
-                              showDivider: false,
-                            ),
-                            InfoRow(
-                              title: "Email",
-                              subtitle: user.email ?? "-",
-                              showDivider: false,
-                            ),
-                            InfoRow(
-                              title: "Địa chỉ",
-                              subtitle: user.currentAddress ?? "-",
-                              showDivider: false,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    ExpandableSection(
-                      title: "Thông tin vị trí công tác",
-                      style: ExpandableStyle.minimal,
-                      initiallyExpanded: true,
-                      children: [
-                        InfoBoxSpecial(
-                          children: [
-                            InfoRowSpecial(
-                              title: user.jobTitle ?? "-",
-                              subtitlePrefix: "Chức danh: ",
-                              subtitleValue: user.jobTitle ?? "-",
-                              showDivider: false,
-                            ),
-                            const SizedBox(height: 12,),
-                            InfoRowSpecial(
-                              title: user.department?.name ?? "-",
-                              subtitlePrefix: "Quản lý: ",
-                              subtitleValue: user.manager?.name ?? "-",
-                              showDivider: false,
-                            ),
-                            const SizedBox(height: 12,),
-                            InfoRowSpecial(
-                              title:
-                                  user.state == "work" ? "Đang làm việc" : "-",
-                              subtitlePrefix: "Địa chỉ làm việc: ",
-                              subtitleValue: user.workLocation ?? "-",
-                              showDivider: false,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    ExpandableSection(
-                      title: "Khác",
-                      initiallyExpanded: true,
-                      style: ExpandableStyle.minimal,
-                      children: [
-                        InfoBoxSpecial(
-                          children: [
-                            InfoRowSpecial(
-                              title:
-                                  user.contractStatus == "signed"
-                                      ? "Đã ký hợp đồng"
-                                      : "Chưa ký",
-                              subtitlePrefix: "Ngày gia nhập: ",
-                              subtitleValue: user.dateJoinCompany ?? "-",
-                              showDivider: false,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                  ]),
+                // Body content
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      ExpandableSection(
+                        title: "Hồ sơ cá nhân",
+                        initiallyExpanded: true,
+                        style: ExpandableStyle.minimal,
+                        children: [
+                          InfoBoxSpecial(
+                            children: [
+                              InfoRow(
+                                title: "Tên nhân viên",
+                                subtitle: user.name ?? "-",
+                                showDivider: false,
+                              ),
+                              InfoRow(
+                                title: "Email",
+                                subtitle: user.email ?? "-",
+                                showDivider: false,
+                              ),
+                              InfoRow(
+                                title: "Địa chỉ",
+                                subtitle: user.currentAddress ?? "-",
+                                showDivider: false,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      ExpandableSection(
+                        title: "Thông tin vị trí công tác",
+                        style: ExpandableStyle.minimal,
+                        initiallyExpanded: true,
+                        children: [
+                          InfoBoxSpecial(
+                            children: [
+                              InfoRowSpecial(
+                                title: user.jobTitle ?? "-",
+                                subtitlePrefix: "Chức danh: ",
+                                subtitleValue: user.jobTitle ?? "-",
+                                showDivider: false,
+                              ),
+                              const SizedBox(height: 12),
+                              InfoRowSpecial(
+                                title: user.department?.name ?? "-",
+                                subtitlePrefix: "Quản lý: ",
+                                subtitleValue: user.manager?.name ?? "-",
+                                showDivider: false,
+                              ),
+                              const SizedBox(height: 12),
+                              InfoRowSpecial(
+                                title: user.state == "work"
+                                    ? "Đang làm việc"
+                                    : "-",
+                                subtitlePrefix: "Địa chỉ làm việc: ",
+                                subtitleValue: user.workLocation ?? "-",
+                                showDivider: false,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      ExpandableSection(
+                        title: "Khác",
+                        initiallyExpanded: true,
+                        style: ExpandableStyle.minimal,
+                        children: [
+                          InfoBoxSpecial(
+                            children: [
+                              InfoRowSpecial(
+                                title: user.contractStatus == "signed"
+                                    ? "Đã ký hợp đồng"
+                                    : "Chưa ký",
+                                subtitlePrefix: "Ngày gia nhập: ",
+                                subtitleValue: user.dateJoinCompany ?? "-",
+                                showDivider: false,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                    ]),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),

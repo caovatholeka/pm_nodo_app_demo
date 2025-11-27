@@ -128,18 +128,7 @@ class _AccountPageState extends State<AccountPage> {
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
-                elevation: 0,
-                pinned: true,
                 expandedHeight: appBarHeight,
-                centerTitle: true,
-                title: const Text(
-                  "Cá nhân",
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
                 flexibleSpace: FlexibleSpaceBar(
                   background: _header(profile, state.loadStatus),
                 ),
