@@ -6,16 +6,18 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import 'package:pm_app/app/features/ui/task/create_new_task.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../widgets/custom_dash_view.dart';
 import '../../widgets/custom_dialog.dart';
-
 
 class TaskDetailPage extends StatefulWidget {
   int? taskId;
@@ -41,8 +43,21 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     super.dispose();
   }
 
-  Color getStatusColor(String code){
-    switch(code){
+  void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
+  Color getStatusColor(String code) {
+    switch (code) {
       case "new":
         return AppColors.newTask;
       case "in_progress":
@@ -58,140 +73,158 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<TaskCubit,TaskState>(
-        bloc: _cubit,
-      listener: (context,state){
-        if(state.deleteStatus == LoadStatus.LOADING){
+    return BlocConsumer<TaskCubit, TaskState>(
+      bloc: _cubit,
+      listener: (context, state) {
+        if (state.deleteStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
         }
-        if(state.deleteStatus == LoadStatus.SUCCESS){
+        if (state.deleteStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          AppSnackBar.showInfo(title:"Thành công",message: "Xoá công việc thành công!!");
-          Navigator.pop(context,true);
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Xoá công việc thành công!!",
+          );
+          Navigator.pop(context, true);
         }
         if (state.deleteStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          AppSnackBar.showError(title:"Cảnh báo",message: "Có lỗi xảy ra , vui lòng thử lại sau!!");
-        }
-        else{
+          AppSnackBar.showError(
+            title: "Cảnh báo",
+            message: "Có lỗi xảy ra , vui lòng thử lại sau!!",
+          );
+        } else {
           LoadingOverlay.hide(context);
         }
       },
-      builder: (context,state) {
-         return Scaffold(
-           backgroundColor: AppColors.bodyColor,
-           appBar: AppBar(
-             title: Text("Chi tiết việc cần làm"),
-             flexibleSpace: Container(
-               width: double.infinity,
-               height: double.infinity,
-               decoration: BoxDecoration(
-                 image: DecorationImage(
-                   image: AssetImage(AppAssets.appbarBg),
-                   fit: BoxFit.fill,
-                 ),
-               ),
-             ),
-             leading: IconButton(
-               onPressed: () {
-                 Navigator.of(context).maybePop();
-               },
-               icon: Image.asset(
-                 AppAssets.ic_arrowB,
-                 width: 30,
-                 height: 30,
-               ),
-             ),
-           ),
-           body: SizedBox(
-             width: double.infinity,
-             height: double.infinity,
-             child: Stack(
-               children: [
-                 SingleChildScrollView(
-                   padding: const EdgeInsets.only(left: 16,right: 16),
-                   child: BlocBuilder<TaskCubit,TaskState>(
-                       bloc: _cubit,
-                       buildWhen: (prev,cur) => prev.loadDetailStatus != cur.loadDetailStatus ||
-                       prev.detailTask != cur.detailTask,
-                       builder: (context,state){
-                         return  state.loadDetailStatus == LoadStatus.LOADING ?
-                          Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) :
-                          Container(
-                           padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 20),
-                           decoration: BoxDecoration(
-                             color: AppColors.whiteColor,
-                             borderRadius: BorderRadius.all(Radius.circular(6))
-                           ),
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.bodyColor,
+          appBar: MyAppBar(
+            titleAppbar: "Chi tiết việc cần làm",
+            haveActionButton: true,
+            haveBackButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
+            isTransparent: false,
+            actionCallBack: () {
+              _goNotification();
+            },
+            backAction: () => Navigator.pop(context),
+          ),
+          body: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+                  child: BlocBuilder<TaskCubit, TaskState>(
+                    bloc: _cubit,
+                    buildWhen:
+                        (prev, cur) =>
+                            prev.loadDetailStatus != cur.loadDetailStatus ||
+                            prev.detailTask != cur.detailTask,
+                    builder: (context, state) {
+                      return state.loadDetailStatus == LoadStatus.LOADING
+                          ? Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.themePrimaryDefault,
+                            ),
+                          )
+                          : Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 20,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.whiteColor,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            ),
 
-                           child: Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Text(state.detailTask?.name ?? "",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textEditorPrimary,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  state.detailTask?.name ?? "",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textEditorPrimary,
+                                  ),
                                 ),
-                               ),
-                               const SizedBox(height: 16,),
-                               _getPriority,
-                               const SizedBox(height: 8,),
-                               CustomDashView(),
-                               const SizedBox(height: 8,),
-                               _buildItem("Loại Công việc",
-                                   (state.detailTask?.taskType ?? "") == "normal" ? "Thông thường" : "Tuyển dụng")
-                                   .paddingOnly(bottom: 8),
-                               CustomDashView(),
+                                const SizedBox(height: 16),
+                                _getPriority,
+                                const SizedBox(height: 8),
+                                CustomDashView(),
+                                const SizedBox(height: 8),
+                                _buildItem(
+                                  "Loại Công việc",
+                                  (state.detailTask?.taskType ?? "") == "normal"
+                                      ? "Thông thường"
+                                      : "Tuyển dụng",
+                                ).paddingOnly(bottom: 8),
+                                CustomDashView(),
 
-                               const SizedBox(height: 8,),
-                               _buildItem("Người giao việc",
-                                   state.detailTask?.assigner?.name ?? "")
-                                   .paddingOnly(bottom: 8),
-                               CustomDashView(),
+                                const SizedBox(height: 8),
+                                _buildItem(
+                                  "Người giao việc",
+                                  state.detailTask?.assigner?.name ?? "",
+                                ).paddingOnly(bottom: 8),
+                                CustomDashView(),
 
-                               const SizedBox(height: 8,),
-                               _buildItem("Người được phân công",
-                                   state.detailTask?.userIds?.map((sc) => sc.name).toList().join(",") ?? "")
-                                   .paddingOnly(bottom: 8),
-                               CustomDashView(),
+                                const SizedBox(height: 8),
+                                _buildItem(
+                                  "Người được phân công",
+                                  state.detailTask?.userIds
+                                          ?.map((sc) => sc.name)
+                                          .toList()
+                                          .join(",") ??
+                                      "",
+                                ).paddingOnly(bottom: 8),
+                                CustomDashView(),
 
-                               const SizedBox(height: 8,),
-                               _buildItem("Hạn chót",
-                                   AppDateUtils.changeIso8601StringToDateTimeString(state.detailTask?.deadline ?? "") )
-                                   .paddingOnly(bottom: 8),
-                               CustomDashView(),
+                                const SizedBox(height: 8),
+                                _buildItem(
+                                  "Hạn chót",
+                                  AppDateUtils.changeIso8601StringToDateTimeString(
+                                    state.detailTask?.deadline ?? "",
+                                  ),
+                                ).paddingOnly(bottom: 8),
+                                CustomDashView(),
 
-                               const SizedBox(height: 8,),
-                               _statusWidget,
-                               const SizedBox(height: 8,),
-                               CustomDashView(),
+                                const SizedBox(height: 8),
+                                _statusWidget,
+                                const SizedBox(height: 8),
+                                CustomDashView(),
 
-                               const SizedBox(height: 8,),
-                               _buildItem("Mô tả",
-                                   state.detailTask?.description ?? "")
-                                   .paddingOnly(bottom: 16),
-                             ],
-                           ),
-                         );
-                       })
-                 ),
-                 Positioned(
-                     bottom: 40,
-                     left: 32,
-                     right: 32,
-                     child: SizedBox(
-                       width: double.infinity,
-                       child: _bottomSheet
-                     ))
-               ],
-             ),
-           ),
-           // bottomSheet: _bottomSheet,
-         );
-      });
+                                const SizedBox(height: 8),
+                                _buildItem(
+                                  "Mô tả",
+                                  state.detailTask?.description ?? "",
+                                ).paddingOnly(bottom: 16),
+                              ],
+                            ),
+                          );
+                    },
+                  ),
+                ),
+                Positioned(
+                  bottom: MediaQuery.of(context).padding.bottom + 16,
+                  left: 32,
+                  right: 32,
+                  child: SizedBox(width: double.infinity, child: _bottomSheet),
+                ),
+              ],
+            ),
+          ),
+          // bottomSheet: _bottomSheet,
+        );
+      },
+    );
   }
 
   get _getPriority {
@@ -214,10 +247,16 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           flex: 5,
           child: Align(
             alignment: Alignment.centerRight,
-            child: SvgPicture.asset(AppAssets.icStar, width: 24, height: 24,
-                color: (_cubit.state.detailTask?.priority == 1) ? Colors.amber : Colors.grey,
-                ),
-          )
+            child: SvgPicture.asset(
+              AppAssets.icStar,
+              width: 24,
+              height: 24,
+              color:
+                  (_cubit.state.detailTask?.priority == 1)
+                      ? Colors.amber
+                      : Colors.grey,
+            ),
+          ),
         ),
       ],
     );
@@ -232,12 +271,15 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           children: [
             Expanded(
               child: InkWell(
-                onTap: (){
+                onTap: () {
                   showDeleteConfirmDialog();
                 },
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14,vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.whiteColor,
                     borderRadius: BorderRadius.all(Radius.circular(6)),
@@ -251,7 +293,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.themePrimaryDefault
+                      color: AppColors.themePrimaryDefault,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -261,12 +303,15 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
             const SizedBox(width: 10),
             Expanded(
               child: InkWell(
-                onTap: (){
+                onTap: () {
                   doUpdate(context);
                 },
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14,vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.themePrimaryDefault,
                     borderRadius: BorderRadius.all(Radius.circular(6)),
@@ -278,9 +323,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                   child: Text(
                     "Cập nhật",
                     style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.whiteColor
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.whiteColor,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -307,9 +352,11 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           overflow: TextOverflow.ellipsis,
         ),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: getStatusColor(_cubit.state.detailTask?.stage?.code ?? "").withOpacity(0.1),
+            color: getStatusColor(
+              _cubit.state.detailTask?.stage?.code ?? "",
+            ).withOpacity(0.1),
             borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
           child: Row(
@@ -320,7 +367,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                 height: 4,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: getStatusColor(_cubit.state.detailTask?.stage?.code ?? "")
+                  color: getStatusColor(
+                    _cubit.state.detailTask?.stage?.code ?? "",
+                  ),
                 ),
               ).paddingOnly(right: 4),
               Text(
@@ -328,7 +377,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: getStatusColor(_cubit.state.detailTask?.stage?.code ?? "")
+                  color: getStatusColor(
+                    _cubit.state.detailTask?.stage?.code ?? "",
+                  ),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -338,7 +389,6 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       ],
     );
   }
-
 
   Widget _buildItem(String title, String value) {
     return Row(
@@ -380,10 +430,11 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
     final bool? updated = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CreateNewTask(
-          isEdit: true,
-          detailEntity: _cubit.state.detailTask,
-        ),
+        builder:
+            (context) => CreateNewTask(
+              isEdit: true,
+              detailEntity: _cubit.state.detailTask,
+            ),
       ),
     );
     if (updated == true) {
@@ -396,19 +447,21 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
-      builder: (_) => CustomDialog(
-        iconPath: AppAssets.ic_delete,
-        title: "Xoá yêu cầu",
-        content: "Bạn có chắc muốn xoá yêu cầu này không? \n"
-            "Thao tác này không thể hoàn tác",
-        success: false,
-        confirmText: "Xoá",
-        cancelText: "Huỷ bỏ",
-        onConfirm: () {
-          Navigator.pop(context);
-          _cubit.deleteTask(_cubit.state.detailTask?.id ?? 0);
-        },
-      ),
+      builder:
+          (_) => CustomDialog(
+            iconPath: AppAssets.ic_delete,
+            title: "Xoá yêu cầu",
+            content:
+                "Bạn có chắc muốn xoá yêu cầu này không? \n"
+                "Thao tác này không thể hoàn tác",
+            success: false,
+            confirmText: "Xoá",
+            cancelText: "Huỷ bỏ",
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.deleteTask(_cubit.state.detailTask?.id ?? 0);
+            },
+          ),
     );
   }
 }

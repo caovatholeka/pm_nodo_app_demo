@@ -9,12 +9,15 @@ import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_stage_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bottomsheet/task_stage_bottom_sheet.dart';
 import 'package:pm_app/app/features/ui/task/create_new_task.dart';
 import 'package:pm_app/app/features/ui/task/task_detail_page.dart';
 import 'package:pm_app/app/features/ui/task/widget/list_task_item.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -106,6 +109,19 @@ class _TaskManagePageState extends State<TaskManagePage> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
+    void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<TaskCubit,TaskState>(
@@ -130,29 +146,17 @@ class _TaskManagePageState extends State<TaskManagePage> {
         builder: (context,state){
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
-            appBar: AppBar(
-              title: Text("Việc cần làm"),
-              flexibleSpace: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(AppAssets.appbarBg),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).maybePop();
-                },
-                icon: Image.asset(
-                  AppAssets.ic_arrowB,
-                  width: 30,
-                  height: 30,
-                ),
-              ),
-            ),
+            appBar: MyAppBar(
+            titleAppbar: "Việc cần làm",
+            haveActionButton: true,
+            haveBackButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
+            isTransparent: false,
+            actionCallBack: () {
+              _goNotification();
+            },
+            backAction: () => Navigator.pop(context),
+          ),
             body: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

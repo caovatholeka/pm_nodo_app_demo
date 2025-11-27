@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
   void _openStaffPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true,)),
+      MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true)),
     );
   }
 
@@ -66,26 +66,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openCheckIn(){
-    Navigator.push(context, MaterialPageRoute(builder: (_) =>
-        CheckInPage(
-          isFromHome: true,
-        )
-    ));
+  void _openCheckIn() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => CheckInPage(isFromHome: true)),
+    );
   }
 
-  void _openOnLeave(){
-    Navigator.push(context, MaterialPageRoute(builder: (_) =>
-        OnLeavePage(
-          isFromHome: true,
-        )
-    ));
+  void _openOnLeave() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => OnLeavePage(isFromHome: true)),
+    );
   }
 
   void _openTaskList() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => TaskManagePage()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => TaskManagePage()),
+    );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -121,18 +121,29 @@ class _HomePageState extends State<HomePage> {
                       _header(context),
                       SizedBox(height: context.sh(0.02)),
                       _attendanceCard(context),
-                      SizedBox(height: context.sh(0.03)),
-                      _utilitiesTitle(context),
-                      SizedBox(height: context.sh(0.015)),
-                      _utilitiesGrid(context),
-                      SizedBox(height: context.sh(0.006)),
-                      _taskTitle(context),
-                      SizedBox(height: context.sh(0.002)),
                     ],
                   ),
                 ),
 
-                Expanded(child: _taskList(context)),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: context.sh(0.002)),
+                        _utilitiesTitle(context),
+                        SizedBox(height: context.sh(0.015)),
+                        _utilitiesGrid(context),
+                        SizedBox(height: context.sh(0.03)),
+                        _taskTitle(context),
+                        SizedBox(height: context.sh(0.01)),
+                        _taskList(context),
+                        SizedBox(height: context.sh(0.03)),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -177,11 +188,12 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => BlocProvider(
-                  create: (_) =>
-                      GetIt.I<NotiCubit>()..loadNotifications("all"),
-                  child: const NotificationPage(),
-                ),
+                builder:
+                    (_) => BlocProvider(
+                      create:
+                          (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+                      child: const NotificationPage(),
+                    ),
               ),
             );
           },
@@ -206,8 +218,10 @@ class _HomePageState extends State<HomePage> {
       child: SizedBox(
         width: context.sw(0.92),
         child: AttendanceStatusCard(
-          dateText:
-              DateFormat("d 'tháng' M, yyyy", "vi").format(DateTime.now()),
+          dateText: DateFormat(
+            "d 'tháng' M, yyyy",
+            "vi",
+          ).format(DateTime.now()),
           checkInTime: "08.30 AM",
           checkOutTime: "06.00 PM",
           checkInStatus: "Done at 08.22 AM",
@@ -246,24 +260,33 @@ class _HomePageState extends State<HomePage> {
           ),
           itemBuilder: (_, index) {
             final map = [
-              {"a": AppAssets.ic_employee, "t": "Nhân viên", "code":"nv"},
-              {"a": AppAssets.ic_paper, "t": "Dữ liệu công", "code":"dlc"},
-              {"a": AppAssets.ic_paper2, "t": "Nghỉ phép", "code" : "np"},
-              {"a": AppAssets.ic_timekeeping, "t": "Chấm công", "code":"cc"},
-              {"a": AppAssets.ic_work, "t": "Việc cần làm", "code":"cv"},
+              {"a": AppAssets.ic_employee, "t": "Nhân viên", "code": "nv"},
+              {"a": AppAssets.ic_paper, "t": "Dữ liệu công", "code": "dlc"},
+              {"a": AppAssets.ic_paper2, "t": "Nghỉ phép", "code": "np"},
+              {"a": AppAssets.ic_timekeeping, "t": "Chấm công", "code": "cc"},
+              {"a": AppAssets.ic_work, "t": "Việc cần làm", "code": "cv"},
             ];
-            return _gridItem(context, map[index]["a"]!, map[index]["t"]!,
-                map[index]["code"]!);
+            return _gridItem(
+              context,
+              map[index]["a"]!,
+              map[index]["t"]!,
+              map[index]["code"]!,
+            );
           },
         );
       },
     );
   }
 
-  Widget _gridItem(BuildContext context,  String asset, String title,String code) {
+  Widget _gridItem(
+    BuildContext context,
+    String asset,
+    String title,
+    String code,
+  ) {
     return InkWell(
-      onTap: (){
-        switch(code){
+      onTap: () {
+        switch (code) {
           case "nv":
             _openStaffPage();
           case "dlc":
@@ -293,10 +316,7 @@ class _HomePageState extends State<HomePage> {
           SizedBox(height: context.sh(0.008)),
           Text(
             title,
-            style: TextStyle(
-              fontSize: context.sw(0.032),
-              color: Colors.black,
-            ),
+            style: TextStyle(fontSize: context.sw(0.032), color: Colors.black),
           ),
         ],
       ),
@@ -315,11 +335,16 @@ class _HomePageState extends State<HomePage> {
             color: AppColors.menuText,
           ),
         ),
-        Text(
-          "Xem tất cả",
-          style: TextStyle(
-            fontSize: context.sw(0.033),
-            color: AppColors.menuText,
+
+        InkWell(
+          onTap: _openTaskList,
+          child: Text(
+            "Xem tất cả",
+            style: TextStyle(
+              fontSize: context.sw(0.033),
+              color: AppColors.subtitle,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -329,26 +354,41 @@ class _HomePageState extends State<HomePage> {
   Widget _taskList(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(
       bloc: _cubit,
-      buildWhen: (prev, cur) => prev.listNewTasks != cur.listNewTasks ||
-        prev.loadDataStatus != cur.loadDataStatus,
+      buildWhen:
+          (prev, cur) =>
+              prev.listNewTasks != cur.listNewTasks ||
+              prev.loadDataStatus != cur.loadDataStatus,
       builder: (context, state) {
         final tasks = state.listNewTasks ?? [];
-        return state.loadDataStatus == LoadStatus.LOADING ?
-            Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) :
-        (tasks.isNotEmpty ?
-          ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              return ListTaskItem(
-                entity: tasks[index],
-                isShowNote: false,
-              ).paddingOnly(bottom: context.sh(0.02));
-            },
-          ) : Text("Chưa có việc cần làm")
-        );
 
+        if (state.loadDataStatus == LoadStatus.LOADING) {
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: context.sh(0.02)),
+              child: CircularProgressIndicator(
+                color: AppColors.themePrimaryDefault,
+              ),
+            ),
+          );
+        }
+
+        if (tasks.isEmpty) {
+          return Padding(
+            padding: EdgeInsets.only(top: context.sh(0.015)),
+            child: Text("Chưa có việc cần làm"),
+          );
+        }
+
+        return Column(
+          children:
+              tasks.map((e) {
+                return ListTaskItem(
+                  entity: e,
+                  isShowNote: false,
+                ).paddingOnly(bottom: context.sh(0.02));
+              }).toList(),
+        );
       },
     );
-  } 
+  }
 }

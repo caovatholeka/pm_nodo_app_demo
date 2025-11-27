@@ -1,16 +1,9 @@
 flutter_native_splash:
-  # Ẩn status bar, splash full màn hình
   fullscreen: true
-
-  # ======================================================
-  # Splash cho Android, iOS, Web (trừ Android 12+)
-  # ======================================================
-
-  # Dùng background ảnh giống giao diện mẫu
   background_image: assets/images/appBG.jpg
 
   # Logo chính giữa (Nodo Smart Solutions)
-  image: assets/images/appLogoLogin.jpg
+  image: assets/images/logoSplash.jpg
 
   ios_content_mode: center
   android_gravity: center

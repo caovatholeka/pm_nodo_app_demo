@@ -142,6 +142,7 @@ Widget _buildCheckIn() {
       children: [
         const Text(
           "Check Out",
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -169,6 +170,7 @@ Widget _buildCheckIn() {
             child: Center(
               child: Text(
                 checkOutStatus,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
