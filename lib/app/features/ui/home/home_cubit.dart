@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
@@ -21,29 +22,60 @@ class HomeCubit extends Cubit<HomeState> {
     required this.taskRepository
   }) : super(HomeState());
 
-  // lấy lịch sử chấm công ngày hôm nay
-  getListAttendanceToday() async {
-    final year = DateTime.now().year;
-    final month = DateTime.now().month;
-    final day = DateTime.now().day;
-    final dateFrom = "$year-$month-$day";
-    try{
-      final res = await userRepository.getListAttendanceToday(dateFrom,dateFrom);
-      List<ExplanationEntity>? list;
-      if(res.data != null){
-        list =  mapList(res.data, ExplanationEntity.fromJson);
-      }
+getListAttendanceToday() async {
+  final todayStr = DateFormat("yyyy-MM-dd").format(DateTime.now());
 
-      if((list ?? []).isNotEmpty){
-        emit(state.copyWith(listAttendanceToday: list));
-      }else{
-        emit(state.copyWith(listAttendanceToday: []));
-      }
-    }catch(e){
-      logger.d(e);
-      emit(state.copyWith(listAttendanceToday: []));
+  try {
+    final res = await userRepository.getListAttendanceToday(todayStr, todayStr);
+
+    List<ExplanationEntity>? list;
+    if (res.data != null) {
+      list = mapList(res.data, ExplanationEntity.fromJson);
     }
+
+    if ((list ?? []).isEmpty) {
+      emit(state.copyWith(
+        listAttendanceToday: [],
+        checkInToday: null,
+        checkOutToday: null,
+      ));
+      return;
+    }
+
+    final todayList = list!
+        .where((e) => e.date == todayStr)
+        .toList();
+
+    todayList.sort((a, b) =>
+        DateTime.parse(a.datetime!).compareTo(DateTime.parse(b.datetime!)));
+
+    String? checkIn;
+    String? checkOut;
+
+    for (var e in todayList) {
+      if (e.action == "check_in") {
+        checkIn = e.datetime;
+      } else if (e.action == "check_out") {
+        checkOut = e.datetime;
+      }
+    }
+
+    emit(state.copyWith(
+      listAttendanceToday: todayList,
+      checkInToday: checkIn,
+      checkOutToday: checkOut,
+    ));
+  } catch (e, s) {
+    logger.d(e);
+    logger.d(s);
+    emit(state.copyWith(
+      listAttendanceToday: [],
+      checkInToday: null,
+      checkOutToday: null,
+    ));
   }
+}
+
 
   // lấy danh sách việc cần làm
   getListNewTasks() async {

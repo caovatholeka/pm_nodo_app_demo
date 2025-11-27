@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -38,6 +39,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _cubit = GetIt.I<HomeCubit>();
   final _appCubit = GetIt.I<AppCubit>();
+  final _attendanceCubit = GetIt.I<AttendanceDataCubit>();
 
   @override
   void initState() {
@@ -213,23 +215,50 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _attendanceCard(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: context.sw(0.92),
-        child: AttendanceStatusCard(
-          dateText: DateFormat(
-            "d 'tháng' M, yyyy",
-            "vi",
-          ).format(DateTime.now()),
-          checkInTime: "08.30 AM",
-          checkOutTime: "06.00 PM",
-          checkInStatus: "Done at 08.22 AM",
-          checkOutStatus: "Not yet",
+Widget _attendanceCard(BuildContext context) {
+  return BlocBuilder<HomeCubit, HomeState>(
+    bloc: _cubit,
+    builder: (context, state) {
+      String checkInStatus;
+      String checkOutStatus;
+
+      String formatTime(String datetime) {
+        final dt = DateFormat("yyyy-MM-dd HH:mm").parse(datetime);
+        return DateFormat("hh:mm a", "en_US").format(dt);
+      }
+
+      if (state.checkInToday == null) {
+        checkInStatus = "Not yet";
+      } else {
+        checkInStatus = "${formatTime(state.checkInToday!)}";
+      }
+
+      if (state.checkOutToday == null) {
+        checkOutStatus = "Not yet";
+      } else {
+        checkOutStatus = "${formatTime(state.checkOutToday!)}";
+      }
+
+      return Center(
+        child: SizedBox(
+          width: context.sw(0.92),
+          child: AttendanceStatusCard(
+            dateText: DateFormat(
+              "d 'tháng' M, yyyy",
+              "vi",
+            ).format(DateTime.now()),
+
+            checkInTime: "08:30 AM", 
+            checkOutTime: "06:00 PM",
+            checkInStatus: checkInStatus,
+            checkOutStatus: checkOutStatus,
+          ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
+
 
   Widget _utilitiesTitle(BuildContext context) {
     return Text(

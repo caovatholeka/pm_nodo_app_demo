@@ -4,9 +4,9 @@ class AttendanceDataState extends Equatable {
   final LoadStatus loadStatus;
   final LoadStatus detailStatus;
   final LoadStatus historyStatus;
-  final ProfileEntity? profile; 
-  final List<DateTime> checkInDays; 
-  final bool isMonthView; 
+  final ProfileEntity? profile;
+  final List<DateTime> checkInDays;
+  final bool isMonthView;
   final String? selectedMonth;
   final String? selectedYear;
   final String? reason;
@@ -25,26 +25,31 @@ class AttendanceDataState extends Equatable {
   final List<WorkEntity>? listDetailEntry;
   final bool isLegendExpand;
 
-   AttendanceDataState({
+  final String? checkInToday;
+  final String? checkOutToday;
+
+  AttendanceDataState({
     this.loadStatus = LoadStatus.INITIAL,
-     this.detailStatus = LoadStatus.INITIAL,
-     this.historyStatus = LoadStatus.INITIAL,
+    this.detailStatus = LoadStatus.INITIAL,
+    this.historyStatus = LoadStatus.INITIAL,
     this.profile,
     this.checkInDays = const [],
     this.isMonthView = true,
     this.selectedMonth,
     this.selectedYear,
-     this.selectedDateTime,
-     this.selectedDate,
-     this.listSelectedEntries,
+    this.selectedDateTime,
+    this.selectedDate,
+    this.listSelectedEntries,
     this.reason,
     this.listAttendances,
     this.focusedMonth,
     this.attendanceDateMap,
     this.entriesByDate,
-     this.listAttendanceHistory,
-     this.listDetailEntry,
-     this.isLegendExpand = false,
+    this.listAttendanceHistory,
+    this.listDetailEntry,
+    this.isLegendExpand = false,
+    this.checkInToday,
+    this.checkOutToday,
   });
 
   AttendanceDataState copyWith({
@@ -66,7 +71,9 @@ class AttendanceDataState extends Equatable {
     Map<DateTime, List<WorkEntity>>? entriesByDate,
     List<ExplanationEntity>? listAttendanceHistory,
     List<WorkEntity>? listDetailEntry,
-    bool? isLegendExpand
+    bool? isLegendExpand,
+    String? checkInToday,
+    String? checkOutToday,
   }) {
     return AttendanceDataState(
       loadStatus: loadStatus ?? this.loadStatus,
@@ -85,9 +92,12 @@ class AttendanceDataState extends Equatable {
       focusedMonth: focusedMonth ?? this.focusedMonth,
       attendanceDateMap: attendanceDateMap ?? this.attendanceDateMap,
       entriesByDate: entriesByDate ?? this.entriesByDate,
-        listAttendanceHistory : listAttendanceHistory ?? this.listAttendanceHistory,
+      listAttendanceHistory:
+          listAttendanceHistory ?? this.listAttendanceHistory,
       listDetailEntry: listDetailEntry ?? this.listDetailEntry,
-      isLegendExpand: isLegendExpand ?? this.isLegendExpand
+      isLegendExpand: isLegendExpand ?? this.isLegendExpand,
+      checkInToday: checkInToday ?? this.checkInToday,
+      checkOutToday: checkOutToday ?? this.checkOutToday,
     );
   }
 
@@ -111,6 +121,8 @@ class AttendanceDataState extends Equatable {
     listSelectedEntries,
     listAttendanceHistory,
     listDetailEntry,
-    isLegendExpand
-      ];
+    isLegendExpand,
+    checkInToday,
+    checkOutToday,
+  ];
 }

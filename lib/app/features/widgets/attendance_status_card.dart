@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/commons/app_colors.dart';
 
 class AttendanceStatusCard extends StatelessWidget {
   final String dateText;
@@ -17,19 +16,25 @@ class AttendanceStatusCard extends StatelessWidget {
     required this.checkOutStatus,
   });
 
+  bool _isDone(String status) {
+    return status.toLowerCase() != "not yet";
+  }
+
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          )
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 12,
+            offset: Offset(0, 3),
+          ),
         ],
       ),
       child: Column(
@@ -38,40 +43,52 @@ class AttendanceStatusCard extends StatelessWidget {
           Text(
             "Hôm nay",
             style: TextStyle(
-              fontSize: 14,
-              color: AppColors.searchText,
+              color: Colors.grey[600],
+              fontSize: w * 0.035,
               fontWeight: FontWeight.w500,
             ),
           ),
-
-          const SizedBox(height: 4),
-
+          SizedBox(height: 6),
           Text(
             dateText,
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyle(
+              fontSize: w * 0.055,
               fontWeight: FontWeight.w700,
-              color: AppColors.themeBlackDefault,
+              color: Colors.black,
             ),
           ),
-
-          const SizedBox(height: 18),
-
+          SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+            padding: EdgeInsets.symmetric(vertical: 18, horizontal: 14),
             decoration: BoxDecoration(
-              color: const Color(0xFFF4F4F4),
-              borderRadius: BorderRadius.circular(16),
+              color: Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(child: _buildCheckIn()),
+                Expanded(
+                  child: _buildItem(
+                    title: "Check In",
+                    time: checkInTime,
+                    status: checkInStatus,
+                    isDone: _isDone(checkInStatus),
+                  ),
+                ),
                 Container(
                   width: 1,
-                  height: 65,
-                  color: Colors.grey.withOpacity(0.25),
+                  height: 60,
+                  color: Colors.grey.withOpacity(0.4),
+                  margin: EdgeInsets.symmetric(horizontal: 12),
                 ),
-                Expanded(child: _buildCheckOut()),
+                Expanded(
+                  child: _buildItem(
+                    title: "Check Out",
+                    time: checkOutTime,
+                    status: checkOutStatus,
+                    isDone: _isDone(checkOutStatus),
+                  ),
+                ),
               ],
             ),
           ),
@@ -80,104 +97,60 @@ class AttendanceStatusCard extends StatelessWidget {
     );
   }
 
-Widget _buildCheckIn() {
-  return Padding(
-    padding: const EdgeInsets.only(right: 10),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Text(
-          "Check In",
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.themeBlackDefault,
-          ),
-        ),
-
-        const SizedBox(height: 4),
-
-        Text(
-          checkInTime,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
-        ),
-
-        const SizedBox(height: 10),
-
-        IntrinsicWidth(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.10),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: Center(
-              child: Text(
-                checkInStatus,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF0EB200),
-                ),
-              ),
-            ),
-          ),
-        )
-      ],
-    ),
-  );
-}
-
-
-  Widget _buildCheckOut() {
+  Widget _buildItem({
+    required String title,
+    required String time,
+    required String status,
+    required bool isDone,
+  }) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Text(
-          "Check Out",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppColors.themeBlackDefault,
-          ),
-        ),
-
-        const SizedBox(height: 4),
-
         Text(
-          checkOutTime,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
+          title,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+          textAlign: TextAlign.center,
         ),
-
-        const SizedBox(height: 10),
-
-        IntrinsicWidth(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 7),
-            width: 130,
-            decoration: BoxDecoration(
-              color: const Color(0xFF007BFF),
-              borderRadius: BorderRadius.circular(50),
+        SizedBox(height: 4),
+        Text(
+          time,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 10),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            color: isDone ? Colors.white : Colors.blue,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow:
+                isDone
+                    ? [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.15),
+                        blurRadius: 8,
+                        offset: Offset(0, 3),
+                      ),
+                    ]
+                    : [],
+          ),
+          child: Text(
+            status,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: isDone ? Colors.green : Colors.white,
             ),
-            child: Center(
-              child: Text(
-                checkOutStatus,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            textAlign: TextAlign.center,
           ),
         ),
       ],
