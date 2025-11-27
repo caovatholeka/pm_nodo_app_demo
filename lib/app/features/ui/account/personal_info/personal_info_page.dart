@@ -24,8 +24,7 @@ class PersonalInfoPage extends StatefulWidget {
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final _cubit = GetIt.I.get<PersonalCubit>();
 
-  bool _showAppBar = true; // 👈 Thêm biến điều khiển AppBar
-
+  bool _showAppBar = true; 
   @override
   void initState() {
     super.initState();
@@ -38,7 +37,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFFF4F6F8),
 
-      // 👇 Appbar có thể ẩn / hiện
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AnimatedOpacity(
@@ -166,7 +164,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                   ),
                 ),
 
-                // Body content
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(

@@ -126,9 +126,11 @@ Future<void> init() async {
 
   // ** Account **
   sl.registerLazySingleton<AccountCubit>(() => AccountCubit(sl()));
-  sl.registerLazySingleton<ChangePasswordCubit>(
-    () => ChangePasswordCubit(userRepository: sl()),
-  );
+
+  // sl.registerFactory<ChangePasswordCubit>(
+  //   () => ChangePasswordCubit(userRepository: sl()),
+  // );
+
   sl.registerFactory<PersonalCubit>(() => PersonalCubit(userRepository: sl()));
 
   sl.registerLazySingleton<FaceScanCubit>(
@@ -136,16 +138,14 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<HomeCubit>(
-        () => HomeCubit(userRepository: sl(), taskRepository: sl()),
+    () => HomeCubit(userRepository: sl(), taskRepository: sl()),
   );
 
   sl.registerLazySingleton<ExplanationCubit>(
     () => ExplanationCubit(repository: sl()),
   );
 
-    sl.registerLazySingleton<TaskCubit>(
-    () => TaskCubit(repository: sl()),
-  );
+  sl.registerLazySingleton<TaskCubit>(() => TaskCubit(repository: sl()));
 
   sl.registerLazySingleton<WorkEntryRepository>(
     () => WorkEntryRepositoryImpl(sl()),
@@ -158,7 +158,5 @@ Future<void> init() async {
   sl.registerFactory<OtpVerifyCubit>(() => OtpVerifyCubit(sl()));
 
   sl.registerFactory<NotiCubit>(() => NotiCubit(userRepository: sl()));
-  sl.registerLazySingleton<TaskRepository>(
-        () => TaskRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<TaskRepository>(() => TaskRepositoryImpl(sl()));
 }

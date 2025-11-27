@@ -215,50 +215,53 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-Widget _attendanceCard(BuildContext context) {
-  return BlocBuilder<HomeCubit, HomeState>(
-    bloc: _cubit,
-    builder: (context, state) {
-      String checkInStatus;
-      String checkOutStatus;
+  Widget _attendanceCard(BuildContext context) {
+    return BlocBuilder<HomeCubit, HomeState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        String checkInStatus;
+        String checkOutStatus;
 
-      String formatTime(String datetime) {
-        final dt = DateFormat("yyyy-MM-dd HH:mm").parse(datetime);
-        return DateFormat("hh:mm a", "en_US").format(dt);
-      }
+        String formatTime(String datetime) {
+          try {
+            final dt = DateFormat("yyyy-MM-dd HH:mm").parse(datetime);
+            return DateFormat("hh:mm a", "en_US").format(dt);
+          } catch (_) {
+            return "";
+          }
+        }
 
-      if (state.checkInToday == null) {
-        checkInStatus = "Not yet";
-      } else {
-        checkInStatus = "${formatTime(state.checkInToday!)}";
-      }
+        if (state.checkInToday == null) {
+          checkInStatus = "Not yet";
+        } else {
+          checkInStatus = "${formatTime(state.checkInToday!)}";
+        }
 
-      if (state.checkOutToday == null) {
-        checkOutStatus = "Not yet";
-      } else {
-        checkOutStatus = "${formatTime(state.checkOutToday!)}";
-      }
+        if (state.checkOutToday == null) {
+          checkOutStatus = "Not yet";
+        } else {
+          checkOutStatus = "${formatTime(state.checkOutToday!)}";
+        }
 
-      return Center(
-        child: SizedBox(
-          width: context.sw(0.92),
-          child: AttendanceStatusCard(
-            dateText: DateFormat(
-              "d 'tháng' M, yyyy",
-              "vi",
-            ).format(DateTime.now()),
+        return Center(
+          child: SizedBox(
+            width: context.sw(0.92),
+            child: AttendanceStatusCard(
+              dateText: DateFormat(
+                "d 'tháng' M, yyyy",
+                "vi",
+              ).format(DateTime.now()),
 
-            checkInTime: "08:30 AM", 
-            checkOutTime: "06:00 PM",
-            checkInStatus: checkInStatus,
-            checkOutStatus: checkOutStatus,
+              checkInTime: "08:30 AM",
+              checkOutTime: "06:00 PM",
+              checkInStatus: checkInStatus,
+              checkOutStatus: checkOutStatus,
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   Widget _utilitiesTitle(BuildContext context) {
     return Text(

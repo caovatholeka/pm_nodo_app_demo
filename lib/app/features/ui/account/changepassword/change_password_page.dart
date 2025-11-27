@@ -5,12 +5,11 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
-import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/account/changepassword/change_password_cubit.dart';
+import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/di/di.dart';
 import 'package:another_flushbar/flushbar.dart';
-import 'package:pm_app/app/core/utils/validators.dart';
 
 class ChangePasswordPage extends StatelessWidget {
   const ChangePasswordPage({super.key});
@@ -18,7 +17,7 @@ class ChangePasswordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<ChangePasswordCubit>(),
+      create: (_) => ChangePasswordCubit(userRepository: sl()),
       child: const _ChangePasswordView(),
     );
   }
@@ -32,23 +31,17 @@ class _ChangePasswordView extends StatefulWidget {
 }
 
 class _ChangePasswordViewState extends State<_ChangePasswordView> {
-  final TextEditingController currentPasswordController =
-      TextEditingController();
-  final TextEditingController newPasswordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController currentController = TextEditingController();
+  final TextEditingController newController = TextEditingController();
+  final TextEditingController confirmController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
-  void _showFlushbar(String title, String? message, {bool success = false}) {
-    final safeMessage =
-        (message == null || message.trim().isEmpty)
-            ? "Có lỗi xảy ra. Vui lòng thử lại!"
-            : message;
-
+  // Hiển thị thông báo popup
+  void _showMessage(String title, String message, {bool success = false}) {
     Flushbar(
       title: title,
-      message: safeMessage,
+      message: message,
       duration: const Duration(seconds: 3),
       borderRadius: BorderRadius.circular(12),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -61,43 +54,59 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     ).show(context);
   }
 
-  void _onSubmit() {
-    final formValid = _formKey.currentState?.validate() ?? false;
+  String? _validateNewPassword(String newPass) {
+    final regex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$');
 
-    if (!formValid) {
-      final msg = _getFirstValidatorError() ?? "Thông tin chưa hợp lệ!";
-      _showFlushbar("Thất bại", msg);
+    if (newPass.isEmpty) {
+      return "Mật khẩu mới không được để trống";
+    }
+
+    if (!regex.hasMatch(newPass)) {
+      return "Mật khẩu mới phải có tối thiểu 8 ký tự, gồm chữ IN HOA, chữ thường, số và ký tự đặc biệt";
+    }
+
+    return null;
+  }
+
+  String? _validateFields() {
+    final current = currentController.text.trim();
+    final newPass = newController.text.trim();
+    final confirm = confirmController.text.trim();
+    if (current.isEmpty) {
+      return "Mật khẩu hiện tại không được để trống";
+    }
+
+    final newPassError = _validateNewPassword(newPass);
+    if (newPassError != null) return newPassError;
+
+    if (confirm.isEmpty) {
+      return "Vui lòng nhập lại mật khẩu để xác nhận";
+    }
+    if (confirm != newPass) {
+      return "Xác nhận mật khẩu không khớp";
+    }
+
+    return null;
+  }
+
+  void _submit() {
+    final error = _validateFields();
+    if (error != null) {
+      _showMessage("Thất bại", error);
       return;
     }
 
-    final cubit = context.read<ChangePasswordCubit>();
-    cubit.changePassword(
-      currentPassword: currentPasswordController.text.trim(),
-      newPassword: newPasswordController.text.trim(),
-      confirmPassword: confirmPasswordController.text.trim(),
+    context.read<ChangePasswordCubit>().changePassword(
+      currentPassword: currentController.text.trim(),
+      newPassword: newController.text.trim(),
+      confirmPassword: confirmController.text.trim(),
     );
   }
 
-  String? _getFirstValidatorError() {
-    final validators = [
-      Validator().validatePassword(
-        currentPasswordController.text.trim(),
-        "Mật khẩu hiện tại",
-      ),
-      Validator().validatePassword(
-        newPasswordController.text.trim(),
-        "Mật khẩu mới",
-      ),
-      Validator().validateConfirmPassword(
-        newPasswordController.text.trim(),
-        confirmPasswordController.text.trim(),
-      ),
-    ];
-
-    for (final e in validators) {
-      if (e != null) return e;
-    }
-    return null;
+  void _clearFields() {
+    currentController.clear();
+    newController.clear();
+    confirmController.clear();
   }
 
   @override
@@ -105,22 +114,20 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     return BlocListener<ChangePasswordCubit, ChangePasswordState>(
       listener: (context, state) {
         if (state.status == LoadStatus.SUCCESS) {
-          _showFlushbar(
+          _showMessage(
             "Thành công",
             state.message ?? "Đổi mật khẩu thành công!",
             success: true,
           );
+          _clearFields();
+        }
 
-          currentPasswordController.clear();
-          newPasswordController.clear();
-          confirmPasswordController.clear();
-        } else if (state.status == LoadStatus.FAILURE) {
-          _showFlushbar(
+        if (state.status == LoadStatus.FAILURE) {
+          _showMessage(
             "Thất bại",
-            state.message?.trim().isNotEmpty == true
+            (state.message != null && state.message!.trim().isNotEmpty)
                 ? state.message!
                 : "Không thể đổi mật khẩu",
-            success: false,
           );
         }
       },
@@ -130,10 +137,17 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
           titleAppbar: "Đổi mật khẩu",
           haveBackButton: true,
           isTransparent: true,
+          backAction: () {
+            final state = context.read<ChangePasswordCubit>().state;
+            if (state.status == LoadStatus.LOADING) {
+              _showMessage("Đang xử lý", "Vui lòng đợi hoàn tất");
+              return;
+            }
+            Navigator.pop(context);
+          },
         ),
+
         body: Container(
-          width: double.infinity,
-          height: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage(AppAssets.appBg),
@@ -144,118 +158,73 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
             children: [
               const SizedBox(height: 120),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 24,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.whiteColor,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(24),
-                        topRight: Radius.circular(24),
-                      ),
-                      boxShadow: AppShadow.pageBoxShadow,
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: [
-                                  InputTextField(
-                                    controller: currentPasswordController,
-                                    hintText: "Nhập mật khẩu hiện tại",
-                                    title: "Mật khẩu hiện tại",
-                                    isPasswordField: true,
-                                    style: const TextStyle(
-                                      color: AppColors.themeBlackDefault,
-                                    ),
-                                    isRequiredField: true,
-                                    bgrColor: true,
-                                    validator:
-                                        (v) => Validator().validatePassword(
-                                          v?.trim(),
-                                          "Mật khẩu hiện tại",
-                                        ),
-                                  ),
-                                  const SizedBox(height: 10),
+                    boxShadow: AppShadow.pageBoxShadow,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                InputTextField(
+                                  controller: currentController,
+                                  hintText: "Nhập mật khẩu hiện tại",
+                                  title: "Mật khẩu hiện tại",
+                                  isRequiredField: true,
+                                  isPasswordField: true,
+                                  bgrColor: true,
+                                ),
+                                const SizedBox(height: 10),
 
-                                  InputTextField(
-                                    controller: newPasswordController,
-                                    hintText: "Nhập mật khẩu mới",
-                                    isPasswordField: true,
-                                    title: "Mật khẩu mới",
-                                    style: const TextStyle(
-                                      color: AppColors.themeBlackDefault,
-                                    ),
-                                    isRequiredField: true,
-                                    bgrColor: true,
-                                    validator:
-                                        (v) => Validator().validatePassword(
-                                          v?.trim(),
-                                          "Mật khẩu mới",
-                                        ),
-                                  ),
-                                  const SizedBox(height: 10),
+                                InputTextField(
+                                  controller: newController,
+                                  hintText: "Nhập mật khẩu mới",
+                                  title: "Mật khẩu mới",
+                                  isRequiredField: true,
+                                  isPasswordField: true,
+                                  bgrColor: true,
+                                ),
+                                const SizedBox(height: 10),
 
-                                  InputTextField(
-                                    controller: confirmPasswordController,
-                                    hintText: "Nhập lại mật khẩu mới",
-                                    isPasswordField: true,
-                                    title: "Xác nhận mật khẩu mới",
-                                    style: const TextStyle(
-                                      color: AppColors.themeBlackDefault,
-                                    ),
-                                    isRequiredField: true,
-                                    bgrColor: true,
-                                    validator:
-                                        (v) =>
-                                            Validator().validateConfirmPassword(
-                                              newPasswordController.text.trim(),
-                                              v?.trim(),
-                                            ),
-                                  ),
-                                ],
-                              ),
+                                InputTextField(
+                                  controller: confirmController,
+                                  hintText: "Nhập lại mật khẩu mới",
+                                  title: "Xác nhận mật khẩu mới",
+                                  isRequiredField: true,
+                                  isPasswordField: true,
+                                  bgrColor: true,
+                                ),
+                              ],
                             ),
                           ),
+                        ),
 
-                          const SizedBox(height: 24),
+                        const SizedBox(height: 20),
 
-                          BlocBuilder<ChangePasswordCubit, ChangePasswordState>(
-                            builder: (context, state) {
-                              return SizedBox(
-                                width: double.infinity,
-                                height: 48,
-                                child: ElevatedButton(
-                                  onPressed: _onSubmit,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppColors.mainPrimaryColor6,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Xác nhận",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              );
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: PrimaryButton(
+                            mainText: "Xác nhận",
+                            callback: () {
+                              _submit();
                             },
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
