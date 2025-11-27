@@ -1,32 +1,37 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get_it/get_it.dart';
+import 'package:firebase_core/firebase_core.dart';
 
+import 'firebase_options.dart';
 import 'app/app.dart';
 import 'di/di.dart' as di;
+import 'app/core/service/firebase_messaging_service.dart';
 
 final getIt = GetIt.instance;
-void main() {
-  runZonedGuarded(() async{
-    final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-    // await Firebase.initializeApp(
-    //   options: DefaultFirebaseOptions.currentPlatform,
-    // );
+void main() {
+  runZonedGuarded(() async {
+    final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    await FirebaseMessagingService.initializeFCM();
 
     await di.init();
-    // await FirebaseMessagingService().initialize();
+
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
     runApp(MyApp());
     FlutterNativeSplash.remove();
-  }, (error, stackTrace) {
-    debugPrint('Uncaught error: $error');
+  }, (error, stack) {
+    debugPrint("Uncaught error: $error");
   });
 }
