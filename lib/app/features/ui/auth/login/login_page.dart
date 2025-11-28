@@ -23,10 +23,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _userKey = GlobalKey<FormState>();
   final _passKey = GlobalKey<FormState>();
-
   final _userCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
-
   final _cubit = sl<LogInCubit>();
 
   void _login() {
@@ -98,9 +96,11 @@ class _LoginPageState extends State<LoginPage> {
               SafeArea(
                 child: Center(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 20,
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 20,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 20,
                     ),
                     physics: const BouncingScrollPhysics(),
                     child: Column(
@@ -121,16 +121,13 @@ class _LoginPageState extends State<LoginPage> {
                             ],
                           ),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Image.asset(
                                 AppAssets.appLogo2,
                                 width: 90,
                                 height: 90,
                               ),
-
                               const SizedBox(height: 6),
-
                               const Text(
                                 "Đăng nhập",
                                 style: TextStyle(
@@ -138,17 +135,14 @@ class _LoginPageState extends State<LoginPage> {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-
                               const SizedBox(height: 6),
-
                               Text(
                                 "Enter your email and password to log in",
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey.shade600,
+                                  color: Colors.grey,
                                 ),
                               ),
-
                               const SizedBox(height: 28),
 
                               Form(
@@ -167,6 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
 
                               const SizedBox(height: 18),
+
                               Form(
                                 key: _passKey,
                                 child: InputTextField(
@@ -236,7 +231,6 @@ class _LoginPageState extends State<LoginPage> {
                                       const Text("Nhớ tài khoản"),
                                     ],
                                   ),
-
                                   GestureDetector(
                                     onTap: () {
                                       Navigator.push(
@@ -262,6 +256,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
 
                               const SizedBox(height: 26),
+
                               PrimaryButton(
                                 mainText: "Đăng nhập",
                                 buttonWidth: double.infinity,
@@ -284,32 +279,26 @@ class _LoginPageState extends State<LoginPage> {
                 left: 10,
                 right: 10,
                 bottom: 20,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: Color(0xFFB5BBC6),
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFFB5BBC6),
-                            height: 1.25,
-                          ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: Color(0xFFB5BBC6),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFFB5BBC6),
+                          height: 1.25,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],

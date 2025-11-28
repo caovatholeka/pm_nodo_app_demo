@@ -51,18 +51,18 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
       _showError("Vui lòng nhập mật khẩu!");
     } else if (confirm.isEmpty) {
       _showError("Vui lòng xác nhận mật khẩu");
-    } else if(pass != confirm) {
+    } else if (pass != confirm) {
       _showError("Vui lòng xác nhận đúng mật khẩu bạn đã nhập!");
-    }
-     else if (!(_formKey.currentState?.validate() ?? false)) {
+    } else if (!(_formKey.currentState?.validate() ?? false)) {
       _showError("Thông tin chưa hợp lệ. Vui lòng kiểm tra lại!");
       return;
     }
+
     context.read<ForgotCubit>().submitForgotRequest(
-      email: username,
-      password: pass,
-      confirmPassword: confirm,
-    );
+          email: username,
+          password: pass,
+          confirmPassword: confirm,
+        );
   }
 
   @override
@@ -83,15 +83,14 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (_) => BlocProvider(
-                    create: (_) => sl<OtpVerifyCubit>(),
-                    child: OtpVerifyPage(
-                      email: _userCtrl.text.trim(),
-                      password: _passCtrl.text.trim(),
-                      confirmPassword: _confirmCtrl.text.trim(),
-                    ),
-                  ),
+              builder: (_) => BlocProvider(
+                create: (_) => sl<OtpVerifyCubit>(),
+                child: OtpVerifyPage(
+                  email: _userCtrl.text.trim(),
+                  password: _passCtrl.text.trim(),
+                  confirmPassword: _confirmCtrl.text.trim(),
+                ),
+              ),
             ),
           );
         }
@@ -107,7 +106,11 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
 
               Center(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  padding: EdgeInsets.only(
+                    left: 18,
+                    right: 18,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
                   child: Container(
                     width: MediaQuery.of(context).size.width * 0.92,
                     padding: const EdgeInsets.fromLTRB(22, 28, 22, 32),
@@ -128,7 +131,6 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Image.asset(AppAssets.appLogo2, width: 120),
-
                           const SizedBox(height: 16),
 
                           const Text(
@@ -185,6 +187,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                 (v) => Validator().validateEmail(v?.trim()),
                           ),
                           const SizedBox(height: 10),
+
                           InputTextField(
                             title: "Mật khẩu mới",
                             hintText: "Nhập mật khẩu mới của bạn",
@@ -192,13 +195,13 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                             controller: _passCtrl,
                             isPasswordField: true,
                             bgrColor: true,
-                            validator:
-                                (v) => Validator().validatePassword(
-                                  v?.trim(),
-                                  "Mật khẩu",
-                                ),
+                            validator: (v) => Validator().validatePassword(
+                              v?.trim(),
+                              "Mật khẩu",
+                            ),
                           ),
                           const SizedBox(height: 10),
+
                           InputTextField(
                             title: "Xác nhận mật khẩu mới",
                             hintText: "Xác nhận mật khẩu mới của bạn",
@@ -206,11 +209,10 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                             controller: _confirmCtrl,
                             isPasswordField: true,
                             bgrColor: true,
-                            validator:
-                                (v) => Validator().validateConfirmPassword(
-                                  _passCtrl.text.trim(),
-                                  v?.trim(),
-                                ),
+                            validator: (v) => Validator().validateConfirmPassword(
+                              _passCtrl.text.trim(),
+                              v?.trim(),
+                            ),
                           ),
 
                           const SizedBox(height: 26),
@@ -225,6 +227,33 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                       ),
                     ),
                   ),
+                ),
+              ),
+
+              Positioned(
+                left: 10,
+                right: 10,
+                bottom: 20,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: Color(0xFFB5BBC6),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFFB5BBC6),
+                          height: 1.25,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

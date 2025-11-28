@@ -55,7 +55,6 @@ class FirebaseMessagingService {
     return null;
   }
 
-  /// Khởi tạo FCM,
   static Future<void> initializeFCM({int retry = 0}) async {
     const maxRetry = 3;
 
@@ -69,7 +68,6 @@ class FirebaseMessagingService {
       );
       logger.d("💙 FCM permission: ${settings.authorizationStatus}");
 
-      // Lấy token
       final token = await _messaging.getToken();
       final deviceId = await _getDeviceId();
       logger.d("🔔 FCM TOKEN: $token");
