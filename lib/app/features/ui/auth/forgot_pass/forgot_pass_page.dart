@@ -59,10 +59,10 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
     }
 
     context.read<ForgotCubit>().submitForgotRequest(
-          email: username,
-          password: pass,
-          confirmPassword: confirm,
-        );
+      email: username,
+      password: pass,
+      confirmPassword: confirm,
+    );
   }
 
   @override
@@ -83,14 +83,15 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => BlocProvider(
-                create: (_) => sl<OtpVerifyCubit>(),
-                child: OtpVerifyPage(
-                  email: _userCtrl.text.trim(),
-                  password: _passCtrl.text.trim(),
-                  confirmPassword: _confirmCtrl.text.trim(),
-                ),
-              ),
+              builder:
+                  (_) => BlocProvider(
+                    create: (_) => sl<OtpVerifyCubit>(),
+                    child: OtpVerifyPage(
+                      email: _userCtrl.text.trim(),
+                      password: _passCtrl.text.trim(),
+                      confirmPassword: _confirmCtrl.text.trim(),
+                    ),
+                  ),
             ),
           );
         }
@@ -98,6 +99,16 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
       builder: (context, state) {
         return Scaffold(
           resizeToAvoidBottomInset: false,
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+
           body: Stack(
             children: [
               Positioned.fill(
@@ -195,10 +206,11 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                             controller: _passCtrl,
                             isPasswordField: true,
                             bgrColor: true,
-                            validator: (v) => Validator().validatePassword(
-                              v?.trim(),
-                              "Mật khẩu",
-                            ),
+                            validator:
+                                (v) => Validator().validatePassword(
+                                  v?.trim(),
+                                  "Mật khẩu",
+                                ),
                           ),
                           const SizedBox(height: 10),
 
@@ -209,10 +221,11 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                             controller: _confirmCtrl,
                             isPasswordField: true,
                             bgrColor: true,
-                            validator: (v) => Validator().validateConfirmPassword(
-                              _passCtrl.text.trim(),
-                              v?.trim(),
-                            ),
+                            validator:
+                                (v) => Validator().validateConfirmPassword(
+                                  _passCtrl.text.trim(),
+                                  v?.trim(),
+                                ),
                           ),
 
                           const SizedBox(height: 26),
