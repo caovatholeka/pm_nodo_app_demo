@@ -66,21 +66,35 @@ class FirebaseMessagingService {
         badge: true,
         sound: true,
       );
-      logger.d("💙 FCM permission: ${settings.authorizationStatus}");
+      logger.d("FCM permission: ${settings.authorizationStatus}");
+
+      if (Platform.isIOS) {
+        String? apnsToken;
+        int apnsRetry = 0;
+        const int maxApnsRetry = 5;
+
+        while (apnsToken == null && apnsRetry < maxApnsRetry) {
+          apnsToken = await _messaging.getAPNSToken();
+          logger.d("APNs token (try $apnsRetry): $apnsToken");
+          if (apnsToken == null) {
+            await Future.delayed(const Duration(seconds: 1));
+          }
+          apnsRetry++;
+        }
+
+        if (apnsToken == null) {
+
+          _setupForegroundHandlers();
+          return;
+        }
+      }
 
       final token = await _messaging.getToken();
       final deviceId = await _getDeviceId();
       logger.d("🔔 FCM TOKEN: $token");
       logger.d("📱 DEVICE ID: $deviceId");
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        logger.d("🟢 Foreground FCM: ${message.notification?.title}");
-      });
-
-      FirebaseMessaging.onMessageOpenedApp.listen((message) {
-        logger.d("🟡 Clicked notification → open NotificationPage");
-        _openNotificationPage();
-      });
+      _setupForegroundHandlers();
     } on FirebaseException catch (e, s) {
       if (e.plugin == 'firebase_messaging') {
         logger.d(
@@ -92,10 +106,15 @@ class FirebaseMessagingService {
             msg.contains('network') ||
             msg.contains('connection');
 
-
         if (isNetworkLost && retry < maxRetry) {
           await Future.delayed(const Duration(seconds: 2));
           return initializeFCM(retry: retry + 1);
+        }
+
+        if (e.code == 'apns-token-not-set') {
+          logger.d(
+            "⚠apns-token-not-set .",
+          );
         }
       } else {
         logger.d("Firebase other error: $e");
@@ -105,5 +124,16 @@ class FirebaseMessagingService {
       logger.d("Unexpected FCM error: $e");
       logger.d('$s');
     }
+  }
+
+  static void _setupForegroundHandlers() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      logger.d("Foreground FCM: ${message.notification?.title}");
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      logger.d("Clicked notification → open NotificationPage");
+      _openNotificationPage();
+    });
   }
 }

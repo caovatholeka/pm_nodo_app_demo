@@ -89,6 +89,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _onRefresh() async {
+    _cubit.getListAttendanceToday();
+    _cubit.getListNewTasks();
+  }
+
   @override
   Widget build(BuildContext context) {
     final headerHeight = context.sh(0.30);
@@ -128,21 +133,24 @@ class _HomePageState extends State<HomePage> {
                 ),
 
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: context.sh(0.002)),
-                        _utilitiesTitle(context),
-                        SizedBox(height: context.sh(0.015)),
-                        _utilitiesGrid(context),
-                        SizedBox(height: context.sh(0.03)),
-                        _taskTitle(context),
-                        SizedBox(height: context.sh(0.01)),
-                        _taskList(context),
-                        SizedBox(height: context.sh(0.03)),
-                      ],
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: context.sh(0.002)),
+                          _utilitiesTitle(context),
+                          SizedBox(height: context.sh(0.015)),
+                          _utilitiesGrid(context),
+                          SizedBox(height: context.sh(0.03)),
+                          _taskTitle(context),
+                          SizedBox(height: context.sh(0.01)),
+                          _taskList(context),
+                          SizedBox(height: context.sh(0.03)),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -229,7 +229,9 @@ class Utils {
       if (hour < 0 || hour > 23) return null;
       if (minute < 0 || minute > 59) return null;
 
-      return hour + (minute / 60.0);
+      final raw = hour + (minute / 60.0);
+
+      return double.parse(raw.toStringAsFixed(1));
     } catch (_) {
       return null;
     }
