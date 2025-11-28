@@ -20,7 +20,6 @@ class LogInCubit extends Cubit<LoginState> {
 
   void doLogin(String username, String password) async {
     emit(state.copyWith(loginStatus: LoadStatus.LOADING));
-
     try {
       final param = {"login": username, "password": password};
       final result = await authRepository.authLogin(param);
@@ -42,6 +41,8 @@ class LogInCubit extends Cubit<LoginState> {
         }
       }
 
+      
+
       if (entity != null && entity.accessToken != null && entity.accessToken!.isNotEmpty) {
         GlobalData.instance.userId = entity.uid;
         GlobalData.instance.token = entity;
@@ -49,6 +50,13 @@ class LogInCubit extends Cubit<LoginState> {
 
         await authRepository.saveToken(entity);
         await SharedPrefsHelper.setIsLoginApp(true);
+
+        if(state.rememberMe == true) {
+          await SharedPrefsHelper.setUsername(username);
+        } else {
+          await SharedPrefsHelper.setUsername("");
+        }
+        
         final appCubit = GetIt.I<AppCubit>();
         await appCubit.getProfile();
 

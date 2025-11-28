@@ -11,6 +11,8 @@ import '../../../widgets/input_text_field.dart';
 import '../../../widgets/primary_button.dart';
 import '../forgot_pass/forgot_pass_page.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+
 import 'package:pm_app/di/di.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,6 +28,22 @@ class _LoginPageState extends State<LoginPage> {
   final _userCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   final _cubit = sl<LogInCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit.emit(_cubit.state.copyWith(loginStatus: LoadStatus.INITIAL));
+    _loadSavedUserName();
+  }
+
+  void _loadSavedUserName() async {
+    final savedUser = await SharedPrefsHelper.getUsername();
+
+    if (savedUser.isNotEmpty) {
+      _userCtrl.text = savedUser;
+      _cubit.onRememberMe(true);
+    }
+  }
 
   void _login() {
     final username = _userCtrl.text.trim();

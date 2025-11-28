@@ -64,7 +64,8 @@ class _AccountPageState extends State<AccountPage> {
               }
             } catch (_) {}
 
-            await SharedPrefsHelper.clearAll();
+            await SharedPrefsHelper.saveToken(null);
+            await SharedPrefsHelper.setIsLoginApp(false);
 
             if (!mounted) return;
             Navigator.pushAndRemoveUntil(

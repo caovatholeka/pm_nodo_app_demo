@@ -17,6 +17,7 @@ class SharedPrefsHelper {
   static const String _appDeviceId = '_app_device_id';
   static const String _userId = 'app_user_id';
   static const String _checkIn = 'check_in_out';
+  static const String _loginUsername = 'login_username';
 
   static Future<bool> setIsLoginApp(bool isCheck) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -65,6 +66,7 @@ static Future<void> saveToken(TokenEntity? token) async {
     }
     return null;
   }
+  
 
   // app language
   static Future<void> setAppLanguage(String language) async {
@@ -133,5 +135,16 @@ static Future<void> saveToken(TokenEntity? token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String action = prefs.getString(_checkIn) ?? '';
     return action;
+  }
+
+  //Nhớ tài khoản 
+  static Future<void> setUsername(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_loginUsername, username);
+  }
+
+  static Future<String> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_loginUsername) ?? "";
   }
 }
