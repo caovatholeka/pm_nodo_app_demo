@@ -50,11 +50,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBYTwWzJxtnBxCjpA5Lv3OLPyVmxYUwZAE',
-    appId: '1:679869279950:android:f8cf146de4547ffc5bea9f',
+    apiKey: 'AIzaSyDcuHssTy1sDZN5hVZI0VFO1Tp8k6i_yGY',
+    appId: '1:488615218728:android:e605a65995fee98d226f1d',
     messagingSenderId: '679869279950',
-    projectId: 'asm-and103-5f3d0',
-    storageBucket: 'asm-and103-5f3d0.firebasestorage.app',
+    projectId: 'pm-nodo-notification',
+    storageBucket: 'pm-nodo-notification.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
