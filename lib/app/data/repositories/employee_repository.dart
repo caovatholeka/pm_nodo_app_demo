@@ -10,7 +10,7 @@ abstract class EmployeeRepository {
     String? code,
     String? email,
     int? departmentId,
-    String? jobTitle,
+    int? jobTitleId,
     bool? active,
   });
 
@@ -30,7 +30,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
   String? code,
   String? email,
   int? departmentId,
-  String? jobTitle,
+  int? jobTitleId,
   bool? active,
 }) {
   return _apiClient.getListEmployees(
@@ -40,7 +40,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
     code,
     email,
     departmentId,
-    jobTitle,
+    jobTitleId,
     active,
   );
 }

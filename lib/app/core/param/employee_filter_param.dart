@@ -3,7 +3,7 @@ class EmployeeFilterParam {
   final String? code;     
   final String? email;    
   final int? departmentId;   
-  final String? jobTitle;    
+  final int? jobTitleId;    
   final bool? active;        
 
   EmployeeFilterParam({
@@ -11,7 +11,7 @@ class EmployeeFilterParam {
     this.code,
     this.email,
     this.departmentId,
-    this.jobTitle,
+    this.jobTitleId,
     this.active,
   });
 
@@ -21,7 +21,7 @@ class EmployeeFilterParam {
       if (code != null && code!.trim().isNotEmpty) 'code': code!.trim(),
       if (email != null && email!.trim().isNotEmpty) 'email': email!.trim(),
       if (departmentId != null) 'department_id': departmentId,
-      if (jobTitle != null) 'job_title': jobTitle,
+      if (jobTitleId != null) 'jobtitle_id': jobTitleId,
       if (active != null) 'active': active,
     };
   }
@@ -31,7 +31,7 @@ class EmployeeFilterParam {
     String? code,
     String? email,
     int? departmentId,
-    String? jobTitle,
+    int? jobTitleId,
     bool? active,
   }) {
     return EmployeeFilterParam(
@@ -39,7 +39,7 @@ class EmployeeFilterParam {
       code: code ?? this.code,
       email: email ?? this.email,
       departmentId: departmentId ?? this.departmentId,
-      jobTitle: jobTitle ?? this.jobTitle,
+      jobTitleId: jobTitleId ?? this.jobTitleId,
       active: active ?? this.active,
     );
   }
@@ -49,6 +49,6 @@ class EmployeeFilterParam {
       (code == null || code!.trim().isEmpty) &&
       (email == null || email!.trim().isEmpty) &&
       (departmentId == null) &&
-      (jobTitle == null || jobTitle!.trim().isEmpty) &&
+      (jobTitleId == null) &&
       (active == null);
 }

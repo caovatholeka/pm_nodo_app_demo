@@ -38,8 +38,9 @@ class StaffCubit extends Cubit<StaffState> {
 
     String? nameParam;
     String? codeParam;
+    String? emailParam;
     int? departmentId;
-    String? jobTitle;
+    int? jobTitleId;
     bool? active;
 
     if (isSearching) {
@@ -52,8 +53,9 @@ class StaffCubit extends Cubit<StaffState> {
     } else if (effectiveFilter != null) {
       nameParam = effectiveFilter.name;
       codeParam = effectiveFilter.code;
+      emailParam = effectiveFilter.email;
       departmentId = effectiveFilter.departmentId;
-      jobTitle = effectiveFilter.jobTitle;
+      jobTitleId = effectiveFilter.jobTitleId;
       active = effectiveFilter.active;
     }
 
@@ -63,8 +65,10 @@ class StaffCubit extends Cubit<StaffState> {
         page: 1,
         name: nameParam,
         code: codeParam,
+        email: emailParam,
         departmentId: departmentId,
-        jobTitle: jobTitle,
+        jobTitleId: jobTitleId,
+
         active: active,
       );
 

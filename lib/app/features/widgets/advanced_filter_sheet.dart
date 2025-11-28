@@ -29,7 +29,8 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
   late TextEditingController emailController;
 
   int? selectedDeptId;
-  String? selectedJob;
+  int? selectedJobId;
+
   String? selectedStatus;
 
   @override
@@ -54,7 +55,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
         codeController.text = "";
         emailController.text = "";
         selectedDeptId = null;
-        selectedJob = null;
+        selectedJobId = null;
         selectedStatus = null;
       });
       return;
@@ -65,7 +66,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
       codeController.text = f.code ?? "";
       emailController.text = f.email ?? "";
       selectedDeptId = f.departmentId;
-      selectedJob = f.jobTitle;
+      selectedJobId = f.jobTitleId;
 
       if (f.active == true) {
         selectedStatus = "Đang làm việc";
@@ -83,7 +84,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
       codeController.clear();
       emailController.clear();
       selectedDeptId = null;
-      selectedJob = null;
+      selectedJobId = null;
       selectedStatus = null;
     });
 
@@ -91,24 +92,28 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
   }
 
   void _applyFilters() {
-    final active = selectedStatus == "Đang làm việc"
-        ? true
-        : selectedStatus == "Đã nghỉ việc"
+    final active =
+        selectedStatus == "Đang làm việc"
+            ? true
+            : selectedStatus == "Đã nghỉ việc"
             ? false
             : null;
 
     final filter = EmployeeFilterParam(
-      name: nameController.text.trim().isNotEmpty
-          ? nameController.text.trim()
-          : null,
-      code: codeController.text.trim().isNotEmpty
-          ? codeController.text.trim()
-          : null,
-      email: emailController.text.trim().isNotEmpty
-          ? emailController.text.trim()
-          : null,
+      name:
+          nameController.text.trim().isNotEmpty
+              ? nameController.text.trim()
+              : null,
+      code:
+          codeController.text.trim().isNotEmpty
+              ? codeController.text.trim()
+              : null,
+      email:
+          emailController.text.trim().isNotEmpty
+              ? emailController.text.trim()
+              : null,
       departmentId: selectedDeptId,
-      jobTitle: selectedJob,
+      jobTitleId: selectedJobId,
       active: active,
     );
 
@@ -169,11 +174,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
               ),
             ),
 
-            const Divider(
-              height: 1,
-              thickness: 1,
-              color: Color(0xFFEDEDED),
-            ),
+            const Divider(height: 1, thickness: 1, color: Color(0xFFEDEDED)),
             const SizedBox(height: 16),
 
             InputTextField(
@@ -195,16 +196,20 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
               title: "Phòng ban",
               hint: "Chọn phòng ban",
               items: widget.departments.map((e) => e.text ?? "").toList(),
-              selectedValue: selectedDeptId == null
-                  ? null
-                  : widget.departments
-                      .firstWhere((d) => d.id == selectedDeptId)
-                      .text,
+              selectedValue:
+                  selectedDeptId == null
+                      ? null
+                      : widget.departments
+                          .firstWhere((d) => d.id == selectedDeptId)
+                          .text,
               onChanged: (val) {
                 setState(() {
-                  selectedDeptId = val == null || val.isEmpty
-                      ? null
-                      : widget.departments.firstWhere((d) => d.text == val).id;
+                  selectedDeptId =
+                      val == null || val.isEmpty
+                          ? null
+                          : widget.departments
+                              .firstWhere((d) => d.text == val)
+                              .id;
                 });
               },
             ),
@@ -213,12 +218,20 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
               title: "Chức vụ",
               hint: "Chọn chức vụ",
               items: widget.jobTitles.map((e) => e.text ?? "").toList(),
-              selectedValue: selectedJob,
+              selectedValue:
+                  selectedJobId == null
+                      ? null
+                      : widget.jobTitles
+                          .firstWhere((j) => j.id == selectedJobId)
+                          .text,
               onChanged: (val) {
                 setState(() {
-                  selectedJob = val == null || val.isEmpty
-                      ? null
-                      : widget.jobTitles.firstWhere((j) => j.text == val).name;
+                  selectedJobId =
+                      val == null || val.isEmpty
+                          ? null
+                          : widget.jobTitles
+                              .firstWhere((j) => j.text == val)
+                              .id;
                 });
               },
             ),
@@ -254,10 +267,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                 ),
                 child: const Text(
                   "Áp dụng",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
             ),
