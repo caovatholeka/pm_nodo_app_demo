@@ -7,6 +7,9 @@ class AttendanceStatusCard extends StatelessWidget {
   final String checkInStatus;
   final String checkOutStatus;
 
+  /// Callback khi nhấn nút Check Out (Not yet)
+  final VoidCallback? onCheckOutTap;
+
   const AttendanceStatusCard({
     super.key,
     required this.dateText,
@@ -14,11 +17,10 @@ class AttendanceStatusCard extends StatelessWidget {
     required this.checkOutTime,
     required this.checkInStatus,
     required this.checkOutStatus,
+    this.onCheckOutTap,
   });
 
-  bool _isDone(String status) {
-    return status.toLowerCase() != "not yet";
-  }
+  bool _isDone(String status) => status.toLowerCase() != "not yet";
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +75,7 @@ class AttendanceStatusCard extends StatelessWidget {
                     time: checkInTime,
                     status: checkInStatus,
                     isDone: _isDone(checkInStatus),
+                    onTap: onCheckOutTap,
                   ),
                 ),
                 Container(
@@ -87,6 +90,7 @@ class AttendanceStatusCard extends StatelessWidget {
                     time: checkOutTime,
                     status: checkOutStatus,
                     isDone: _isDone(checkOutStatus),
+                    onTap: onCheckOutTap,
                   ),
                 ),
               ],
@@ -102,6 +106,7 @@ class AttendanceStatusCard extends StatelessWidget {
     required String time,
     required String status,
     required bool isDone,
+    VoidCallback? onTap,
   }) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -127,30 +132,32 @@ class AttendanceStatusCard extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         SizedBox(height: 10),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(
-            color: isDone ? Colors.white : Colors.blue,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow:
-                isDone
-                    ? [
+        GestureDetector(
+          onTap: isDone ? null : onTap,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            decoration: BoxDecoration(
+              color: isDone ? Colors.white : Colors.blue,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: isDone
+                  ? [
                       BoxShadow(
                         color: Colors.green.withOpacity(0.15),
                         blurRadius: 8,
                         offset: Offset(0, 3),
                       ),
                     ]
-                    : [],
-          ),
-          child: Text(
-            status,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isDone ? Colors.green : Colors.white,
+                  : [],
             ),
-            textAlign: TextAlign.center,
+            child: Text(
+              status,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isDone ? Colors.green : Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ],

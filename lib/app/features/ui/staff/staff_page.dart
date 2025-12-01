@@ -141,10 +141,11 @@ class _StaffPageState extends State<StaffPage> {
           SafeArea(
             child: BlocBuilder<StaffCubit, StaffState>(
               bloc: _cubit,
-              buildWhen: (prev, cur) =>
-                  prev.listEmployees != cur.listEmployees ||
-                  prev.loadEventStatus != cur.loadEventStatus ||
-                  prev.loadStatus != cur.loadStatus,
+              buildWhen:
+                  (prev, cur) =>
+                      prev.listEmployees != cur.listEmployees ||
+                      prev.loadEventStatus != cur.loadEventStatus ||
+                      prev.loadStatus != cur.loadStatus,
               builder: (context, state) {
                 if (state.loadStatus == LoadStatus.FAILURE) {
                   return const Center(
@@ -195,7 +196,7 @@ class _StaffPageState extends State<StaffPage> {
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 6,
             offset: const Offset(0, 2),
-          )
+          ),
         ],
       ),
       child: Row(
@@ -223,9 +224,10 @@ class _StaffPageState extends State<StaffPage> {
               height: 34,
               child: Icon(
                 Icons.arrow_forward_ios_outlined,
-                color: _isSearchActive
-                    ? const Color.fromARGB(255, 0, 81, 255)
-                    : Colors.transparent,
+                color:
+                    _isSearchActive
+                        ? const Color.fromARGB(255, 0, 81, 255)
+                        : Colors.transparent,
                 size: 20,
               ),
             ),
@@ -254,12 +256,11 @@ class _StaffPageState extends State<StaffPage> {
     );
   }
 
-  Widget _buildList({
-    required List employees,
-    required StaffState state,
-  }) {
+  Widget _buildList({required List employees, required StaffState state}) {
     if (state.loadStatus == LoadStatus.LOADING) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: CircularProgressIndicator(color:Color(0xFF0062FF)),
+      );
     }
 
     if (employees.isEmpty) {
@@ -325,8 +326,8 @@ class _StaffPageState extends State<StaffPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            EmployeeDetailPage(employeeId: emp.id ?? 0),
+                        builder:
+                            (_) => EmployeeDetailPage(employeeId: emp.id ?? 0),
                       ),
                     );
                   },

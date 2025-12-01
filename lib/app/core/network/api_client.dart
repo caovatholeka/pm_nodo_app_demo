@@ -44,7 +44,7 @@ abstract class ApiClient {
     @Query("code") String? code,
     @Query("email") String? email,
     @Query("department_id") int? departmentId,
-    @Query("jobtitle_id") int? jobTitle,
+    @Query("job_id") int? jobTitle,
     @Query("active") bool? active,
   );
 

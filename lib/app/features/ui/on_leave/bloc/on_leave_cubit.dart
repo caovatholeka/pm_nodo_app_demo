@@ -15,36 +15,82 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
 
   OnLeaveCubit({required this.repository}) : super(OnLeaveState());
 
-
-  void getListOnLeaveTimes() async{
+  void getListOnLeaveTimes() async {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
 
-    try{
-      int limit = 20;
-      int page  = 1;
+    try {
+      int limit = 10;
+      int page = 1;
       String? startDate;
       String? endDate;
-      final results = await repository.getListTimeOnLeaves(limit,
-          page,
-          AppDateUtils.parseDateToYMD(state.startDateFilter),
-          AppDateUtils.parseDateToYMD(state.endDateFilter)
+      final results = await repository.getListTimeOnLeaves(
+        limit,
+        page,
+        AppDateUtils.parseDateToYMD(state.startDateFilter),
+        AppDateUtils.parseDateToYMD(state.endDateFilter),
       );
       List<OnLeaveEntity>? listLeaves;
-      if(results.data != null){
-        listLeaves =  mapList<OnLeaveEntity>(results.data, OnLeaveEntity.fromJson);
+      if (results.data != null) {
+        listLeaves = mapList<OnLeaveEntity>(
+          results.data,
+          OnLeaveEntity.fromJson,
+        );
       }
 
-      emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listLeaveEntities: listLeaves?? []));
-
-    }catch(e,s){
+      emit(
+        state.copyWith(
+          loadStatus: LoadStatus.SUCCESS,
+          listLeaveEntities: listLeaves ?? [],
+        ),
+      );
+    } catch (e, s) {
       logger.d(e);
       logger.d(s);
-      emit(state.copyWith(loadStatus: LoadStatus.FAILURE,listLeaveEntities: []));
+      emit(
+        state.copyWith(loadStatus: LoadStatus.FAILURE, listLeaveEntities: []),
+      );
     }
   }
 
-  onChangeDateFilter(String start, String end){
-    emit(state.copyWith(startDateFilter: start,endDateFilter: end));
+  onChangeDateFilter(String start, String end) {
+    emit(state.copyWith(startDateFilter: start, endDateFilter: end));
   }
 
+  void onLoadMore() async {
+    if (state.loadStatus != LoadStatus.SUCCESS) return;
+
+    final currentList = state.listLeaveEntities ?? [];
+    final nextPage = (currentList.length ~/ 10) + 1;
+
+    try {
+      final results = await repository.getListTimeOnLeaves(
+        20,
+        nextPage,
+        AppDateUtils.parseDateToYMD(state.startDateFilter),
+        AppDateUtils.parseDateToYMD(state.endDateFilter),
+      );
+
+      List<OnLeaveEntity> newPage = [];
+      if (results.data != null) {
+        newPage = mapList<OnLeaveEntity>(results.data, OnLeaveEntity.fromJson);
+      }
+
+      if (newPage.isEmpty) {
+        return;
+      }
+
+      final merged = [...currentList, ...newPage];
+
+      emit(
+        state.copyWith(
+          listLeaveEntities: merged,
+          loadStatus: LoadStatus.SUCCESS,
+        ),
+      );
+    } catch (e, s) {
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
+    }
+  }
 }

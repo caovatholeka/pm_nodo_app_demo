@@ -256,7 +256,7 @@ class _AccountPageState extends State<AccountPage> {
           padding: EdgeInsets.only(bottom: screen.height * 0.032),
           child:
               status == LoadStatus.LOADING
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? const CircularProgressIndicator(color: AppColors.appBarGradientStart)
                   : profile != null
                   ? Column(
                     mainAxisSize: MainAxisSize.min,

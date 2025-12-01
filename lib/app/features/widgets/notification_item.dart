@@ -32,7 +32,7 @@ class NotificationItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
         decoration: BoxDecoration(
-          color: isUnread ? Colors.white : const Color.fromARGB(255, 93, 92, 92),
+          color: isUnread ? Colors.white : const Color.fromARGB(255, 241, 240, 240),
           borderRadius: BorderRadius.circular(18),
           boxShadow: isUnread
               ? [

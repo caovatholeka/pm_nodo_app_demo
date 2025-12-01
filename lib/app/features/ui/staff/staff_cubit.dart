@@ -68,7 +68,6 @@ class StaffCubit extends Cubit<StaffState> {
         email: emailParam,
         departmentId: departmentId,
         jobTitleId: jobTitleId,
-
         active: active,
       );
 

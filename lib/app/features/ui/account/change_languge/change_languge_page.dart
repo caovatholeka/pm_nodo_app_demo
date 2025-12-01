@@ -43,7 +43,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: MyAppBar(titleAppbar: s.btn_langauge, haveBackButton: true),
+      appBar: MyAppBar(titleAppbar: s.btn_langauge, haveBackButton: true, isTransparent: true,),
       body: Container(
         width: double.infinity,
         height: double.infinity,

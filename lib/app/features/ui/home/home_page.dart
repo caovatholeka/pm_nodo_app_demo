@@ -4,8 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
-import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
@@ -14,7 +12,6 @@ import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
-import 'package:pm_app/app/features/widgets/custom_input_dialog.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -136,7 +133,9 @@ class _HomePageState extends State<HomePage> {
                   child: RefreshIndicator(
                     onRefresh: _onRefresh,
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: context.sw(0.04)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.sw(0.04),
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -255,15 +254,14 @@ class _HomePageState extends State<HomePage> {
           child: SizedBox(
             width: context.sw(0.92),
             child: AttendanceStatusCard(
-              dateText: DateFormat(
-                "d 'tháng' M, yyyy",
-                "vi",
-              ).format(DateTime.now()),
-
+              dateText: "1 tháng 12, 2025",
               checkInTime: "08:30 AM",
               checkOutTime: "06:00 PM",
               checkInStatus: checkInStatus,
               checkOutStatus: checkOutStatus,
+              onCheckOutTap: () {
+                _openCheckIn();
+              },
             ),
           ),
         );
