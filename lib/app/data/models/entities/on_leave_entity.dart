@@ -58,6 +58,9 @@ class OnLeaveEntity {
   @JsonKey()
   int? status;
 
+  @JsonKey(name:"reason_cancel")
+  String? reasonCancel;
+
   OnLeaveEntity({
     this.id,
     this.employeeId,
@@ -74,7 +77,8 @@ class OnLeaveEntity {
     this.remainLeave,
     this.userApprove,
     this.state,
-    this.status
+    this.status,
+    this.reasonCancel,
   });
 
   OnLeaveEntity copyWith({
@@ -93,7 +97,8 @@ class OnLeaveEntity {
     int? remainLeave,
     UserApproveEntity? userApprove,
     String? state,
-    int? status
+    int? status,
+    String? reasonCancel,
   }) {
     return OnLeaveEntity(
       id: id ?? this.id,
@@ -111,7 +116,8 @@ class OnLeaveEntity {
       remainLeave: remainLeave ?? this.remainLeave,
       userApprove: userApprove ?? this.userApprove,
       state: state ?? this.state,
-      status: status ?? this.status
+      status: status ?? this.status,
+      reasonCancel: reasonCancel ?? this.reasonCancel
     );
   }
 

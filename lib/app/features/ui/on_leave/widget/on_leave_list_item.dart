@@ -169,6 +169,8 @@ class OnLeaveListItem extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
+                         _buildItem("Người làm đơn:", entity.employeeName ?? ""),
+                        const SizedBox(height: 12),
                         _buildItem("Loại nghỉ:", entity.holidayStatus ?? ""),
                         const SizedBox(height: 12),
                         _buildItem("Người duyệt:", entity.userApprove?.name ?? ""),

@@ -283,6 +283,11 @@ get _contentBody {
       CustomDashView(),
 
       _buildItem(
+        "Lý do hủy",
+        entity?.reasonCancel ?? "").paddingOnly(top: 4, bottom: 12),
+        CustomDashView(),
+
+      _buildItem(
         "Người duyệt",
         entity?.userApprove?.name ?? "",
       ).paddingOnly(top: 12, bottom: 12),
