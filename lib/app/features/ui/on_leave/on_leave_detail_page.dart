@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
@@ -156,7 +157,10 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
-          AppSnackBar.showInfo(title: "Thành công",message: "Xoá bản ghi thành công!");
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Xoá bản ghi thành công!",
+          );
 
           // _showDialog(
           //   title: "Thành công",
@@ -168,7 +172,10 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
-          AppSnackBar.showInfo(title: "Thành công",message: "Đã gửi duyệt thành công!");
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Đã gửi duyệt thành công!",
+          );
           // _showDialog(
           //   title: "Thành công",
           //   message: "Đã gửi duyệt thành công!",
@@ -178,12 +185,18 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         } else if (state.confirmStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          AppSnackBar.showError(title: "Cảnh báo",message: "Gửi duyệt không thành công!");
+          AppSnackBar.showError(
+            title: "Cảnh báo",
+            message: "Gửi duyệt không thành công!",
+          );
           // _showDialog(title: "Lỗi", message: "Gửi duyệt lỗi!", success: false);
         } else if (state.deleteStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
-          AppSnackBar.showError(title: "Cảnh báo",message: "Không xóa được bản ghi khác nháp!");
+          AppSnackBar.showError(
+            title: "Cảnh báo",
+            message: "Không xóa được bản ghi khác nháp!",
+          );
           // _showDialog(
           //   title: "Lỗi",
           //   message: "Không xóa được bản ghi khác nháp!",
@@ -203,11 +216,11 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           ),
           // extendBodyBehindAppBar: true,
           body: SingleChildScrollView(
-            padding: const EdgeInsets.only(left: 16,right: 16),
+            padding: const EdgeInsets.only(left: 16, right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 24,),
+                const SizedBox(height: 24),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -216,9 +229,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.whiteColor,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(16)
-                    ),
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
                   ),
                   child: _contentBody,
                 ),
@@ -231,112 +242,118 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
     );
   }
 
-get _contentBody {
-  final entity = _cubit.state.detailEntity;
+  get _contentBody {
+    final entity = _cubit.state.detailEntity;
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _buildItem("Nhân viên", entity?.employeeName ?? "")
-          .paddingOnly(bottom: 12),
-      CustomDashView(),
-
-      _buildItem("Phòng ban", entity?.departmentName ?? "")
-          .paddingOnly(top: 12, bottom: 12),
-      CustomDashView(),
-
-      // _buildItem("Số phép còn lại",
-      //         (entity?.remainLeave ?? 0).toString())
-      //     .paddingOnly(top: 12, bottom: 12),
-      // CustomDashView(),
-
-      _buildItem("Loại nghỉ", entity?.holidayStatus ?? "")
-          .paddingOnly(top: 12, bottom: 12),
-      CustomDashView(),
-
-      _buildItem(
-        "Từ ngày",
-        AppDateUtils.changeIso8601StringToDateTimeString(
-          entity?.dateFrom,
-        ),
-      ).paddingOnly(top: 12, bottom: 12),
-      CustomDashView(),
-
-      _buildItem(
-        "Đến ngày",
-        AppDateUtils.changeIso8601StringToDateTimeString(
-          entity?.dateTo,
-        ),
-      ).paddingOnly(top: 12, bottom: 12),
-      CustomDashView(),
-
-      _buildItem(
-        "Lý do nghỉ",
-        entity?.description ?? "",
-      ).paddingOnly(top: 12, bottom: 12),
-      CustomDashView(),
-
-      Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 12),
-        child: _buildStatusRow,
-      ),
-      CustomDashView(),
-
-      _buildItem(
-        "Lý do hủy",
-        entity?.reasonCancel ?? "").paddingOnly(top: 4, bottom: 12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildItem(
+          "Nhân viên",
+          entity?.employeeName ?? "",
+        ).paddingOnly(bottom: 12),
         CustomDashView(),
 
-      _buildItem(
-        "Người duyệt",
-        entity?.userApprove?.name ?? "",
-      ).paddingOnly(top: 12, bottom: 12),
+        _buildItem(
+          "Phòng ban",
+          entity?.departmentName ?? "",
+        ).paddingOnly(top: 12, bottom: 12),
+        CustomDashView(),
 
-      const SizedBox(height: 30),
-    ],
-  );
-}
+        // _buildItem("Số phép còn lại",
+        //         (entity?.remainLeave ?? 0).toString())
+        //     .paddingOnly(top: 12, bottom: 12),
+        // CustomDashView(),
+        _buildItem(
+          "Loại nghỉ",
+          entity?.holidayStatus ?? "",
+        ).paddingOnly(top: 12, bottom: 12),
+        CustomDashView(),
 
+        _buildItem(
+          "Từ ngày",
+          AppDateUtils.changeIso8601StringToDateTimeString(entity?.dateFrom),
+        ).paddingOnly(top: 12, bottom: 12),
+        CustomDashView(),
 
+        _buildItem(
+          "Đến ngày",
+          AppDateUtils.changeIso8601StringToDateTimeString(entity?.dateTo),
+        ).paddingOnly(top: 12, bottom: 12),
+        CustomDashView(),
 
-get _bottomSheet {
-  return (_cubit.state.detailEntity?.leaveStage?.id == 13) ?
-  Container(
-    margin: const EdgeInsets.only(left: 16,right: 16,bottom: 36),
-    width: double.infinity,
-    height: 46,
-    child: Row(
-      children: [
-        Expanded(
-          child: PrimaryButton(
-            mainText: "Xóa",
-            type: PrimaryButtonType.secondary,
-            callback: () => showDeleteConfirmDialog(),
-          ),
+        _buildItem(
+          "Lý do nghỉ",
+          entity?.description ?? "",
+        ).paddingOnly(top: 12, bottom: 12),
+        CustomDashView(),
+
+        _buildItem(
+          "Số phép còn lại",
+          GlobalData.instance.userProfile?.remainLeave.toString().replaceAll(".0","",) ??"",)
+          .paddingOnly(top: 12, bottom: 12),
+        CustomDashView(),
+
+        Padding(
+          padding: const EdgeInsets.only(top: 12, bottom: 10),
+          child: _buildStatusRow,
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: PrimaryButton(
-            mainText: "Gửi duyệt",
-            type: PrimaryButtonType.primary,
-            callback: () {
-              _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
-            },
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: PrimaryButton(
-            mainText: "Cập nhật",
-            type: PrimaryButtonType.primary,
-            callback: () => doUpdate(context),
-          ),
-        ),
+        CustomDashView(),
+
+        _buildItem(
+          "Lý do hủy",
+          entity?.reasonCancel ?? "",
+        ).paddingOnly(top: 12,bottom: 12),
+        CustomDashView(),
+
+        _buildItem(
+          "Người duyệt",
+          entity?.userApprove?.name ?? "",
+        ).paddingOnly(top: 12, bottom: 12),
+
+        const SizedBox(height: 10),
       ],
-    ),
-  ) : const SizedBox.shrink();
-}
+    );
+  }
 
+  get _bottomSheet {
+    return (_cubit.state.detailEntity?.leaveStage?.id == 13)
+        ? Container(
+          margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
+          width: double.infinity,
+          height: 46,
+          child: Row(
+            children: [
+              Expanded(
+                child: PrimaryButton(
+                  mainText: "Xóa",
+                  type: PrimaryButtonType.secondary,
+                  callback: () => showDeleteConfirmDialog(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PrimaryButton(
+                  mainText: "Gửi duyệt",
+                  type: PrimaryButtonType.primary,
+                  callback: () {
+                    _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PrimaryButton(
+                  mainText: "Cập nhật",
+                  type: PrimaryButtonType.primary,
+                  callback: () => doUpdate(context),
+                ),
+              ),
+            ],
+          ),
+        )
+        : const SizedBox.shrink();
+  }
 
   void showDeleteConfirmDialog() {
     showDialog(
