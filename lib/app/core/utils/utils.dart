@@ -237,6 +237,30 @@ class Utils {
     }
   }
 
+  String? floatToTimeString(double? value) {
+    if (value == null) return null;
+    if (value.isNaN || value.isInfinite) return null;
+
+    if (value < 0 || value >= 24) return null;
+
+    final hour = value.floor();
+    final fraction = value - hour;
+
+    int minute = (fraction * 60).round();
+
+    if (minute == 60) {
+      minute = 0;
+      if (hour + 1 >= 24) return null;
+      final hh = (hour + 1).toString().padLeft(2, '0');
+      return '$hh:00';
+    }
+
+    final hh = hour.toString().padLeft(2, '0');
+    final mm = minute.toString().padLeft(2, '0');
+
+    return '$hh:$mm';
+  }
+
 
   Future<void> openUrl(String url) async {
     final uri = Uri.parse(url);

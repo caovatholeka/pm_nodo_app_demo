@@ -135,7 +135,7 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                                         isRequiredField: false,
                                         enable: widget.workEntryEntity?.state == "hr_confirm" ? false : true,
                                         controller: startTimeController..text = widget.workEntryEntity?.state == "hr_confirm" ?
-                                          Utils().formatHmTime(widget.workEntryEntity?.dateStart ?? "") : state.startTime ?? "",
+                                        Utils().floatToTimeString(widget.workEntryEntity?.dateStartCommit ?? 0.0) ?? "" : state.startTime ?? "",
                                         onChange: (val) {
                                           _cubit.onChangeStartTime(val);
                                         },
@@ -155,7 +155,7 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                                       isRequiredField: false,
                                       enable: widget.workEntryEntity?.state == "hr_confirm" ? false : true,
                                       controller: endTimeController..text = widget.workEntryEntity?.state == "hr_confirm" ?
-                                        Utils().formatHmTime(widget.workEntryEntity?.dateStop ?? "") : state.endTime ?? "",
+                                        Utils().floatToTimeString((widget.workEntryEntity?.dateStopCommit ?? 0.0)) ?? "" : state.endTime ?? "",
                                       onChange: (val) {
                                         _cubit.onChangeEndTime(val);
                                       },

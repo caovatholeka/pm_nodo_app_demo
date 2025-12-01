@@ -7,3 +7,8 @@ flutter_native_splash:
 
   ios_content_mode: center
   android_gravity: center
+
+  android_12:
+    image: assets/images/logoSplash.jpg
+    color: "#ffffff"
+    icon_background_color: "#eeeeee"

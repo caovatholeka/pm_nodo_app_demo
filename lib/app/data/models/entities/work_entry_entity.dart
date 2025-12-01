@@ -42,6 +42,12 @@ class WorkEntryEntity {
   @JsonKey(name: "early_time")
   final double? earlyTime;
 
+  @JsonKey(name: "date_start_employee_commit")
+  final double? dateStartCommit;
+
+  @JsonKey(name: "date_stop_employee_commit")
+  final double? dateStopCommit;
+
   @JsonKey()
   final dynamic note; 
   WorkEntryEntity({
@@ -57,6 +63,8 @@ class WorkEntryEntity {
     this.workTime,
     this.lateTime,
     this.earlyTime,
+    this.dateStartCommit,
+    this.dateStopCommit,
     this.note,
   });
 
