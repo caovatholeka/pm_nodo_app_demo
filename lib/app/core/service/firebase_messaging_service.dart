@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:convert';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -41,18 +43,26 @@ class FirebaseMessagingService {
     _openNotificationPage();
   }
 
+  static String? _encodeBase64(String? input) {
+    if(input == null || input.isEmpty) return null;
+    final bytes = utf8.encode(input);
+    return base64Encode(bytes);
+  }
+
   static Future<String?> _getDeviceId() async {
     final deviceInfo = DeviceInfoPlugin();
 
-    if (Platform.isAndroid) {
+    String? rawId;
+
+    if (Platform.isAndroid) { 
       final android = await deviceInfo.androidInfo;
-      return android.id;
+      rawId = android.id;
     }
     if (Platform.isIOS) {
       final ios = await deviceInfo.iosInfo;
-      return ios.identifierForVendor;
+      rawId = ios.identifierForVendor;
     }
-    return null;
+    return _encodeBase64(rawId);
   }
 
   static Future<void> initializeFCM({int retry = 0}) async {

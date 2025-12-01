@@ -41,6 +41,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   }
   @override
   Widget build(BuildContext context) {
+    final double systemBottomPadding = MediaQuery.of(context).viewPadding.bottom;
 return Scaffold(
   body: Stack(
     children: [
@@ -48,7 +49,7 @@ return Scaffold(
       Positioned(
         left: 0,
         right: 0,
-        bottom: 0,
+        bottom: systemBottomPadding,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 0),
           child: Container(
