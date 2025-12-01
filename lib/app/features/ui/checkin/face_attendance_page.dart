@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:path/path.dart' as p;
@@ -46,7 +47,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   bool _initialized = false;
 
   // check user trước khung hình ổn định cần N (3) khung
-  static const int _stableNeeded = 4;
+  static const int _stableNeeded = 2;
   int _stableCount = 0;
   bool _isCapturing = false;
   static const double _minCoverage = 0.22;
@@ -117,17 +118,21 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
             (c) => c.lensDirection == CameraLensDirection.front,
         orElse: () => cams.first,
       );
+
       _cam = CameraController(
         front,
-        ResolutionPreset.high,
+        ResolutionPreset.medium,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.yuv420,
+        imageFormatGroup: Platform.isAndroid
+            ? ImageFormatGroup.nv21
+            : ImageFormatGroup.bgra8888,
       );
+
       await _cam!.initialize();
       await _cam!.setZoomLevel(1.0);
       await _cam!.setFlashMode(FlashMode.off);
       await _cam!.lockCaptureOrientation(DeviceOrientation.portraitUp);
-      // await _cam!.startImageStream(_processFrame);
+
       if (mounted) setState(() => _initialized = true);
     } catch (e) {
       if (mounted) {
@@ -167,7 +172,9 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         metadata: InputImageMetadata(
           size: Size(image.width.toDouble(), image.height.toDouble()),
           rotation: _rotationFromSensor(_cam!.description.sensorOrientation),
-          format: InputImageFormat.yuv420,
+          format: Platform.isAndroid
+              ? InputImageFormat.nv21
+              : InputImageFormat.bgra8888,
           bytesPerRow: image.planes.first.bytesPerRow,
         ),
       );
@@ -179,6 +186,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       if (faces.length == 1) {
         final f = faces.first;
         validNow = _checkFaceOk(f, image.width, image.height);
+      } else {
+        validNow = false;
       }
 
       _cubit.updateFaceValid(validNow);
@@ -200,7 +209,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       }
 
       if (mounted) setState(() {});
-    } catch (_) {
+    } catch (e) {
       _stableCount = 0;
       _canManualCapture = false;
     } finally {
@@ -353,30 +362,73 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     );
   }
 
+  // bool _checkFaceOk(Face f, int imgW, int imgH) {
+  //   final x = (f.headEulerAngleX ?? 0).abs();
+  //   final y = (f.headEulerAngleY ?? 0).abs();
+  //   final z = (f.headEulerAngleZ ?? 0).abs();
+  //   const pitchMax = 12.0, yawMax = 12.0, rollMax = 12.0;
+  //   final okPose = x <= pitchMax && y <= yawMax && z <= rollMax;
+  //
+  //   final screen = MediaQuery.of(context).size;
+  //   final guide = computeGuideRect(screen);
+  //   final guideInner = guide.deflate(_insetPx);
+  //
+  //   final bbScreen = _mapImageRectToScreen(f.boundingBox, imgW, imgH, screen);
+  //
+  //   final inside =
+  //       guideInner.contains(bbScreen.topLeft) && guideInner.contains(bbScreen.bottomRight);
+  //
+  //   final aFace = bbScreen.width * bbScreen.height;
+  //   final aGuide = guideInner.width * guideInner.height;
+  //   final coverage = (aGuide > 0) ? (aFace / aGuide) : 0;
+  //
+  //   final okCoverage = coverage >= _minCoverage && coverage <= _maxCoverage;
+  //
+  //   return okPose && inside && okCoverage;
+  // }
+
   bool _checkFaceOk(Face f, int imgW, int imgH) {
-    final x = (f.headEulerAngleX ?? 0).abs();
-    final y = (f.headEulerAngleY ?? 0).abs();
-    final z = (f.headEulerAngleZ ?? 0).abs();
-    const pitchMax = 12.0, yawMax = 12.0, rollMax = 12.0;
+    final x = (f.headEulerAngleX ?? 0).abs(); // pitch
+    final y = (f.headEulerAngleY ?? 0).abs(); // yaw
+    final z = (f.headEulerAngleZ ?? 0).abs(); // roll
+
+    const pitchMax = 25.0;
+    const yawMax   = 25.0;
+    const rollMax  = 25.0;
+
     final okPose = x <= pitchMax && y <= yawMax && z <= rollMax;
+    if (!okPose) {
+      return false;
+    }
 
-    final screen = MediaQuery.of(context).size;
-    final guide = computeGuideRect(screen);
-    final guideInner = guide.deflate(_insetPx);
+    final box = f.boundingBox;
 
-    final bbScreen = _mapImageRectToScreen(f.boundingBox, imgW, imgH, screen);
+    final faceW = box.width.clamp(0, imgW.toDouble());
+    final faceH = box.height.clamp(0, imgH.toDouble());
+    final faceArea = faceW * faceH;
+    final imageArea = imgW.toDouble() * imgH.toDouble();
 
-    final inside =
-        guideInner.contains(bbScreen.topLeft) && guideInner.contains(bbScreen.bottomRight);
+    final areaRatio = imageArea > 0 ? (faceArea / imageArea) : 0.0;
 
-    final aFace = bbScreen.width * bbScreen.height;
-    final aGuide = guideInner.width * guideInner.height;
-    final coverage = (aGuide > 0) ? (aFace / aGuide) : 0;
+    final okSize = areaRatio >= 0.05 && areaRatio <= 0.6;
+    if (!okSize) {
+      // logger.d('size fail: ratio=$areaRatio');
+      return false;
+    }
 
-    final okCoverage = coverage >= _minCoverage && coverage <= _maxCoverage;
+    final cxRatio = (box.center.dx / imgW).clamp(0.0, 1.0);
+    final cyRatio = (box.center.dy / imgH).clamp(0.0, 1.0);
 
-    return okPose && inside && okCoverage;
+    // 0.2..0.8 nghĩa là chừa biên 20% mỗi phía.
+    final okCenter =
+        cxRatio >= 0.2 && cxRatio <= 0.8 &&
+            cyRatio >= 0.2 && cyRatio <= 0.8;
+
+    // logger.d('center: cx=$cxRatio, cy=$cyRatio, okCenter=$okCenter');
+
+    return okCenter;
   }
+
 
 
   @override
