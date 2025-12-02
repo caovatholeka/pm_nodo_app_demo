@@ -189,14 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                                   bgrColor: true,
                                   isObscured: !(state.showPassword ?? false),
                                   controller: _passCtrl,
-                                  suffixIcon:
-                                      (state.showPassword ?? false)
-                                          ? AppAssets.icEyeVisible
-                                          : AppAssets.icEyeClose,
-                                  onSuffixAction:
-                                      () => _cubit.onShowHidePwd(
-                                        state.showPassword ?? false,
-                                      ),
+                                  isPasswordField: true,
                                   validator:
                                       (v) => Validator.validateEmpty(
                                         v,

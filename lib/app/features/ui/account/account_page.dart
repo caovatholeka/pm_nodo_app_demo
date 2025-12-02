@@ -294,7 +294,7 @@ class _AccountPageState extends State<AccountPage> {
                         SizedBox(height: spacing6),
                         Padding(
                           padding:
-                              EdgeInsets.only(right: screen.width * 0.08),
+                              EdgeInsets.only(right: screen.width * 0.09),
                           child: Text(
                             "${profile.jobTitle ?? ''}  •  NV: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
                             textAlign: TextAlign.left,
