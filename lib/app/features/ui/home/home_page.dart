@@ -254,7 +254,10 @@ class _HomePageState extends State<HomePage> {
           child: SizedBox(
             width: context.sw(0.92),
             child: AttendanceStatusCard(
-              dateText: "1 tháng 12, 2025",
+              dateText: DateFormat(
+                "d 'tháng' M, yyyy",
+                "vi",
+              ).format(DateTime.now()),
               checkInTime: "08:30 AM",
               checkOutTime: "06:00 PM",
               checkInStatus: checkInStatus,

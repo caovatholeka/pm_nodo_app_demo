@@ -85,11 +85,10 @@ class _AccountPageState extends State<AccountPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (_) => BlocProvider(
-              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
-              child: const NotificationPage(),
-            ),
+        builder: (_) => BlocProvider(
+          create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+          child: const NotificationPage(),
+        ),
       ),
     );
   }
@@ -135,91 +134,78 @@ class _AccountPageState extends State<AccountPage> {
                 ),
               ),
 
-              SliverToBoxAdapter(
-                child: Container(
-                  width: double.infinity,
-                  color: const Color(0xFFF4F6F8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 18,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 8),
-                        child: Text(
-                          "General",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey.shade600,
-                          ),
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    const SizedBox(height: 18),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        "General",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey.shade600,
                         ),
                       ),
-
-                      _roundedMenuContainer(
-                        children: [
-                          _menuItem(
-                            icon: AppAssets.icUser,
-                            title: "Thông tin cá nhân",
-                            onTap: _goInfo,
-                          ),
-                          _menuItem(
-                            icon: AppAssets.icNotificationPF,
-                            title: "Thông báo",
-                            onTap: () => _goNotification(),
-                          ),
-                          _menuItem(
-                            icon: AppAssets.icProtect,
-                            title: "Thiết lập mật khẩu",
-                            onTap: _goPassword,
-                          ),
-                          _menuItem(
-                            icon: AppAssets.icLangague,
-                            title: "Ngôn ngữ",
-                            onTap: _goLanguge,
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4, bottom: 8),
-                        child: Text(
-                          "About",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey.shade600,
-                          ),
+                    ),
+                    _roundedMenuContainer(
+                      children: [
+                        _menuItem(
+                          icon: AppAssets.icUser,
+                          title: "Thông tin cá nhân",
+                          onTap: _goInfo,
+                        ),
+                        _menuItem(
+                          icon: AppAssets.icNotificationPF,
+                          title: "Thông báo",
+                          onTap: _goNotification,
+                        ),
+                        _menuItem(
+                          icon: AppAssets.icProtect,
+                          title: "Thiết lập mật khẩu",
+                          onTap: _goPassword,
+                        ),
+                        _menuItem(
+                          icon: AppAssets.icLangague,
+                          title: "Ngôn ngữ",
+                          onTap: _goLanguge,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Padding(
+                      padding: const EdgeInsets.only(left:10),
+                      child: Text(
+                        "About",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey.shade600,
                         ),
                       ),
-
-                      _roundedMenuContainer(
-                        children: [
-                          _menuItem(
-                            icon: AppAssets.icHelpCenter,
-                            title: "Help Center",
-                            onTap: () {},
-                          ),
-                          _menuItem(
-                            icon: AppAssets.icUser,
-                            title: "Privacy Policy",
-                            onTap: () {},
-                          ),
-                          _menuItem(
-                            icon: AppAssets.icLogout,
-                            title: "Logout",
-                            onTap: _logout,
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+                    ),
+                    _roundedMenuContainer(
+                      children: [
+                        _menuItem(
+                          icon: AppAssets.icHelpCenter,
+                          title: "Help Center",
+                          onTap: () {},
+                        ),
+                        _menuItem(
+                          icon: AppAssets.icUser,
+                          title: "Privacy Policy",
+                          onTap: () {},
+                        ),
+                        _menuItem(
+                          icon: AppAssets.icLogout,
+                          title: "Logout",
+                          onTap: _logout,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
             ],
@@ -251,80 +237,75 @@ class _AccountPageState extends State<AccountPage> {
             child: SvgPicture.asset(AppAssets.profileBG, fit: BoxFit.cover),
           ),
         ),
-
         Padding(
           padding: EdgeInsets.only(bottom: screen.height * 0.032),
-          child:
-              status == LoadStatus.LOADING
-                  ? const CircularProgressIndicator(color: AppColors.appBarGradientStart)
-                  : profile != null
+          child: status == LoadStatus.LOADING
+              ? const CircularProgressIndicator(
+                  color: AppColors.appBarGradientStart)
+              : profile != null
                   ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Container(
-                            width: avatarSize,
-                            height: avatarSize,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            Container(
+                              width: avatarSize,
+                              height: avatarSize,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: avatarSize * 0.05,
+                                ),
+                                image: DecorationImage(
+                                  image: profile.avatarUrl != null
+                                      ? NetworkImage(profile.avatarUrl!)
+                                      : AssetImage(AppAssets.img_df_avatar)
+                                          as ImageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: cameraSize,
+                              height: cameraSize,
+                              decoration: const BoxDecoration(
                                 color: Colors.white,
-                                width: avatarSize * 0.05,
+                                shape: BoxShape.circle,
                               ),
-                              image: DecorationImage(
-                                image:
-                                    profile.avatarUrl != null
-                                        ? NetworkImage(profile.avatarUrl!)
-                                        : AssetImage(AppAssets.img_df_avatar)
-                                            as ImageProvider,
-                                fit: BoxFit.cover,
+                              child: Icon(
+                                Icons.camera_alt,
+                                size: cameraSize * 0.55,
                               ),
                             ),
-                          ),
-                          Container(
-                            width: cameraSize,
-                            height: cameraSize,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.camera_alt,
-                              size: cameraSize * 0.55,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: spacing12),
-
-                      Text(
-                        profile.name ?? "",
-                        style: TextStyle(
-                          fontSize: nameFontSize,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          ],
                         ),
-                      ),
-
-                      SizedBox(height: spacing6),
-
-                      Padding(
-                        padding: EdgeInsets.only(right: screen.width * 0.08),
-                        child: Text(
-                          "${profile.jobTitle ?? ''}  •  NV: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
-                          textAlign: TextAlign.left,
+                        SizedBox(height: spacing12),
+                        Text(
+                          profile.name ?? "",
                           style: TextStyle(
-                            color: AppColors.colorPrimary50,
-                            fontSize: subInfoFontSize,
+                            fontSize: nameFontSize,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
-                    ],
-                  )
+                        SizedBox(height: spacing6),
+                        Padding(
+                          padding:
+                              EdgeInsets.only(right: screen.width * 0.08),
+                          child: Text(
+                            "${profile.jobTitle ?? ''}  •  NV: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              color: AppColors.colorPrimary50,
+                              fontSize: subInfoFontSize,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
                   : const SizedBox.shrink(),
         ),
       ],
@@ -333,6 +314,7 @@ class _AccountPageState extends State<AccountPage> {
 
   Widget _roundedMenuContainer({required List<Widget> children}) {
     return Container(
+      margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
