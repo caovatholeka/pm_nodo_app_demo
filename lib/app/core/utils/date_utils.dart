@@ -40,6 +40,39 @@ class AppDateUtils {
     }
   }
 
+  String formatTimeAmPm(String input) {
+    final dt = _parseLocal(input);
+    int h = dt.hour % 12;
+    if (h == 0) h = 12;
+    final mm = dt.minute.toString().padLeft(2, '0');
+    final hh = h.toString().padLeft(2, '0');
+    final suffix = dt.hour >= 12 ? 'pm' : 'am';
+    return '$hh:$mm $suffix';
+  }
+
+  DateTime _parseLocal(String s) {
+    return DateTime.parse(s.replaceFirst(' ', 'T'));
+  }
+
+
+  String formatDateTime(String input) {
+    final dt = _parseLocal(input);
+    const weekdaysVI = {
+      DateTime.monday: 'thứ hai',
+      DateTime.tuesday: 'thứ ba',
+      DateTime.wednesday: 'thứ tư',
+      DateTime.thursday: 'thứ năm',
+      DateTime.friday: 'thứ sáu',
+      DateTime.saturday: 'thứ bảy',
+      DateTime.sunday: 'chủ nhật',
+    };
+    final wd = weekdaysVI[dt.weekday]!;
+    final d = dt.day.toString().padLeft(2, '0');
+    final m = dt.month.toString().padLeft(2, '0');
+    final y = dt.year.toString();
+    return '$wd , $d/$m/$y';
+  }
+
   static DateTime convertStringDateToDateTime(String date){
     try{
       return DateTime.parse(date);

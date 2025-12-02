@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/core/utils/utils.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -72,38 +73,6 @@ class _AttendanceTabState extends State<AttendanceTab> {
         .format(d);
 
     return '$prefix, $dateStr';
-  }
-
-  DateTime _parseLocal(String s) {
-    return DateTime.parse(s.replaceFirst(' ', 'T'));
-  }
-
-  String formatTimeAmPm(String input) {
-    final dt = _parseLocal(input);
-    int h = dt.hour % 12;
-    if (h == 0) h = 12;
-    final mm = dt.minute.toString().padLeft(2, '0');
-    final hh = h.toString().padLeft(2, '0');
-    final suffix = dt.hour >= 12 ? 'pm' : 'am';
-    return '$hh:$mm $suffix';
-  }
-
-  String formatDateTime(String input) {
-    final dt = _parseLocal(input);
-    const weekdaysVI = {
-      DateTime.monday: 'thứ hai',
-      DateTime.tuesday: 'thứ ba',
-      DateTime.wednesday: 'thứ tư',
-      DateTime.thursday: 'thứ năm',
-      DateTime.friday: 'thứ sáu',
-      DateTime.saturday: 'thứ bảy',
-      DateTime.sunday: 'chủ nhật',
-    };
-    final wd = weekdaysVI[dt.weekday]!;
-    final d = dt.day.toString().padLeft(2, '0');
-    final m = dt.month.toString().padLeft(2, '0');
-    final y = dt.year.toString();
-    return '$wd , $d/$m/$y';
   }
 
   @override
@@ -384,8 +353,8 @@ class _AttendanceTabState extends State<AttendanceTab> {
               return ActivityItem(
                 icon: his.action == "check_in" ? AppAssets.icCheckin : AppAssets.icCheckout,
                 title: his.action == "check_in" ?  "Check In" : "Check Out",
-                time: formatTimeAmPm(his.datetime ?? ""),
-                subtitle: formatDateTime(his.datetime ?? ""),
+                time: AppDateUtils().formatTimeAmPm(his.datetime ?? ""),
+                subtitle: AppDateUtils().formatDateTime(his.datetime ?? ""),
                 place: his.location?.name ?? "",
                 status: status,
               );

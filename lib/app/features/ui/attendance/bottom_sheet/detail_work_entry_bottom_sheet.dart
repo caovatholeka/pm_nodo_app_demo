@@ -105,7 +105,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                               isRequiredField: false,
                               enable: true,
                               readOnly: true,
-                              controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStart ?? "")),
+                              controller: TextEditingController(text: AppDateUtils().formatTimeAmPm(widget.workEntity?.dateStart ?? "")),
                             ),
                           ),
                           const SizedBox(width: 12,),
@@ -117,7 +117,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                               isRequiredField: false,
                               enable: true,
                               readOnly: true,
-                              controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStop ?? "")),
+                              controller: TextEditingController(text: AppDateUtils().formatTimeAmPm(widget.workEntity?.dateStop ?? "")),
                             ),
                           )
                         ],
