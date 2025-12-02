@@ -241,64 +241,105 @@ Future<void> _requestLocationPermission() async {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CheckInCubit,CheckInState>(
-        bloc: _cubit,
-        buildWhen: (prev,cur) => prev.getCheckInfo != cur.getCheckInfo ||
+    return BlocConsumer<CheckInCubit, CheckInState>(
+      bloc: _cubit,
+      buildWhen: (prev, cur) =>
+      prev.getCheckInfo != cur.getCheckInfo ||
           prev.listCheckInfos != cur.listCheckInfos ||
-        prev.currentCheckInEntity != cur.currentCheckInEntity ||
-        prev.hasLateOrEarly != cur.hasLateOrEarly,
-        listener: (context,state) async {
-          if(state.getCheckInfo == LoadStatus.LOADING ||
-              state.updateExplain == LoadStatus.LOADING){
-            LoadingOverlay.show(context);
-          }if(state.getCheckInfo == LoadStatus.SUCCESS){
-            LoadingOverlay.hide(context);
-            await _initMarkers(state.listCheckInfos ?? []);
-            await _moveCameraToCurrentPlace();
-          }
-          if(state.checkInStatus == LoadStatus.SUCCESS){
-            _cubit.onResetState();
-            AppSnackBar.showInfo(title: "Chấm công thành công",message:
-              "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())}- ${state.currentCheckInEntity?.name} ");
-            // check chấm công muộn sớm
-            if(state.hasLateOrEarly){
-              final String? reason = await showLateEarlyDialog(context);
-              if (reason != null) {
-                _cubit.updateExplanation(reason,
-                  state.checkInOutResponse?.id ?? 0);
-              }
-            }
-          }if(state.checkOutStatus == LoadStatus.SUCCESS){
-            _cubit.onResetState();
-            AppSnackBar.showInfo(title:"Chấm công thành công",message:  "${state.checkInOutResponse?.datetime} - ${state.currentCheckInEntity?.name} ");
-          }
-          if(state.updateExplain == LoadStatus.SUCCESS){
-            _cubit.onResetState();
-            AppSnackBar.showInfo(title:"Thành Công",message: "Giải trình công thành công");
-          }if(state.checkInStatus == LoadStatus.FAILURE ||
-              state.checkOutStatus == LoadStatus.FAILURE){
-            _cubit.onResetState();
-            if((state.errStatus ?? "").contains("ERROR.")){
-              AppSnackBar.showError(title: "Chấm công thất bại",message: state.errMsg);
-            }else{
-              AppSnackBar.showError(title: "Chấm công thất bại",message: "Máy chủ đang bận, vui lòng thử lại sau");
-            }
-          }
-          else{
-            LoadingOverlay.hide(context);
-          }
-        },
-        builder: (context,state){
-          return BlocBuilder<CheckInCubit,CheckInState>(
-              bloc: _cubit,
-              buildWhen: (prev,cur) => prev.isMapExpanded != cur.isMapExpanded,
-              builder: (context,state){
-                return state.isMapExpanded ?
-                _mapZoomFullScreen :
-                _mapNormalScreen;
-              });
+          prev.currentCheckInEntity != cur.currentCheckInEntity ||
+          prev.hasLateOrEarly != cur.hasLateOrEarly,
 
-        });
+      listenWhen: (prev, cur) {
+        return prev.getCheckInfo != cur.getCheckInfo ||
+            prev.checkInStatus != cur.checkInStatus ||
+            prev.updateExplain != cur.updateExplain ||
+            prev.checkOutStatus != cur.checkOutStatus;
+      },
+
+      listener: (context, state) async {
+        if (state.checkInStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          AppSnackBar.showInfo(
+            title: "Chấm công thành công",
+            message:
+            "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())} - ${state.currentCheckInEntity?.name}",
+          );
+
+          _cubit.onResetState();
+
+          if (state.hasLateOrEarly) {
+            final String? reason = await showLateEarlyDialog(context);
+            if (reason != null) {
+              _cubit.updateExplanation(
+                reason,
+                state.checkInOutResponse?.id ?? 0,
+              );
+            }
+          }
+        }
+
+
+        else if (state.updateExplain == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Giải trình công thành công",
+          );
+
+          _cubit.onResetState();
+        }
+
+
+        else if (state.checkInStatus == LoadStatus.FAILURE ||
+            state.checkOutStatus == LoadStatus.FAILURE) {
+          LoadingOverlay.hide(context);
+
+          _cubit.onResetState();
+
+          if ((state.errStatus ?? "").contains("ERROR.")) {
+            AppSnackBar.showError(
+              title: "Chấm công thất bại",
+              message: state.errMsg,
+            );
+          } else {
+            AppSnackBar.showError(
+              title: "Chấm công thất bại",
+              message: "Máy chủ đang bận, vui lòng thử lại sau",
+            );
+          }
+        }
+
+        else if (state.getCheckInfo == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          await _initMarkers(state.listCheckInfos ?? []);
+          await _moveCameraToCurrentPlace();
+        }
+
+
+        else if (state.getCheckInfo == LoadStatus.LOADING ||
+            state.updateExplain == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+        }
+
+
+        else {
+          LoadingOverlay.hide(context);
+        }
+      },
+
+      builder: (context, state) {
+        return BlocBuilder<CheckInCubit, CheckInState>(
+          bloc: _cubit,
+          buildWhen: (prev, cur) => prev.isMapExpanded != cur.isMapExpanded,
+          builder: (context, state) {
+            return state.isMapExpanded ? _mapZoomFullScreen : _mapNormalScreen;
+          },
+        );
+      },
+    );
   }
 
   get _mapNormalScreen {
@@ -858,98 +899,126 @@ Future<void> _requestLocationPermission() async {
   }
 
   // dialog giai trinh
-  Future<String?> showLateEarlyDialog(
-      BuildContext context) async {
+  Future<String?> showLateEarlyDialog(BuildContext context) async {
     final reasonController = TextEditingController();
     final reasonKey = GlobalKey<FormState>();
 
     return showDialog<String?>(
       context: context,
       barrierDismissible: false,
-      builder: (_) {
-        return StatefulBuilder(builder: (ctx, setState) {
-          return Dialog(
-            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: 20, right: 20, top: 20,
-                bottom: 16 + MediaQuery.of(ctx).viewInsets.bottom,
+      builder: (ctx) {
+        final viewInsets = MediaQuery.of(ctx).viewInsets;
+
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 24,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Chấm công muộn/sớm',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Bạn đã chấm công sớm/muộn, bạn có muốn giải trình ngay không?',
-                    style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.35),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // TextField lý do
-                 Form(
-                   key: reasonKey,
-                   child: InputTextField(
-                       title: "",
-                       disableTitle: true,
-                       hintText: "Nhập lý do...",
-                       isRequiredField: true,
-                      enable: true,
-                     maxLine: 3,
-                     controller: reasonController,
-                     onChange: (val){
-                       reasonKey.currentState!.validate();
-                     },
-                     validator: (val)
-                      => Validator.validateEmpty(val, "Lý do"),
-                   ),
-                 ),
-
-                  const SizedBox(height: 16),
-
-                  FilledButton(
-                    onPressed :(){
-                      final reasonValid = reasonKey.currentState?.validate() ?? false;
-                      if(reasonValid){
-                        String reason = reasonController.text.trim();
-                        // Navigator.of(ctx).pop(reason);
-                        Navigator.pop(context,reason);
-                      }
-                    },
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      backgroundColor: AppColors.themePrimaryDefault,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Giải trình', style: TextStyle(fontSize: 16)),
-                  ),
-                  const SizedBox(height: 10),
-
-
-                  OutlinedButton(
-                    onPressed: () => Navigator.of(ctx).pop(null),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(48),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
-                      side: const BorderSide(color: Color(0xFFE5E7EB)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    child: const Text('Để sau', style: TextStyle(fontSize: 16)),
-                  ),
-                ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-          );
-        });
+              child: SingleChildScrollView(
+                // Khi bàn phím lên, thêm khoảng trống dưới để có thể scroll
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  20,
+                  20,
+                  16 + viewInsets.bottom,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Chấm công muộn/sớm',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Bạn đã chấm công sớm/muộn, bạn có muốn giải trình ngay không?',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        height: 1.35,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // TextField lý do
+                    Form(
+                      key: reasonKey,
+                      child: InputTextField(
+                        title: "",
+                        disableTitle: true,
+                        hintText: "Nhập lý do...",
+                        isRequiredField: true,
+                        enable: true,
+                        maxLine: 3,
+                        controller: reasonController,
+                        onChange: (val) {
+                          reasonKey.currentState?.validate();
+                        },
+                        validator: (val) =>
+                            Validator.validateEmpty(val, "Lý do"),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    FilledButton(
+                      onPressed: () {
+                        final reasonValid =
+                            reasonKey.currentState?.validate() ?? false;
+                        if (reasonValid) {
+                          final reason = reasonController.text.trim();
+                          // dùng ctx hiện tại để pop dialog
+                          Navigator.of(ctx).pop(reason);
+                        }
+                      },
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: AppColors.themePrimaryDefault,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text(
+                        'Giải trình',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Nếu muốn thêm nút "Để sau" thì mở lại:
+                    // OutlinedButton(
+                    //   onPressed: () => Navigator.of(ctx).pop(null),
+                    //   style: OutlinedButton.styleFrom(
+                    //     minimumSize: const Size.fromHeight(48),
+                    //     backgroundColor: Colors.white,
+                    //     foregroundColor: Colors.black87,
+                    //     side: const BorderSide(color: Color(0xFFE5E7EB)),
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(10),
+                    //     ),
+                    //   ),
+                    //   child: const Text('Để sau', style: TextStyle(fontSize: 16)),
+                    // ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
       },
     );
   }

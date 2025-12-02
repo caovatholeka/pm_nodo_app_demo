@@ -68,17 +68,14 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
       if((res.lines ?? []).isNotEmpty){
         emit(state.copyWith(createStatus: LoadStatus.SUCCESS));
       }else{
-        emit(state.copyWith(createStatus: LoadStatus.FAILURE));
+        emit(state.copyWith(createStatus: LoadStatus.FAILURE, errMsg: res.message));
       }
     }on DioException catch(e){
       logger.d(e);
       final res = e.response!.data as Map<String, dynamic>;
       logger.d("errror ::: ${res["message"]} ${res["status"]}");
-      emit(state.copyWith(createStatus: LoadStatus.FAILURE,
-          // errMsg: res["message"],
-          // errStatus: res["status"]
-      ));
-      // emit(state.copyWith(createStatus: LoadStatus.FAILURE));
+      String err = "Lỗi hệ thống: vui lòng thử lại sau!!";
+      emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: err));
     }
   }
 

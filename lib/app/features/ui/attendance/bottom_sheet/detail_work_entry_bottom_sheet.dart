@@ -45,7 +45,10 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
       padding: const EdgeInsets.symmetric(horizontal: 2,vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(16),
+          topLeft: Radius.circular(16)
+        ),
       ),
       child: Column(
         children: [
@@ -78,133 +81,137 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                 color: AppColors.lineGray50,
               ).paddingOnly(bottom: 16),
 
-              Padding(padding: const EdgeInsets.only(left: 12, right: 12),
-                child: Column(
-                  children: [
-                    InputTextField(
-                        title: "Tên",
+              SizedBox(
+                height: ScreenSize.of(context).height*0.75,
+                child: SingleChildScrollView(padding: const EdgeInsets.only(left: 12, right: 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InputTextField(
+                          title: "Tên",
+                          hintText: "",
+                          isRequiredField: false,
+                          enable: true,
+                          readOnly: true,
+                          controller: TextEditingController(text: widget.workEntity?.workEntryLabel ?? ""),
+                      ).paddingOnly(bottom: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: InputTextField(
+                              title: "Check In",
+                              hintText: "",
+                              isRequiredField: false,
+                              enable: true,
+                              readOnly: true,
+                              controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStart ?? "")),
+                            ),
+                          ),
+                          const SizedBox(width: 12,),
+                          Expanded(
+                            flex: 1,
+                            child: InputTextField(
+                              title: "Check Out",
+                              hintText: "",
+                              isRequiredField: false,
+                              enable: true,
+                              readOnly: true,
+                              controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStop ?? "")),
+                            ),
+                          )
+                        ],
+                      ).paddingOnly(bottom: 12),
+
+                      Container(width: double.infinity,height: 1,
+                        color: AppColors.lineGray50
+                      ).paddingOnly(bottom: 12),
+
+                      InputTextField(
+                        title: "Ca làm việc",
                         hintText: "",
                         isRequiredField: false,
                         enable: true,
                         readOnly: true,
-                        controller: TextEditingController(text: widget.workEntity?.workEntryLabel ?? ""),
-                    ).paddingOnly(bottom: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: InputTextField(
-                            title: "Check In",
-                            hintText: "",
-                            isRequiredField: false,
-                            enable: true,
-                            readOnly: true,
-                            controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStart ?? "")),
+                        controller: TextEditingController(text: widget.workEntity?.shift?.name ?? ""),
+                      ).paddingOnly(bottom: 12),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: InputTextField(
+                              title: "Giờ đến trễ",
+                              hintText: "",
+                              isRequiredField: false,
+                              enable: true,
+                              readOnly: true,
+                              controller: TextEditingController(text: widget.workEntity?.lateTime ?? ""),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12,),
-                        Expanded(
-                          flex: 1,
-                          child: InputTextField(
-                            title: "Check Out",
-                            hintText: "",
-                            isRequiredField: false,
-                            enable: true,
-                            readOnly: true,
-                            controller: TextEditingController(text: toHHmm(widget.workEntity?.dateStop ?? "")),
+                          const SizedBox(width: 12,),
+                          Expanded(
+                            flex: 1,
+                            child: InputTextField(
+                              title: "Thời gian đến sớm",
+                              hintText: "",
+                              isRequiredField: false,
+                              enable: true,
+                              readOnly: true,
+                              controller: TextEditingController(text: widget.workEntity?.earlyTime ?? ""),
+                            ),
+                          )
+                        ],
+                      ).paddingOnly(bottom: 12),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: InputTextField(
+                              title: "Thời gian làm việc",
+                              hintText: "",
+                              isRequiredField: false,
+                              enable: true,
+                              readOnly: true,
+                              controller: TextEditingController(text: widget.workEntity?.workTime ?? ""),
+                            ),
                           ),
-                        )
-                      ],
-                    ).paddingOnly(bottom: 12),
+                          const SizedBox(width: 12,),
+                          Expanded(
+                            flex: 1,
+                            child: InputTextField(
+                              title: "Thời gian không hợp lệ",
+                              hintText: "",
+                              isRequiredField: false,
+                              enable: true,
+                              readOnly: true,
+                              controller: TextEditingController(text: widget.workEntity?.totalInvalidTime ?? ""),
+                            ),
+                          )
+                        ],
+                      ).paddingOnly(bottom: 12),
 
-                    Container(width: double.infinity,height: 1,
-                      color: AppColors.lineGray50
-                    ).paddingOnly(bottom: 12),
+                      Container(width: double.infinity,height: 1,
+                          color: AppColors.lineGray50
+                      ).paddingOnly(bottom: 12),
 
-                    InputTextField(
-                      title: "Ca làm việc",
-                      hintText: "",
-                      isRequiredField: false,
-                      enable: true,
-                      readOnly: true,
-                      controller: TextEditingController(text: widget.workEntity?.shift?.name ?? ""),
-                    ).paddingOnly(bottom: 12),
+                      InputTextField(
+                        title: "Thời gian nghỉ",
+                        hintText: "",
+                        isRequiredField: false,
+                        enable: true,
+                        readOnly: true,
+                        controller: TextEditingController(text: "0.0"),
+                      ).paddingOnly(bottom: 16),
 
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: InputTextField(
-                            title: "Giờ đến trễ",
-                            hintText: "",
-                            isRequiredField: false,
-                            enable: true,
-                            readOnly: true,
-                            controller: TextEditingController(text: widget.workEntity?.lateTime ?? ""),
-                          ),
-                        ),
-                        const SizedBox(width: 12,),
-                        Expanded(
-                          flex: 1,
-                          child: InputTextField(
-                            title: "Thời gian đến sớm",
-                            hintText: "",
-                            isRequiredField: false,
-                            enable: true,
-                            readOnly: true,
-                            controller: TextEditingController(text: widget.workEntity?.earlyTime ?? ""),
-                          ),
-                        )
-                      ],
-                    ).paddingOnly(bottom: 12),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: InputTextField(
-                            title: "Thời gian làm việc",
-                            hintText: "",
-                            isRequiredField: false,
-                            enable: true,
-                            readOnly: true,
-                            controller: TextEditingController(text: widget.workEntity?.workTime ?? ""),
-                          ),
-                        ),
-                        const SizedBox(width: 12,),
-                        Expanded(
-                          flex: 1,
-                          child: InputTextField(
-                            title: "Thời gian không hợp lệ",
-                            hintText: "",
-                            isRequiredField: false,
-                            enable: true,
-                            readOnly: true,
-                            controller: TextEditingController(text: widget.workEntity?.totalInvalidTime ?? ""),
-                          ),
-                        )
-                      ],
-                    ).paddingOnly(bottom: 12),
-
-                    Container(width: double.infinity,height: 1,
-                        color: AppColors.lineGray50
-                    ).paddingOnly(bottom: 12),
-
-                    InputTextField(
-                      title: "Thời gian nghỉ",
-                      hintText: "",
-                      isRequiredField: false,
-                      enable: true,
-                      readOnly: true,
-                      controller: TextEditingController(text: "0.0"),
-                    ).paddingOnly(bottom: 16),
-
-                    PrimaryButton(mainText: "Xong",
-                      callback: (){
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ],
+                      PrimaryButton(mainText: "Xong",
+                        callback: (){
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ],
+                  ),
                 ),
               )
             ],

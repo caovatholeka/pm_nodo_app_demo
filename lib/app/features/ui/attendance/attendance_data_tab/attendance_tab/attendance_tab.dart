@@ -386,6 +386,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                 title: his.action == "check_in" ?  "Check In" : "Check Out",
                 time: formatTimeAmPm(his.datetime ?? ""),
                 subtitle: formatDateTime(his.datetime ?? ""),
+                place: his.location?.name ?? "",
                 status: status,
               );
             }).toList(),

@@ -325,7 +325,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
             title: "Cảnh báo",
-            message: "Có lỗi xảy ra , vui lòng thử lại sau",
+            message: state.errMsg,
           );
         } else {
           // hide progress

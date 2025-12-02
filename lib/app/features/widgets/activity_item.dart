@@ -3,12 +3,13 @@ import 'package:pm_app/app/core/commons/app_shadow.dart';
 import '../../core/commons/app_colors.dart';
 
 class ActivityItem extends StatelessWidget {
-  const ActivityItem({
+   ActivityItem({
     super.key,
     required this.icon,
     required this.title,
     required this.time,
     required this.subtitle,
+    this.place,
     required this.status,
   });
 
@@ -16,6 +17,7 @@ class ActivityItem extends StatelessWidget {
   final String title;
   final String time;
   final String subtitle;
+  String? place;
   final String status;
 
   @override
@@ -52,6 +54,14 @@ class ActivityItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.subtitle,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Địa điểm: ${place ?? ""}",
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.subtitle,

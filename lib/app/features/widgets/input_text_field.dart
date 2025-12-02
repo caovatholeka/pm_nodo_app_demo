@@ -117,7 +117,7 @@ class _InputTextFieldState extends State<InputTextField> {
                   widget.title,
                   style: const TextStyle(
                     fontFamily: AppConfig.fontFamily,
-                    fontSize: 15,
+                    fontSize: 14,
                     fontWeight: FontWeight.w400,
                     color: AppColors.gray,
                   ),

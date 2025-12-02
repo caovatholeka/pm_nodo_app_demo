@@ -38,8 +38,12 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
 //(widget.workEntryEntity?.note.toString() ?? "").isNotEmpty
     if((widget.workEntryEntity?.state ?? "") == "hr_confirm") {
       _cubit.onChangeReason(widget.workEntryEntity?.note.toString() ?? "");
+      _cubit.onChangeStartTime(Utils().floatToTimeString(widget.workEntryEntity?.dateStartCommit ?? 0.0) ?? "");
+      _cubit.onChangeEndTime(Utils().floatToTimeString((widget.workEntryEntity?.dateStopCommit ?? 0.0)) ?? "");
     }else{
       _cubit.onChangeReason("");
+      _cubit.onChangeStartTime("");
+      _cubit.onChangeEndTime("");
     }
   }
 
@@ -133,9 +137,8 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                                         title: "Giờ đến",
                                         hintText: "00:00",
                                         isRequiredField: false,
-                                        enable: widget.workEntryEntity?.state == "hr_confirm" ? false : true,
-                                        controller: startTimeController..text = widget.workEntryEntity?.state == "hr_confirm" ?
-                                        Utils().floatToTimeString(widget.workEntryEntity?.dateStartCommit ?? 0.0) ?? "" : state.startTime ?? "",
+                                        enable: true,
+                                        controller: startTimeController..text = state.startTime ?? "",
                                         onChange: (val) {
                                           _cubit.onChangeStartTime(val);
                                         },
@@ -153,9 +156,8 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                                       title: "Giờ về",
                                       hintText: "00:00",
                                       isRequiredField: false,
-                                      enable: widget.workEntryEntity?.state == "hr_confirm" ? false : true,
-                                      controller: endTimeController..text = widget.workEntryEntity?.state == "hr_confirm" ?
-                                        Utils().floatToTimeString((widget.workEntryEntity?.dateStopCommit ?? 0.0)) ?? "" : state.endTime ?? "",
+                                      enable: true,
+                                      controller: endTimeController..text = state.endTime ?? "",
                                       onChange: (val) {
                                         _cubit.onChangeEndTime(val);
                                       },
@@ -185,14 +187,18 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                           onChange: (value) {
                            _cubit.onChangeReason(value);
                           },
-                        )
+                        ),
+                        const SizedBox(height: 16,)
                       ],
                     ),
-                  )
+                  ),
+                  const SizedBox(height: 24,),
+                  _bottomSheet,
+
                 ],
               ),
             ),
-            bottomSheet: _bottomSheet,
+            // bottomSheet: _bottomSheet,
           );
       });
   }
@@ -202,23 +208,21 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
         bloc: _cubit,
         buildWhen: (prev,cur) => prev.reason != cur.reason,
         builder: (context,state){
-          bool isEnable = true;
-          if((state.reason ?? "").isEmpty ||
-            widget.workEntryEntity?.state == "hr_confirm"){
-            isEnable = false;
-          }
+          // bool isEnable = true;
+          // if((state.reason ?? "").isEmpty ||
+          //   widget.workEntryEntity?.state == "hr_confirm"){
+          //   isEnable = false;
+          // }
           return InkWell(
-            onTap:isEnable ? (){
+            onTap:(){
               _cubit.sendInvalidReason(widget.workEntryEntity?.date ?? "");
-            } : (){},
+            }, //: (){},
             child: Container(
-              margin: const EdgeInsets.only(left: 16,right: 16,bottom: 24),
+              margin: const EdgeInsets.only(bottom: 24),
               width: double.infinity,
               height: 46,
               decoration: BoxDecoration(
-                color: isEnable ?
-                  AppColors.themePrimaryDefault 
-                  : Color(0xFFDFDFDF),
+                color: AppColors.themePrimaryDefault,
                 borderRadius: BorderRadius.all(Radius.circular(6))
               ),
               child: Center(
@@ -226,8 +230,7 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color:isEnable ?
-                        AppColors.whiteColor : AppColors.textGray600
+                      color: AppColors.whiteColor
                   ),
                 ),
               ),

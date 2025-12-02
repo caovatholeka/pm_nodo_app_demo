@@ -4,6 +4,8 @@ class CreateOnLeaveState extends Equatable {
   final LoadStatus createStatus;
   final LoadStatus updateStatus;
   final LoadStatus getTypeStatus;
+  final String? errCode;
+  final String? errMsg;
   String? leaveDateType; // loại ngày nghỉ
   String? leaveType; // loại
   DateTime? fromDateTime;
@@ -28,6 +30,8 @@ class CreateOnLeaveState extends Equatable {
     this.getTypeStatus = LoadStatus.INITIAL,
     this.updateStatus = LoadStatus.INITIAL,
     this.createStatus = LoadStatus.INITIAL,
+    this.errMsg,
+    this.errCode,
     this.leaveDateType,
     this.leaveType,
     this.fromDateTime,
@@ -48,6 +52,8 @@ class CreateOnLeaveState extends Equatable {
     LoadStatus? createStatus,
     LoadStatus? updateStatus,
     LoadStatus? getTypeStatus,
+    String? errMsg,
+    String? errCode,
     String? leaveDateType,
     String? leaveType,
     DateTime? fromDateTime,
@@ -69,6 +75,8 @@ class CreateOnLeaveState extends Equatable {
       updateStatus: updateStatus ?? this.updateStatus,
       getTypeStatus: getTypeStatus ?? this.getTypeStatus,
       leaveDateType: leaveDateType ?? this.leaveDateType,
+      errCode: errCode ?? this.errCode,
+      errMsg: errMsg ?? this.errMsg,
       leaveType: leaveType ?? this.leaveType,
       fromDateTime: resetDateTime ? null : (fromDateTime ?? this.fromDateTime),
       toDateTime: resetDateTime ? null : (toDateTime ?? this.toDateTime),
@@ -89,6 +97,8 @@ class CreateOnLeaveState extends Equatable {
     createStatus,
     updateStatus,
     getTypeStatus,
+    errMsg,
+    errCode,
     leaveDateType,
     leaveType,
     fromDateTime,
