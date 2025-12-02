@@ -183,11 +183,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
                     // String week = selectedWeek.toYmdLabel();
                     String start = _df.format(selectedWeek.start);
                     String end = _df.format(selectedWeek.end);
-                    if (start != end) {
                       _cubit.onChangeDateFilter(start, end);
-                    } else {
-                      _cubit.onChangeDateFilter("", "");
-                    }
                     // call api search
                     _cubit.getListOnLeaveTimes();
                   }
