@@ -46,8 +46,8 @@ class EmployeeEntity {
   @JsonKey()
   String? birthday;
 
-  @JsonKey()
-  bool? active;
+  @JsonKey(name:"state")
+  String? active;
 
   @JsonKey(name:"date_join_company")
   String? dateJoinCompany;
@@ -80,7 +80,7 @@ class EmployeeEntity {
     String? jobTitle,
     String? department,
     String? avatarUrl,
-    bool? active,
+    String? active,
     String? xlocationType,
     String? managerby,
     String? contractStatus,

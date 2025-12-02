@@ -41,7 +41,7 @@ class StaffCubit extends Cubit<StaffState> {
     String? emailParam;
     int? departmentId;
     int? jobTitleId;
-    bool? active;
+    String? active;
 
     if (isSearching) {
       final q = trimmedQuery;

@@ -11,7 +11,7 @@ abstract class EmployeeRepository {
     String? email,
     int? departmentId,
     int? jobTitleId,
-    bool? active,
+    String? active,
   });
 
   Future<EmployeeEntity> getDetailEmployee(int id);
@@ -31,7 +31,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
   String? email,
   int? departmentId,
   int? jobTitleId,
-  bool? active,
+  String? active,
 }) {
   return _apiClient.getListEmployees(
     limit,

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/core/param/employee_filter_param.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
-import 'package:pm_app/app/features/widgets/dropdown_input_field.dart'
-    as widgets;
+import 'package:pm_app/app/features/widgets/dropdown_input_field.dart' as widgets;
 
 class AdvancedFilterSheet extends StatefulWidget {
   final List<MasterDataItem> departments;
@@ -30,13 +29,11 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
 
   int? selectedDeptId;
   int? selectedJobId;
-
   String? selectedStatus;
 
   @override
   void initState() {
     super.initState();
-
     nameController = TextEditingController();
     codeController = TextEditingController();
     emailController = TextEditingController();
@@ -46,35 +43,39 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
     });
   }
 
+  String? _mapUiToApi(String? uiValue) {
+    switch (uiValue) {
+      case "Đang làm việc":
+        return "work";
+      case "Đã nghỉ việc":
+        return "stop";
+      default:
+        return null;
+    }
+  }
+
+  String? _mapApiToUi(String? apiValue) {
+    switch (apiValue) {
+      case "work":
+        return "Đang làm việc";
+      case "stop":
+        return "Đã nghỉ việc";
+      default:
+        return null;
+    }
+  }
+
   void _syncInitialFilter() {
     final f = widget.savedFilter;
 
-    if (f == null) {
-      setState(() {
-        nameController.text = "";
-        codeController.text = "";
-        emailController.text = "";
-        selectedDeptId = null;
-        selectedJobId = null;
-        selectedStatus = null;
-      });
-      return;
-    }
-
     setState(() {
-      nameController.text = f.name ?? "";
-      codeController.text = f.code ?? "";
-      emailController.text = f.email ?? "";
-      selectedDeptId = f.departmentId;
-      selectedJobId = f.jobTitleId;
+      nameController.text = f?.name ?? "";
+      codeController.text = f?.code ?? "";
+      emailController.text = f?.email ?? "";
+      selectedDeptId = f?.departmentId;
+      selectedJobId = f?.jobTitleId;
 
-      if (f.active == true) {
-        selectedStatus = "Đang làm việc";
-      } else if (f.active == false) {
-        selectedStatus = "Đã nghỉ việc";
-      } else {
-        selectedStatus = null;
-      }
+      selectedStatus = f?.active != null ? _mapApiToUi(f!.active) : null;
     });
   }
 
@@ -92,29 +93,20 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
   }
 
   void _applyFilters() {
-    final active =
-        selectedStatus == "Đang làm việc"
-            ? true
-            : selectedStatus == "Đã nghỉ việc"
-            ? false
-            : null;
-
     final filter = EmployeeFilterParam(
-      name:
-          nameController.text.trim().isNotEmpty
-              ? nameController.text.trim()
-              : null,
-      code:
-          codeController.text.trim().isNotEmpty
-              ? codeController.text.trim()
-              : null,
-      email:
-          emailController.text.trim().isNotEmpty
-              ? emailController.text.trim()
-              : null,
+      name: nameController.text.trim().isNotEmpty
+          ? nameController.text.trim()
+          : null,
+      code: codeController.text.trim().isNotEmpty
+          ? codeController.text.trim()
+          : null,
+      email: emailController.text.trim().isNotEmpty
+          ? emailController.text.trim()
+          : null,
       departmentId: selectedDeptId,
       jobTitleId: selectedJobId,
-      active: active,
+
+      active: _mapUiToApi(selectedStatus),
     );
 
     Navigator.pop(context, filter);
@@ -139,13 +131,8 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(
-                      Icons.close,
-                      size: 22,
-                      color: Colors.black87,
-                    ),
+                    child: const Icon(Icons.close, size: 22, color: Colors.black87),
                   ),
-
                   const Expanded(
                     child: Center(
                       child: Text(
@@ -158,7 +145,6 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                       ),
                     ),
                   ),
-
                   GestureDetector(
                     onTap: _clearFilters,
                     child: const Text(
@@ -196,20 +182,14 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
               title: "Phòng ban",
               hint: "Chọn phòng ban",
               items: widget.departments.map((e) => e.text ?? "").toList(),
-              selectedValue:
-                  selectedDeptId == null
-                      ? null
-                      : widget.departments
-                          .firstWhere((d) => d.id == selectedDeptId)
-                          .text,
+              selectedValue: selectedDeptId == null
+                  ? null
+                  : widget.departments.firstWhere((d) => d.id == selectedDeptId).text,
               onChanged: (val) {
                 setState(() {
-                  selectedDeptId =
-                      val == null || val.isEmpty
-                          ? null
-                          : widget.departments
-                              .firstWhere((d) => d.text == val)
-                              .id;
+                  selectedDeptId = (val == null || val.isEmpty)
+                      ? null
+                      : widget.departments.firstWhere((d) => d.text == val).id;
                 });
               },
             ),
@@ -218,20 +198,14 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
               title: "Chức vụ",
               hint: "Chọn chức vụ",
               items: widget.jobTitles.map((e) => e.text ?? "").toList(),
-              selectedValue:
-                  selectedJobId == null
-                      ? null
-                      : widget.jobTitles
-                          .firstWhere((j) => j.id == selectedJobId)
-                          .text,
+              selectedValue: selectedJobId == null
+                  ? null
+                  : widget.jobTitles.firstWhere((j) => j.id == selectedJobId).text,
               onChanged: (val) {
                 setState(() {
-                  selectedJobId =
-                      val == null || val.isEmpty
-                          ? null
-                          : widget.jobTitles
-                              .firstWhere((j) => j.text == val)
-                              .id;
+                  selectedJobId = (val == null || val.isEmpty)
+                      ? null
+                      : widget.jobTitles.firstWhere((j) => j.text == val).id;
                 });
               },
             ),
@@ -246,11 +220,11 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
             widgets.DropdownInputField(
               title: "Trạng thái",
               hint: "Chọn trạng thái",
-              items: widget.statuses,
+              items: widget.statuses,              
               selectedValue: selectedStatus,
               onChanged: (val) {
                 setState(() {
-                  selectedStatus = (val?.isEmpty ?? true) ? null : val;
+                  selectedStatus = val;            
                 });
               },
             ),

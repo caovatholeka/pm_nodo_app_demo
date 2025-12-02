@@ -4,7 +4,7 @@ class EmployeeFilterParam {
   final String? email;    
   final int? departmentId;   
   final int? jobTitleId;    
-  final bool? active;        
+  final String? active;        
 
   EmployeeFilterParam({
     this.name,
@@ -22,7 +22,7 @@ class EmployeeFilterParam {
       if (email != null && email!.trim().isNotEmpty) 'email': email!.trim(),
       if (departmentId != null) 'department_id': departmentId,
       if (jobTitleId != null) 'job_id': jobTitleId,
-      if (active != null) 'active': active,
+      if (active != null) 'state': active,
     };
   }
 
@@ -32,7 +32,7 @@ class EmployeeFilterParam {
     String? email,
     int? departmentId,
     int? jobTitleId,
-    bool? active,
+    String? active,
   }) {
     return EmployeeFilterParam(
       name: name ?? this.name,
