@@ -94,8 +94,8 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
 
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -119,7 +119,6 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
           ),
 
           const SizedBox(height: 4),
-
           SizedBox(
             height: ScreenSize.of(context).height * 0.4,
             child: TableCalendar(
@@ -137,39 +136,20 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
               onPageChanged: (focusedDay) {
                 _focusedDay = focusedDay;
               },
-              headerVisible: false, // Ẩn header mặc định
+              headerVisible: false,
               daysOfWeekStyle: const DaysOfWeekStyle(
                 weekendStyle: TextStyle(fontWeight: FontWeight.w700),
                 weekdayStyle: TextStyle(fontWeight: FontWeight.w700),
               ),
               calendarStyle: const CalendarStyle(
-
-                todayDecoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.transparent,
-                ),
-                todayTextStyle: TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w600,
-                ),
+                todayDecoration: BoxDecoration(color: Colors.transparent),
+                todayTextStyle: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600),
                 rangeHighlightColor: Color(0xFFE9F3FF),
                 withinRangeTextStyle: TextStyle(color: Colors.black87),
-                rangeStartDecoration: BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-                rangeEndDecoration: BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-                rangeStartTextStyle: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-                rangeEndTextStyle: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
+                rangeStartDecoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+                rangeEndDecoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+                rangeStartTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+                rangeEndTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
                 defaultTextStyle: TextStyle(fontWeight: FontWeight.w600),
                 weekendTextStyle: TextStyle(fontWeight: FontWeight.w600),
                 outsideDaysVisible: true,
@@ -177,34 +157,25 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
             ),
           ),
 
-          // 🔹 Buttons dưới cùng
           Container(
             width: double.infinity,
             height: 40,
-            color: Colors.white,
             child: Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       _clearRange();
-                      Navigator.pop<DateTimeRange>(
-                        context,
-                        DateTimeRange(
-                          start: _rangeStart ?? DateTime.now(),
-                          end: DateTime.now(),
-                        ),
-                      );
+                      Navigator.pop(context, null); 
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.whiteColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                     child: Text(
-                      "Xoá",//S.current.clear,
+                      "Xoá",
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
@@ -218,26 +189,18 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
                   child: ElevatedButton(
                     onPressed: (_rangeStart != null && _rangeEnd != null)
                         ? () {
-                      Navigator.pop<DateTimeRange>(
-                        context,
-                        DateTimeRange(start: _rangeStart!, end: _rangeEnd!),
-                      );
-                    }
+                            Navigator.pop(context, DateTimeRange(start: _rangeStart!, end: _rangeEnd!));
+                          }
                         : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.themePrimaryDefault,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
-                    child:  Text(
-                      "Xác nhận",//S.current.confirm,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
+                    child: const Text(
+                      "Xác nhận",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
                 ),

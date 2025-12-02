@@ -36,8 +36,10 @@ class _OnLeavePageState extends State<OnLeavePage> {
 
   @override
   void initState() {
-    _cubit.getListOnLeaveTimes();
     super.initState();
+    _cubit.onChangeDateFilter("", "");
+    _cubit.getListOnLeaveTimes();
+    filterController.clear();
   }
 
   @override
@@ -119,7 +121,8 @@ class _OnLeavePageState extends State<OnLeavePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Padding(padding: const EdgeInsets.only(left: 16, right: 16,top: 24),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
             child: _filterWidget,
           ),
 
@@ -128,27 +131,26 @@ class _OnLeavePageState extends State<OnLeavePage> {
               padding: const EdgeInsets.only(left: 16, right: 16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _listWidget,
-                  const SizedBox(height: 32),
-                ],
+                children: [_listWidget, const SizedBox(height: 32)],
               ),
             ),
           ),
-          const SizedBox(height: 48,)
+          const SizedBox(height: 48),
         ],
       ),
     );
   }
 
   get _filterWidget {
-    return BlocBuilder<OnLeaveCubit,OnLeaveState>(
+    return BlocBuilder<OnLeaveCubit, OnLeaveState>(
       bloc: _cubit,
-      buildWhen: (prev,cur) => prev.startDateFilter != cur.startDateFilter ||
-        prev.endDateFilter != cur.endDateFilter,
-      builder: (context,state){
+      buildWhen:
+          (prev, cur) =>
+              prev.startDateFilter != cur.startDateFilter ||
+              prev.endDateFilter != cur.endDateFilter,
+      builder: (context, state) {
         String week = "";
-        if((state.startDateFilter ?? "").isNotEmpty){
+        if ((state.startDateFilter ?? "").isNotEmpty) {
           week = "${state.startDateFilter} - ${state.endDateFilter}";
         }
         return Row(
@@ -167,26 +169,31 @@ class _OnLeavePageState extends State<OnLeavePage> {
                 controller: filterController..text = week,
                 suffixIcon: AppAssets.icCalendar,
                 callback: () async {
-                  // open custom calendar
-                  final res = await showModalBottomSheet<DateTimeRange>(
+                  final res = await showModalBottomSheet<DateTimeRange?>(
                     context: context,
                     isScrollControlled: true,
                     showDragHandle: true,
                     backgroundColor: Colors.white,
                     builder:
-                        (_) =>
-                        CalendarRangeSheet(initial: selectedWeek, locale: "en"),
+                        (_) => CalendarRangeSheet(
+                          initial: selectedWeek,
+                          locale: "en",
+                        ),
                   );
 
-                  if (res != null) {
-                    selectedWeek = res;
-                    // String week = selectedWeek.toYmdLabel();
-                    String start = _df.format(selectedWeek.start);
-                    String end = _df.format(selectedWeek.end);
-                      _cubit.onChangeDateFilter(start, end);
-                    // call api search
+                  if (res == null) {
+                    filterController.clear();
+                    _cubit.onChangeDateFilter("", "");
                     _cubit.getListOnLeaveTimes();
+                    return;
                   }
+
+                  selectedWeek = res;
+                  String start = _df.format(selectedWeek.start);
+                  String end = _df.format(selectedWeek.end);
+
+                  _cubit.onChangeDateFilter(start, end);
+                  _cubit.getListOnLeaveTimes();
                 },
               ),
             ),
@@ -205,7 +212,11 @@ class _OnLeavePageState extends State<OnLeavePage> {
                   ),
                   padding: const EdgeInsets.all(12),
                   child: Center(
-                    child: Icon(Icons.add, color: AppColors.whiteColor, size: 16,),
+                    child: Icon(
+                      Icons.add,
+                      color: AppColors.whiteColor,
+                      size: 16,
+                    ),
                   ),
                 ),
               ),
@@ -214,7 +225,6 @@ class _OnLeavePageState extends State<OnLeavePage> {
         );
       },
     );
-
   }
 
   get _listWidget {
