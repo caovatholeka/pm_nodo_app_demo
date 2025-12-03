@@ -36,6 +36,8 @@ class AttendanceTab extends StatefulWidget {
 class _AttendanceTabState extends State<AttendanceTab> {
   bool isMonth = true;
 
+  bool _isDetailSheetOpen = false;
+
   final List<String> months = List.generate(12, (i) => "${i + 1}");
   final List<String> years = List.generate(6, (i) => (2023 + i).toString());
 
@@ -79,15 +81,27 @@ class _AttendanceTabState extends State<AttendanceTab> {
   Widget build(BuildContext context) {
     return BlocConsumer<AttendanceDataCubit,AttendanceDataState>(
         bloc: widget.cubit,
-        listener: (context,state){
+        listener: (context,state) async{
           if(state.loadStatus == LoadStatus.LOADING ||
             state.detailStatus == LoadStatus.LOADING){
             LoadingOverlay.show(context);
           }else if(state.detailStatus == LoadStatus.SUCCESS){
-            widget.cubit.resetStatus();
             LoadingOverlay.hide(context);
             // show popup
-            _showSelectedDayDialog(state.listDetailEntry?.first ?? WorkEntity());
+            // _showSelectedDayDialog(state.listDetailEntry?.first ?? WorkEntity());
+            if (!_isDetailSheetOpen) {
+              _isDetailSheetOpen = true;
+
+              final work = state.listDetailEntry?.first ?? WorkEntity();
+
+              await _showSelectedDayDialog(work);
+
+              if (mounted) {
+                _isDetailSheetOpen = false;
+              }
+            }
+
+            widget.cubit.resetStatus();
           }
           else{
             widget.cubit.resetStatus();
@@ -153,6 +167,11 @@ class _AttendanceTabState extends State<AttendanceTab> {
                     error: "",//state.error,
                     selectedDate: state.selectedDate,
                     onTapDay: (date) {
+                      if (_isDetailSheetOpen ||
+                          widget.cubit.state.detailStatus == LoadStatus.LOADING) {
+                        return;
+                      }
+
                       final key = DateTime(date.year, date.month, date.day);
                       List<WorkEntity> entries = state.entriesByDate?[key] ?? const [];
                       widget.cubit.onChangeSelectedDate(date);
@@ -366,7 +385,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
   }
 
   // functions
-  _showSelectedDayDialog(WorkEntity workEntity){
+  Future<void> _showSelectedDayDialog(WorkEntity workEntity) async {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

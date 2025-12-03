@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
@@ -229,25 +230,25 @@ class _HomePageState extends State<HomePage> {
         String checkInStatus;
         String checkOutStatus;
 
-        String formatTime(String datetime) {
-          try {
-            final dt = DateFormat("yyyy-MM-dd HH:mm").parse(datetime);
-            return DateFormat("hh:mm a", "en_US").format(dt);
-          } catch (_) {
-            return "";
-          }
-        }
+        // String formatTime(String datetime) {
+        //   try {
+        //     final dt = DateFormat("yyyy-MM-dd HH:mm").parse(datetime);
+        //     return DateFormat("hh:mm a", "en_US").format(dt);
+        //   } catch (_) {
+        //     return "";
+        //   }
+        // }
 
         if (state.checkInToday == null) {
           checkInStatus = "Not yet";
         } else {
-          checkInStatus = "${formatTime(state.checkInToday!)}";
+          checkInStatus = AppDateUtils().formatTimeAmPm(state.checkInToday ?? "");
         }
 
         if (state.checkOutToday == null) {
           checkOutStatus = "Not yet";
         } else {
-          checkOutStatus = "${formatTime(state.checkOutToday!)}";
+          checkOutStatus = AppDateUtils().formatTimeAmPm(state.checkOutToday ?? "");
         }
 
         return Center(
@@ -259,7 +260,7 @@ class _HomePageState extends State<HomePage> {
                 "vi",
               ).format(DateTime.now()),
               checkInTime: "08:30 AM",
-              checkOutTime: "06:00 PM",
+              checkOutTime: "18:00 PM",
               checkInStatus: checkInStatus,
               checkOutStatus: checkOutStatus,
               onCheckOutTap: () {

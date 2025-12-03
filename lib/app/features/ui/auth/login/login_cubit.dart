@@ -21,7 +21,15 @@ class LogInCubit extends Cubit<LoginState> {
   void doLogin(String username, String password) async {
     emit(state.copyWith(loginStatus: LoadStatus.LOADING));
     try {
-      final param = {"login": username, "password": password};
+      String deviceId = await SharedPrefsHelper.getDeviceId();
+      String fcmToken  = await SharedPrefsHelper.getFcmToken();
+
+      final param = {
+        "login": username,
+        "password": password,
+        "device_id": deviceId,
+        "fcm_token": fcmToken
+      };
       final result = await authRepository.authLogin(param);
 
       logger.d("🔁 authLogin raw response: ${result.toJson()}");

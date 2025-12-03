@@ -13,6 +13,7 @@ import '../../../firebase_options.dart';
 
 import 'package:pm_app/app/core/commons/global_data.dart';
 
+import '../../data/local/shared_prefs_helper.dart';
 import '../logger/logger.dart';
 
 class FirebaseMessagingService {
@@ -103,6 +104,8 @@ class FirebaseMessagingService {
       final deviceId = await _getDeviceId();
       logger.d("🔔 FCM TOKEN: $token");
       logger.d("📱 DEVICE ID: $deviceId");
+      SharedPrefsHelper.setDeviceId(deviceId ?? "");
+      SharedPrefsHelper.setFcmToken(token ?? "");
 
       _setupForegroundHandlers();
     } on FirebaseException catch (e, s) {

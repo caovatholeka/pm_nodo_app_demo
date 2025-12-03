@@ -41,14 +41,19 @@ class AppDateUtils {
   }
 
   String formatTimeAmPm(String input) {
-    final dt = _parseLocal(input);
-    int h = dt.hour % 12;
-    if (h == 0) h = 12;
-    final mm = dt.minute.toString().padLeft(2, '0');
-    final hh = h.toString().padLeft(2, '0');
-    final suffix = dt.hour >= 12 ? 'pm' : 'am';
-    return '$hh:$mm $suffix';
+    try {
+      final dt = _parseLocal(input);
+
+      final hh = dt.hour.toString().padLeft(2, '0');
+      final mm = dt.minute.toString().padLeft(2, '0');
+      final suffix = dt.hour >= 12 ? 'pm' : 'am';
+
+      return '$hh:$mm $suffix';
+    } catch (_) {
+      return "";
+    }
   }
+
 
   DateTime _parseLocal(String s) {
     return DateTime.parse(s.replaceFirst(' ', 'T'));
@@ -107,8 +112,13 @@ class AppDateUtils {
   }
 
   static String getCurrentTimeAM() {
-    final now = DateTime.now();
-    final formatter = DateFormat('hh:mm a'); // 12h + AM/PM
-    return formatter.format(now);
+    try{
+      final now = DateTime.now();
+      final formatter = DateFormat('hh:mm a'); // 12h + AM/PM
+      return formatter.format(now);
+    }catch(e){
+      return "";
+    }
+
   }
 }
