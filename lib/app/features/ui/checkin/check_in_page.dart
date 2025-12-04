@@ -430,7 +430,7 @@ Future<void> _requestLocationPermission() async {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 12,),
-          Text(DateFormat('H:mm a').format(DateTime.now()),
+          Text(DateFormat('H:mm a','en').format(DateTime.now()),
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w600,
@@ -439,33 +439,16 @@ Future<void> _requestLocationPermission() async {
             textAlign: TextAlign.center,
           ).paddingOnly(bottom: 16),
 
-         BlocBuilder<CheckInCubit,CheckInState>(
-             bloc: _cubit,
-             buildWhen: (prev,cur) => prev.checkInStatus != cur.checkInStatus,
-             builder: (context,state){
-               final isLoading = state.checkInStatus == LoadStatus.LOADING;
 
-               return isLoading ?
-               SizedBox(height: 60,width: 60,
-                child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),
-               ):
-               InkWell(
-                 onTap: isLoading ? (){} : (){
-                   // thuc hien check in
-                   doCheckIn();
-                 },
-                 child: SvgPicture.asset(AppAssets.camScan,width: 60,height: 60,),
-               ).paddingOnly(bottom: 16);
-             }),
 
-          Text("Nhận dạng khuôn mặt",
-            style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: AppColors.themeBlackDefault
-            ),
-            textAlign: TextAlign.center,
-          ).paddingOnly(bottom: 12),
+          // Text("Nhận dạng khuôn mặt",
+          //   style: TextStyle(
+          //       fontSize: 22,
+          //       fontWeight: FontWeight.w600,
+          //       color: AppColors.themeBlackDefault
+          //   ),
+          //   textAlign: TextAlign.center,
+          // ).paddingOnly(bottom: 12),
           Text("Đảm bảo bạn đang ở văn phòng và nơi có đủ ảnh sáng \n "
               "để nhận diện được khuôn mặt một cách tối ưu",
             style: TextStyle(
@@ -480,7 +463,7 @@ Future<void> _requestLocationPermission() async {
             height: ScreenSize.of(context).height*0.4,
               width: double.infinity,
               child: _mapWidget
-          ).paddingOnly(bottom: 16),
+          ).paddingOnly(bottom: 20),
           BlocBuilder<CheckInCubit,CheckInState>(
               bloc: _cubit,
               buildWhen: (prev,cur) => prev.currentCheckInEntity != cur.currentCheckInEntity,
@@ -491,15 +474,62 @@ Future<void> _requestLocationPermission() async {
                     SvgPicture.asset(AppAssets.icCheckinPlace,width: 18,height: 22,
                       color: AppColors.themePrimaryDefault,),
                     const SizedBox(width: 8,),
-                    Text(state.currentCheckInEntity?.name ?? "",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),)
+                    Flexible(
+                      child: Text(
+                        "${state.currentCheckInEntity?.name ?? ""} ,${state.currentCheckInEntity?.address ?? ""}",
+                        // state.currentCheckInEntity?.name ?? "",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    )
                   ],
                 );
-              })
+              }),
 
+          // button checkin
+          const SizedBox(height: 20,),
+          BlocBuilder<CheckInCubit,CheckInState>(
+              bloc: _cubit,
+              buildWhen: (prev,cur) => prev.checkInStatus != cur.checkInStatus,
+              builder: (context,state){
+                final isLoading = state.checkInStatus == LoadStatus.LOADING;
+                return InkWell(
+                  onTap: isLoading ? () {} :
+                  (){
+                    doCheckIn();
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    decoration: BoxDecoration(
+                      color: AppColors.themePrimaryDefault,
+                      borderRadius: BorderRadius.all(Radius.circular(6))
+                    ),
+                    child:
+                    isLoading ?
+                    Center(child: CircularProgressIndicator(color: AppColors.whiteColor,),)
+                    : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(AppAssets.camScan,width: 24,height: 24,),
+                        const SizedBox(width: 4,),
+                        Text(
+                          "Chấm Công",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.whiteColor
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ).paddingOnly(bottom: 16);
+              }),
         ],
       ),
     );
