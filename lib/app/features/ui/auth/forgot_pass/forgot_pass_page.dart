@@ -26,38 +26,10 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  void _showError(String msg) {
-    Flushbar(
-      message: msg,
-      backgroundColor: Colors.redAccent,
-      margin: const EdgeInsets.all(12),
-      borderRadius: BorderRadius.circular(12),
-      duration: const Duration(seconds: 2),
-      flushbarPosition: FlushbarPosition.TOP,
-      icon: const Icon(Icons.error, color: Colors.white),
-    ).show(context);
-  }
-
   void _submit() {
     final username = _userCtrl.text.trim();
     final pass = _passCtrl.text.trim();
     final confirm = _confirmCtrl.text.trim();
-
-    if (username.isEmpty && pass.isEmpty && confirm.isEmpty) {
-      _showError("Vui lòng nhập đầy đủ thông tin!");
-    } else if (username.isEmpty) {
-      _showError("Vui lòng nhập tên đăng nhập!");
-    } else if (pass.isEmpty) {
-      _showError("Vui lòng nhập mật khẩu!");
-    } else if (confirm.isEmpty) {
-      _showError("Vui lòng xác nhận mật khẩu");
-    } else if (pass != confirm) {
-      _showError("Vui lòng xác nhận đúng mật khẩu bạn đã nhập!");
-    } else if (!(_formKey.currentState?.validate() ?? false)) {
-      _showError("Thông tin chưa hợp lệ. Vui lòng kiểm tra lại!");
-      return;
-    }
-
     context.read<ForgotCubit>().submitForgotRequest(
       email: username,
       password: pass,

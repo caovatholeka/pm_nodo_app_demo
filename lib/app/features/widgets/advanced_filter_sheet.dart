@@ -177,6 +177,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
               controller: codeController,
               isRequiredField: false,
             ),
+            const SizedBox(height: 10),
 
             widgets.DropdownInputField(
               title: "Phòng ban",
@@ -193,6 +194,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                 });
               },
             ),
+            const SizedBox(height: 10),
 
             widgets.DropdownInputField(
               title: "Chức vụ",
@@ -209,6 +211,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                 });
               },
             ),
+            const SizedBox(height: 10),
 
             InputTextField(
               title: "Email",
@@ -216,6 +219,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
               controller: emailController,
               isRequiredField: false,
             ),
+            const SizedBox(height: 10),
 
             widgets.DropdownInputField(
               title: "Trạng thái",

@@ -252,7 +252,7 @@ class _InputTextFieldState extends State<InputTextField> {
               errorBorder: errorBorder,
               focusedErrorBorder: errorBorder,
 
-              errorStyle: const TextStyle(fontSize: 0, height: 0),
+              errorStyle: const TextStyle(fontSize: 12, height: 1, color: Colors.red),
               errorMaxLines: 2,
             ),
           ),

@@ -145,7 +145,6 @@ class _LoginPageState extends State<LoginPage> {
                                 width: 90,
                                 height: 90,
                               ),
-                              const SizedBox(height: 6),
                               const Text(
                                 "Đăng nhập",
                                 style: TextStyle(
@@ -154,15 +153,6 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              Text(
-                                "Enter your email and password to log in",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 28),
-
                               Form(
                                 key: _userKey,
                                 child: InputTextField(

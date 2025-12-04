@@ -10,6 +10,11 @@ class AppConfig {
   static String get envName => env.envName;
   static const baseImgUrl = "";
 
+  /// Environments
+  static const devEnviroment = "https://api-nodo-pm-dev.com/";
+  static const stagingEnviroment = "https://api-nodo-pm-staging.vn/";
+  static const prodEnviroment = "https://api.nodo-pm.vn/";
+
   static const baseFaceIdUrl = "https://pm.nodo.vn/";
 
   ///Paging
