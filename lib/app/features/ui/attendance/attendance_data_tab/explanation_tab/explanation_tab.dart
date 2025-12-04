@@ -197,7 +197,7 @@ class _ExplanationTabState extends State<ExplanationTab> {
                     },
                   );
                 }),
-          ):Center(child: Text("Không có dữ liệu"))
+          ):Center(child: Text("Không có dữ liệu")).paddingOnly(top: 30)
           );
           /*
           return ;
@@ -248,35 +248,45 @@ class _ExplanationTabState extends State<ExplanationTab> {
         ),
         Row(
           children: [
-            Container(
-              width: 30,
-              height: 30,
-              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.whiteColor
+            InkWell(
+              onTap: (){
+                _shiftMonth(-1);
+              },
+              child: Container(
+                width: 30,
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.whiteColor
+                ),
+                child: InkWell(
+                  onTap: (){
+                    _shiftMonth(-1);
+                  },
+                  child: Center(child: Icon(Icons.arrow_back_ios,color: AppColors.themePrimaryDefault,size: 16,)),
+                ),
+              ).paddingOnly(right: 12),
+            ),
+            InkWell(
+              onTap: (){
+                _shiftMonth(1);
+              },
+              child: Container(
+                width: 30,
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.whiteColor
+                ),
+                child: InkWell(
+                  onTap: (){
+                    _shiftMonth(1);
+                  },
+                  child: Center(child: Icon(Icons.arrow_forward_ios,color: AppColors.themePrimaryDefault,size: 16,)),
+                ).paddingOnly(right: 4),
               ),
-              child: InkWell(
-                onTap: (){
-                  _shiftMonth(-1);
-                },
-                child: Center(child: Icon(Icons.arrow_back_ios,color: AppColors.themePrimaryDefault,size: 16,)),
-              ),
-            ).paddingOnly(right: 12),
-            Container(
-              width: 30,
-              height: 30,
-              padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.whiteColor
-              ),
-              child: InkWell(
-                onTap: (){
-                  _shiftMonth(1);
-                },
-                child: Center(child: Icon(Icons.arrow_forward_ios,color: AppColors.themePrimaryDefault,size: 16,)),
-              ).paddingOnly(right: 4),
             )
           ],
         )

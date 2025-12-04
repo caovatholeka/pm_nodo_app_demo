@@ -213,6 +213,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                                     title: "Số điện thoại",
                                     subtitle: employee.phone ?? "-",
                                     showDivider: false,
+                                    isClickable: true,
                                   ),
                                   InfoRow(
                                     title: "Email",
@@ -252,12 +253,13 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                                   ),
                                   const SizedBox(height: 12),
                                   InfoRowSpecial(
-                                    title: employee.active == true
+                                    title: (employee.active ?? "") == "work"
                                         ? "Đang làm việc"
-                                        : "Nghỉ việc",
+                                        : "Đã nghỉ việc",
                                     subtitlePrefix: "Địa chỉ làm việc: ",
                                     subtitleValue:
-                                        employee.xlocationType ?? "-",
+                                    (employee.xlocationType ?? "") == "inhouse" ?
+                                      "Văn phòng công ty" : "Onsite",
                                     showDivider: false,
                                   ),
                                 ],
@@ -274,7 +276,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                                 children: [
                                   InfoRowSpecial(
                                     title:
-                                        employee.contractStatus ?? "Chưa ký",
+                                      (employee.contractStatus ?? "") == "signed" ? "Đã ký hợp đồng" : "Chưa ký",
                                     subtitlePrefix: "Ngày gia nhập: ",
                                     subtitleValue:
                                         employee.dateJoinCompany ?? "-",

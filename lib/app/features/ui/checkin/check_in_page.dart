@@ -762,141 +762,141 @@ Future<void> _requestLocationPermission() async {
   }
 
 
-  get _checkInfoWidget {
-    return BlocBuilder<CheckInCubit,CheckInState>(
-        bloc: _cubit,
-        buildWhen: (prev,cur) => prev.listCheckInfos != cur.listCheckInfos ||
-            prev.currentCheckInEntity != cur.currentCheckInEntity ||
-            prev.checkInStatus != cur.checkInStatus ||
-            prev.checkOutStatus != cur.checkOutStatus ||
-            prev.actionCheck != cur.actionCheck,
-        builder: (context,state){
-          return Container(
-            color: Colors.white,
-            height:double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 30,),
-                _currentTimeSec,
-                const SizedBox(height: 20,),
-                // ((state.actionCheck ?? "").isNotEmpty) ?
-                //  _buttonCheckOut:
-                _buttonCheckIn,
-                const SizedBox(height: 10,),
-              ],
-            )
-          );
-        });
-  }
+  // get _checkInfoWidget {
+  //   return BlocBuilder<CheckInCubit,CheckInState>(
+  //       bloc: _cubit,
+  //       buildWhen: (prev,cur) => prev.listCheckInfos != cur.listCheckInfos ||
+  //           prev.currentCheckInEntity != cur.currentCheckInEntity ||
+  //           prev.checkInStatus != cur.checkInStatus ||
+  //           prev.checkOutStatus != cur.checkOutStatus ||
+  //           prev.actionCheck != cur.actionCheck,
+  //       builder: (context,state){
+  //         return Container(
+  //           color: Colors.white,
+  //           height:double.infinity,
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               const SizedBox(height: 30,),
+  //               _currentTimeSec,
+  //               const SizedBox(height: 20,),
+  //               // ((state.actionCheck ?? "").isNotEmpty) ?
+  //               //  _buttonCheckOut:
+  //               _buttonCheckIn,
+  //               const SizedBox(height: 10,),
+  //             ],
+  //           )
+  //         );
+  //       });
+  // }
 
-  get _currentTimeSec{
-    return BlocBuilder<CheckInCubit,CheckInState>(
-        bloc: _cubit,
-        buildWhen: (prev,cur) => prev.listCheckInfos != cur.listCheckInfos ||
-            prev.currentCheckInEntity != cur.currentCheckInEntity,
-        builder: (context,state){
-          return Padding(padding: const EdgeInsets.only(left: 16,right: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Column(
-                    children: [
-                      Text(DateFormat('H:mm').format(DateTime.now()),
-                        style: TextStyle(
-                            fontSize: 35,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.themeBlackDefault
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(todayFormatted(locale: const Locale('vi')),
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.themeBlackDefault
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                // const SizedBox(width: 30,),
-                Expanded(
-                  flex: 5,
-                  child: Column(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(state.currentCheckInEntity?.name ?? "",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.themeBlackDefault,
-                        ),),
-                      Text("",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.themeBlackDefault,
-                        ),),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-        });
-  }
+  // get _currentTimeSec{
+  //   return BlocBuilder<CheckInCubit,CheckInState>(
+  //       bloc: _cubit,
+  //       buildWhen: (prev,cur) => prev.listCheckInfos != cur.listCheckInfos ||
+  //           prev.currentCheckInEntity != cur.currentCheckInEntity,
+  //       builder: (context,state){
+  //         return Padding(padding: const EdgeInsets.only(left: 16,right: 16),
+  //           child: Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             crossAxisAlignment: CrossAxisAlignment.center,
+  //             children: [
+  //               Expanded(
+  //                 flex: 5,
+  //                 child: Column(
+  //                   children: [
+  //                     Text(DateFormat('H:mm').format(DateTime.now()),
+  //                       style: TextStyle(
+  //                           fontSize: 35,
+  //                           fontWeight: FontWeight.w600,
+  //                           color: AppColors.themeBlackDefault
+  //                       ),
+  //                       textAlign: TextAlign.center,
+  //                     ),
+  //                     Text(todayFormatted(locale: const Locale('vi')),
+  //                       style: TextStyle(
+  //                           fontSize: 18,
+  //                           fontWeight: FontWeight.w400,
+  //                           color: AppColors.themeBlackDefault
+  //                       ),
+  //                       maxLines: 3,
+  //                       overflow: TextOverflow.ellipsis,
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //               // const SizedBox(width: 30,),
+  //               Expanded(
+  //                 flex: 5,
+  //                 child: Column(
+  //                   // crossAxisAlignment: CrossAxisAlignment.start,
+  //                   mainAxisAlignment: MainAxisAlignment.center,
+  //                   children: [
+  //                     Text(state.currentCheckInEntity?.name ?? "",
+  //                       style: TextStyle(
+  //                         fontSize: 16,
+  //                         fontWeight: FontWeight.w700,
+  //                         color: AppColors.themeBlackDefault,
+  //                       ),),
+  //                     Text("",
+  //                       style: TextStyle(
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.w400,
+  //                         color: AppColors.themeBlackDefault,
+  //                       ),),
+  //                   ],
+  //                 ),
+  //               )
+  //             ],
+  //           ),
+  //         );
+  //       });
+  // }
 
-  get _buttonCheckIn{
-    return BlocBuilder<CheckInCubit,CheckInState>(
-      bloc: _cubit,
-      buildWhen: (prev,cur) => prev.currentCheckInEntity != cur.currentCheckInEntity
-          || prev.checkInStatus != cur.checkInStatus,
-      builder: (context,state){
-        final isLoading = state.checkInStatus == LoadStatus.LOADING;
-        return Padding(
-          padding: const EdgeInsets.only(left: 55,right: 55),
-          child: PrimaryButton(
-            callback: isLoading ? null
-            : () async {
-              bool serviceEnabled;
-              LocationPermission permission;
-              serviceEnabled = await Geolocator.isLocationServiceEnabled();
-              if (!serviceEnabled) {
-                openAppSettings();
-              } else {
-                permission = await Geolocator.checkPermission();
-                if (permission == LocationPermission.denied) {
-                  permission = await Geolocator.requestPermission();
-                  if (permission == LocationPermission.denied) {
-                    openAppSettings();
-                  }
-                }
-                if (permission == LocationPermission.deniedForever) {
-                  openAppSettings();
-                }
-
-                doCheckIn();
-              }
-            },
-            isLoading: isLoading,
-            mainText: "Chấm công",
-            style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppColors.whiteColor
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // get _buttonCheckIn{
+  //   return BlocBuilder<CheckInCubit,CheckInState>(
+  //     bloc: _cubit,
+  //     buildWhen: (prev,cur) => prev.currentCheckInEntity != cur.currentCheckInEntity
+  //         || prev.checkInStatus != cur.checkInStatus,
+  //     builder: (context,state){
+  //       final isLoading = state.checkInStatus == LoadStatus.LOADING;
+  //       return Padding(
+  //         padding: const EdgeInsets.only(left: 55,right: 55),
+  //         child: PrimaryButton(
+  //           callback: isLoading ? null
+  //           : () async {
+  //             bool serviceEnabled;
+  //             LocationPermission permission;
+  //             serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //             if (!serviceEnabled) {
+  //               openAppSettings();
+  //             } else {
+  //               permission = await Geolocator.checkPermission();
+  //               if (permission == LocationPermission.denied) {
+  //                 permission = await Geolocator.requestPermission();
+  //                 if (permission == LocationPermission.denied) {
+  //                   openAppSettings();
+  //                 }
+  //               }
+  //               if (permission == LocationPermission.deniedForever) {
+  //                 openAppSettings();
+  //               }
+  //
+  //               doCheckIn();
+  //             }
+  //           },
+  //           isLoading: isLoading,
+  //           mainText: "Chấm công",
+  //           style: TextStyle(
+  //               fontSize: 15,
+  //               fontWeight: FontWeight.w500,
+  //               color: AppColors.whiteColor
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   // dialog giai trinh
   Future<String?> showLateEarlyDialog(BuildContext context) async {
@@ -920,7 +920,6 @@ Future<void> _requestLocationPermission() async {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: SingleChildScrollView(
-                // Khi bàn phím lên, thêm khoảng trống dưới để có thể scroll
                 padding: EdgeInsets.fromLTRB(
                   20,
                   20,
@@ -999,7 +998,6 @@ Future<void> _requestLocationPermission() async {
 
                     const SizedBox(height: 10),
 
-                    // Nếu muốn thêm nút "Để sau" thì mở lại:
                     // OutlinedButton(
                     //   onPressed: () => Navigator.of(ctx).pop(null),
                     //   style: OutlinedButton.styleFrom(
@@ -1024,51 +1022,6 @@ Future<void> _requestLocationPermission() async {
   }
 
 
-  get _buttonCheckOut{
-    return BlocBuilder<CheckInCubit,CheckInState>(
-      bloc: _cubit,
-      buildWhen: (prev,cur) => prev.checkOutStatus != cur.checkOutStatus,
-      builder: (context,state){
-        final isLoading = state.checkOutStatus == LoadStatus.LOADING;
-        return Padding(
-          padding: const EdgeInsets.only(left: 55,right: 55),
-          child: PrimaryButton(
-            callback: isLoading
-                ? null
-                : () async {
-              bool serviceEnabled;
-              LocationPermission permission;
-              serviceEnabled = await Geolocator.isLocationServiceEnabled();
-              if (!serviceEnabled) {
-                openAppSettings();
-              } else {
-                permission = await Geolocator.checkPermission();
-                if (permission == LocationPermission.denied) {
-                  permission = await Geolocator.requestPermission();
-                  if (permission == LocationPermission.denied) {
-                    openAppSettings();
-                  }
-                }
-                if (permission == LocationPermission.deniedForever) {
-                  openAppSettings();
-                }
-
-                doCheckOut();
-              }
-
-            },
-            isLoading: isLoading,
-            mainText: "Check out",
-            style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-                color: AppColors.themeBlackDefault
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   // Functions
   doCheckIn() async{

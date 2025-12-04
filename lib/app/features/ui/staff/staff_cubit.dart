@@ -15,7 +15,7 @@ class StaffCubit extends Cubit<StaffState> {
   StaffCubit({required this.repository}) : super(const StaffState());
 
   static const int page = 1;
-  static const int limit = 10;
+  static const int limit = 100; //10;
 
   Future<void> getListEmployees({
     String? query,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/param/employee_filter_param.dart';
 import 'package:pm_app/app/data/local/master_data.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -201,7 +202,20 @@ class _StaffPageState extends State<StaffPage> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.search, color: Colors.grey, size: 22),
+          // const Icon(Icons.search, color: Colors.grey, size: 22),
+          InkWell(
+            onTap: _onSearchPressed,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              width: 28,
+              height: 28,
+              child: Icon(
+                Icons.search,
+                color: AppColors.themeBlackDefault,
+                size: 20,
+              ),
+            ),
+          ),
           const SizedBox(width: 6),
 
           Expanded(
@@ -217,16 +231,20 @@ class _StaffPageState extends State<StaffPage> {
           ),
 
           InkWell(
-            onTap: _onSearchPressed,
+            // onTap: _onSearchPressed,
+            onTap: (){
+              _searchController.clear();
+              _cubit.getListEmployees(query: "");
+            },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
-              width: 34,
-              height: 34,
+              width: 28,
+              height: 28,
               child: Icon(
-                Icons.arrow_forward_ios_outlined,
+                Icons.close,
                 color:
                     _isSearchActive
-                        ? const Color.fromARGB(255, 0, 81, 255)
+                        ? AppColors.themeBlackDefault
                         : Colors.transparent,
                 size: 20,
               ),
