@@ -141,7 +141,7 @@ class _AccountPageState extends State<AccountPage> {
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Text(
-                        "General",
+                        "Cài đặt chung",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -177,7 +177,7 @@ class _AccountPageState extends State<AccountPage> {
                     Padding(
                       padding: const EdgeInsets.only(left:10),
                       child: Text(
-                        "About",
+                        "Về ứng dụng",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -187,16 +187,16 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                     _roundedMenuContainer(
                       children: [
-                        _menuItem(
-                          icon: AppAssets.icHelpCenter,
-                          title: "Help Center",
-                          onTap: () {},
-                        ),
-                        _menuItem(
-                          icon: AppAssets.icUser,
-                          title: "Privacy Policy",
-                          onTap: () {},
-                        ),
+                        // _menuItem(
+                        //   icon: AppAssets.icHelpCenter,
+                        //   title: "Help Center",
+                        //   onTap: () {},
+                        // ),
+                        // _menuItem(
+                        //   icon: AppAssets.icUser,
+                        //   title: "Privacy Policy",
+                        //   onTap: () {},
+                        // ),
                         _menuItem(
                           icon: AppAssets.icLogout,
                           title: "Logout",

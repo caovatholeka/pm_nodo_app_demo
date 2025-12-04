@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/data/repositories/user_repository.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 
 import 'firebase_options.dart';
 import 'app/app.dart';
@@ -14,30 +17,45 @@ import 'app/core/service/firebase_messaging_service.dart';
 final getIt = GetIt.instance;
 
 void main() {
-  runZonedGuarded(() async {
-    final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+  runZonedGuarded(
+    () async {
+      final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
-    try{
-      FirebaseMessagingService.initializeFCM();
-    }catch(_){
-      logger.d("initilize fcm");
-    }
+      try {
+        FirebaseMessagingService.initializeFCM();
+      } catch (_) {
+        logger.d("initilize fcm");
+      }
 
+      await di.init();
 
-    await di.init();
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
 
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+      FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+      runApp(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create:
+                  (_) =>
+                      NotiCubit(userRepository: getIt<UserRepository>())
+                        ..countUnreadNoti(), 
+            ),
+          ],
+          child: MyApp(),
+        ),
+      );
 
-    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-    runApp(MyApp());
-    // FlutterNativeSplash.remove();
-  }, (error, stack) {
-    debugPrint("Uncaught error: $error");
-  });
+      // FlutterNativeSplash.remove();
+    },
+    (error, stack) {
+      debugPrint("Uncaught error: $error");
+    },
+  );
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 
@@ -32,6 +34,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     FlutterNativeSplash.remove();
     super.initState();
+
+    Future.microtask(() {
+      context.read<NotiCubit>().countUnreadNoti();
+    });
   }
 
   void _onItemTapped(int index) {
@@ -39,43 +45,43 @@ class _BottomNavigationState extends State<BottomNavigation> {
       _selectedIndex = index;
     });
   }
+
   @override
   Widget build(BuildContext context) {
-    final double systemBottomPadding = MediaQuery.of(context).viewPadding.bottom;
-return Scaffold(
-  body: Stack(
-    children: [
-      _pages[_selectedIndex],
-      Positioned(
-        left: 0,
-        right: 0,
-        bottom: systemBottomPadding,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 0),
-          child: Container(
-            margin: const EdgeInsets.only(
-              left: 16,
-              right: 16,
-              bottom: 16,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.profileContainer,
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(5, (index) {
-                return _buildNavItem(index);
-              }),
+    final double systemBottomPadding =
+        MediaQuery.of(context).viewPadding.bottom;
+    return Scaffold(
+      body: Stack(
+        children: [
+          _pages[_selectedIndex],
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: systemBottomPadding,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 0),
+              child: Container(
+                margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 13,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.profileContainer,
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(5, (index) {
+                    return _buildNavItem(index);
+                  }),
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
-    ],
-  ),
-);
-
+    );
   }
 
   Widget _buildNavItem(int index) {
@@ -110,9 +116,10 @@ return Scaffold(
           isSelected ? iconsActive[index] : iconsInactive[index],
           width: 24,
           height: 24,
-          colorFilter: isSelected
-              ? null
-              : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          colorFilter:
+              isSelected
+                  ? null
+                  : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
       ),
     );

@@ -137,11 +137,15 @@ abstract class ApiClient {
   @POST("/users/verify_otp")
   Future<CommonResponse> verifyOtp(@Body() Map<String, dynamic> body);
 
+  // notification
   @POST("/users/get_notification")
   Future<CommonResponse> getNotification(@Body() Map<String, dynamic> body);
 
   @POST("/users/mark_notification_read")
   Future<CommonResponse> markNotiRead(@Body() Map<String, dynamic> body);
+
+  @GET("/users/count_unread_notifications")
+  Future<CommonResponse> countUnreadNoti();
   
   // task
   // lay danh sach task
@@ -176,4 +180,6 @@ abstract class ApiClient {
 
   @POST("/tasks/update_task")
   Future<CommonResponse> updateTask(@Body() CreateTaskParam body);
+
+
 }

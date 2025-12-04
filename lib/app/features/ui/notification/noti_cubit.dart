@@ -82,4 +82,24 @@ class NotiCubit extends Cubit<NotiState> {
       logger.d("where: $s");
     }
   }
+
+  Future<void> countUnreadNoti() async {
+    logger.d("👉 [countUnreadNoti] START call API");
+    try {
+      final res = await userRepository.countUnreadNoti();
+        logger.d("🔄 [countUnreadNoti] Response RAW: ${res.toJson()}");
+      if(res.code == 200) {
+        emit(state.copyWith(
+          totalUnread: res.totalUnread ?? 0,
+        ),);
+
+         logger.d("✅ [countUnreadNoti] update state totalUnread = ${res.totalUnread}");
+      } else {
+        logger.e("countUnreadNoti failed with code: ${res..message}");
+      }
+    } catch (e, s) {
+      logger.e("countUnreadNoti error: $e");
+      logger.d("where: $s");
+    }
+  }
 }
