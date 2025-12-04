@@ -214,11 +214,14 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                                     subtitle: employee.phone ?? "-",
                                     showDivider: false,
                                     isClickable: true,
+                                    type: "phone",
                                   ),
                                   InfoRow(
                                     title: "Email",
                                     subtitle: employee.workEmail ?? "-",
                                     showDivider: false,
+                                    isClickable: true,
+                                    type: "email",
                                   ),
                                   InfoRow(
                                     title: "Địa chỉ",
