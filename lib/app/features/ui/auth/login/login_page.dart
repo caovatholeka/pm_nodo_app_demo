@@ -1,8 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/config/app_config.dart';
+import 'package:pm_app/app/config/app_env.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/commons/app_colors.dart';
@@ -80,6 +84,64 @@ class _LoginPageState extends State<LoginPage> {
     ).show(context);
   }
 
+  // chọn môi trường
+  void showEnv(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        elevation: 0,
+        barrierColor: Colors.black.withOpacity(0.6),
+        useRootNavigator: true,
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        builder: (BuildContext context) {
+          return Container(
+            color: Colors.white,
+            width: double.infinity,
+            height: 150,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 4,
+                ),
+                InkWell(
+                    onTap: () async{
+                      AppConfig.setEnvironment(Environment.dev);
+                      if (mounted) setState(() {});
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Develop')),
+                const SizedBox(
+                  height: 4,
+                ),
+                InkWell(
+                    onTap: () async{
+                      AppConfig.setEnvironment(Environment.demo);
+                      if (mounted) setState(() {});
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Demo')),
+                const SizedBox(
+                  height: 4,
+                ),
+                InkWell(
+                    onTap: () async{
+                      AppConfig.setEnvironment(Environment.prod);
+                      if (mounted) setState(() {});
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Product')),
+                const SizedBox(
+                  height: 4,
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LogInCubit, LoginState>(
@@ -152,7 +214,16 @@ class _LoginPageState extends State<LoginPage> {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              // const SizedBox(height: 6),
+                              // Text(
+                              //   "Enter your email and password to log in",
+                              //   style: TextStyle(
+                              //     fontSize: 14,
+                              //     color: Colors.grey,
+                              //   ),
+                              // ),
+                              const SizedBox(height: 28),
+
                               Form(
                                 key: _userKey,
                                 child: InputTextField(
@@ -279,23 +350,47 @@ class _LoginPageState extends State<LoginPage> {
               Positioned(
                 left: 10,
                 right: 10,
-                bottom: 20,
+                bottom: 30,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Icon(
+                  children: [
+                    const Icon(
                       Icons.info_outline,
                       size: 16,
                       color: Color(0xFFB5BBC6),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFFB5BBC6),
-                          height: 1.25,
+                      // child: Text(
+                      //   "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
+                      //   style: TextStyle(
+                      //     fontSize: 12,
+                      //     color: Color(0xFFB5BBC6),
+                      //     height: 1.25,
+                      //   ),
+                      // ),
+                      child: RichText(
+                        text: TextSpan(
+                          text: "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ. ",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFFB5BBC6),
+                            height: 1.25
+                          ),
+                          children: <TextSpan>[
+                            TextSpan(
+                                text: AppConfig.nameEnv ?? '',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w400,
+                                  // decoration: TextDecoration.underline,
+                                  color: AppColors.neutral400,
+                                  height: 1.25
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () =>  showEnv(context)),
+                          ],
                         ),
                       ),
                     ),

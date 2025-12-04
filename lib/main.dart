@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:pm_app/app/config/app_config.dart';
+import 'package:pm_app/app/config/app_env.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 
 import 'firebase_options.dart';
@@ -26,7 +28,6 @@ void main() {
       logger.d("initilize fcm");
     }
 
-
     await di.init();
 
     await SystemChrome.setPreferredOrientations([
@@ -35,6 +36,7 @@ void main() {
     ]);
 
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+    AppConfig.setEnvironment(Environment.dev);
     runApp(MyApp());
     // FlutterNativeSplash.remove();
   }, (error, stack) {

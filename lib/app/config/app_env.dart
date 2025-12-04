@@ -1,6 +1,6 @@
 enum Environment {
   dev,
-  staging,
+  demo,
   prod,
 }
 
@@ -9,8 +9,8 @@ extension EnvironmentExt on Environment {
     switch (this) {
       case Environment.dev:
         return 'DEV';
-      case Environment.staging:
-        return 'STAGING';
+      case Environment.demo:
+        return 'DEMO';
       case Environment.prod:
         return 'PROD';
     }
@@ -32,8 +32,8 @@ extension EnvironmentExt on Environment {
     switch (this) {
       case Environment.dev:
         return 'dev-mobile';
-      case Environment.staging:
-        return 'staging-mobile';
+      case Environment.demo:
+        return 'demo-mobile';
       case Environment.prod:
         return 'prod-mobile';
     }

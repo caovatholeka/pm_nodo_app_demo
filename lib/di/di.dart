@@ -74,9 +74,9 @@ Future<void> init() async {
 
     return dio;
   });
-  sl.registerLazySingleton<ApiClient>(
-    () => ApiClient(sl<Dio>(), baseUrl: Environment.prod.baseUrl),
-  );
+  // sl.registerLazySingleton<ApiClient>(
+  //       () => ApiClient(sl<Dio>(), baseUrl: AppConfig.baseUrl),
+  // );
 
   sl.registerLazySingleton<ApiClientFaceId>(
     () => ApiClientFaceId(sl<Dio>(), baseUrl: AppConfig.baseFaceIdUrl),
@@ -108,20 +108,20 @@ Future<void> init() async {
   );
 
   // ** Repository **
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
   sl.registerLazySingleton<OnLeaveRepository>(
-    () => OnLeaveRepositoryImpl(sl()),
+    () => OnLeaveRepositoryImpl(),
   );
   sl.registerLazySingleton<CheckInRepository>(
-    () => CheckInRepositoryImpl(sl()),
+    () => CheckInRepositoryImpl(),
   );
-  sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(sl()));
+  sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl());
   sl.registerLazySingleton<EmployeeRepository>(
-    () => EmployeeRepositoryImpl(sl()),
+    () => EmployeeRepositoryImpl(),
   );
 
   sl.registerLazySingleton<AttendanceRepository>(
-    () => AttendanceRepositoryImpl(sl()),
+    () => AttendanceRepositoryImpl(),
   );
 
   // ** Account **
@@ -148,7 +148,7 @@ Future<void> init() async {
   sl.registerLazySingleton<TaskCubit>(() => TaskCubit(repository: sl()));
 
   sl.registerLazySingleton<WorkEntryRepository>(
-    () => WorkEntryRepositoryImpl(sl()),
+    () => WorkEntryRepositoryImpl(),
   );
 
   sl.registerLazySingleton<ForgotCubit>(() => ForgotCubit(sl()));
@@ -158,5 +158,5 @@ Future<void> init() async {
   sl.registerFactory<OtpVerifyCubit>(() => OtpVerifyCubit(sl()));
 
   sl.registerFactory<NotiCubit>(() => NotiCubit(userRepository: sl()));
-  sl.registerLazySingleton<TaskRepository>(() => TaskRepositoryImpl(sl()));
+  sl.registerLazySingleton<TaskRepository>(() => TaskRepositoryImpl());
 }

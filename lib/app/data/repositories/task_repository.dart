@@ -1,4 +1,5 @@
 import '../../core/network/api_client.dart';
+import '../../core/network/api_util.dart';
 import '../models/param/create_task_param.dart';
 import '../models/response/common_response.dart';
 
@@ -15,11 +16,12 @@ abstract class TaskRepository {
 }
 
 class TaskRepositoryImpl extends TaskRepository {
-  late ApiClient _apiClient;
-
-  TaskRepositoryImpl(ApiClient client) {
-    _apiClient = client;
-  }
+  // late ApiClient _apiClient;
+  //
+  // TaskRepositoryImpl(ApiClient client) {
+  //   _apiClient = client;
+  // }
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<CommonResponse> getListTask(String? name, int? stageId, int? page, int? limit) async {

@@ -1,4 +1,7 @@
+import 'package:pm_app/app/core/logger/logger.dart';
+
 import 'app_env.dart';
+
 
 class AppConfig {
 
@@ -6,7 +9,9 @@ class AppConfig {
   static Environment env = Environment.dev;
 
   ///API Env
-  static  get baseUrl => env.baseUrl;
+  static String? nameEnv = '';
+  static String? version = '1.1.6';
+  static String baseUrl = "https://pm.nodo.vn/";//env.baseUrl;
   static String get envName => env.envName;
   static const baseImgUrl = "";
 
@@ -16,6 +21,25 @@ class AppConfig {
   static const prodEnviroment = "https://api.nodo-pm.vn/";
 
   static const baseFaceIdUrl = "https://pm.nodo.vn/";
+
+  static void setEnvironment(Environment environment) {
+    env = environment;
+
+    switch (environment) {
+      case Environment.dev:
+        baseUrl = 'https://pm.nodo.vn/';
+        nameEnv = 'Môi trường: develop';
+        break;
+      case Environment.demo:
+        baseUrl = 'https://demo-hrm.nodo.vn/';
+        nameEnv = 'Môi trường: Demo';
+        break;
+      case Environment.prod:
+        baseUrl = 'https://pm.nodo.vn/';
+        nameEnv = 'Môi trường: Prod';
+        break;
+    }
+  }
 
   ///Paging
   static const pageSize = 20;

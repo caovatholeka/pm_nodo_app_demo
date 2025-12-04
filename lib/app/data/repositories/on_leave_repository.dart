@@ -2,6 +2,7 @@ import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/param/create_leave_param.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/network/api_util.dart';
 import '../models/response/common_response.dart';
 import '../models/response/on_leave_response.dart';
 
@@ -15,11 +16,12 @@ abstract class OnLeaveRepository {
 }
 
 class OnLeaveRepositoryImpl extends OnLeaveRepository {
-  late ApiClient _apiClient;
-
-  OnLeaveRepositoryImpl(ApiClient client) {
-    _apiClient = client;
-  }
+  // late ApiClient _apiClient;
+  //
+  // OnLeaveRepositoryImpl(ApiClient client) {
+  //   _apiClient = client;
+  // }
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<CommonResponse> getListTimeOnLeaves(int limit, int page, String? startDate, String? endDate) async {

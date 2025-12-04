@@ -9,6 +9,7 @@ import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
+import '../../../core/network/api_util.dart';
 import '../../../data/models/enums/load_status.dart';
 
 import '../../widgets/custom_dialog.dart';
@@ -54,7 +55,8 @@ class _AccountPageState extends State<AccountPage> {
             Navigator.pop(context);
 
             try {
-              final api = GetIt.I<ApiClient>();
+              // final api = GetIt.I<ApiClient>();
+              ApiClient  api = ApiUtil.instance.createApiClient();
               final token = await SharedPrefsHelper.getToken();
               if (token?.accessToken != null) {
                 final dio = GetIt.I<Dio>();

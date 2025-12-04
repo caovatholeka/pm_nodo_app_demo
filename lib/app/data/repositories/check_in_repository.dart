@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/network/api_util.dart';
 import '../models/response/common_response.dart';
 
 abstract class CheckInRepository {
@@ -11,11 +12,12 @@ abstract class CheckInRepository {
 }
 
 class CheckInRepositoryImpl extends CheckInRepository {
-  late ApiClient _apiClient;
-
-  CheckInRepositoryImpl(ApiClient client) {
-    _apiClient = client;
-  }
+  // late ApiClient _apiClient;
+  //
+  // CheckInRepositoryImpl(ApiClient client) {
+  //   _apiClient = client;
+  // }
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<CommonResponse> getListWorkLocations() async{

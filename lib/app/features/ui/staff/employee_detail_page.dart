@@ -15,6 +15,7 @@ import 'package:pm_app/app/features/widgets/info_row.dart';
 import 'package:pm_app/app/features/widgets/info_row_special.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
+import '../../../core/network/api_util.dart';
 import 'employee_detail_cubit.dart';
 
 
@@ -35,7 +36,8 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
   @override
   void initState() {
     super.initState();
-    final apiClient = GetIt.I.get<ApiClient>();
+    // final apiClient = GetIt.I.get<ApiClient>();
+    ApiClient apiClient = ApiUtil.instance.createApiClient();
     _cubit = EmployeeDetailCubit(apiClient: apiClient);
     _cubit.getDetailEmployee(widget.employeeId);
   }

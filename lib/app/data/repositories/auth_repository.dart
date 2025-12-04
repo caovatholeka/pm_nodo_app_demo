@@ -1,4 +1,5 @@
 import '../../core/network/api_client.dart';
+import '../../core/network/api_util.dart';
 import '../local/shared_prefs_helper.dart';
 import '../models/entities/token_entity.dart';
 import '../models/response/common_response.dart';
@@ -15,11 +16,12 @@ abstract class AuthRepository {
 }
 
 class AuthRepositoryImpl extends AuthRepository {
-  late ApiClient _apiClient;
-
-  AuthRepositoryImpl(ApiClient client) {
-    _apiClient = client;
-  }
+  // late ApiClient _apiClient;
+  //
+  // AuthRepositoryImpl(ApiClient client) {
+  //   _apiClient = client;
+  // }
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<CommonResponse> authLogin(Map<String, dynamic> body) {
