@@ -53,5 +53,4 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
     return _apiClient.getDetailEmployee(id);
   }
 
-
 }

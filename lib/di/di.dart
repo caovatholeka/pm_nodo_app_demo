@@ -20,6 +20,7 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart'
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
+import 'package:pm_app/app/features/ui/staff/employee_detail_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
@@ -109,16 +110,10 @@ Future<void> init() async {
 
   // ** Repository **
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
-  sl.registerLazySingleton<OnLeaveRepository>(
-    () => OnLeaveRepositoryImpl(),
-  );
-  sl.registerLazySingleton<CheckInRepository>(
-    () => CheckInRepositoryImpl(),
-  );
+  sl.registerLazySingleton<OnLeaveRepository>(() => OnLeaveRepositoryImpl());
+  sl.registerLazySingleton<CheckInRepository>(() => CheckInRepositoryImpl());
   sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl());
-  sl.registerLazySingleton<EmployeeRepository>(
-    () => EmployeeRepositoryImpl(),
-  );
+  sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepositoryImpl());
 
   sl.registerLazySingleton<AttendanceRepository>(
     () => AttendanceRepositoryImpl(),
@@ -159,4 +154,8 @@ Future<void> init() async {
 
   sl.registerFactory<NotiCubit>(() => NotiCubit(userRepository: sl()));
   sl.registerLazySingleton<TaskRepository>(() => TaskRepositoryImpl());
+
+  sl.registerLazySingleton<EmployeeDetailCubit>(
+    () => EmployeeDetailCubit(repository: sl<EmployeeRepository>()),
+  );
 }

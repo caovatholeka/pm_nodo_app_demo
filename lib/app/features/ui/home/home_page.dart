@@ -181,11 +181,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   SizedBox(height: context.sh(0.006)),
-                  Text(
-                    "Let's Find Your Work!",
-                    style: TextStyle(
-                      fontSize: context.sw(0.035),
-                      color: Colors.white,
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(
+                        fontSize: context.sw(0.035),
+                        color: Colors.white,
+                      ),
+                      children: [
+                        const TextSpan(text: "Let's Find Your "),
+                        TextSpan(
+                          text: "Work!",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -242,13 +250,17 @@ class _HomePageState extends State<HomePage> {
         if (state.checkInToday == null) {
           checkInStatus = "Not yet";
         } else {
-          checkInStatus = AppDateUtils().formatTimeAmPm(state.checkInToday ?? "");
+          checkInStatus = AppDateUtils().formatTimeAmPm(
+            state.checkInToday ?? "",
+          );
         }
 
         if (state.checkOutToday == null) {
           checkOutStatus = "Not yet";
         } else {
-          checkOutStatus = AppDateUtils().formatTimeAmPm(state.checkOutToday ?? "");
+          checkOutStatus = AppDateUtils().formatTimeAmPm(
+            state.checkOutToday ?? "",
+          );
         }
 
         return Center(
