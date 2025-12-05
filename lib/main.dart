@@ -6,8 +6,9 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/data/repositories/auth_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
-import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 
 import 'firebase_options.dart';
 import 'app/app.dart';
@@ -43,9 +44,10 @@ void main() {
           providers: [
             BlocProvider(
               create:
-                  (_) =>
-                      NotiCubit(userRepository: getIt<UserRepository>())
-                        ..countUnreadNoti(), 
+                  (_) => AppCubit(
+                    authRepository: getIt<AuthRepository>(),
+                    userRepository: getIt<UserRepository>(),
+                  )..countUnreadNoti(),
             ),
           ],
           child: MyApp(),

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
@@ -22,10 +23,8 @@ class AppCubit extends Cubit<AppState> {
   UserRepository userRepository;
   AuthRepository authRepository;
 
-  AppCubit({
-    required this.authRepository,
-    required this.userRepository
-  }) : super(AppState());
+  AppCubit({required this.authRepository, required this.userRepository})
+    : super(AppState());
 
   Future<void> changeAppLanguage(String code) async {
     try {
@@ -38,7 +37,6 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-
   Future<void> loadAppLanguage() async {
     try {
       final savedLang = await SharedPrefsHelper.getAppLanguage();
@@ -50,80 +48,101 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-
-
   Future<void> getProfile() async {
-  if (GlobalData.instance.userId == null) {
-    final token = await SharedPrefsHelper.getToken();
-    GlobalData.instance.userId = token?.uid;
-  }
-
-  if (GlobalData.instance.userId == null) {
-    logger.e("Không có user_id để gọi API getUserProfile");
-    return;
-  }
-
-  final param = {
-    "user_id": GlobalData.instance.userId,
-  };
-
-  try {
-    final user = await userRepository.getUserProfile(param);
-    if (user.data != null) {
-      final userEntity = mapObject(user.data, ProfileEntity.fromJson);
-      GlobalData.instance.userProfile = userEntity;
-      emit(state.copyWith(userProfile: userEntity));
+    if (GlobalData.instance.userId == null) {
+      final token = await SharedPrefsHelper.getToken();
+      GlobalData.instance.userId = token?.uid;
     }
-  } catch (error) {
-    logger.e(error);
+
+    if (GlobalData.instance.userId == null) {
+      logger.e("Không có user_id để gọi API getUserProfile");
+      return;
+    }
+
+    final param = {"user_id": GlobalData.instance.userId};
+
+    try {
+      final user = await userRepository.getUserProfile(param);
+      if (user.data != null) {
+        final userEntity = mapObject(user.data, ProfileEntity.fromJson);
+        GlobalData.instance.userProfile = userEntity;
+        emit(state.copyWith(userProfile: userEntity));
+      }
+    } catch (error) {
+      logger.e(error);
+    }
   }
-}
 
   Future<void> getListWorkFlowStages() async {
-    try{
+    try {
       final res = await userRepository.getListWorkFlowStages();
       List<WorkFlowStageEntity>? list;
-      if(res.data != null){
+      if (res.data != null) {
         list = mapList(res.data, WorkFlowStageEntity.fromJson);
-        if(list.isNotEmpty){
+        if (list.isNotEmpty) {
           emit(state.copyWith(listWorkFlowStages: list));
-        }else{
+        } else {
           emit(state.copyWith(listWorkFlowStages: []));
         }
       }
-    }catch(e){
+    } catch (e) {
       logger.d(e);
     }
   }
 
   Future<void> getListWorkEntryTypes() async {
-    try{
+    try {
       final res = await userRepository.getListWorkEntryTypes();
       List<WorkEntryTypeEntity>? list;
-      if(res.data != null){
+      if (res.data != null) {
         list = mapList(res.data, WorkEntryTypeEntity.fromJson);
-        if(list.isNotEmpty){
+        if (list.isNotEmpty) {
           emit(state.copyWith(listWorkEntryTypes: list));
-        }else{
+        } else {
           emit(state.copyWith(listWorkEntryTypes: []));
         }
       }
-    }catch(e){
+    } catch (e) {
       logger.d(e);
     }
   }
 
   getListTaskStages() async {
-    try{
+    try {
       final res = await userRepository.getTaskStages();
       List<TaskStageEntity>? list;
-      if(res.data != null){
+      if (res.data != null) {
         list = mapList(res.data, TaskStageEntity.fromJson);
         emit(state.copyWith(listTaskStages: list));
       }
-    }catch(e){
+    } catch (e) {
       logger.d(e);
       emit(state.copyWith(listTaskStages: []));
+    }
+  }
+
+  Future<void> countUnreadNoti() async {
+    try {
+      final res = await userRepository.countUnreadNoti();
+
+      if (res.code == 200) {
+        final total = res.totalUnread ?? 0;
+
+        emit(state.copyWith(totalUnread: total));
+
+        logger.d("🔔 unread total = $total");
+
+        if (total > 0) {
+          await AppBadgePlus.updateBadge(total);
+        } else {
+          await AppBadgePlus.updateBadge(0);
+        }
+      } else {
+        logger.e("API error code: ${res.message}");
+      }
+    } catch (e, s) {
+      logger.e("Error: $e");
+      logger.d("$s");
     }
   }
 

@@ -4,6 +4,7 @@ class AppState extends Equatable {
   final TokenEntity? token;
   final LoadStatus? signOutStatus;
   final Locale? locale;
+  final int? totalUnread;
   ProfileEntity? userProfile;
   List<WorkEntryTypeEntity>? listWorkEntryTypes;
   List<WorkFlowStageEntity>? listWorkFlowStages;
@@ -18,7 +19,8 @@ class AppState extends Equatable {
     this.userProfile,
     this.listWorkEntryTypes,
     this.listWorkFlowStages,
-    this.listTaskStages
+    this.listTaskStages,
+    this.totalUnread = 0,
   });
 
   factory AppState.initial() => AppState(locale: Locale('vi'));
@@ -31,7 +33,8 @@ class AppState extends Equatable {
     ProfileEntity? userProfile,
     List<WorkEntryTypeEntity>? listWorkEntryTypes,
     List<WorkFlowStageEntity>? listWorkFlowStages,
-    List<TaskStageEntity>? listTaskStages
+    List<TaskStageEntity>? listTaskStages,
+    int? totalUnread,
   }) {
     return AppState(
       token: token ?? this.token,
@@ -40,7 +43,8 @@ class AppState extends Equatable {
       userProfile: userProfile ?? this.userProfile,
       listWorkEntryTypes: listWorkEntryTypes ?? this.listWorkEntryTypes,
       listWorkFlowStages: listWorkFlowStages ?? this.listWorkFlowStages,
-      listTaskStages: listTaskStages ?? this.listTaskStages
+      listTaskStages: listTaskStages ?? this.listTaskStages,
+      totalUnread: totalUnread ?? this.totalUnread,
     );
   }
 
@@ -52,6 +56,7 @@ class AppState extends Equatable {
     userProfile,
     listWorkEntryTypes,
     listWorkFlowStages,
-    listTaskStages
+    listTaskStages,
+    totalUnread,
   ];
 }

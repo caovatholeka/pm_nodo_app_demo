@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 
@@ -34,10 +32,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     FlutterNativeSplash.remove();
     super.initState();
-
-    Future.microtask(() {
-      context.read<NotiCubit>().countUnreadNoti();
-    });
   }
 
   void _onItemTapped(int index) {
