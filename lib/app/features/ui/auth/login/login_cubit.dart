@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import '../../../../core/commons/global_data.dart';
 import '../../../../core/helper/response_mapper.dart';
@@ -19,16 +20,17 @@ class LogInCubit extends Cubit<LoginState> {
   LogInCubit({required this.authRepository}) : super(LoginState());
 
   void doLogin(String username, String password) async {
+    final type = GlobalData.instance.quickActionPending;
     emit(state.copyWith(loginStatus: LoadStatus.LOADING));
     try {
       String deviceId = await SharedPrefsHelper.getDeviceId();
-      String fcmToken  = await SharedPrefsHelper.getFcmToken();
+      String fcmToken = await SharedPrefsHelper.getFcmToken();
 
       final param = {
         "login": username,
         "password": password,
         "device_id": deviceId,
-        "fcm_token": fcmToken
+        "fcm_token": fcmToken,
       };
       final result = await authRepository.authLogin(param);
 
@@ -49,9 +51,9 @@ class LogInCubit extends Cubit<LoginState> {
         }
       }
 
-      
-
-      if (entity != null && entity.accessToken != null && entity.accessToken!.isNotEmpty) {
+      if (entity != null &&
+          entity.accessToken != null &&
+          entity.accessToken!.isNotEmpty) {
         GlobalData.instance.userId = entity.uid;
         GlobalData.instance.token = entity;
         logger.i("🔐 Lưu token vào GlobalData: ${entity.toJson()}");
@@ -59,25 +61,31 @@ class LogInCubit extends Cubit<LoginState> {
         await authRepository.saveToken(entity);
         await SharedPrefsHelper.setIsLoginApp(true);
 
-        if(state.rememberMe == true) {
+        if (state.rememberMe == true) {
           await SharedPrefsHelper.setUsername(username);
         } else {
           await SharedPrefsHelper.setUsername("");
         }
-        
+
         final appCubit = GetIt.I<AppCubit>();
         await appCubit.getProfile();
 
-        emit(state.copyWith(
-          loginStatus: LoadStatus.SUCCESS,
-          tokenEntity: entity,
-        ));
+        emit(
+          state.copyWith(loginStatus: LoadStatus.SUCCESS, tokenEntity: entity),
+        );
+
+        if (type != null) {
+          GlobalData.instance.quickActionPending = null;
+          QuickNavigator.navigate(type);
+        }
       } else {
         logger.w("⚠️ Không nhận được token từ server: $payload");
-        emit(state.copyWith(
-          loginStatus: LoadStatus.FAILURE,
-          errMsg: "Không nhận được token từ server",
-        ));
+        emit(
+          state.copyWith(
+            loginStatus: LoadStatus.FAILURE,
+            errMsg: "Không nhận được token từ server",
+          ),
+        );
       }
     } on DioException catch (e, s) {
       logger.e("Login failed: $e");
@@ -97,17 +105,16 @@ class LogInCubit extends Cubit<LoginState> {
         message = "Không thể kết nối đến máy chủ, kiểm tra mạng của bạn";
       }
 
-      emit(state.copyWith(
-        loginStatus: LoadStatus.FAILURE,
-        errMsg: message,
-      ));
+      emit(state.copyWith(loginStatus: LoadStatus.FAILURE, errMsg: message));
     } catch (e, s) {
       logger.e("Unexpected error during login: $e");
       logger.e(s);
-      emit(state.copyWith(
-        loginStatus: LoadStatus.FAILURE,
-        errMsg: "Lỗi không xác định",
-      ));
+      emit(
+        state.copyWith(
+          loginStatus: LoadStatus.FAILURE,
+          errMsg: "Lỗi không xác định",
+        ),
+      );
     }
   }
 
@@ -124,7 +131,6 @@ class LogInCubit extends Cubit<LoginState> {
   }
 
   void onRememberMe(bool? value) {
-  emit(state.copyWith(rememberMe: value));
-}
-
+    emit(state.copyWith(rememberMe: value));
+  }
 }

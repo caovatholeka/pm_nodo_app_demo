@@ -111,4 +111,8 @@ class AppAssets {
 
   static final icSearch = 'assets/images/icons/ic_search.svg';
   static final icClose = 'assets/images/icons/ic_close.svg';
+
+  static final icTask = 'assets/images/icons/ic_task.svg';
+  static final icCheckIn = 'assets/images/icons/ic_checkinout.svg';
+  static final icOnLeave = 'assets/images/icons/ic_onLeave.svg';
 }

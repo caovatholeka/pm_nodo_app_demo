@@ -32,6 +32,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     FlutterNativeSplash.remove();
     super.initState();
+
   }
 
   void _onItemTapped(int index) {

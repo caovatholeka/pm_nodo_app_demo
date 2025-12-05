@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_entry_type_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_flow_stage_entity.dart';
+import 'package:quick_actions/quick_actions.dart';
 
 import '../../core/commons/global_data.dart';
 import '../../core/helper/response_mapper.dart';
@@ -25,6 +26,8 @@ class AppCubit extends Cubit<AppState> {
 
   AppCubit({required this.authRepository, required this.userRepository})
     : super(AppState());
+
+  final QuickActions _quickActions = const QuickActions();
 
   Future<void> changeAppLanguage(String code) async {
     try {
@@ -126,17 +129,11 @@ class AppCubit extends Cubit<AppState> {
       final res = await userRepository.countUnreadNoti();
 
       if (res.code == 200) {
-        final total = res.totalUnread ?? 0;
+        final total = res.totalUnread ?? 8;
 
         emit(state.copyWith(totalUnread: total));
 
         logger.d("🔔 unread total = $total");
-
-        if (total > 0) {
-          await AppBadgePlus.updateBadge(total);
-        } else {
-          await AppBadgePlus.updateBadge(0);
-        }
       } else {
         logger.e("API error code: ${res.message}");
       }
@@ -145,5 +142,4 @@ class AppCubit extends Cubit<AppState> {
       logger.d("$s");
     }
   }
-
 }
