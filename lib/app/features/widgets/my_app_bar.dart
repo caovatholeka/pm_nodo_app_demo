@@ -1,47 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:badges/badges.dart' as badges;
+
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
-  MyAppBar({
+  final String titleAppbar;
+  final String? iconPathAsset;
+  final VoidCallback? actionCallBack;
+  final VoidCallback? backAction;
+  final bool haveActionButton;
+  final bool haveBackButton;
+  final PreferredSizeWidget? bottom;
+  final PopInvokedWithResultCallback? onPopInvokedWithResult;
+  final bool canPop;
+  final bool isTransparent;
+  final int? badgeCount;
+
+  const MyAppBar({
     super.key,
-    this.actionCallBack,
-    this.backAction,
     required this.titleAppbar,
     this.iconPathAsset,
+    this.actionCallBack,
+    this.backAction,
     this.haveActionButton = false,
     this.haveBackButton = false,
     this.bottom,
-    this.onPopInvoked,
+    this.onPopInvokedWithResult,
     this.canPop = true,
     this.isTransparent = false,
+    this.badgeCount,
   });
-
-  final String titleAppbar;
-  String? iconPathAsset;
-  VoidCallback? actionCallBack;
-  VoidCallback? backAction;
-  bool? haveActionButton;
-  bool? haveBackButton;
-  PopInvokedCallback? onPopInvoked;
-  PreferredSizeWidget? bottom;
-  bool? canPop;
-  bool? isTransparent;
 
   @override
   Widget build(BuildContext context) {
-    final bool transparent = isTransparent == true;
-
+    final transparent = isTransparent;
     return PopScope(
-      canPop: canPop ?? true,
-      onPopInvoked: onPopInvoked,
+      canPop: canPop,
+      onPopInvokedWithResult: onPopInvokedWithResult,
       child: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-
         title: Text(
           titleAppbar,
           style: TextStyle(
@@ -50,12 +52,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-
         flexibleSpace: transparent
             ? null
             : Container(
-                width: double.infinity,
-                height: double.infinity,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(AppAssets.appbarBg),
@@ -63,8 +62,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-
-        leading: haveBackButton!
+        leading: haveBackButton
             ? Padding(
                 padding: const EdgeInsets.only(left: 16),
                 child: GestureDetector(
@@ -72,23 +70,29 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                       () {
                         Navigator.of(context).maybePop();
                       },
-                  child: SvgPicture.asset(
-                    AppAssets.icBack,
-                  ),
+                  child: SvgPicture.asset(AppAssets.icBack),
                 ),
               )
             : const SizedBox(),
-
         actions: [
-          haveActionButton! && iconPathAsset != null
-              ? _AppBarActionButton(
-                  icon: iconPathAsset!,
-                  onTap: actionCallBack,
-                  isWhite: transparent,
-                )
-              : const SizedBox(),
+          if (haveActionButton && iconPathAsset != null)
+            badges.Badge(
+              showBadge: (badgeCount ?? 0) > 0,
+              badgeContent: Text(
+                (badgeCount ?? 0) > 99 ? "99+" : badgeCount.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 8,
+                ),
+              ),
+              position: badges.BadgePosition.topEnd(top: 0, end: 8, ),
+              child: _AppBarActionButton(
+                icon: iconPathAsset!,
+                onTap: actionCallBack,
+                isWhite: transparent,
+              ),
+            ),
         ],
-
         bottom: bottom,
       ),
     );
@@ -96,9 +100,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize =>
-      (bottom != null)
-          ? const Size.fromHeight(112.0)
-          : const Size.fromHeight(kToolbarHeight);
+      bottom != null ? const Size.fromHeight(112) : const Size.fromHeight(kToolbarHeight);
 }
 
 class _AppBarActionButton extends StatelessWidget {
@@ -114,6 +116,7 @@ class _AppBarActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bg = isWhite ? Colors.white.withValues(alpha: 0.15) : Colors.white;
     return Container(
       margin: const EdgeInsets.only(right: 12),
       child: InkWell(
@@ -123,18 +126,19 @@ class _AppBarActionButton extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: isWhite ? Colors.white.withOpacity(0.15) : Colors.white,
+            color: bg,
             borderRadius: BorderRadius.circular(14),
-            border: isWhite
-                ? Border.all(color: Colors.white, width: 1)
-                : null,
+            border: isWhite ? Border.all(color: Colors.white, width: 1) : null,
           ),
           alignment: Alignment.center,
           child: SvgPicture.asset(
             icon,
             width: 20,
             height: 20,
-            color: isWhite ? Colors.white : AppColors.themePrimaryDefault,
+            colorFilter: ColorFilter.mode(
+              isWhite ? Colors.white : AppColors.themePrimaryDefault,
+              BlendMode.srcIn,
+            ),
           ),
         ),
       ),
