@@ -25,12 +25,12 @@ class AppAssets {
   static final icCheckinInActivate = 'assets/images/icons/ic_checkin.svg';
 
   static final icOnLeaveActive = 'assets/images/icons/ic_onleaveTick.svg';
-  static final icOnLeaveInactive = 'assets/images/icons/ic_onleave.svg';
+  static final icOnLeaveInactive = 'assets/images/icons/ic_onleaveUntick.svg';
 
   static final icAccountActive = 'assets/images/icons/ic_profileTick.svg';
   static final icAccountInactive = 'assets/images/icons/ic_profile.svg';
 
-  static final blockBg1 = 'assets/images/icons/block_bg_1.svg';
+  static final blockBg1 = 'assets/images/icons/block_bg_1.svg'; 
 
   static final icEyeVisible = 'assets/images/icons/ic_eye_visible.svg';
   static final icEyeClose = 'assets/images/icons/ic_eye_close.svg';

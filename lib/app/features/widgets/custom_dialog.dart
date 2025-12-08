@@ -11,14 +11,14 @@ class CustomDialog extends StatelessWidget {
   final VoidCallback? onConfirm;
   final VoidCallback? onCancel;
 
-  final String iconPath;   
-  final bool success;  
+  final String? iconPath;  
+  final bool success;
 
   const CustomDialog({
     super.key,
     required this.title,
     required this.content,
-    required this.iconPath,    
+    this.iconPath,
     this.onConfirm,
     this.onCancel,
     this.confirmText,
@@ -65,18 +65,20 @@ class CustomDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        iconPath,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.contain,
-                      ),
-                    ],
-                  ),
+                  if (iconPath != null)
+                    Row(
+                      children: [
+                        Image.asset(
+                          iconPath!,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.contain,
+                        ),
+                      ],
+                    ),
 
-                  const SizedBox(height: 14),
+                  if (iconPath != null)
+                    const SizedBox(height: 14),
 
                   Text(
                     title,

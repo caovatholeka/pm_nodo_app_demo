@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
@@ -85,12 +87,25 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<LogInCubit, LoginState>(
       bloc: _cubit,
       listener: (context, state) {
+
         if (state.loginStatus == LoadStatus.SUCCESS) {
+          final pending = GlobalData.instance.quickActionPending;
+          if (pending != null) {
+            GlobalData.instance.quickActionPending = null;
+            GlobalData.instance.navigatorKey.currentState?.popUntil(
+              (route) => route.isFirst,
+            );
+            Future.delayed(Duration(milliseconds: 30), () {
+              QuickNavigator.navigate(pending);
+            });
+            return;
+          }
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const BottomNavigation()),
           );
-        }
+        } 
 
         if (state.loginStatus == LoadStatus.FAILURE) {
           Flushbar(

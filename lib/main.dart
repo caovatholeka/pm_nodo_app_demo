@@ -8,8 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
-import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/ui/auth/login/login_page.dart'; 
 import 'package:quick_actions/quick_actions.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/repositories/auth_repository.dart';
@@ -50,7 +49,7 @@ void main() {
 
         if (token == null) {
           GlobalData.instance.quickActionPending = type;
-          GlobalData.instance.navigatorKey.currentState?.push(
+          GlobalData.instance.navigatorKey.currentState?.pushReplacement(
             MaterialPageRoute(builder: (_) => const LoginPage()),
           );
           return;
@@ -63,14 +62,14 @@ void main() {
 
       quickActions.setShortcutItems(<ShortcutItem>[
         const ShortcutItem(
+          type: 'action_tasks',
+          localizedTitle: 'Việc cần làm',
+          icon: 'ic_task',
+        ),
+        const ShortcutItem(
           type: 'action_checkin',
           localizedTitle: 'Chấm công',
           icon: 'ic_checkinout',
-        ),
-        const ShortcutItem(
-          type: 'action_tasks',
-          localizedTitle: 'Giao việc',
-          icon: 'ic_task',
         ),
         const ShortcutItem(
           type: 'action_leave',

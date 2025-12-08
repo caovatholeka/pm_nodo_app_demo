@@ -45,7 +45,6 @@ class _AccountPageState extends State<AccountPage> {
       barrierDismissible: false,
       builder: (_) {
         return CustomDialog(
-          iconPath: AppAssets.ic_delete,
           title: "Xác nhận đăng xuất",
           content: "Bạn có chắc muốn đăng xuất không?",
           confirmText: "Đăng xuất",

@@ -30,6 +30,8 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
     final username = _userCtrl.text.trim();
     final pass = _passCtrl.text.trim();
     final confirm = _confirmCtrl.text.trim();
+
+
     context.read<ForgotCubit>().submitForgotRequest(
       email: username,
       password: pass,
@@ -37,18 +39,27 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
     );
   }
 
+void _showError(ForgotState state) {
+  final msg = state.validationMessage;
+  if (msg == null || msg.isEmpty) return;
+
+  Flushbar(
+    message: msg,
+    backgroundColor: Colors.redAccent,
+    duration: const Duration(seconds: 2),
+    flushbarPosition: FlushbarPosition.TOP,
+    margin: const EdgeInsets.all(12),
+    borderRadius: BorderRadius.circular(10),
+  ).show(context);
+}
+
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ForgotCubit, ForgotState>(
       listener: (context, state) {
         if (state.forgotStatus == LoadStatus.FAILURE) {
-          Flushbar(
-            message: "Sai tên tài khoản. Vui lòng thử lại!",
-            backgroundColor: Colors.redAccent,
-            duration: const Duration(seconds: 2),
-            flushbarPosition: FlushbarPosition.TOP,
-            margin: const EdgeInsets.all(12),
-          ).show(context);
+          _showError(state);
         }
 
         if (state.forgotStatus == LoadStatus.SUCCESS) {
