@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pinput/pinput.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
@@ -26,11 +27,9 @@ class OtpVerifyPage extends StatefulWidget {
 }
 
 class _OtpVerifyPageState extends State<OtpVerifyPage> {
-  final List<TextEditingController> _otpCtrls =
-      List.generate(6, (_) => TextEditingController());
-
   Timer? _timer;
   int _timeLeft = 300;
+  String _otpCode = "";
 
   @override
   void initState() {
@@ -61,8 +60,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   }
 
   void _onSubmit() {
-    final otp = _otpCtrls.map((e) => e.text).join();
-    if (otp.length != 6) {
+    if (_otpCode.length != 6) {
       Flushbar(
         message: "Mã OTP chưa đủ 6 ký tự",
         backgroundColor: Colors.redAccent,
@@ -73,17 +71,20 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
       return;
     }
 
-    context.read<OtpVerifyCubit>().verifyOTP(email: widget.email, otp: otp);
+    context.read<OtpVerifyCubit>().verifyOTP(
+      email: widget.email,
+      otp: _otpCode,
+    );
   }
 
   void _onResend() {
     if (_timeLeft > 0) return;
 
     context.read<OtpVerifyCubit>().resendOTP(
-          email: widget.email,
-          password: widget.password ?? "",
-          confirmPassword: widget.confirmPassword ?? "",
-        );
+      email: widget.email,
+      password: widget.password ?? "",
+      confirmPassword: widget.confirmPassword ?? "",
+    );
 
     _startTimer();
   }
@@ -91,10 +92,45 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   @override
   void dispose() {
     _timer?.cancel();
-    for (var c in _otpCtrls) {
-      c.dispose();
-    }
     super.dispose();
+  }
+
+  Widget _otpInput() {
+    return Pinput(
+      length: 6,
+      onCompleted: (value) {
+        _otpCode = value;
+      },
+      defaultPinTheme: PinTheme(
+        width: 46,
+        height: 56,
+        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.grey.shade400),
+        ),
+      ),
+      focusedPinTheme: PinTheme(
+        width: 46,
+        height: 56,
+        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: AppColors.themePrimaryDefault, width: 2),
+        ),
+      ),
+      submittedPinTheme: PinTheme(
+        width: 46,
+        height: 56,
+        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.grey.shade600),
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      closeKeyboardWhenCompleted: true,
+    );
   }
 
   @override
@@ -113,11 +149,21 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
         }
 
         if (state.verifyStatus == LoadStatus.SUCCESS) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginPage()),
-            (route) => false,
-          );
+          Flushbar(
+            message: "Xác thực thành công",
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 1),
+            flushbarPosition: FlushbarPosition.TOP,
+            margin: const EdgeInsets.all(12),
+          ).show(context);
+
+          Future.delayed(const Duration(milliseconds: 1200), () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+              (route) => false,
+            );
+          });
           return;
         }
 
@@ -138,9 +184,13 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
           body: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(
-                  AppAssets.appBG2,
-                  fit: BoxFit.cover,
+                child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
+              ),
+
+              SafeArea(
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ),
 
@@ -165,9 +215,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                       child: Column(
                         children: [
                           Image.asset(AppAssets.appLogo2, width: 120),
-
                           const SizedBox(height: 14),
-
                           const Text(
                             "Xác thực mã OTP",
                             style: TextStyle(
@@ -175,9 +223,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
                           const SizedBox(height: 10),
-
                           Text(
                             "Vui lòng nhập mã OTP được gửi đến email của bạn.",
                             textAlign: TextAlign.center,
@@ -187,22 +233,17 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                               height: 1.35,
                             ),
                           ),
-
                           const SizedBox(height: 26),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: List.generate(6, (i) => _otpBox(i)),
-                          ),
-
+                          Center(child: _otpInput()),
                           const SizedBox(height: 18),
-
                           _timeLeft > 0
                               ? Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Text("Mã sẽ hết hạn sau ",
-                                        style: TextStyle(fontSize: 13)),
+                                    const Text(
+                                      "Mã sẽ hết hạn sau ",
+                                      style: TextStyle(fontSize: 13),
+                                    ),
                                     Text(
                                       _formatTime(),
                                       style: const TextStyle(
@@ -227,9 +268,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                                     ),
                                   ),
                                 ),
-
                           const SizedBox(height: 26),
-
                           PrimaryButton(
                             mainText: "Xác nhận",
                             isLoading:
@@ -252,8 +291,11 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
-                      Icon(Icons.info_outline,
-                          size: 16, color: Color(0xFFB5BBC6)),
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Color(0xFFB5BBC6),
+                      ),
                       SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -268,43 +310,11 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _otpBox(int index) {
-    return SizedBox(
-      width: 46,
-      child: TextField(
-        controller: _otpCtrls[index],
-        onChanged: (value) {
-          if (value.length == 1 && index < 5) {
-            FocusScope.of(context).nextFocus();
-          }
-        },
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        maxLength: 1,
-        decoration: InputDecoration(
-          counterText: "",
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-            borderSide: BorderSide(color: Colors.grey.shade400),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
-            borderSide: const BorderSide(
-              color: AppColors.themePrimaryDefault,
-              width: 2,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

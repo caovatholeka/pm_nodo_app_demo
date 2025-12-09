@@ -30,7 +30,7 @@ class AppAssets {
   static final icAccountActive = 'assets/images/icons/ic_profileTick.svg';
   static final icAccountInactive = 'assets/images/icons/ic_profile.svg';
 
-  static final blockBg1 = 'assets/images/icons/block_bg_1.svg';
+  static final blockBg1 = 'assets/images/icons/block_bg_1.svg'; 
 
   static final icEyeVisible = 'assets/images/icons/ic_eye_visible.svg';
   static final icEyeClose = 'assets/images/icons/ic_eye_close.svg';
@@ -111,4 +111,8 @@ class AppAssets {
 
   static final icSearch = 'assets/images/icons/ic_search.svg';
   static final icClose = 'assets/images/icons/ic_close.svg';
+
+  static final icTask = 'assets/images/icons/ic_task.svg';
+  static final icCheckIn = 'assets/images/icons/ic_checkinout.svg';
+  static final icOnLeave = 'assets/images/icons/ic_onLeave.svg';
 }

@@ -71,7 +71,7 @@ class Validator {
   String? validatePassword(String? value, String text) {
     if (value == null || value.isEmpty) {
       // return '$text ${S.current.is_not_empty}';
-      return "Vui lòng nhập mật khẩu";
+      return "";
     }
 
     bool e = isStrongPassword(value);
@@ -79,17 +79,17 @@ class Validator {
 
     if (!isStrongPassword(value)) {
       // return '$text ${S.current.valid_password}';
-      return "Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.";
+      return "";
     }
 
     if (containsNonASCII(value)) {
       // return '$text ${S.current.valid_password}';
-      return "Mật khẩu mới của bạn không được viết Tiếng Việt có dấu.";
+      return "";
     }
 
     if(hasDot(value)) {
       // return '$text ${S.current.valid_password}';
-      return "Dấu chấm (.) không được phép sử dụng trong mật khẩu.";
+      return "";
     }
 
     return null;

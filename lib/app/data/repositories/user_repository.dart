@@ -13,6 +13,7 @@ abstract class UserRepository {
   Future<dynamic> verifyOtp(Map<String, dynamic> body);
   Future<CommonResponse> getNotification(Map<String, dynamic> body);
   Future<CommonResponse> markNotiRead(Map<String, dynamic> body);
+  Future<CommonResponse> countUnreadNoti();
 
   // lay trang thai task
   Future<CommonResponse> getTaskStages();
@@ -67,6 +68,7 @@ class UserRepositoryImpl extends UserRepository {
     return await _apiClient.verifyOtp(body);
   }
 
+  // notification
   @override
   Future<CommonResponse> getNotification(Map<String, dynamic> body) async {
     return await _apiClient.getNotification(body);
@@ -76,6 +78,12 @@ class UserRepositoryImpl extends UserRepository {
   Future<CommonResponse> markNotiRead(Map<String, dynamic> body) {
     return _apiClient.markNotiRead(body);
   }
+
+  @override
+  Future<CommonResponse> countUnreadNoti() {
+    return _apiClient.countUnreadNoti();
+  }
+  
 
   @override
   Future<CommonResponse> getTaskStages() async {

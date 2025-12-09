@@ -19,4 +19,5 @@ class GlobalData {
   int? userId;
 
   ProfileEntity? userProfile;
+  String? quickActionPending;
 }

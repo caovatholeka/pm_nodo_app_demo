@@ -82,4 +82,6 @@ class NotiCubit extends Cubit<NotiState> {
       logger.d("where: $s");
     }
   }
+
+
 }
