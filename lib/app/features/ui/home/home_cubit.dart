@@ -5,9 +5,12 @@ import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 
+import '../../../core/commons/global_data.dart';
 import '../../../core/helper/response_mapper.dart';
 import '../../../core/logger/logger.dart';
+import '../../../data/local/shared_prefs_helper.dart';
 import '../../../data/models/entities/explanation_entity.dart';
+import '../../../data/models/entities/profile_entity.dart';
 import '../../../data/models/entities/task_data_entity.dart';
 import '../../../data/repositories/user_repository.dart';
 
@@ -76,6 +79,35 @@ getListAttendanceToday() async {
   }
 }
 
+  Future<void> getProfile() async {
+    emit(state.copyWith(loadProfile: LoadStatus.LOADING));
+    if (GlobalData.instance.userId == null) {
+      final token = await SharedPrefsHelper.getToken();
+      GlobalData.instance.userId = token?.uid;
+    }
+
+    if (GlobalData.instance.userId == null) {
+      logger.e("Không có user_id để gọi API getUserProfile");
+      return;
+    }
+
+    final param = {
+      "user_id": GlobalData.instance.userId,
+    };
+
+    try {
+      final user = await userRepository.getUserProfile(param);
+      if (user.data != null) {
+        final userEntity = mapObject(user.data, ProfileEntity.fromJson);
+        GlobalData.instance.userProfile = userEntity;
+        // emit(state.copyWith(userProfile: userEntity));
+        emit(state.copyWith(loadProfile: LoadStatus.SUCCESS));
+      }
+    } catch (error) {
+      logger.e(error);
+      emit(state.copyWith(loadProfile: LoadStatus.FAILURE));
+    }
+  }
 
   // lấy danh sách việc cần làm
   getListNewTasks() async {

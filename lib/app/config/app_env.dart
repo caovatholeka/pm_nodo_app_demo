@@ -1,6 +1,7 @@
 enum Environment {
   dev,
   demo,
+  test,
   prod,
 }
 
@@ -11,6 +12,8 @@ extension EnvironmentExt on Environment {
         return 'DEV';
       case Environment.demo:
         return 'DEMO';
+      case Environment.test:
+        return 'TEST';
       case Environment.prod:
         return 'PROD';
     }
@@ -34,6 +37,8 @@ extension EnvironmentExt on Environment {
         return 'dev-mobile';
       case Environment.demo:
         return 'demo-mobile';
+      case Environment.test:
+        return 'testing-mobile';
       case Environment.prod:
         return 'prod-mobile';
     }

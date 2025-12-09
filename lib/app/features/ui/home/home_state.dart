@@ -2,6 +2,7 @@ part of 'home_cubit.dart';
 
 class HomeState extends Equatable {
   final LoadStatus loadDataStatus;
+  final LoadStatus loadProfile;
 
   // trang thai cham cong hom nay
   List<ExplanationEntity>? listAttendanceToday;
@@ -14,6 +15,7 @@ class HomeState extends Equatable {
   HomeState({
     this.listAttendanceToday,
     this.loadDataStatus = LoadStatus.INITIAL,
+    this.loadProfile = LoadStatus.INITIAL,
     this.listNewTasks,
     this.checkInToday,
     this.checkOutToday,
@@ -22,6 +24,7 @@ class HomeState extends Equatable {
   HomeState copyWith({
     List<ExplanationEntity>? listAttendanceToday,
     LoadStatus? loadDataStatus,
+    LoadStatus? loadProfile,
     List<TaskEntity>? listNewTasks,
     String? checkInToday,
     String? checkOutToday,
@@ -29,6 +32,7 @@ class HomeState extends Equatable {
     return HomeState(
       listAttendanceToday: listAttendanceToday ?? this.listAttendanceToday,
       loadDataStatus: loadDataStatus ?? this.loadDataStatus,
+      loadProfile: loadProfile ?? this.loadProfile,
       listNewTasks: listNewTasks ?? this.listNewTasks,
       checkInToday: checkInToday ?? this.checkInToday,
       checkOutToday: checkOutToday ?? this.checkOutToday
@@ -39,6 +43,7 @@ class HomeState extends Equatable {
   List<Object?> get props => [
     listAttendanceToday,
     loadDataStatus,
+    loadProfile,
     listNewTasks,
     checkInToday,
     checkOutToday

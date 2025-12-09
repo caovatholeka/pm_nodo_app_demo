@@ -36,7 +36,7 @@ void main() {
     ]);
 
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-    AppConfig.setEnvironment(Environment.dev);
+    AppConfig.setEnvironment(Environment.prod);
     runApp(MyApp());
     // FlutterNativeSplash.remove();
   }, (error, stack) {

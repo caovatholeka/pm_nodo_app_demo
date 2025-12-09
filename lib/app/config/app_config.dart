@@ -34,6 +34,10 @@ class AppConfig {
         baseUrl = 'https://demo-hrm.nodo.vn/';
         nameEnv = 'Môi trường: Demo';
         break;
+      case Environment.test:
+        baseUrl = 'https://test-pm.nodo.vn/';
+        nameEnv = 'Môi trường: Test';
+        break;
       case Environment.prod:
         baseUrl = 'https://pm.nodo.vn/';
         nameEnv = 'Môi trường: Prod';
