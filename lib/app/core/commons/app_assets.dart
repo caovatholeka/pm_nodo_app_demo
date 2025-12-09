@@ -25,7 +25,7 @@ class AppAssets {
   static final icCheckinInActivate = 'assets/images/icons/ic_checkin.svg';
 
   static final icOnLeaveActive = 'assets/images/icons/ic_onleaveTick.svg';
-  static final icOnLeaveInactive = 'assets/images/icons/ic_onleave.svg';
+  static final icOnLeaveInactive = 'assets/images/icons/ic_onleaveUntick.svg';
 
   static final icAccountActive = 'assets/images/icons/ic_profileTick.svg';
   static final icAccountInactive = 'assets/images/icons/ic_profile.svg';
