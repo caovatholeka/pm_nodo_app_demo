@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_page.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:pm_app/di/di.dart';
-
 import 'forgot_cubit.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../widgets/input_text_field.dart';
@@ -27,14 +25,11 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
   final _formKey = GlobalKey<FormState>();
 
   void _submit() {
-    final username = _userCtrl.text.trim();
-    final pass = _passCtrl.text.trim();
-    final confirm = _confirmCtrl.text.trim();
     context.read<ForgotCubit>().submitForgotRequest(
-      email: username,
-      password: pass,
-      confirmPassword: confirm,
-    );
+          email: _userCtrl.text.trim(),
+          password: _passCtrl.text.trim(),
+          confirmPassword: _confirmCtrl.text.trim(),
+        );
   }
 
   void _showError(ForgotState state) {
@@ -52,7 +47,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = ScreenSize.of(context);
+    final keyboard = MediaQuery.of(context).viewInsets.bottom;
 
     return BlocConsumer<ForgotCubit, ForgotState>(
       listener: (context, state) {
@@ -93,134 +88,121 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
               Positioned.fill(
                 child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
               ),
-              Center(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 18,
-                    right: 18,
-                    top: size.height * 0.08,
-                    bottom: size.bottomPadding + size.height * 0.03,
-                  ),
-                  physics: const BouncingScrollPhysics(),
-                  child: Container(
-                    width: size.width * 0.92,
-                    padding: EdgeInsets.fromLTRB(
-                      22,
-                      size.height * 0.04,
-                      22,
-                      size.height * 0.045,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 12,
-                          offset: const Offset(0, 3),
+
+              SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.only(bottom: keyboard),
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
                         ),
-                      ],
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            AppAssets.appLogo2,
-                            width: size.width * 0.22,
-                            height: size.width * 0.22,
-                          ),
-                          SizedBox(height: size.height * 0.015),
-                          Text(
-                            "Quên mật khẩu",
-                            style: TextStyle(
-                              fontSize: size.width * 0.06,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(height: size.height * 0.015),
-                          SizedBox(
-                            width: double.infinity,
-                            child: RichText(
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: "*",
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.red,
-                                      height: 1.35,
+                        child: IntrinsicHeight(
+                          child: Column(
+                            mainAxisAlignment: keyboard == 0
+                                ? MainAxisAlignment.center
+                                : MainAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 18),
+                                child: Container(
+                                  padding: const EdgeInsets.fromLTRB(22, 32, 22, 36),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.06),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      children: [
+                                        Image.asset(
+                                          AppAssets.appLogo2,
+                                          width: 120,
+                                          height: 120,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        const Text(
+                                          "Quên mật khẩu",
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+
+                                        InputTextField(
+                                          title: "Tên đăng nhập",
+                                          hintText: "Nhập tên đăng nhập",
+                                          isRequiredField: true,
+                                          controller: _userCtrl,
+                                          bgrColor: true,
+                                          validator: (v) =>
+                                              Validator().validateEmail(v?.trim()),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        InputTextField(
+                                          title: "Mật khẩu mới",
+                                          hintText: "Nhập mật khẩu mới",
+                                          isRequiredField: true,
+                                          controller: _passCtrl,
+                                          isPasswordField: true,
+                                          bgrColor: true,
+                                          validator: (v) =>
+                                              Validator().validatePassword(
+                                                    v?.trim(),
+                                                    "Mật khẩu",
+                                                  ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        InputTextField(
+                                          title: "Xác nhận mật khẩu mới",
+                                          hintText: "Xác nhận mật khẩu mới",
+                                          isRequiredField: true,
+                                          controller: _confirmCtrl,
+                                          isPasswordField: true,
+                                          bgrColor: true,
+                                          validator: (v) =>
+                                              Validator().validateConfirmPassword(
+                                                _passCtrl.text.trim(),
+                                                v?.trim(),
+                                              ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        PrimaryButton(
+                                          mainText: "Xác nhận",
+                                          buttonWidth: double.infinity,
+                                          isLoading:
+                                              state.forgotStatus == LoadStatus.LOADING,
+                                          callback: _submit,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  TextSpan(
-                                    text:
-                                        " Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.",
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey.shade700,
-                                      height: 1.35,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 40),
+                            ],
                           ),
-                          SizedBox(height: size.height * 0.03),
-                          InputTextField(
-                            title: "Tên đăng nhập",
-                            hintText: "Nhập tên đăng nhập của bạn",
-                            isRequiredField: true,
-                            controller: _userCtrl,
-                            bgrColor: true,
-                            validator: (v) => Validator().validateEmail(v?.trim()),
-                          ),
-                          SizedBox(height: size.height * 0.018),
-                          InputTextField(
-                            title: "Mật khẩu mới",
-                            hintText: "Nhập mật khẩu mới của bạn",
-                            isRequiredField: true,
-                            controller: _passCtrl,
-                            isPasswordField: true,
-                            bgrColor: true,
-                            validator: (v) => Validator().validatePassword(
-                              v?.trim(),
-                              "Mật khẩu",
-                            ),
-                          ),
-                          SizedBox(height: size.height * 0.018),
-                          InputTextField(
-                            title: "Xác nhận mật khẩu mới",
-                            hintText: "Xác nhận mật khẩu mới của bạn",
-                            isRequiredField: true,
-                            controller: _confirmCtrl,
-                            isPasswordField: true,
-                            bgrColor: true,
-                            validator: (v) => Validator().validateConfirmPassword(
-                              _passCtrl.text.trim(),
-                              v?.trim(),
-                            ),
-                          ),
-                          SizedBox(height: size.height * 0.035),
-                          PrimaryButton(
-                            mainText: "Xác nhận",
-                            buttonWidth: double.infinity,
-                            isLoading: state.forgotStatus == LoadStatus.LOADING,
-                            callback: _submit,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
+
               Positioned(
                 left: 10,
                 right: 10,
-                bottom: size.bottomPadding + size.height * 0.03,
+                bottom: 24,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [

@@ -200,7 +200,7 @@ class _AccountPageState extends State<AccountPage> {
                         // ),
                         _menuItem(
                           icon: AppAssets.icLogout,
-                          title: "Logout",
+                          title: "Đăng xuất",
                           onTap: _logout,
                         ),
                       ],

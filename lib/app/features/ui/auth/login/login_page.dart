@@ -4,12 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/config/app_env.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
-import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
-import '../../../../core/network/api_client.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/commons/app_colors.dart';
@@ -20,7 +18,6 @@ import '../forgot_pass/forgot_pass_page.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/di/di.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -87,64 +84,67 @@ class _LoginPageState extends State<LoginPage> {
 
   void showEnv(BuildContext context) {
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        elevation: 0,
-        barrierColor: Colors.black.withOpacity(0.6),
-        useRootNavigator: true,
-        backgroundColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        builder: (BuildContext context) {
-          return Container(
-            color: Colors.white,
-            width: double.infinity,
-            height: 150,
-            child: Column(
-              children: [
-                const SizedBox(height: 4),
-                InkWell(
-                    onTap: () async {
-                      AppConfig.setEnvironment(Environment.dev);
-                      if (mounted) setState(() {});
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Develop')),
-                const SizedBox(height: 4),
-                InkWell(
-                    onTap: () async {
-                      AppConfig.setEnvironment(Environment.demo);
-                      if (mounted) setState(() {});
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Demo')),
-                const SizedBox(height: 4),
-                InkWell(
-                    onTap: () async {
-                      AppConfig.setEnvironment(Environment.test);
-                      if (mounted) setState(() {});
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('test')),
-                const SizedBox(height: 4),
-                InkWell(
-                    onTap: () async {
-                      AppConfig.setEnvironment(Environment.prod);
-                      if (mounted) setState(() {});
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Product')),
-                const SizedBox(height: 4),
-              ],
-            ),
-          );
-        });
+      context: context,
+      isScrollControlled: true,
+      elevation: 0,
+      barrierColor: Colors.black.withOpacity(0.6),
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      builder: (BuildContext context) {
+        return Container(
+          color: Colors.white,
+          width: double.infinity,
+          height: 150,
+          child: Column(
+            children: [
+              const SizedBox(height: 4),
+              InkWell(
+                onTap: () async {
+                  AppConfig.setEnvironment(Environment.dev);
+                  if (mounted) setState(() {});
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Develop'),
+              ),
+              const SizedBox(height: 4),
+              InkWell(
+                onTap: () async {
+                  AppConfig.setEnvironment(Environment.demo);
+                  if (mounted) setState(() {});
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Demo'),
+              ),
+              const SizedBox(height: 4),
+              InkWell(
+                onTap: () async {
+                  AppConfig.setEnvironment(Environment.test);
+                  if (mounted) setState(() {});
+                  Navigator.of(context).pop();
+                },
+                child: const Text('test'),
+              ),
+              const SizedBox(height: 4),
+              InkWell(
+                onTap: () async {
+                  AppConfig.setEnvironment(Environment.prod);
+                  if (mounted) setState(() {});
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Product'),
+              ),
+              const SizedBox(height: 4),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = ScreenSize.of(context);
+    final keyboard = MediaQuery.of(context).viewInsets.bottom;
 
     return BlocConsumer<LogInCubit, LoginState>(
       bloc: _cubit,
@@ -156,12 +156,11 @@ class _LoginPageState extends State<LoginPage> {
             GlobalData.instance.navigatorKey.currentState?.popUntil(
               (route) => route.isFirst,
             );
-            Future.delayed(Duration(milliseconds: 30), () {
+            Future.delayed(const Duration(milliseconds: 30), () {
               QuickNavigator.navigate(pending);
             });
             return;
           }
-
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const BottomNavigation()),
@@ -169,13 +168,7 @@ class _LoginPageState extends State<LoginPage> {
         }
 
         if (state.loginStatus == LoadStatus.FAILURE) {
-          Flushbar(
-            message: "Sai tên đăng nhập hoặc mật khẩu.",
-            backgroundColor: Colors.redAccent,
-            duration: const Duration(seconds: 2),
-            flushbarPosition: FlushbarPosition.TOP,
-            margin: const EdgeInsets.all(12),
-          ).show(context);
+          _showError("Sai tên đăng nhập hoặc mật khẩu.");
         }
       },
       builder: (context, state) {
@@ -188,170 +181,196 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               SafeArea(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      top: size.height * 0.04,
-                      bottom: size.bottomPadding + size.height * 0.04,
-                    ),
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.fromLTRB(
-                            22,
-                            size.height * 0.038,
-                            22,
-                            size.height * 0.048,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.06),
-                                blurRadius: 12,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.only(bottom: keyboard),
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
                           child: Column(
+                            mainAxisAlignment:
+                                keyboard == 0
+                                    ? MainAxisAlignment.center
+                                    : MainAxisAlignment.start,
                             children: [
-                              Image.asset(
-                                AppAssets.appLogo2,
-                                width: size.width * 0.22,
-                                height: size.width * 0.22,
-                              ),
-                              SizedBox(height: size.height * 0.015),
-                              Text(
-                                "Đăng nhập",
-                                style: TextStyle(
-                                  fontSize: size.width * 0.065,
-                                  fontWeight: FontWeight.w700,
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
-                              ),
-
-                              SizedBox(height: size.height * 0.038),
-
-                              Form(
-                                key: _userKey,
-                                child: InputTextField(
-                                  title: "Tên đăng nhập",
-                                  hintText: "Nhập tên đăng nhập của bạn",
-                                  isRequiredField: true,
-                                  bgrColor: true,
-                                  controller: _userCtrl,
-                                  validator: (v) =>
-                                      Validator().validateUserName(v?.trim()),
-                                ),
-                              ),
-
-                              SizedBox(height: size.height * 0.024),
-
-                              Form(
-                                key: _passKey,
-                                child: InputTextField(
-                                  title: "Mật khẩu",
-                                  hintText: "Nhập mật khẩu",
-                                  isRequiredField: true,
-                                  bgrColor: true,
-                                  isObscured: !(state.showPassword ?? false),
-                                  controller: _passCtrl,
-                                  isPasswordField: true,
-                                  validator: (v) =>
-                                      Validator.validateEmpty(v, "Mật khẩu"),
-                                ),
-                              ),
-
-                              SizedBox(height: size.height * 0.018),
-
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () => _cubit.onRememberMe(
-                                            !(state.rememberMe ?? false)),
-                                        child: Container(
-                                          width: 20,
-                                          height: 20,
-                                          decoration: BoxDecoration(
-                                            color: (state.rememberMe ?? false)
-                                                ? AppColors.themePrimaryDefault
-                                                : Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                            border: Border.all(
-                                              color: Colors.grey.shade400,
-                                              width: 1.4,
-                                            ),
-                                          ),
-                                          child: (state.rememberMe ?? false)
-                                              ? const Icon(
-                                                  Icons.check,
-                                                  size: 16,
-                                                  color: Colors.white,
-                                                )
-                                              : null,
-                                        ),
+                                child: Container(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    22,
+                                    32,
+                                    22,
+                                    36,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.06),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 3),
                                       ),
-                                      const SizedBox(width: 8),
-                                      const Text("Nhớ tài khoản"),
                                     ],
                                   ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => BlocProvider.value(
-                                            value: sl<ForgotCubit>(),
-                                            child: const ForgotPassPage(),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      "Quên mật khẩu?",
-                                      style: TextStyle(
-                                        color: AppColors.themePrimaryDefault,
-                                        fontWeight: FontWeight.w500,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Image.asset(
+                                        AppAssets.appLogo2,
+                                        width: 120,
+                                        height: 120,
                                       ),
-                                    ),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        "Đăng nhập",
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 28),
+
+                                      Form(
+                                        key: _userKey,
+                                        child: InputTextField(
+                                          title: "Tên đăng nhập",
+                                          hintText: "Nhập tên đăng nhập",
+                                          isRequiredField: true,
+                                          controller: _userCtrl,
+                                          bgrColor: true,
+                                          validator:
+                                              (v) => Validator()
+                                                  .validateUserName(v?.trim()),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Form(
+                                        key: _passKey,
+                                        child: InputTextField(
+                                          title: "Mật khẩu",
+                                          hintText: "Nhập mật khẩu",
+                                          isRequiredField: true,
+                                          controller: _passCtrl,
+                                          isPasswordField: true,
+                                          bgrColor: true,
+                                          validator:
+                                              (v) => Validator.validateEmpty(
+                                                v,
+                                                "Mật khẩu",
+                                              ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap:
+                                                    () => _cubit.onRememberMe(
+                                                      !(state.rememberMe ??
+                                                          false),
+                                                    ),
+                                                child: Container(
+                                                  width: 20,
+                                                  height: 20,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        (state.rememberMe ??
+                                                                false)
+                                                            ? AppColors
+                                                                .themePrimaryDefault
+                                                            : Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                    border: Border.all(
+                                                      color:
+                                                          Colors.grey.shade400,
+                                                      width: 1.4,
+                                                    ),
+                                                  ),
+                                                  child:
+                                                      (state.rememberMe ??
+                                                              false)
+                                                          ? const Icon(
+                                                            Icons.check,
+                                                            size: 16,
+                                                            color: Colors.white,
+                                                          )
+                                                          : null,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              const Text("Nhớ tài khoản"),
+                                            ],
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (_) => BlocProvider.value(
+                                                        value:
+                                                            sl<ForgotCubit>(),
+                                                        child:
+                                                            const ForgotPassPage(),
+                                                      ),
+                                                ),
+                                              );
+                                            },
+                                            child: Text(
+                                              "Quên mật khẩu?",
+                                              style: TextStyle(
+                                                color:
+                                                    AppColors
+                                                        .themePrimaryDefault,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 24),
+
+                                      PrimaryButton(
+                                        mainText: "Đăng nhập",
+                                        buttonWidth: double.infinity,
+                                        isLoading:
+                                            state.loginStatus ==
+                                            LoadStatus.LOADING,
+                                        callback: _login,
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-
-                              SizedBox(height: size.height * 0.034),
-
-                              PrimaryButton(
-                                mainText: "Đăng nhập",
-                                buttonWidth: double.infinity,
-                                isLoading:
-                                    state.loginStatus == LoadStatus.LOADING,
-                                callback: _login,
-                              ),
+                              const SizedBox(height: 40),
                             ],
                           ),
                         ),
-
-                        SizedBox(height: size.height * 0.045),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
 
               Positioned(
                 left: 10,
                 right: 10,
-                bottom: size.bottomPadding + size.height * 0.04,
+                bottom: 24,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -372,17 +391,20 @@ class _LoginPageState extends State<LoginPage> {
                             color: Color(0xFFB5BBC6),
                             height: 1.25,
                           ),
-                          children: <TextSpan>[
+                          children: [
                             TextSpan(
-                                text: AppConfig.nameEnv ?? '',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.neutral400,
-                                  height: 1.25,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () => showEnv(context)),
+                              text: AppConfig.nameEnv ?? '',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.neutral400,
+                                height: 1.25,
+                                // decoration: TextDecoration.underline,  // nếu muốn underline
+                              ),
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () => showEnv(context),
+                            ),
                           ],
                         ),
                       ),
