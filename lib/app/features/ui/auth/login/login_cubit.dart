@@ -21,6 +21,7 @@ class LogInCubit extends Cubit<LoginState> {
 
   void doLogin(String username, String password) async {
     final type = GlobalData.instance.quickActionPending;
+    GlobalData.instance.isLoggingIn = true;
     emit(state.copyWith(loginStatus: LoadStatus.LOADING));
     try {
       String deviceId = await SharedPrefsHelper.getDeviceId();
@@ -73,10 +74,9 @@ class LogInCubit extends Cubit<LoginState> {
         emit(
           state.copyWith(loginStatus: LoadStatus.SUCCESS, tokenEntity: entity),
         );
-
+        GlobalData.instance.isLoggingIn = false;
         if (type != null) {
-          GlobalData.instance.quickActionPending = null;
-          QuickNavigator.navigate(type);
+          GlobalData.instance.quickActionPending = type;
         }
       } else {
         logger.w("⚠️ Không nhận được token từ server: $payload");
@@ -115,6 +115,7 @@ class LogInCubit extends Cubit<LoginState> {
           errMsg: "Lỗi không xác định",
         ),
       );
+      GlobalData.instance.isLoggingIn = false;
     }
   }
 

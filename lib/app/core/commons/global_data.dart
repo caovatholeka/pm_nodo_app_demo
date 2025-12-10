@@ -9,6 +9,7 @@ class GlobalData {
   static final GlobalData instance = GlobalData._privateConstructor();
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final ValueNotifier<int> bottomNavIndex = ValueNotifier<int>(0);
 
   TokenEntity? token;
 
@@ -20,4 +21,7 @@ class GlobalData {
 
   ProfileEntity? userProfile;
   String? quickActionPending;
+    
+  bool isLoggingIn = false;
+  bool isFromQuickAction = false;
 }

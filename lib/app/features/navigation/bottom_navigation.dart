@@ -9,16 +9,17 @@ import '../../core/commons/app_colors.dart';
 import '../ui/account/account_page.dart';
 import '../ui/checkin/check_in_page.dart';
 import '../ui/home/home_page.dart';
+import '../../core/commons/global_data.dart';
+import '../../core/utils/quick_navigator.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key});
+
   @override
   State<BottomNavigation> createState() => _BottomNavigationState();
 }
 
 class _BottomNavigationState extends State<BottomNavigation> {
-  int _selectedIndex = 0;
-
   final List<Widget> _pages = const [
     HomePage(),
     StaffPage(),
@@ -29,51 +30,74 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   void initState() {
-    FlutterNativeSplash.remove();
     super.initState();
+    FlutterNativeSplash.remove();
+
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.immersiveSticky,
       overlays: [SystemUiOverlay.top],
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pending = GlobalData.instance.quickActionPending;
+      if (pending != null) {
+        Future.delayed(const Duration(milliseconds: 0), () {
+          QuickNavigator.navigate(pending);
+          GlobalData.instance.quickActionPending = null;
+        });
+      }
+    });
   }
 
   void _onItemTapped(int index) {
-    setState(() => _selectedIndex = index);
+    GlobalData.instance.bottomNavIndex.value = index;
   }
 
   @override
   Widget build(BuildContext context) {
     final padding = MediaQuery.of(context).viewPadding.bottom;
-    return Scaffold(
-      body: Stack(
-        children: [
-          _pages[_selectedIndex],
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: padding,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.profileContainer,
-                  borderRadius: BorderRadius.circular(40),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(5, _buildNavItem),
+
+    return ValueListenableBuilder<int>(
+      valueListenable: GlobalData.instance.bottomNavIndex,
+      builder: (_, selectedIndex, __) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              _pages[selectedIndex],
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: padding,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 13,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.profileContainer,
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(
+                        5,
+                        (i) => _buildNavItem(i, selectedIndex),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildNavItem(int index) {
+  Widget _buildNavItem(int index, int selectedIndex) {
     final iconsActive = [
       AppAssets.icHomeActive,
       AppAssets.icStaffActive,
@@ -90,7 +114,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
       AppAssets.icAccountInactive,
     ];
 
-    final isSelected = _selectedIndex == index;
+    final isSelected = selectedIndex == index;
 
     return GestureDetector(
       onTap: () => _onItemTapped(index),
@@ -105,7 +129,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
           isSelected ? iconsActive[index] : iconsInactive[index],
           width: 24,
           height: 24,
-          colorFilter: isSelected ? null : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          colorFilter:
+              isSelected
+                  ? null
+                  : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
       ),
     );
