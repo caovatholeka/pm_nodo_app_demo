@@ -116,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: const Text('Develop')),
                 const SizedBox(
-                  height: 4,
+                  height: 8,
                 ),
                 InkWell(
                     onTap: () async{
@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     child: const Text('Demo')),
                 const SizedBox(
-                  height: 4,
+                  height: 8,
                 ),
                 InkWell(
                     onTap: () async{
@@ -134,19 +134,20 @@ class _LoginPageState extends State<LoginPage> {
                       if (mounted) setState(() {});
                       Navigator.of(context).pop();
                     },
-                    child: const Text('test')),
+                    child: const Text('Test')),
                 const SizedBox(
-                  height: 4,
+                  height: 8,
                 ),
                 InkWell(
                     onTap: () async{
                       AppConfig.setEnvironment(Environment.prod);
+
                       if (mounted) setState(() {});
                       Navigator.of(context).pop();
                     },
                     child: const Text('Product')),
                 const SizedBox(
-                  height: 4,
+                  height: 8,
                 ),
               ],
             ),

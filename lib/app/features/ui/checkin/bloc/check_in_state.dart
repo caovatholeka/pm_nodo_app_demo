@@ -7,6 +7,7 @@ class CheckInState extends Equatable {
   final LoadStatus getCheckInfo;
   final LoadStatus updateExplain;
 
+  final LoadStatus? locationStatus;
   final String? address;
   final Position? position;
   final Position? positionParam;
@@ -30,6 +31,7 @@ class CheckInState extends Equatable {
     this.checkOutStatus = LoadStatus.INITIAL,
     this.getCheckInfo = LoadStatus.INITIAL,
     this.updateExplain = LoadStatus.INITIAL,
+    this.locationStatus = LoadStatus.INITIAL,
     this.address,
     this.position,
     this.positionParam,
@@ -51,6 +53,7 @@ class CheckInState extends Equatable {
     String? address,
     Position? position,
     Position? positionParam,
+    LoadStatus? locationStatus,
     String? errMsg,
     String? errStatus,
     List<CheckInInfoEntity>? listCheckInfos,
@@ -65,6 +68,7 @@ class CheckInState extends Equatable {
         checkOutStatus: checkOutStatus ?? this.checkOutStatus,
         getCheckInfo: getCheckInfo ?? this.getCheckInfo,
         updateExplain: updateExplain ?? this.updateExplain,
+        locationStatus: locationStatus ?? this.locationStatus,
         address: address ?? this.address,
         position: position ?? this.position,
         positionParam: positionParam ?? this.positionParam,
@@ -85,6 +89,7 @@ class CheckInState extends Equatable {
     checkOutStatus,
     getCheckInfo,
     updateExplain,
+    locationStatus,
     address,
     position,
     positionParam,

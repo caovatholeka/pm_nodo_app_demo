@@ -1,4 +1,5 @@
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 
 import 'app_env.dart';
 
@@ -29,18 +30,22 @@ class AppConfig {
       case Environment.dev:
         baseUrl = 'https://pm.nodo.vn/';
         nameEnv = 'Môi trường: develop';
+        SharedPrefsHelper.setAppEnv(Environment.dev);
         break;
       case Environment.demo:
         baseUrl = 'https://demo-hrm.nodo.vn/';
         nameEnv = 'Môi trường: Demo';
+        SharedPrefsHelper.setAppEnv(Environment.demo);
         break;
       case Environment.test:
         baseUrl = 'https://test-pm.nodo.vn/';
         nameEnv = 'Môi trường: Test';
+        SharedPrefsHelper.setAppEnv(Environment.test);
         break;
       case Environment.prod:
         baseUrl = 'https://pm.nodo.vn/';
         nameEnv = 'Môi trường: Prod';
+        SharedPrefsHelper.setAppEnv(Environment.prod);
         break;
     }
   }
