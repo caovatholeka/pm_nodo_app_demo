@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_page.dart';
@@ -23,15 +24,12 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
   final _userCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
 
   void _submit() {
     final username = _userCtrl.text.trim();
     final pass = _passCtrl.text.trim();
     final confirm = _confirmCtrl.text.trim();
-
-
     context.read<ForgotCubit>().submitForgotRequest(
       email: username,
       password: pass,
@@ -39,23 +37,23 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
     );
   }
 
-void _showError(ForgotState state) {
-  final msg = state.validationMessage;
-  if (msg == null || msg.isEmpty) return;
-
-  Flushbar(
-    message: msg,
-    backgroundColor: Colors.redAccent,
-    duration: const Duration(seconds: 2),
-    flushbarPosition: FlushbarPosition.TOP,
-    margin: const EdgeInsets.all(12),
-    borderRadius: BorderRadius.circular(10),
-  ).show(context);
-}
-
+  void _showError(ForgotState state) {
+    final msg = state.validationMessage;
+    if (msg == null || msg.isEmpty) return;
+    Flushbar(
+      message: msg,
+      backgroundColor: Colors.redAccent,
+      duration: const Duration(seconds: 2),
+      flushbarPosition: FlushbarPosition.TOP,
+      margin: const EdgeInsets.all(12),
+      borderRadius: BorderRadius.circular(10),
+    ).show(context);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final size = ScreenSize.of(context);
+
     return BlocConsumer<ForgotCubit, ForgotState>(
       listener: (context, state) {
         if (state.forgotStatus == LoadStatus.FAILURE) {
@@ -66,15 +64,14 @@ void _showError(ForgotState state) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (_) => BlocProvider(
-                    create: (_) => sl<OtpVerifyCubit>(),
-                    child: OtpVerifyPage(
-                      email: _userCtrl.text.trim(),
-                      password: _passCtrl.text.trim(),
-                      confirmPassword: _confirmCtrl.text.trim(),
-                    ),
-                  ),
+              builder: (_) => BlocProvider(
+                create: (_) => sl<OtpVerifyCubit>(),
+                child: OtpVerifyPage(
+                  email: _userCtrl.text.trim(),
+                  password: _passCtrl.text.trim(),
+                  confirmPassword: _confirmCtrl.text.trim(),
+                ),
+              ),
             ),
           );
         }
@@ -91,23 +88,28 @@ void _showError(ForgotState state) {
               onPressed: () => Navigator.pop(context),
             ),
           ),
-
           body: Stack(
             children: [
               Positioned.fill(
                 child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
               ),
-
               Center(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.only(
                     left: 18,
                     right: 18,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                    top: size.height * 0.08,
+                    bottom: size.bottomPadding + size.height * 0.03,
                   ),
+                  physics: const BouncingScrollPhysics(),
                   child: Container(
-                    width: MediaQuery.of(context).size.width * 0.92,
-                    padding: const EdgeInsets.fromLTRB(22, 28, 22, 32),
+                    width: size.width * 0.92,
+                    padding: EdgeInsets.fromLTRB(
+                      22,
+                      size.height * 0.04,
+                      22,
+                      size.height * 0.045,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(18),
@@ -124,64 +126,59 @@ void _showError(ForgotState state) {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Image.asset(AppAssets.appLogo2, width: 120),
-                          const SizedBox(height: 16),
-
-                          const Text(
+                          Image.asset(
+                            AppAssets.appLogo2,
+                            width: size.width * 0.22,
+                            height: size.width * 0.22,
+                          ),
+                          SizedBox(height: size.height * 0.015),
+                          Text(
                             "Quên mật khẩu",
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: size.width * 0.06,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-
-                          const SizedBox(height: 8),
-
-                          Center(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: RichText(
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "*",
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.red,
-                                        height: 1.35,
-                                      ),
+                          SizedBox(height: size.height * 0.015),
+                          SizedBox(
+                            width: double.infinity,
+                            child: RichText(
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "*",
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.red,
+                                      height: 1.35,
                                     ),
-                                    TextSpan(
-                                      text:
-                                          " Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.",
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey.shade700,
-                                        height: 1.35,
-                                      ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        " Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.",
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey.shade700,
+                                      height: 1.35,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-
-                          const SizedBox(height: 24),
-
+                          SizedBox(height: size.height * 0.03),
                           InputTextField(
                             title: "Tên đăng nhập",
                             hintText: "Nhập tên đăng nhập của bạn",
                             isRequiredField: true,
                             controller: _userCtrl,
                             bgrColor: true,
-                            validator:
-                                (v) => Validator().validateEmail(v?.trim()),
+                            validator: (v) => Validator().validateEmail(v?.trim()),
                           ),
-                          const SizedBox(height: 10),
-
+                          SizedBox(height: size.height * 0.018),
                           InputTextField(
                             title: "Mật khẩu mới",
                             hintText: "Nhập mật khẩu mới của bạn",
@@ -189,14 +186,12 @@ void _showError(ForgotState state) {
                             controller: _passCtrl,
                             isPasswordField: true,
                             bgrColor: true,
-                            validator:
-                                (v) => Validator().validatePassword(
-                                  v?.trim(),
-                                  "Mật khẩu",
-                                ),
+                            validator: (v) => Validator().validatePassword(
+                              v?.trim(),
+                              "Mật khẩu",
+                            ),
                           ),
-                          const SizedBox(height: 10),
-
+                          SizedBox(height: size.height * 0.018),
                           InputTextField(
                             title: "Xác nhận mật khẩu mới",
                             hintText: "Xác nhận mật khẩu mới của bạn",
@@ -204,15 +199,12 @@ void _showError(ForgotState state) {
                             controller: _confirmCtrl,
                             isPasswordField: true,
                             bgrColor: true,
-                            validator:
-                                (v) => Validator().validateConfirmPassword(
-                                  _passCtrl.text.trim(),
-                                  v?.trim(),
-                                ),
+                            validator: (v) => Validator().validateConfirmPassword(
+                              _passCtrl.text.trim(),
+                              v?.trim(),
+                            ),
                           ),
-
-                          const SizedBox(height: 26),
-
+                          SizedBox(height: size.height * 0.035),
                           PrimaryButton(
                             mainText: "Xác nhận",
                             buttonWidth: double.infinity,
@@ -225,11 +217,10 @@ void _showError(ForgotState state) {
                   ),
                 ),
               ),
-
               Positioned(
                 left: 10,
                 right: 10,
-                bottom: 20,
+                bottom: size.bottomPadding + size.height * 0.03,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [

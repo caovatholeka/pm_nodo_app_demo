@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/config/app_env.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -18,8 +19,8 @@ import '../../../widgets/primary_button.dart';
 import '../forgot_pass/forgot_pass_page.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-
 import 'package:pm_app/di/di.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -44,7 +45,6 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loadSavedUserName() async {
     final savedUser = await SharedPrefsHelper.getUsername();
-
     if (savedUser.isNotEmpty) {
       _userCtrl.text = savedUser;
       _cubit.onRememberMe(true);
@@ -71,7 +71,6 @@ class _LoginPageState extends State<LoginPage> {
       _showError("Thông tin không hợp lệ. Vui lòng kiểm tra lại!");
       return;
     }
-
     _cubit.doLogin(username, password);
   }
 
@@ -86,7 +85,6 @@ class _LoginPageState extends State<LoginPage> {
     ).show(context);
   }
 
-  // chọn môi trường
   void showEnv(BuildContext context) {
     showModalBottomSheet(
         context: context,
@@ -105,49 +103,39 @@ class _LoginPageState extends State<LoginPage> {
             height: 150,
             child: Column(
               children: [
-                const SizedBox(
-                  height: 4,
-                ),
+                const SizedBox(height: 4),
                 InkWell(
-                    onTap: () async{
+                    onTap: () async {
                       AppConfig.setEnvironment(Environment.dev);
                       if (mounted) setState(() {});
                       Navigator.of(context).pop();
                     },
                     child: const Text('Develop')),
-                const SizedBox(
-                  height: 4,
-                ),
+                const SizedBox(height: 4),
                 InkWell(
-                    onTap: () async{
+                    onTap: () async {
                       AppConfig.setEnvironment(Environment.demo);
                       if (mounted) setState(() {});
                       Navigator.of(context).pop();
                     },
                     child: const Text('Demo')),
-                const SizedBox(
-                  height: 4,
-                ),
+                const SizedBox(height: 4),
                 InkWell(
-                    onTap: () async{
+                    onTap: () async {
                       AppConfig.setEnvironment(Environment.test);
                       if (mounted) setState(() {});
                       Navigator.of(context).pop();
                     },
                     child: const Text('test')),
-                const SizedBox(
-                  height: 4,
-                ),
+                const SizedBox(height: 4),
                 InkWell(
-                    onTap: () async{
+                    onTap: () async {
                       AppConfig.setEnvironment(Environment.prod);
                       if (mounted) setState(() {});
                       Navigator.of(context).pop();
                     },
                     child: const Text('Product')),
-                const SizedBox(
-                  height: 4,
-                ),
+                const SizedBox(height: 4),
               ],
             ),
           );
@@ -156,10 +144,11 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = ScreenSize.of(context);
+
     return BlocConsumer<LogInCubit, LoginState>(
       bloc: _cubit,
       listener: (context, state) {
-
         if (state.loginStatus == LoadStatus.SUCCESS) {
           final pending = GlobalData.instance.quickActionPending;
           if (pending != null) {
@@ -177,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
             context,
             MaterialPageRoute(builder: (_) => const BottomNavigation()),
           );
-        } 
+        }
 
         if (state.loginStatus == LoadStatus.FAILURE) {
           Flushbar(
@@ -204,8 +193,8 @@ class _LoginPageState extends State<LoginPage> {
                     padding: EdgeInsets.only(
                       left: 16,
                       right: 16,
-                      top: 20,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                      top: size.height * 0.04,
+                      bottom: size.bottomPadding + size.height * 0.04,
                     ),
                     physics: const BouncingScrollPhysics(),
                     child: Column(
@@ -213,7 +202,12 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.fromLTRB(22, 28, 22, 36),
+                          padding: EdgeInsets.fromLTRB(
+                            22,
+                            size.height * 0.038,
+                            22,
+                            size.height * 0.048,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(18),
@@ -229,25 +223,19 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               Image.asset(
                                 AppAssets.appLogo2,
-                                width: 90,
-                                height: 90,
+                                width: size.width * 0.22,
+                                height: size.width * 0.22,
                               ),
-                              const Text(
+                              SizedBox(height: size.height * 0.015),
+                              Text(
                                 "Đăng nhập",
                                 style: TextStyle(
-                                  fontSize: 26,
+                                  fontSize: size.width * 0.065,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              // const SizedBox(height: 6),
-                              // Text(
-                              //   "Enter your email and password to log in",
-                              //   style: TextStyle(
-                              //     fontSize: 14,
-                              //     color: Colors.grey,
-                              //   ),
-                              // ),
-                              const SizedBox(height: 28),
+
+                              SizedBox(height: size.height * 0.038),
 
                               Form(
                                 key: _userKey,
@@ -257,14 +245,12 @@ class _LoginPageState extends State<LoginPage> {
                                   isRequiredField: true,
                                   bgrColor: true,
                                   controller: _userCtrl,
-                                  validator:
-                                      (v) => Validator().validateUserName(
-                                        v?.trim(),
-                                      ),
+                                  validator: (v) =>
+                                      Validator().validateUserName(v?.trim()),
                                 ),
                               ),
 
-                              const SizedBox(height: 18),
+                              SizedBox(height: size.height * 0.024),
 
                               Form(
                                 key: _passKey,
@@ -276,15 +262,12 @@ class _LoginPageState extends State<LoginPage> {
                                   isObscured: !(state.showPassword ?? false),
                                   controller: _passCtrl,
                                   isPasswordField: true,
-                                  validator:
-                                      (v) => Validator.validateEmpty(
-                                        v,
-                                        "Mật khẩu",
-                                      ),
+                                  validator: (v) =>
+                                      Validator.validateEmpty(v, "Mật khẩu"),
                                 ),
                               ),
 
-                              const SizedBox(height: 12),
+                              SizedBox(height: size.height * 0.018),
 
                               Row(
                                 mainAxisAlignment:
@@ -293,35 +276,29 @@ class _LoginPageState extends State<LoginPage> {
                                   Row(
                                     children: [
                                       GestureDetector(
-                                        onTap:
-                                            () => _cubit.onRememberMe(
-                                              !(state.rememberMe ?? false),
-                                            ),
+                                        onTap: () => _cubit.onRememberMe(
+                                            !(state.rememberMe ?? false)),
                                         child: Container(
                                           width: 20,
                                           height: 20,
                                           decoration: BoxDecoration(
-                                            color:
-                                                (state.rememberMe ?? false)
-                                                    ? AppColors
-                                                        .themePrimaryDefault
-                                                    : Colors.white,
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
+                                            color: (state.rememberMe ?? false)
+                                                ? AppColors.themePrimaryDefault
+                                                : Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                             border: Border.all(
                                               color: Colors.grey.shade400,
                                               width: 1.4,
                                             ),
                                           ),
-                                          child:
-                                              (state.rememberMe ?? false)
-                                                  ? const Icon(
-                                                    Icons.check,
-                                                    size: 16,
-                                                    color: Colors.white,
-                                                  )
-                                                  : null,
+                                          child: (state.rememberMe ?? false)
+                                              ? const Icon(
+                                                  Icons.check,
+                                                  size: 16,
+                                                  color: Colors.white,
+                                                )
+                                              : null,
                                         ),
                                       ),
                                       const SizedBox(width: 8),
@@ -333,11 +310,10 @@ class _LoginPageState extends State<LoginPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder:
-                                              (_) => BlocProvider.value(
-                                                value: sl<ForgotCubit>(),
-                                                child: const ForgotPassPage(),
-                                              ),
+                                          builder: (_) => BlocProvider.value(
+                                            value: sl<ForgotCubit>(),
+                                            child: const ForgotPassPage(),
+                                          ),
                                         ),
                                       );
                                     },
@@ -352,7 +328,7 @@ class _LoginPageState extends State<LoginPage> {
                                 ],
                               ),
 
-                              const SizedBox(height: 26),
+                              SizedBox(height: size.height * 0.034),
 
                               PrimaryButton(
                                 mainText: "Đăng nhập",
@@ -365,7 +341,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 30),
+                        SizedBox(height: size.height * 0.045),
                       ],
                     ),
                   ),
@@ -375,7 +351,7 @@ class _LoginPageState extends State<LoginPage> {
               Positioned(
                 left: 10,
                 right: 10,
-                bottom: 30,
+                bottom: size.bottomPadding + size.height * 0.04,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -386,22 +362,15 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      // child: Text(
-                      //   "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
-                      //   style: TextStyle(
-                      //     fontSize: 12,
-                      //     color: Color(0xFFB5BBC6),
-                      //     height: 1.25,
-                      //   ),
-                      // ),
                       child: RichText(
                         text: TextSpan(
-                          text: "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ. ",
-                          style: TextStyle(
+                          text:
+                              "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ. ",
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
                             color: Color(0xFFB5BBC6),
-                            height: 1.25
+                            height: 1.25,
                           ),
                           children: <TextSpan>[
                             TextSpan(
@@ -409,12 +378,11 @@ class _LoginPageState extends State<LoginPage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w400,
-                                  // decoration: TextDecoration.underline,
                                   color: AppColors.neutral400,
-                                  height: 1.25
+                                  height: 1.25,
                                 ),
                                 recognizer: TapGestureRecognizer()
-                                  ..onTap = () =>  showEnv(context)),
+                                  ..onTap = () => showEnv(context)),
                           ],
                         ),
                       ),

@@ -31,6 +31,6 @@ class QuickNavigator {
         nav.push(MaterialPageRoute(builder: (_) => const TaskManagePage()));
       });
       return;
-    }
+    } 
   }
 }
