@@ -198,50 +198,25 @@ class CheckInCubit extends Cubit<CheckInState> {
     }
   }
 
-  Future<CheckInInfoEntity?> findNearestCheckIn(
-      List<CheckInInfoEntity> list,
-      ) async {
+  Future<CheckInInfoEntity?> findNearestCheckIn(List<CheckInInfoEntity> list) async {
     if (list.isEmpty) return null;
 
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        logger.w('Location permission not granted');
-        return null;
-      }
-    }
+    CheckInInfoEntity nearest = list.first;
+    double minDist = Geolocator.distanceBetween(
+      state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0,
+      nearest.latitude ?? 0.0, nearest.longitude ?? 0.0,
+    );
 
-    final position = state.position ??
-        await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
-
-    logger.d(
-        "current position :: ${position.latitude} , ${position.longitude}");
-
-    CheckInInfoEntity? nearest;
-    double minDist = double.infinity;
-
-    for (final item in list) {
-      if (item.latitude == null || item.longitude == null) continue;
-
+    for (int i = 1; i < list.length; i++) {
       final d = Geolocator.distanceBetween(
-        position.latitude,
-        position.longitude,
-        item.latitude!,
-        item.longitude!,
+        state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0,
+        list[i].latitude ?? 0.0, list[i].longitude ?? 0.0,
       );
-
-      if (nearest == null || d < minDist) {
+      if (d < minDist) {
         minDist = d;
-        nearest = item;
+        nearest = list[i];
       }
     }
-
-    logger.d('nearest dist = $minDist, place = ${nearest?.name}');
     return nearest;
   }
 

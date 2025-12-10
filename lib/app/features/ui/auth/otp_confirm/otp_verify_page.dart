@@ -30,7 +30,6 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   Timer? _timer;
   int _timeLeft = 300;
   String _otpCode = "";
-  DateTime? _expiryTime;
 
   @override
   void initState() {
@@ -40,31 +39,18 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
 
   void _startTimer() {
     _timer?.cancel();
-
-    _expiryTime = DateTime.now().add(const Duration(seconds: 300));
-    _updateTimeLeft();
+    _timeLeft = 300;
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _updateTimeLeft();
+      if (_timeLeft == 0) {
+        timer.cancel();
+        setState(() {});
+      } else {
+        setState(() {
+          _timeLeft--;
+        });
+      }
     });
-  }
-
-  void _updateTimeLeft() {
-    if (!mounted || _expiryTime == null) return;
-
-    final now = DateTime.now();
-    final diff = _expiryTime!.difference(now).inSeconds;
-
-    if (diff <= 0) {
-      _timer?.cancel();
-      setState(() {
-        _timeLeft = 0;
-      });
-    } else {
-      setState(() {
-        _timeLeft = diff;
-      });
-    }
   }
 
   String _formatTime() {

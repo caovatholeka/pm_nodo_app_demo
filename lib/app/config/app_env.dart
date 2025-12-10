@@ -6,19 +6,6 @@ enum Environment {
 }
 
 extension EnvironmentExt on Environment {
-  static Environment fromName(String name) {
-    if (name.compareTo("DEV") == 0) {
-      return Environment.dev;
-    } else if (name.compareTo("DEMO") == 0) {
-      return Environment.demo;
-    } else if (name.compareTo("TEST") == 0) {
-      return Environment.test;
-    } else if (name.compareTo("PROD") == 0) {
-      return Environment.prod;
-    }
-    return Environment.dev;
-  }
-
   String get envName {
     switch (this) {
       case Environment.dev:
