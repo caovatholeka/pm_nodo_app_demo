@@ -116,8 +116,7 @@ Future<void> _requestLocationPermission() async {
 
   @override
   void initState() {
-    _requestLocationPermission();
-    _cubit.getListCheckInInfo();
+    _onInit();
     super.initState();
   }
 
@@ -128,8 +127,13 @@ Future<void> _requestLocationPermission() async {
     super.dispose();
   }
 
+  Future<void> _onInit() async {
+    await _requestLocationPermission();
+    _cubit.getListCheckInInfo();
+  }
+
   Future<void> _onRefresh() async {
-    _requestLocationPermission();
+    await _requestLocationPermission();
     _cubit.getListCheckInInfo();
   }
 
@@ -1079,7 +1083,7 @@ Future<void> _requestLocationPermission() async {
             _cubit.state.position?.longitude ?? 0.0,
            _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
             _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
-        if(distance.round() + 5 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
+        if(distance.round() +20 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
           AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-In");
         }else{
           // validate khuôn mặt

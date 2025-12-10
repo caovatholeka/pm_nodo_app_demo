@@ -6,7 +6,7 @@ import '../../data/models/entities/face_search_response_entity.dart';
 
 part 'api_client_face_id.g.dart';
 
-@RestApi(baseUrl: AppConfig.baseFaceIdUrl)
+@RestApi()
 abstract class ApiClientFaceId {
   factory ApiClientFaceId(Dio dio, {String baseUrl}) = _ApiClientFaceId;
 

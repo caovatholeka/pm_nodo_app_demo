@@ -5,6 +5,7 @@ import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../data/models/entities/face_search_response_entity.dart';
 import '../../data/models/param/create_leave_param.dart';
 import '../../data/models/response/common_response.dart';
 import '../../data/models/response/on_leave_response.dart';
@@ -14,6 +15,9 @@ part 'api_client.g.dart';
 @RestApi()
 abstract class ApiClient {
   factory ApiClient(Dio dio, {required String baseUrl}) = _ApiClient;
+
+  @POST('/api/v1/faces/search-face')
+  Future<FaceSearchResponseEntity> searchFaceEmployee(@Body() FormData? body);
 
   /// Đăng nhập
   @POST("/users/do_login")

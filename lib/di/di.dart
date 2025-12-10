@@ -79,9 +79,9 @@ Future<void> init() async {
   //       () => ApiClient(sl<Dio>(), baseUrl: AppConfig.baseUrl),
   // );
 
-  sl.registerLazySingleton<ApiClientFaceId>(
-    () => ApiClientFaceId(sl<Dio>(), baseUrl: AppConfig.baseFaceIdUrl),
-  );
+  // sl.registerLazySingleton<ApiClientFaceId>(
+  //   () => ApiClientFaceId(sl<Dio>(), baseUrl: AppConfig.baseFaceIdUrl),
+  // );
 
   // *** BLOC ***
   sl.registerLazySingleton<AppCubit>(
@@ -148,7 +148,7 @@ Future<void> init() async {
 
   sl.registerLazySingleton<ForgotCubit>(() => ForgotCubit(sl()));
 
-  sl.registerLazySingleton<FaceIdRepository>(() => FaceIdRepositoryImpl(sl()));
+  sl.registerLazySingleton<FaceIdRepository>(() => FaceIdRepositoryImpl());
 
   sl.registerFactory<OtpVerifyCubit>(() => OtpVerifyCubit(sl()));
 

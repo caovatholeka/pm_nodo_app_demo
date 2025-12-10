@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: const Text('Develop'),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               InkWell(
                 onTap: () async {
                   AppConfig.setEnvironment(Environment.demo);
@@ -116,16 +116,16 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: const Text('Demo'),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               InkWell(
                 onTap: () async {
                   AppConfig.setEnvironment(Environment.test);
                   if (mounted) setState(() {});
                   Navigator.of(context).pop();
                 },
-                child: const Text('test'),
+                child: const Text('Test'),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               InkWell(
                 onTap: () async {
                   AppConfig.setEnvironment(Environment.prod);
@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 child: const Text('Product'),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
             ],
           ),
         );

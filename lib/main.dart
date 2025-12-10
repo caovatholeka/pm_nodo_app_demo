@@ -86,7 +86,10 @@ void main() {
       ]);
 
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-      AppConfig.setEnvironment(Environment.prod);
+      // set env
+      final appEnv = await SharedPrefsHelper.getAppEnv();
+      AppConfig.setEnvironment(appEnv);
+
       runApp(
         MultiBlocProvider(
           providers: [

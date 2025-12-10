@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../config/app_env.dart';
 import '../../core/logger/logger.dart';
 import '../models/entities/token_entity.dart';
 
@@ -18,6 +19,7 @@ class SharedPrefsHelper {
   static const String _userId = 'app_user_id';
   static const String _checkIn = 'check_in_out';
   static const String _loginUsername = 'login_username';
+  static const String _env = 'app_env';
 
   static Future<bool> setIsLoginApp(bool isCheck) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -135,6 +137,19 @@ static Future<void> saveToken(TokenEntity? token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String action = prefs.getString(_checkIn) ?? '';
     return action;
+  }
+
+
+  // moi truong
+  static Future<void> setAppEnv(Environment appEnv) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_env, appEnv.envName);
+  }
+
+  static Future<Environment> getAppEnv() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String env = prefs.getString(_env) ?? 'dev';
+    return EnvironmentExt.fromName(env);
   }
 
   //Nhớ tài khoản 
