@@ -114,6 +114,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
         haveActionButton: true,
         haveBackButton: (widget.isFromHome ?? false),
         iconPathAsset: AppAssets.icNotificationBell,
+        badgeCount: 200,
         actionCallBack: () {
           _goNotification();
         },
@@ -264,3 +265,4 @@ class _OnLeavePageState extends State<OnLeavePage> {
     );
   }
 }
+

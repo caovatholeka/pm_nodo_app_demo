@@ -149,6 +149,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
             appBar: MyAppBar(
             titleAppbar: "Việc cần làm",
             haveActionButton: true,
+            badgeCount: 300,
             haveBackButton: true,
             iconPathAsset: AppAssets.icNotificationBell,
             isTransparent: false,

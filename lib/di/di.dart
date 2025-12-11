@@ -155,7 +155,7 @@ Future<void> init() async {
   sl.registerFactory<NotiCubit>(() => NotiCubit(userRepository: sl()));
   sl.registerLazySingleton<TaskRepository>(() => TaskRepositoryImpl());
 
-  sl.registerLazySingleton<EmployeeDetailCubit>(
+  sl.registerFactory<EmployeeDetailCubit>(
     () => EmployeeDetailCubit(repository: sl<EmployeeRepository>()),
   );
 }
