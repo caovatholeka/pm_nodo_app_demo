@@ -18,6 +18,7 @@ import '../forgot_pass/forgot_pass_page.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/di/di.dart';
+import 'package:flutter/services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -36,6 +37,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.immersiveSticky,
+      overlays: [],
+    );
     _cubit.emit(_cubit.state.copyWith(loginStatus: LoadStatus.INITIAL));
     _loadSavedUserName();
   }

@@ -9,6 +9,7 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:flutter/services.dart';
 
 class OtpVerifyPage extends StatefulWidget {
   final String email;
@@ -35,6 +36,10 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.immersiveSticky,
+      overlays: [],
+    );
     _startTimer();
   }
 
@@ -46,8 +51,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _updateTimeLeft();
     });
-
-    }
+  }
 
   void _updateTimeLeft() {
     if (!mounted || _expiryTime == null) return;
@@ -252,41 +256,40 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                           const SizedBox(height: 18),
                           _timeLeft > 0
                               ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Mã sẽ hết hạn sau ",
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                    Text(
-                                      _formatTime(),
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.blueAccent,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : GestureDetector(
-                                  onTap: state.resendStatus ==
-                                          LoadStatus.LOADING
-                                      ? null
-                                      : _onResend,
-                                  child: const Text(
-                                    "Gửi lại mã OTP",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.blue,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    "Mã sẽ hết hạn sau ",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                  Text(
+                                    _formatTime(),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.blueAccent,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                ],
+                              )
+                              : GestureDetector(
+                                onTap:
+                                    state.resendStatus == LoadStatus.LOADING
+                                        ? null
+                                        : _onResend,
+                                child: const Text(
+                                  "Gửi lại mã OTP",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
+                              ),
                           const SizedBox(height: 26),
                           PrimaryButton(
                             mainText: "Xác nhận",
-                            isLoading:
-                                state.verifyStatus == LoadStatus.LOADING,
+                            isLoading: state.verifyStatus == LoadStatus.LOADING,
                             callback: _onSubmit,
                           ),
                         ],

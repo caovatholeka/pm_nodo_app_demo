@@ -59,7 +59,7 @@ class ProfileEntity {
   @JsonKey()
   String? code;
 
-  @JsonKey()
+  @JsonKey(name:"avatar")
   String? avatarUrl;
 
   ProfileEntity({

@@ -2,13 +2,12 @@ flutter_native_splash:
   fullscreen: true
   background_image: assets/images/appBG.jpg
 
-  # Logo chính giữa (Nodo Smart Solutions)
-  image: assets/images/logoSplash.jpg
+  image: assets/images/appLogoLogin.jpg
 
   ios_content_mode: center
   android_gravity: center
 
   android_12:
-    image: assets/images/logoSplash.jpg
+    image: assets/images/appLogo.png
     color: "#ffffff"
     icon_background_color: "#eeeeee"

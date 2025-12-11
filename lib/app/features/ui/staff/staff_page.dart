@@ -131,7 +131,6 @@ class _StaffPageState extends State<StaffPage> {
         titleAppbar: "Danh sách nhân viên",
         haveBackButton: (widget.isFromHome ?? false),
         haveActionButton: true,
-        badgeCount: 999,
         iconPathAsset: AppAssets.icNotificationBell,
         actionCallBack: () {},
       ),

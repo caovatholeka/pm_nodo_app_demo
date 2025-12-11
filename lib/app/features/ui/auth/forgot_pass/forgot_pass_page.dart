@@ -10,6 +10,7 @@ import '../../../../core/commons/app_assets.dart';
 import '../../../widgets/input_text_field.dart';
 import '../../../widgets/primary_button.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
+import 'package:flutter/services.dart';
 
 class ForgotPassPage extends StatefulWidget {
   const ForgotPassPage({super.key});
@@ -24,12 +25,21 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
   final _confirmCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.immersiveSticky,
+      overlays: [],
+    );
+  }
+
   void _submit() {
     context.read<ForgotCubit>().submitForgotRequest(
-          email: _userCtrl.text.trim(),
-          password: _passCtrl.text.trim(),
-          confirmPassword: _confirmCtrl.text.trim(),
-        );
+      email: _userCtrl.text.trim(),
+      password: _passCtrl.text.trim(),
+      confirmPassword: _confirmCtrl.text.trim(),
+    );
   }
 
   void _showError(ForgotState state) {
@@ -59,14 +69,15 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => BlocProvider(
-                create: (_) => sl<OtpVerifyCubit>(),
-                child: OtpVerifyPage(
-                  email: _userCtrl.text.trim(),
-                  password: _passCtrl.text.trim(),
-                  confirmPassword: _confirmCtrl.text.trim(),
-                ),
-              ),
+              builder:
+                  (_) => BlocProvider(
+                    create: (_) => sl<OtpVerifyCubit>(),
+                    child: OtpVerifyPage(
+                      email: _userCtrl.text.trim(),
+                      password: _passCtrl.text.trim(),
+                      confirmPassword: _confirmCtrl.text.trim(),
+                    ),
+                  ),
             ),
           );
         }
@@ -101,14 +112,22 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                         ),
                         child: IntrinsicHeight(
                           child: Column(
-                            mainAxisAlignment: keyboard == 0
-                                ? MainAxisAlignment.center
-                                : MainAxisAlignment.start,
+                            mainAxisAlignment:
+                                keyboard == 0
+                                    ? MainAxisAlignment.center
+                                    : MainAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 18),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                ),
                                 child: Container(
-                                  padding: const EdgeInsets.fromLTRB(22, 32, 22, 36),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    22,
+                                    32,
+                                    22,
+                                    36,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(18),
@@ -145,8 +164,10 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                           isRequiredField: true,
                                           controller: _userCtrl,
                                           bgrColor: true,
-                                          validator: (v) =>
-                                              Validator().validateEmail(v?.trim()),
+                                          validator:
+                                              (v) => Validator().validateEmail(
+                                                v?.trim(),
+                                              ),
                                         ),
                                         const SizedBox(height: 16),
                                         InputTextField(
@@ -156,8 +177,9 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                           controller: _passCtrl,
                                           isPasswordField: true,
                                           bgrColor: true,
-                                          validator: (v) =>
-                                              Validator().validatePassword(
+                                          validator:
+                                              (v) =>
+                                                  Validator().validatePassword(
                                                     v?.trim(),
                                                     "Mật khẩu",
                                                   ),
@@ -170,18 +192,20 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                           controller: _confirmCtrl,
                                           isPasswordField: true,
                                           bgrColor: true,
-                                          validator: (v) =>
-                                              Validator().validateConfirmPassword(
-                                                _passCtrl.text.trim(),
-                                                v?.trim(),
-                                              ),
+                                          validator:
+                                              (v) => Validator()
+                                                  .validateConfirmPassword(
+                                                    _passCtrl.text.trim(),
+                                                    v?.trim(),
+                                                  ),
                                         ),
                                         const SizedBox(height: 24),
                                         PrimaryButton(
                                           mainText: "Xác nhận",
                                           buttonWidth: double.infinity,
                                           isLoading:
-                                              state.forgotStatus == LoadStatus.LOADING,
+                                              state.forgotStatus ==
+                                              LoadStatus.LOADING,
                                           callback: _submit,
                                         ),
                                       ],

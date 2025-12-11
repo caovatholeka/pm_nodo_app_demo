@@ -4,8 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../widgets/expenable_section.dart';
-import '../../../widgets/primary_button.dart';
-import '../../../../data/models/entities/profile_entity.dart';
+
 import 'personal_cubit.dart';
 import 'personal_state.dart';
 import 'package:pm_app/app/features/widgets/info_box_special.dart';
