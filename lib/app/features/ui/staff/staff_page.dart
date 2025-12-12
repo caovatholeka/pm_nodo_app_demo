@@ -9,6 +9,7 @@ import 'package:pm_app/app/data/local/master_data.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/employee_detail_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
+import 'package:pm_app/app/features/ui/staff/staff_detail_page.dart';
 import 'package:pm_app/app/features/widgets/advanced_filter_sheet.dart';
 import 'package:pm_app/app/features/widgets/app_cached_image.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -345,7 +346,7 @@ class _StaffPageState extends State<StaffPage> {
                       context,
                       MaterialPageRoute(
                         builder:
-                            (_) => EmployeeDetailPage(employeeId: emp.id ?? 0),
+                            (_) => StaffDetailPage(employeeId: emp.id ?? 0),
                       ),
                     );
                   },

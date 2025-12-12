@@ -32,7 +32,8 @@ class FaceScanCubit extends Cubit<FaceScanState> {
       try{
         FaceSearchResponseEntity res = await faceIdRepository.searchEmployeeFace(file);
         if(res.searchData != null && (res.searchData?.searchResults ?? []).isNotEmpty){
-          if(int.parse(GlobalData.instance.userProfile?.employeeCode ?? "0")  ==  (res.searchData?.searchResults ?? []).first.employeeId){
+          // if(int.parse(GlobalData.instance.userProfile?.employeeCode ?? "0")  ==  (res.searchData?.searchResults ?? []).first.employeeId){
+          if(GlobalData.instance.userProfile?.employeeId  ==  (res.searchData?.searchResults ?? []).first.employeeId){
             emit(state.copyWith(scanStatus: LoadStatus.SUCCESS,faceResult: (res.searchData?.searchResults ?? []).first));
           }else{
             emit(state.copyWith(scanStatus: LoadStatus.FAILURE,

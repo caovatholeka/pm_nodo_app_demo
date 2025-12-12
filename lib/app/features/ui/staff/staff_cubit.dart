@@ -97,6 +97,25 @@ class StaffCubit extends Cubit<StaffState> {
     }
   }
 
+  Future<void> getDetailEmployee(int id) async {
+    emit(state.copyWith(loadStatus: LoadStatus.LOADING));
+
+    try {
+      final employee = await repository.getDetailEmployee(id);
+
+      emit(state.copyWith(
+        employee: employee,
+        loadStatus: LoadStatus.SUCCESS,
+      ));
+    } catch (e, s) {
+      logger.e('getDetailEmployee error: $e');
+      logger.e('Stack: $s');
+      emit(state.copyWith(
+        loadStatus: LoadStatus.FAILURE,
+      ));
+    }
+  }
+
   void clearFilter() {
     emit(
       state.copyWith(
