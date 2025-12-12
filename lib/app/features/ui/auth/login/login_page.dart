@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/config/app_env.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -178,7 +179,217 @@ class _LoginPageState extends State<LoginPage> {
       },
       builder: (context, state) {
         return Scaffold(
-          resizeToAvoidBottomInset: false,
+          resizeToAvoidBottomInset: true,
+          body: Container(
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(AppAssets.appBG2),
+                fit: BoxFit.fill,
+              ),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 16,right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: ScreenSize.of(context).height*0.2,),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 12,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          AppAssets.appLogo2,
+                          width: 120,
+                          height: 48,
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "Đăng nhập",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+                        Form(
+                          key: _userKey,
+                          child: InputTextField(
+                            title: "Tên đăng nhập",
+                            hintText: "Nhập tên đăng nhập",
+                            isRequiredField: true,
+                            inputType: TextInputType.emailAddress,
+                            controller: _userCtrl,
+                            bgrColor: true,
+                            validator:
+                                (v) => Validator()
+                                .validateUserName(v?.trim()),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Form(
+                          key: _passKey,
+                          child: InputTextField(
+                            title: "Mật khẩu",
+                            hintText: "Nhập mật khẩu",
+                            isRequiredField: true,
+                            controller: _passCtrl,
+                            isPasswordField: true,
+                            bgrColor: true,
+                            validator:
+                                (v) => Validator.validateEmpty(
+                              v,
+                              "Mật khẩu",
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Row(
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap:
+                                      () => _cubit.onRememberMe(
+                                    !(state.rememberMe ??
+                                        false),
+                                  ),
+                                  child: Container(
+                                    width: 20,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color:
+                                      (state.rememberMe ??
+                                          false)
+                                          ? AppColors
+                                          .themePrimaryDefault
+                                          : Colors.white,
+                                      borderRadius:
+                                      BorderRadius.circular(
+                                        4,
+                                      ),
+                                      border: Border.all(
+                                        color:
+                                        Colors.grey.shade400,
+                                        width: 1.4,
+                                      ),
+                                    ),
+                                    child:
+                                    (state.rememberMe ??
+                                        false)
+                                        ? const Icon(
+                                      Icons.check,
+                                      size: 16,
+                                      color: Colors.white,
+                                    )
+                                        : null,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text("Nhớ tài khoản"),
+                              ],
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => BlocProvider.value(
+                                      value:
+                                      sl<ForgotCubit>(),
+                                      child:
+                                      const ForgotPassPage(),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                "Quên mật khẩu?",
+                                style: TextStyle(
+                                  color:
+                                  AppColors
+                                      .themePrimaryDefault,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        PrimaryButton(
+                          mainText: "Đăng nhập",
+                          buttonWidth: double.infinity,
+                          isLoading:
+                          state.loginStatus ==
+                              LoadStatus.LOADING,
+                          callback: _login,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 60),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Color(0xFFB5BBC6),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: RichText(
+                          text: TextSpan(
+                            text:
+                            "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ. ",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFFB5BBC6),
+                              height: 1.25,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: AppConfig.nameEnv ?? '',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.neutral400,
+                                  height: 1.25,
+                                  // decoration: TextDecoration.underline,  // nếu muốn underline
+                                ),
+                                recognizer:
+                                TapGestureRecognizer()
+                                  ..onTap = () => showEnv(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          /*
           body: Stack(
             children: [
               Positioned.fill(
@@ -419,6 +630,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
+        */
         );
       },
     );

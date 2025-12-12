@@ -106,10 +106,32 @@ Future<void> _requestLocationPermission() async {
     await openAppSettings();
     return;
   }
+
+  final accuracyStatus = await Geolocator.getLocationAccuracy();
+  if (accuracyStatus == LocationAccuracyStatus.reduced) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Vị trí hiện tại đang ở chế độ xấp xỉ (Approximate). "
+              "Vui lòng bật 'Vị trí chính xác'(Precise Location) trong Cài đặt để chấm công chính xác hơn.",
+        ),
+        backgroundColor: Colors.orange,
+      ),
+    );
+  }
+
+
   _locationSubscription?.cancel();
 
-  _locationSubscription = Geolocator.getPositionStream().listen((event) {
-    _cubit.onChangeAddress(event);
+  const locationSettings = LocationSettings(
+    accuracy: LocationAccuracy.best,
+    distanceFilter: 5,
+  );
+
+  _locationSubscription = Geolocator.getPositionStream(
+    locationSettings: locationSettings,
+  ).listen((Position position) {
+    _cubit.onChangeAddress(position);
   });
 }
 
