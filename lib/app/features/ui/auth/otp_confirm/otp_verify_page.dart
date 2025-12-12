@@ -29,7 +29,7 @@ class OtpVerifyPage extends StatefulWidget {
 
 class _OtpVerifyPageState extends State<OtpVerifyPage> {
   Timer? _timer;
-  int _timeLeft = 300;
+  int _timeLeft = 120;
   String _otpCode = "";
   DateTime? _expiryTime;
 
@@ -45,7 +45,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
 
   void _startTimer() {
     _timer?.cancel();
-    _expiryTime = DateTime.now().add(const Duration(seconds: 300));
+    _expiryTime = DateTime.now().add(const Duration(seconds: 120));
     _updateTimeLeft();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
