@@ -3,6 +3,8 @@ import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/response/common_response.dart';
 
+import '../../core/network/api_util.dart';
+
 class MasterData {
   static const List<String> employeeStatuses = [
     'Đang làm việc',
@@ -24,7 +26,8 @@ class MasterData {
     int offset = 0,
   }) async {
     try {
-      final apiClient = GetIt.I<ApiClient>();
+      // final apiClient = GetIt.I<ApiClient>();
+      ApiClient  apiClient = ApiUtil.instance.createApiClient();
       final CommonResponse response = await apiClient.getListDepartments(
         limit,
         offset,
@@ -83,7 +86,8 @@ class MasterData {
     int offset = 0,
   }) async {
     try {
-      final apiClient = GetIt.I<ApiClient>();
+      // final apiClient = GetIt.I<ApiClient>();
+      ApiClient  apiClient = ApiUtil.instance.createApiClient();
       final CommonResponse response = await apiClient.getListJobs(
         limit,
         offset,

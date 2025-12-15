@@ -13,6 +13,7 @@ import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -163,6 +164,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _header(BuildContext context) {
+    final s = S.of(context);
     return Row(
       children: [
         Expanded(
@@ -173,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Hi ${state.userProfile?.name ?? ""} 👋",
+                    "${s.home_title} ${state.userProfile?.name ?? ""}👋",
                     style: TextStyle(
                       fontSize: context.sw(0.06),
                       color: Colors.white,
@@ -181,11 +183,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   SizedBox(height: context.sh(0.006)),
-                  Text(
-                    "Let's Find Your Work!",
-                    style: TextStyle(
-                      fontSize: context.sw(0.035),
-                      color: Colors.white,
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyle(
+                        fontSize: context.sw(0.035),
+                        color: Colors.white,
+                      ),
+                      children: [
+                        TextSpan(text: "${s.home_subtitle} "),
+                        TextSpan(
+                          text: s.home_subtitle_bold,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -224,6 +234,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _attendanceCard(BuildContext context) {
+    final s = S.of(context);
     return BlocBuilder<HomeCubit, HomeState>(
       bloc: _cubit,
       builder: (context, state) {
@@ -240,15 +251,19 @@ class _HomePageState extends State<HomePage> {
         // }
 
         if (state.checkInToday == null) {
-          checkInStatus = "Not yet";
+          checkInStatus = s.attendance_cardCheck_in;
         } else {
-          checkInStatus = AppDateUtils().formatTimeAmPm(state.checkInToday ?? "");
+          checkInStatus = AppDateUtils().formatTimeAmPm(
+            state.checkInToday ?? "",
+          );
         }
 
         if (state.checkOutToday == null) {
-          checkOutStatus = "Not yet";
+          checkOutStatus = s.attendance_cardCheck_in;
         } else {
-          checkOutStatus = AppDateUtils().formatTimeAmPm(state.checkOutToday ?? "");
+          checkOutStatus = AppDateUtils().formatTimeAmPm(
+            state.checkOutToday ?? "",
+          );
         }
 
         return Center(
@@ -274,8 +289,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _utilitiesTitle(BuildContext context) {
+    final s = S.of(context);
     return Text(
-      "Tiện ích",
+      s.utilities_title,
       style: TextStyle(
         fontSize: context.sw(0.045),
         fontWeight: FontWeight.bold,
@@ -285,6 +301,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _utilitiesGrid(BuildContext context) {
+    final s = S.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
@@ -302,11 +319,11 @@ class _HomePageState extends State<HomePage> {
           ),
           itemBuilder: (_, index) {
             final map = [
-              {"a": AppAssets.ic_employee, "t": "Nhân viên", "code": "nv"},
-              {"a": AppAssets.ic_paper, "t": "Dữ liệu công", "code": "dlc"},
-              {"a": AppAssets.ic_paper2, "t": "Nghỉ phép", "code": "np"},
-              {"a": AppAssets.ic_timekeeping, "t": "Chấm công", "code": "cc"},
-              {"a": AppAssets.ic_work, "t": "Việc cần làm", "code": "cv"},
+              {"a": AppAssets.ic_employee, "t": s.utilities_tab1 , "code": "nv"},
+              {"a": AppAssets.ic_paper, "t": s.utilities_tab2, "code": "dlc"},
+              {"a": AppAssets.ic_paper2, "t": s.utilities_tab3, "code": "np"},
+              {"a": AppAssets.ic_timekeeping, "t": s.utilities_tab4, "code": "cc"},
+              {"a": AppAssets.ic_work, "t": s.utilities_tab5, "code": "cv"},
             ];
             return _gridItem(
               context,
@@ -366,11 +383,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _taskTitle(BuildContext context) {
+    final s = S.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Việc cần làm",
+          s.to_do_title,
           style: TextStyle(
             fontSize: context.sw(0.045),
             fontWeight: FontWeight.w700,
@@ -381,7 +399,7 @@ class _HomePageState extends State<HomePage> {
         InkWell(
           onTap: _openTaskList,
           child: Text(
-            "Xem tất cả",
+            s.to_do_all,
             style: TextStyle(
               fontSize: context.sw(0.033),
               color: AppColors.subtitle,
@@ -394,6 +412,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _taskList(BuildContext context) {
+    final s = S.of(context);
     return BlocBuilder<HomeCubit, HomeState>(
       bloc: _cubit,
       buildWhen:
@@ -417,7 +436,7 @@ class _HomePageState extends State<HomePage> {
         if (tasks.isEmpty) {
           return Padding(
             padding: EdgeInsets.only(top: context.sh(0.015)),
-            child: Text("Chưa có việc cần làm"),
+            child: Text(s.to_do_no_data),
           );
         }
 
@@ -434,3 +453,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+

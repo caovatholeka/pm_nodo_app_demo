@@ -9,6 +9,7 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:flutter/services.dart';
 
 class OtpVerifyPage extends StatefulWidget {
   final String email;
@@ -28,29 +29,46 @@ class OtpVerifyPage extends StatefulWidget {
 
 class _OtpVerifyPageState extends State<OtpVerifyPage> {
   Timer? _timer;
-  int _timeLeft = 300;
+  int _timeLeft = 120;
   String _otpCode = "";
+  DateTime? _expiryTime;
 
   @override
   void initState() {
     super.initState();
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.immersiveSticky,
+      overlays: [],
+    );
     _startTimer();
   }
 
   void _startTimer() {
     _timer?.cancel();
-    _timeLeft = 300;
+    _expiryTime = DateTime.now().add(const Duration(seconds: 120));
+    _updateTimeLeft();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timeLeft == 0) {
-        timer.cancel();
-        setState(() {});
-      } else {
-        setState(() {
-          _timeLeft--;
-        });
-      }
+      _updateTimeLeft();
     });
+  }
+
+  void _updateTimeLeft() {
+    if (!mounted || _expiryTime == null) return;
+
+    final now = DateTime.now();
+    final diff = _expiryTime!.difference(now).inSeconds;
+
+    if (diff <= 0) {
+      _timer?.cancel();
+      setState(() {
+        _timeLeft = 0;
+      });
+    } else {
+      setState(() {
+        _timeLeft = diff;
+      });
+    }
   }
 
   String _formatTime() {
@@ -238,41 +256,40 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                           const SizedBox(height: 18),
                           _timeLeft > 0
                               ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Mã sẽ hết hạn sau ",
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                    Text(
-                                      _formatTime(),
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.blueAccent,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : GestureDetector(
-                                  onTap: state.resendStatus ==
-                                          LoadStatus.LOADING
-                                      ? null
-                                      : _onResend,
-                                  child: const Text(
-                                    "Gửi lại mã OTP",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.blue,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    "Mã sẽ hết hạn sau ",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                  Text(
+                                    _formatTime(),
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.blueAccent,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
+                                ],
+                              )
+                              : GestureDetector(
+                                onTap:
+                                    state.resendStatus == LoadStatus.LOADING
+                                        ? null
+                                        : _onResend,
+                                child: const Text(
+                                  "Gửi lại mã OTP",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
+                              ),
                           const SizedBox(height: 26),
                           PrimaryButton(
                             mainText: "Xác nhận",
-                            isLoading:
-                                state.verifyStatus == LoadStatus.LOADING,
+                            isLoading: state.verifyStatus == LoadStatus.LOADING,
                             callback: _onSubmit,
                           ),
                         ],

@@ -4,6 +4,7 @@ import 'package:badges/badges.dart' as badges;
 
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String titleAppbar;
@@ -52,40 +53,49 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        flexibleSpace: transparent
-            ? null
-            : Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(AppAssets.appbarBg),
-                    fit: BoxFit.fill,
+        flexibleSpace:
+            transparent
+                ? null
+                : Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(AppAssets.appbarBg),
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
-              ),
-        leading: haveBackButton
-            ? Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: GestureDetector(
-                  onTap: backAction ??
-                      () {
-                        Navigator.of(context).maybePop();
-                      },
-                  child: SvgPicture.asset(AppAssets.icBack),
-                ),
-              )
-            : const SizedBox(),
+        leading:
+            haveBackButton
+                ? Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: GestureDetector(
+                    onTap:
+                        backAction ??
+                        () {
+                          final data = GlobalData.instance;
+                          if (data.isFromQuickAction) {
+                            data.isFromQuickAction = false;
+                            data.navigatorKey.currentState?.popUntil(
+                              (route) => route.isFirst,
+                            );
+                          } else {
+                            Navigator.of(context).maybePop();
+                          }
+                        },
+
+                    child: SvgPicture.asset(AppAssets.icBack),
+                  ),
+                )
+                : const SizedBox(),
         actions: [
           if (haveActionButton && iconPathAsset != null)
             badges.Badge(
               showBadge: (badgeCount ?? 0) > 0,
               badgeContent: Text(
                 (badgeCount ?? 0) > 99 ? "99+" : badgeCount.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 8,
-                ),
+                style: const TextStyle(color: Colors.white, fontSize: 8),
               ),
-              position: badges.BadgePosition.topEnd(top: 0, end: 8, ),
+              position: badges.BadgePosition.topEnd(top: 0, end: 8),
               child: _AppBarActionButton(
                 icon: iconPathAsset!,
                 onTap: actionCallBack,
@@ -100,7 +110,9 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize =>
-      bottom != null ? const Size.fromHeight(112) : const Size.fromHeight(kToolbarHeight);
+      bottom != null
+          ? const Size.fromHeight(112)
+          : const Size.fromHeight(kToolbarHeight);
 }
 
 class _AppBarActionButton extends StatelessWidget {

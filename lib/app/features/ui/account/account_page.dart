@@ -3,12 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
+import '../../../core/network/api_util.dart';
 import '../../../data/models/enums/load_status.dart';
 
 import '../../widgets/custom_dialog.dart';
@@ -53,7 +56,8 @@ class _AccountPageState extends State<AccountPage> {
             Navigator.pop(context);
 
             try {
-              final api = GetIt.I<ApiClient>();
+              // final api = GetIt.I<ApiClient>();
+              ApiClient  api = ApiUtil.instance.createApiClient();
               final token = await SharedPrefsHelper.getToken();
               if (token?.accessToken != null) {
                 final dio = GetIt.I<Dio>();
@@ -65,6 +69,7 @@ class _AccountPageState extends State<AccountPage> {
 
             await SharedPrefsHelper.saveToken(null);
             await SharedPrefsHelper.setIsLoginApp(false);
+            GlobalData.instance.bottomNavIndex.value = 0;
 
             if (!mounted) return;
             Navigator.pushAndRemoveUntil(
@@ -115,6 +120,7 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocBuilder<AccountCubit, AccountState>(
       bloc: _cubit,
       builder: (context, state) {
@@ -140,7 +146,7 @@ class _AccountPageState extends State<AccountPage> {
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Text(
-                        "Cài đặt chung",
+                        s.profile_general_title,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -152,22 +158,22 @@ class _AccountPageState extends State<AccountPage> {
                       children: [
                         _menuItem(
                           icon: AppAssets.icUser,
-                          title: "Thông tin cá nhân",
+                          title: s.profile_gen_btn1,
                           onTap: _goInfo,
                         ),
                         _menuItem(
                           icon: AppAssets.icNotificationPF,
-                          title: "Thông báo",
+                          title: s.profile_gen_btn2,
                           onTap: _goNotification,
                         ),
                         _menuItem(
                           icon: AppAssets.icProtect,
-                          title: "Thiết lập mật khẩu",
+                          title: s.profile_gen_btn3,
                           onTap: _goPassword,
                         ),
                         _menuItem(
                           icon: AppAssets.icLangague,
-                          title: "Ngôn ngữ",
+                          title: s.profile_gen_btn4,
                           onTap: _goLanguge,
                         ),
                       ],
@@ -176,7 +182,7 @@ class _AccountPageState extends State<AccountPage> {
                     Padding(
                       padding: const EdgeInsets.only(left:10),
                       child: Text(
-                        "Về ứng dụng",
+                        s.profile_about_title,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -198,7 +204,7 @@ class _AccountPageState extends State<AccountPage> {
                         // ),
                         _menuItem(
                           icon: AppAssets.icLogout,
-                          title: "Logout",
+                          title: s.profile_about_btn1,
                           onTap: _logout,
                         ),
                       ],

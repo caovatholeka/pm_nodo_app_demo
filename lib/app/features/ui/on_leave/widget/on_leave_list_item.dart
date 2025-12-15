@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../../../core/commons/app_colors.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../data/models/entities/on_leave_entity.dart';
@@ -57,7 +58,7 @@ class OnLeaveListItem extends StatelessWidget {
     }
   }
 
-  String getStatusTitle(int status) {
+  String getStatusTitle(int status, BuildContext context) {
     switch (status) {
       case 1:
       case 6:
@@ -69,11 +70,11 @@ class OnLeaveListItem extends StatelessWidget {
       case 11:
       case 15:
       case 9:
-        return "Hoàn thành";
+        return S.of(context).to_do_completed;
       case 20:
       case 16:
       case 12:
-        return "Huỷ";
+        return S.of(context).cancel;
       default:
         return "";
     }
@@ -156,7 +157,7 @@ class OnLeaveListItem extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    getStatusTitle(statusId),
+                                    getStatusTitle(statusId,context),
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w400,
@@ -169,11 +170,11 @@ class OnLeaveListItem extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                         _buildItem("Người làm đơn:", entity.employeeName ?? ""),
+                         _buildItem("${S.of(context).day_off_card_employee}:", entity.employeeName ?? ""),
                         const SizedBox(height: 12),
-                        _buildItem("Loại nghỉ:", entity.holidayStatus ?? ""),
+                        _buildItem("${S.of(context).day_off_card_type}:", entity.holidayStatus ?? ""),
                         const SizedBox(height: 12),
-                        _buildItem("Người duyệt:", entity.userApprove?.name ?? ""),
+                        _buildItem("${S.of(context).day_off_approver}:", entity.userApprove?.name ?? ""),
                       ],
                     ),
                   ),

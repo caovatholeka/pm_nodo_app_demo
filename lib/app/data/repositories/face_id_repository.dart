@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/core/network/api_client_face_id.dart';
+import '../../core/network/api_client.dart';
+import '../../core/network/api_util.dart';
 import '../models/entities/face_search_response_entity.dart';
 import 'package:path/path.dart' as p;
 
@@ -9,11 +11,12 @@ abstract class FaceIdRepository {
 }
 
 class FaceIdRepositoryImpl extends FaceIdRepository {
-  late ApiClientFaceId _apiClient;
-
-  FaceIdRepositoryImpl(ApiClientFaceId client) {
-    _apiClient = client;
-  }
+  // late ApiClientFaceId _apiClient;
+  //
+  // FaceIdRepositoryImpl(ApiClientFaceId client) {
+  //   _apiClient = client;
+  // }
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<FaceSearchResponseEntity> searchEmployeeFace(File file) async {

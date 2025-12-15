@@ -1,5 +1,6 @@
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import '../../core/network/api_util.dart';
 import '../../data/models/response/common_response.dart';
 
 abstract class EmployeeRepository {
@@ -18,9 +19,10 @@ abstract class EmployeeRepository {
 }
 
 class EmployeeRepositoryImpl extends EmployeeRepository {
-  final ApiClient _apiClient;
-
-  EmployeeRepositoryImpl(this._apiClient);
+  // final ApiClient _apiClient;
+  //
+  // EmployeeRepositoryImpl(this._apiClient);
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
  @override
   Future<CommonResponse> getListEmployees({
@@ -50,6 +52,5 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
   Future<EmployeeEntity> getDetailEmployee(int id) {
     return _apiClient.getDetailEmployee(id);
   }
-
 
 }

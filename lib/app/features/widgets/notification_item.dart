@@ -65,7 +65,7 @@ class NotificationItem extends StatelessWidget {
                 const SizedBox(width: 6),
 
                 Text(
-                  timeAgo(item.createDate),
+                  timeAgo(item.createDate, context),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade500,

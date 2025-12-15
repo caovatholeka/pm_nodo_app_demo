@@ -8,6 +8,7 @@ import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 
 import 'package:pm_app/app/data/models/entities/notification_entity.dart';
 import 'package:pm_app/app/features/widgets/notification_item.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -18,8 +19,20 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   int selectedTab = 0;
+  late List<String> tabs;
 
-  final tabs = ["Tất cả", "Thông báo chung", "Cá nhân", "Chưa đọc"];
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final s = S.of(context);
+
+    tabs = [
+      s.notifications_all,
+      s.notifications_general,
+      s.notifications_personal,
+      s.notifications_unread,
+    ];
+  }
 
   @override
   void initState() {
@@ -29,11 +42,12 @@ class _NotificationPageState extends State<NotificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
 
       appBar: MyAppBar(
-        titleAppbar: "Thông báo",
+        titleAppbar: s.nottifications_title,
         haveBackButton: true,
         haveActionButton: true,
         iconPathAsset: AppAssets.icReadAll,
@@ -88,7 +102,7 @@ class _NotificationPageState extends State<NotificationPage> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  "Không có thông báo nào",
+                                  s.notification_no_data,
                                   style: TextStyle(
                                     fontSize: 15,
                                     color: Colors.grey.shade600,
@@ -108,7 +122,7 @@ class _NotificationPageState extends State<NotificationPage> {
                         ),
                         children: [
                           if (grouped["today"]!.isNotEmpty) ...[
-                            _sectionTitle("Hôm nay"),
+                            _sectionTitle(s.notification_time),
                             const SizedBox(height: 14),
                             ...grouped["today"]!.map(
                               (e) => NotificationItem(item: e),
@@ -117,7 +131,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           ],
 
                           if (grouped["yesterday"]!.isNotEmpty) ...[
-                            _sectionTitle("Hôm qua"),
+                            _sectionTitle(s.notifications_time5),
                             const SizedBox(height: 14),
                             ...grouped["yesterday"]!.map(
                               (e) => NotificationItem(item: e),
@@ -126,7 +140,7 @@ class _NotificationPageState extends State<NotificationPage> {
                           ],
 
                           if (grouped["others"]!.isNotEmpty) ...[
-                            _sectionTitle("Các ngày trước"),
+                            _sectionTitle(s.notifications_time6),
                             const SizedBox(height: 14),
                             ...grouped["others"]!.map(
                               (e) => NotificationItem(item: e),
@@ -264,7 +278,8 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 }
 
-String timeAgo(String? rawDate) {
+String timeAgo(String? rawDate, BuildContext context) {
+  final s = S.of(context);
   if (rawDate == null) return "";
 
   DateTime date;
@@ -278,14 +293,14 @@ String timeAgo(String? rawDate) {
   final diff = now.difference(date);
 
   if (diff.inMinutes < 1) {
-    return "Vừa xong";
+    return s.notifications_time1;
   } else if (diff.inMinutes < 60) {
-    return "${diff.inMinutes} phút trước";
+    return "${diff.inMinutes}${s.notifications_time2}";
   } else if (diff.inHours < 24) {
     return "${diff.inHours} giờ trước";
   } else if (diff.inDays == 1) {
     return "1 ngày trước";
   } else {
-    return "${diff.inDays} ngày trước";
+    return "${diff.inDays}${s.notifications_time4}";
   }
 }

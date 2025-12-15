@@ -1,6 +1,8 @@
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/response/common_response.dart';
 
+import '../../core/network/api_util.dart';
+
 abstract class WorkEntryRepository {
   Future<CommonResponse> getWorkEntries(Map<String, dynamic> body);
   Future<CommonResponse> getListLeavesType();
@@ -9,11 +11,12 @@ abstract class WorkEntryRepository {
 }
 
 class WorkEntryRepositoryImpl extends WorkEntryRepository {
-  late final ApiClient _apiClient;
-
-  WorkEntryRepositoryImpl(ApiClient client) {
-    _apiClient = client;
-  }
+  // late final ApiClient _apiClient;
+  //
+  // WorkEntryRepositoryImpl(ApiClient client) {
+  //   _apiClient = client;
+  // }
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<CommonResponse> getWorkEntries(Map<String, dynamic> body) async {

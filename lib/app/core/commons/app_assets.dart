@@ -64,7 +64,7 @@ class AppAssets {
   static final icProtect = 'assets/images/icons/ic_changepassword.svg';
   static final icUser  = 'assets/images/icons/ic_personal_info.svg';
   static final icLangague = 'assets/images/icons/ic_changelaguge.svg';
-  static final img_df_avatar = 'assets/images/img_df_avatar_2.png';
+  static final img_df_avatar = 'assets/images/img_df_avatar.jpg';
   static final icHelpCenter = 'assets/images/icons/ic_helpCenter.svg';
   static final icLogout = 'assets/images/icons/ic_logout.svg';
 

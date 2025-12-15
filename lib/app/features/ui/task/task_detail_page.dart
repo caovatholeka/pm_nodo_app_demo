@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -212,12 +213,13 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     },
                   ),
                 ),
+                ((state.detailTask?.assigner?.id ?? 0) == GlobalData.instance.userProfile?.id) ?
                 Positioned(
                   bottom: MediaQuery.of(context).padding.bottom + 16,
                   left: 32,
                   right: 32,
                   child: SizedBox(width: double.infinity, child: _bottomSheet),
-                ),
+                ) : const SizedBox.shrink(),
               ],
             ),
           ),

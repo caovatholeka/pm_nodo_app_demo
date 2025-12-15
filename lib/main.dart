@@ -5,10 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:pm_app/app/config/app_config.dart';
+import 'package:pm_app/app/config/app_env.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-import 'package:pm_app/app/features/ui/auth/login/login_page.dart'; 
+import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/repositories/auth_repository.dart';
@@ -45,6 +47,12 @@ void main() {
 
       const quickActions = QuickActions();
       quickActions.initialize((String type) async {
+        /// Nếu đang login → chỉ queue
+        if (GlobalData.instance.isLoggingIn) {
+          GlobalData.instance.quickActionPending = type;
+          return;
+        }
+
         final token = await SharedPrefsHelper.getToken();
 
         if (token == null) {
@@ -54,9 +62,8 @@ void main() {
           );
           return;
         }
-
         GlobalData.instance.quickActionPending = null;
-
+        GlobalData.instance.isFromQuickAction = true;
         QuickNavigator.navigate(type);
       });
 
@@ -79,6 +86,9 @@ void main() {
       ]);
 
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+      // set env
+      final appEnv = await SharedPrefsHelper.getAppEnv();
+      AppConfig.setEnvironment(appEnv);
 
       runApp(
         MultiBlocProvider(

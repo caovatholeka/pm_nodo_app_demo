@@ -10,6 +10,7 @@ import 'package:pm_app/app/features/ui/account/changepassword/change_password_cu
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/di/di.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ChangePasswordPage extends StatelessWidget {
   const ChangePasswordPage({super.key});
@@ -111,6 +112,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<ChangePasswordCubit, ChangePasswordState>(
       listener: (context, state) {
         if (state.status == LoadStatus.SUCCESS) {
@@ -134,7 +136,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: MyAppBar(
-          titleAppbar: "Đổi mật khẩu",
+          titleAppbar: s.change_password_title,
           haveBackButton: true,
           isTransparent: true,
           backAction: () {
@@ -197,7 +199,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                                           ),
                                           TextSpan(
                                             text:
-                                                "Mật khẩu mới của bạn phải có tối thiểu 8 ký tự, bao gồm CHỮ IN HOA, chữ thường, ký tự đặc biệt và số.",
+                                               s.change_password_condistion,
                                             style: TextStyle(
                                               color:
                                                   AppColors.subtitle, 
@@ -215,8 +217,8 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
 
                                 InputTextField(
                                   controller: currentController,
-                                  hintText: "Nhập mật khẩu hiện tại",
-                                  title: "Mật khẩu hiện tại",
+                                  hintText: s.change_password_current,
+                                  title: s.change_password_current_hint,
                                   isRequiredField: true,
                                   isPasswordField: true,
                                   bgrColor: true,
@@ -225,8 +227,8 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
 
                                 InputTextField(
                                   controller: newController,
-                                  hintText: "Nhập mật khẩu mới",
-                                  title: "Mật khẩu mới",
+                                  hintText: s.change_password_new,
+                                  title: s.change_password_new_hint,
                                   isRequiredField: true,
                                   isPasswordField: true,
                                   bgrColor: true,
@@ -235,8 +237,8 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
 
                                 InputTextField(
                                   controller: confirmController,
-                                  hintText: "Nhập lại mật khẩu mới",
-                                  title: "Xác nhận mật khẩu mới",
+                                  hintText: s.change_password_confirm,
+                                  title: s.change_password_confirm_hint,
                                   isRequiredField: true,
                                   isPasswordField: true,
                                   bgrColor: true,
@@ -252,7 +254,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                           width: double.infinity,
                           height: 48,
                           child: PrimaryButton(
-                            mainText: "Xác nhận",
+                            mainText: s.change_password_button,
                             callback: () {
                               _submit();
                             },

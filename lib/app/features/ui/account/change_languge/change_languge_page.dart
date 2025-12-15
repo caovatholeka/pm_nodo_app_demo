@@ -43,7 +43,7 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: MyAppBar(titleAppbar: s.btn_langauge, haveBackButton: true, isTransparent: true,),
+      appBar: MyAppBar(titleAppbar: s.language_title, haveBackButton: true, isTransparent: true,),
       body: Container(
         width: double.infinity,
         height: double.infinity,
@@ -78,13 +78,13 @@ class _ChangeLanguagePageState extends State<ChangeLanguagePage> {
                       const SizedBox(height: 8),
 
                       LanguageSelectorItem(
-                        title: "Tiếng Việt",
+                        title: s.language_option1,
                         isSelected: selectedLang == "vi",
                         onTap: () => _changeLanguage("vi"),
                       ),
 
                       LanguageSelectorItem(
-                        title: "English",
+                        title: s.language_option2,
                         isSelected: selectedLang == "en",
                         onTap: () => _changeLanguage("en"),
                       ),

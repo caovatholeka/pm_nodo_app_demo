@@ -15,6 +15,7 @@ import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bottomsheet/select_user_bottom_sheet.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/utils/validators.dart';
@@ -157,11 +158,12 @@ class _CreateNewTaskState extends State<CreateNewTask> {
           }
         },
         builder: (context,state){
+          final s = S.of(context);
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
             appBar: AppBar(
-              title: (widget.isEdit ?? false) ? Text("Cập nhật việc cần làm") :
-                Text("Tạo việc cần làm"),
+              title: (widget.isEdit ?? false) ? Text(s.to_edit_title) :
+                Text(s.to_create_title),
               flexibleSpace: Container(
                 width: double.infinity,
                 height: double.infinity,
@@ -223,7 +225,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                     buildWhen: (prev, cur) => prev.taskName != cur.taskName,
                                     builder: (context, state) {
                                       return InputTextField(
-                                        title: "Tiêu đề",
+                                        title: s.to_task_title,
                                         hintText: "",
                                         isRequiredField: true,
                                         enable: true,
@@ -243,7 +245,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                               _priorityWidget,
                               const SizedBox(height: 16,),
                               InputTextField(
-                                title: "Loại công việc",
+                                title: s.to_jobtype,
                                 hintText: "",
                                 isRequiredField: false,
                                 controller:
@@ -253,7 +255,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                               ).paddingOnly(bottom: 16),
 
                               InputTextField(
-                                title: "Người giao việc",
+                                title: s.to_do_card_taskmaster,
                                 hintText: "",
                                 isRequiredField: false,
                                 controller:
@@ -287,7 +289,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                           prev.listUsers != cur.listUsers,
                                       builder: (context,state){
                                         return InputTextField(
-                                          title: "Người được phân công",
+                                          title: s.to_do_card_employee,
                                           hintText: "",
                                           isRequiredField: true,
                                           controller: userController,
@@ -328,7 +330,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                           prev.deadlineTime != cur.deadlineTime,
                                       builder: (context,state){
                                         return InputTextField(
-                                          title: "Hạn chót",
+                                          title: s.to_do_card_deadline,
                                           hintText: "",
                                           isRequiredField: true,
                                           controller: dateLineController..text = state.deadlineTime ?? "",
@@ -374,7 +376,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                                     buildWhen: (prev, cur) => prev.description != cur.description,
                                     builder: (context, state) {
                                       return InputTextField(
-                                        title: "mô tả",
+                                        title: s.to_description,
                                         hintText: "",
                                         isRequiredField: true,
                                         enable: true,
@@ -423,7 +425,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Mức độ ưu tiên",
+              Text(S.of(context).to_priority_level,
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
@@ -466,7 +468,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                   ),
                 ),
                 child: Text(
-                  "Huỷ",
+                  S.of(context).cancel,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -496,7 +498,7 @@ class _CreateNewTaskState extends State<CreateNewTask> {
                   ),
                 ),
                 child: Text(
-                  (widget.isEdit ?? false) ? "Xác Nhận" : "Lưu",
+                  (widget.isEdit ?? false) ? S.of(context).confirm : S.of(context).save,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

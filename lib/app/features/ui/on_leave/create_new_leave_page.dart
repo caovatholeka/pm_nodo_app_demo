@@ -183,19 +183,17 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     final detail = widget.detailEntity;
     if (!(widget.isEdit ?? false) || detail == null) return;
 
+    String holidayStatus = detail.holidayStatus ?? "";
+    final holidayStatusId = detail.holidayStatusId ?? 0;
+
     final from = _tryParseIso(detail.dateFrom ?? "");
     final to = _tryParseIso(detail.dateTo);
 
-    // final description =
-    //     (detail as dynamic).description as String? ?? (detail as dynamic).reason as String? ?? '';
     final description = detail.description ?? "";
-    final remainLeave = detail.remainLeave ?? 0;
-    String holidayStatus = detail.holidayStatus ?? "";
-
-    final holidayStatusId = detail.holidayStatusId ?? 0;
-
-    // final lineIds =
-    //     (detail as dynamic).lineIds as List<dynamic>? ?? (detail as dynamic).line_ids as List<dynamic>?;
+    // // final remainLeave = detail.remainLeave ?? 0;
+    //
+    // // final lineIds =
+    // //     (detail as dynamic).lineIds as List<dynamic>? ?? (detail as dynamic).line_ids as List<dynamic>?;
     final lineIds = detail.lineIds ?? [];
     if (from != null) {
       _createCubit.setFromDate(from);

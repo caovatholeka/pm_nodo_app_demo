@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/features/ui/task/widget/status_widget.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ListTaskItem extends StatelessWidget {
   final TaskEntity entity;
@@ -40,15 +41,13 @@ class ListTaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return GestureDetector(
       onTap: onShowDetail,
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.whiteColor,
-          border: Border.all(
-            color: const Color(0xFFE9EAEB),
-            width: 1,
-          ),
+          border: Border.all(color: const Color(0xFFE9EAEB), width: 1),
           borderRadius: const BorderRadius.all(Radius.circular(6)),
         ),
         child: Column(
@@ -67,8 +66,11 @@ class ListTaskItem extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       height: 37,
                       decoration: BoxDecoration(
-                          color: getStatusColor(entity.stage?.code ?? ""),
-                          borderRadius: const BorderRadius.all(Radius.circular(6))),
+                        color: getStatusColor(entity.stage?.code ?? ""),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(6),
+                        ),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -82,9 +84,12 @@ class ListTaskItem extends StatelessWidget {
                           ),
                           InkWell(
                             onTap: onShowChangeStatus,
-                            child: const Icon(Icons.arrow_drop_down,
-                                color: Colors.white, size: 18),
-                          )
+                            child: const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -107,31 +112,38 @@ class ListTaskItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          entity.name ?? "",
+                          (entity.name ?? ""),
                           style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textEditorPrimary),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textEditorPrimary,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 3),
-
                         Text(
-                          entity.userIds
-                                  ?.map((user) => user.name)
-                                  .toList()
-                                  .join(", ") ??
-                              "",
+                          "Người giao việc: ${entity.assigner?.name ?? ""}",
                           style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.textEditorSecond),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textEditorSecond,
+                          ),
+                          softWrap: true,
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          "Người nhận việc: ${entity.userIds?.map((user) => user.name).toList().join(", ") ??""}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textEditorSecond,
+                          ),
                           softWrap: true,
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -144,17 +156,20 @@ class ListTaskItem extends StatelessWidget {
                   Text(
                     "Hạn chót",
                     style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textGray600),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textGray600,
+                    ),
                   ),
                   Text(
                     AppDateUtils.changeIso8601StringToDateTimeString(
-                        entity.deadline ?? ""),
+                      entity.deadline ?? "",
+                    ),
                     style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textBlack600),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textBlack600,
+                    ),
                   ),
                 ],
               ),
@@ -169,18 +184,20 @@ class ListTaskItem extends StatelessWidget {
                   Text(
                     "Loại công việc",
                     style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textGray600),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textGray600,
+                    ),
                   ),
                   Text(
                     (entity.taskType ?? "") == "normal"
                         ? "Thông thường"
                         : "Tuyển dụng",
                     style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textBlack600),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textBlack600,
+                    ),
                   ),
                 ],
               ),
@@ -197,30 +214,35 @@ class ListTaskItem extends StatelessWidget {
                   children: [
                     (isShowNote ?? false)
                         ? InkWell(
-                            onTap: onAddTaskNote,
-                            child: Row(
-                              children: [
-                                const Icon(Icons.add, size: 21)
-                                    .paddingOnly(right: 6),
-                                Text(
-                                  "Ghi chú kết quả",
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.textGray600),
-                                )
-                              ],
-                            ),
-                          )
+                          onTap: onAddTaskNote,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.add,
+                                size: 21,
+                              ).paddingOnly(right: 6),
+                              Text(
+                                "Ghi chú kết quả",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: AppColors.textGray600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                         : const Spacer(),
                     Text(
                       AppDateUtils.changeIso8601StringToDateTimeString(
-                          entity.createdDate ?? ""),
+                        entity.createdDate ?? "",
+                      ),
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.textGray600),
-                    )
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.textGray600,
+                      ),
+                    ),
                   ],
                 ),
               ),

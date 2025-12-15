@@ -1,4 +1,5 @@
 import '../../core/network/api_client.dart';
+import '../../core/network/api_util.dart';
 import '../models/entities/attendance_entity.dart';
 import '../models/response/common_response.dart';
 
@@ -11,9 +12,10 @@ abstract class AttendanceRepository {
 }
 
 class AttendanceRepositoryImpl extends AttendanceRepository {
-  final ApiClient _apiClient;
-
-  AttendanceRepositoryImpl(this._apiClient);
+  // final ApiClient _apiClient;
+  //
+  // AttendanceRepositoryImpl(this._apiClient);
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<List<AttendanceEntity>> getListAttendances(int? employeeId, int? month, int? year) async {

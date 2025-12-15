@@ -162,61 +162,112 @@ class CheckInCubit extends Cubit<CheckInState> {
 
   void onChangeAddress(Position position) async {
     emit(state.copyWith(positionParam: position));
+
+    final acc = position.accuracy;
+    logger.d("New position: ${position.latitude}, ${position.longitude}, acc=$acc m");
+
+    if (acc > 80) {
+      logger.d(" Bỏ qua position vì accuracy quá kém: $acc m");
+      // Có thể emit thêm state.gpsStatus = GpsStatus.inaccurate để show cảnh báo
+      return;
+    }
+
+    // 2. Nếu giống hệt vị trí cũ & đã có address thì thôi
     if (position.latitude == state.position?.latitude &&
         position.longitude == state.position?.longitude &&
         (state.address ?? '').isNotEmpty) {
       return;
     }
-    final metersDistanceBetween = Geolocator.distanceBetween(
-        state.position?.latitude ?? 0,
-        state.position?.longitude ?? 0,
+
+    // 3. Tính khoảng cách so với vị trí cũ (nếu có)
+    final oldPos = state.position;
+    if (oldPos != null) {
+      final metersDistanceBetween = Geolocator.distanceBetween(
+        oldPos.latitude,
+        oldPos.longitude,
         position.latitude,
-        position.longitude);
-    logger.d("Check distance between: $metersDistanceBetween m");
-    if (metersDistanceBetween < 10) {
-      return;
+        position.longitude,
+      );
+      logger.d("Check distance between: $metersDistanceBetween m");
+
+      if (metersDistanceBetween < 10) {
+        return;
+      }
     }
+
     emit(state.copyWith(position: position, address: ''));
-    List<Placemark> placeMarks = [];
+
     try {
-      placeMarks =
-      await placemarkFromCoordinates(position.latitude, position.longitude);
+      final placeMarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placeMarks.isNotEmpty) {
+        final placeMark = placeMarks.first;
+        logger.d(placeMark.toString());
+
+        String address = [
+          placeMark.street,
+          placeMark.subAdministrativeArea,
+          placeMark.administrativeArea,
+        ]
+            .where((e) => e != null && e.isNotEmpty)
+            .join(", ");
+
+        emit(state.copyWith(address: address));
+        logger.d("New address: $address");
+      }
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
     }
-    if (placeMarks.isNotEmpty) {
-      final placeMark = placeMarks.first;
-      logger.d(placeMark.toString());
-      String address = [
-        placeMark.street,
-        placeMark.subAdministrativeArea,
-        placeMark.administrativeArea,
-      ].where((element) => element != null && element.isNotEmpty).join(", ");
-      emit(state.copyWith(address: address));
-      logger.d(address);
-    }
   }
 
-  Future<CheckInInfoEntity?> findNearestCheckIn(List<CheckInInfoEntity> list) async {
+  Future<CheckInInfoEntity?> findNearestCheckIn(
+      List<CheckInInfoEntity> list,
+      ) async {
     if (list.isEmpty) return null;
 
-    CheckInInfoEntity nearest = list.first;
-    double minDist = Geolocator.distanceBetween(
-      state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0,
-      nearest.latitude ?? 0.0, nearest.longitude ?? 0.0,
-    );
-
-    for (int i = 1; i < list.length; i++) {
-      final d = Geolocator.distanceBetween(
-        state.position?.latitude ?? 0.0, state.position?.longitude ?? 0.0,
-        list[i].latitude ?? 0.0, list[i].longitude ?? 0.0,
-      );
-      if (d < minDist) {
-        minDist = d;
-        nearest = list[i];
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        logger.w('Location permission not granted');
+        return null;
       }
     }
+
+    final position = state.position ??
+        await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+
+    logger.d(
+        "current position :: ${position.latitude} , ${position.longitude}");
+
+    CheckInInfoEntity? nearest;
+    double minDist = double.infinity;
+
+    for (final item in list) {
+      if (item.latitude == null || item.longitude == null) continue;
+
+      final d = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        item.latitude!,
+        item.longitude!,
+      );
+
+      if (nearest == null || d < minDist) {
+        minDist = d;
+        nearest = item;
+      }
+    }
+
+    logger.d('nearest dist = $minDist, place = ${nearest?.name}');
     return nearest;
   }
 

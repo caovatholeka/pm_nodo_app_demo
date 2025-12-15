@@ -106,18 +106,39 @@ Future<void> _requestLocationPermission() async {
     await openAppSettings();
     return;
   }
+
+  final accuracyStatus = await Geolocator.getLocationAccuracy();
+  if (accuracyStatus == LocationAccuracyStatus.reduced) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Vị trí hiện tại đang ở chế độ xấp xỉ (Approximate). "
+              "Vui lòng bật 'Vị trí chính xác'(Precise Location) trong Cài đặt để chấm công chính xác hơn.",
+        ),
+        backgroundColor: Colors.orange,
+      ),
+    );
+  }
+
+
   _locationSubscription?.cancel();
 
-  _locationSubscription = Geolocator.getPositionStream().listen((event) {
-    _cubit.onChangeAddress(event);
+  const locationSettings = LocationSettings(
+    accuracy: LocationAccuracy.best,
+    distanceFilter: 5,
+  );
+
+  _locationSubscription = Geolocator.getPositionStream(
+    locationSettings: locationSettings,
+  ).listen((Position position) {
+    _cubit.onChangeAddress(position);
   });
 }
 
 
   @override
   void initState() {
-    _requestLocationPermission();
-    _cubit.getListCheckInInfo();
+    _onInit();
     super.initState();
   }
 
@@ -128,8 +149,13 @@ Future<void> _requestLocationPermission() async {
     super.dispose();
   }
 
+  Future<void> _onInit() async {
+    await _requestLocationPermission();
+    _cubit.getListCheckInInfo();
+  }
+
   Future<void> _onRefresh() async {
-    _requestLocationPermission();
+    await _requestLocationPermission();
     _cubit.getListCheckInInfo();
   }
 
@@ -1079,7 +1105,7 @@ Future<void> _requestLocationPermission() async {
             _cubit.state.position?.longitude ?? 0.0,
            _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
             _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
-        if(distance.round() + 5 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
+        if(distance.round() +20 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
           AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-In");
         }else{
           // validate khuôn mặt

@@ -1,4 +1,8 @@
+import 'package:pm_app/app/core/logger/logger.dart';
+
+import '../data/local/shared_prefs_helper.dart';
 import 'app_env.dart';
+
 
 class AppConfig {
 
@@ -6,7 +10,9 @@ class AppConfig {
   static Environment env = Environment.dev;
 
   ///API Env
-  static  get baseUrl => env.baseUrl;
+  static String? nameEnv = '';
+  static String? version = '1.1.6';
+  static String baseUrl = "https://pm.nodo.vn/";//env.baseUrl;
   static String get envName => env.envName;
   static const baseImgUrl = "";
 
@@ -16,6 +22,33 @@ class AppConfig {
   static const prodEnviroment = "https://api.nodo-pm.vn/";
 
   static const baseFaceIdUrl = "https://pm.nodo.vn/";
+
+  static void setEnvironment(Environment environment) {
+    env = environment;
+
+    switch (environment) {
+      case Environment.dev:
+        baseUrl = 'https://pm.nodo.vn/';
+        nameEnv = 'Môi trường: develop';
+        SharedPrefsHelper.setAppEnv(Environment.dev);
+        break;
+      case Environment.demo:
+        baseUrl = 'https://demo-hrm.nodo.vn/';
+        nameEnv = 'Môi trường: Demo';
+        SharedPrefsHelper.setAppEnv(Environment.demo);
+        break;
+      case Environment.test:
+        baseUrl = 'https://test-pm.nodo.vn/';
+        nameEnv = 'Môi trường: Test';
+        SharedPrefsHelper.setAppEnv(Environment.test);
+        break;
+      case Environment.prod:
+        baseUrl = 'https://pm.nodo.vn/';
+        nameEnv = 'Môi trường: Prod';
+        SharedPrefsHelper.setAppEnv(Environment.prod);
+        break;
+    }
+  }
 
   ///Paging
   static const pageSize = 20;

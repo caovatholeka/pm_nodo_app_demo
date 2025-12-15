@@ -20,6 +20,7 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart'
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
+import 'package:pm_app/app/features/ui/staff/employee_detail_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
@@ -74,13 +75,13 @@ Future<void> init() async {
 
     return dio;
   });
-  sl.registerLazySingleton<ApiClient>(
-    () => ApiClient(sl<Dio>(), baseUrl: Environment.prod.baseUrl),
-  );
+  // sl.registerLazySingleton<ApiClient>(
+  //       () => ApiClient(sl<Dio>(), baseUrl: AppConfig.baseUrl),
+  // );
 
-  sl.registerLazySingleton<ApiClientFaceId>(
-    () => ApiClientFaceId(sl<Dio>(), baseUrl: AppConfig.baseFaceIdUrl),
-  );
+  // sl.registerLazySingleton<ApiClientFaceId>(
+  //   () => ApiClientFaceId(sl<Dio>(), baseUrl: AppConfig.baseFaceIdUrl),
+  // );
 
   // *** BLOC ***
   sl.registerLazySingleton<AppCubit>(
@@ -108,20 +109,14 @@ Future<void> init() async {
   );
 
   // ** Repository **
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
-  sl.registerLazySingleton<OnLeaveRepository>(
-    () => OnLeaveRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton<CheckInRepository>(
-    () => CheckInRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(sl()));
-  sl.registerLazySingleton<EmployeeRepository>(
-    () => EmployeeRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
+  sl.registerLazySingleton<OnLeaveRepository>(() => OnLeaveRepositoryImpl());
+  sl.registerLazySingleton<CheckInRepository>(() => CheckInRepositoryImpl());
+  sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl());
+  sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepositoryImpl());
 
   sl.registerLazySingleton<AttendanceRepository>(
-    () => AttendanceRepositoryImpl(sl()),
+    () => AttendanceRepositoryImpl(),
   );
 
   // ** Account **
@@ -148,15 +143,19 @@ Future<void> init() async {
   sl.registerLazySingleton<TaskCubit>(() => TaskCubit(repository: sl()));
 
   sl.registerLazySingleton<WorkEntryRepository>(
-    () => WorkEntryRepositoryImpl(sl()),
+    () => WorkEntryRepositoryImpl(),
   );
 
   sl.registerLazySingleton<ForgotCubit>(() => ForgotCubit(sl()));
 
-  sl.registerLazySingleton<FaceIdRepository>(() => FaceIdRepositoryImpl(sl()));
+  sl.registerLazySingleton<FaceIdRepository>(() => FaceIdRepositoryImpl());
 
   sl.registerFactory<OtpVerifyCubit>(() => OtpVerifyCubit(sl()));
 
   sl.registerFactory<NotiCubit>(() => NotiCubit(userRepository: sl()));
-  sl.registerLazySingleton<TaskRepository>(() => TaskRepositoryImpl(sl()));
+  sl.registerLazySingleton<TaskRepository>(() => TaskRepositoryImpl());
+
+  sl.registerFactory<EmployeeDetailCubit>(
+    () => EmployeeDetailCubit(repository: sl<EmployeeRepository>()),
+  );
 }

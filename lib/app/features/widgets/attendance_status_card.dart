@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class AttendanceStatusCard extends StatelessWidget {
   final String dateText;
@@ -7,7 +8,6 @@ class AttendanceStatusCard extends StatelessWidget {
   final String checkInStatus;
   final String checkOutStatus;
 
-  /// Callback khi nhấn nút Check Out (Not yet)
   final VoidCallback? onCheckOutTap;
 
   const AttendanceStatusCard({
@@ -20,12 +20,15 @@ class AttendanceStatusCard extends StatelessWidget {
     this.onCheckOutTap,
   });
 
-  bool _isDone(String status) => status.toLowerCase() != "not yet";
+  bool _isDone(String status) {
+    final s = status.toLowerCase().trim();
+    return s != "not yet" && s != "chưa chấm";
+  }
 
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-
+    final s = S.of(context);
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -43,7 +46,7 @@ class AttendanceStatusCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Hôm nay",
+            s.attendance_card1,
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: w * 0.035,
@@ -71,7 +74,7 @@ class AttendanceStatusCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildItem(
-                    title: "Check In",
+                    title: s.attendance_card_status1,
                     time: checkInTime,
                     status: checkInStatus,
                     isDone: _isDone(checkInStatus),
@@ -86,7 +89,7 @@ class AttendanceStatusCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _buildItem(
-                    title: "Check Out",
+                    title: s.attendance_card_status2,
                     time: checkOutTime,
                     status: checkOutStatus,
                     isDone: _isDone(checkOutStatus),
@@ -139,15 +142,16 @@ class AttendanceStatusCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: isDone ? Colors.white : Colors.blue,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: isDone
-                  ? [
-                      BoxShadow(
-                        color: Colors.green.withOpacity(0.15),
-                        blurRadius: 8,
-                        offset: Offset(0, 3),
-                      ),
-                    ]
-                  : [],
+              boxShadow:
+                  isDone
+                      ? [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.15),
+                          blurRadius: 8,
+                          offset: Offset(0, 3),
+                        ),
+                      ]
+                      : [],
             ),
             child: Text(
               status,

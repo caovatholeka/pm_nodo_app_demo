@@ -1,4 +1,5 @@
 import '../../core/network/api_client.dart';
+import '../../core/network/api_util.dart';
 import '../models/response/common_response.dart';
 
 abstract class UserRepository {
@@ -25,11 +26,12 @@ abstract class UserRepository {
 }
 
 class UserRepositoryImpl extends UserRepository {
-  late ApiClient _apiClient;
-
-  UserRepositoryImpl(ApiClient client) {
-    _apiClient = client;
-  }
+  // late ApiClient _apiClient;
+  //
+  // UserRepositoryImpl(ApiClient client) {
+  //   _apiClient = client;
+  // }
+  ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
   Future<CommonResponse> getUserProfile(Map<String, dynamic> body) async {

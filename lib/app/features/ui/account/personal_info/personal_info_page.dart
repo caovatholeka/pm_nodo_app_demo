@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../widgets/expenable_section.dart';
-import '../../../widgets/primary_button.dart';
-import '../../../../data/models/entities/profile_entity.dart';
+
 import 'personal_cubit.dart';
 import 'personal_state.dart';
 import 'package:pm_app/app/features/widgets/info_box_special.dart';
@@ -33,6 +33,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFFF4F6F8),
@@ -45,7 +46,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           child: IgnorePointer(
             ignoring: !_showAppBar,
             child: MyAppBar(
-              titleAppbar: "Cá nhân",
+              titleAppbar: s.personal_info_title,
               haveBackButton: true,
               isTransparent: true,
               backAction: () => Navigator.pop(context),
@@ -169,14 +170,14 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
                       ExpandableSection(
-                        title: "Hồ sơ cá nhân",
+                        title: s.personal_info_profile,
                         initiallyExpanded: true,
                         style: ExpandableStyle.minimal,
                         children: [
                           InfoBoxSpecial(
                             children: [
                               InfoRow(
-                                title: "Tên nhân viên",
+                                title: s.profile_info_name,
                                 subtitle: user.name ?? "-",
                                 showDivider: false,
                               ),
@@ -186,7 +187,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                 showDivider: false,
                               ),
                               InfoRow(
-                                title: "Địa chỉ",
+                                title: s.profile_info_address,
                                 subtitle: user.currentAddress ?? "-",
                                 showDivider: false,
                               ),
@@ -195,7 +196,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         ],
                       ),
                       ExpandableSection(
-                        title: "Thông tin vị trí công tác",
+                        title: s.profile_job_position,
                         style: ExpandableStyle.minimal,
                         initiallyExpanded: true,
                         children: [
@@ -203,23 +204,23 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                             children: [
                               InfoRowSpecial(
                                 title: user.jobTitle ?? "-",
-                                subtitlePrefix: "Chức danh: ",
+                                subtitlePrefix: s.profile_jobTitle,
                                 subtitleValue: user.jobTitle ?? "-",
                                 showDivider: false,
                               ),
                               const SizedBox(height: 12),
                               InfoRowSpecial(
                                 title: user.department?.name ?? "-",
-                                subtitlePrefix: "Quản lý: ",
+                                subtitlePrefix: s.profile_manager,
                                 subtitleValue: user.manager?.name ?? "-",
                                 showDivider: false,
                               ),
                               const SizedBox(height: 12),
                               InfoRowSpecial(
                                 title: user.state == "work"
-                                    ? "Đang làm việc"
+                                    ? s.profile_work
                                     : "-",
-                                subtitlePrefix: "Địa chỉ làm việc: ",
+                                subtitlePrefix: s.profile_address,
                                 subtitleValue: user.workLocation ?? "-",
                                 showDivider: false,
                               ),
@@ -228,7 +229,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         ],
                       ),
                       ExpandableSection(
-                        title: "Khác",
+                        title: s.profile_other,
                         initiallyExpanded: true,
                         style: ExpandableStyle.minimal,
                         children: [
@@ -236,9 +237,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                             children: [
                               InfoRowSpecial(
                                 title: user.contractStatus == "signed"
-                                    ? "Đã ký hợp đồng"
-                                    : "Chưa ký",
-                                subtitlePrefix: "Ngày gia nhập: ",
+                                    ? s.profile_status1
+                                    : s.profile_status2,
+                                subtitlePrefix: s.profile_dateJoin,
                                 subtitleValue: user.dateJoinCompany ?? "-",
                                 showDivider: false,
                               ),
