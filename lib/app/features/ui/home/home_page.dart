@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/application/application_page.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
@@ -87,6 +88,14 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(builder: (_) => TaskManagePage()),
     );
   }
+
+  void _openApplication() {
+        Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ApplicationPage()),
+    );
+  }
+  
 
   Future<void> _onRefresh() async {
     _cubit.getListAttendanceToday();
@@ -311,7 +320,7 @@ class _HomePageState extends State<HomePage> {
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: 5,
+          itemCount: 6,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
             mainAxisSpacing: context.sh(0.02),
@@ -324,6 +333,7 @@ class _HomePageState extends State<HomePage> {
               {"a": AppAssets.ic_paper2, "t": s.utilities_tab3, "code": "np"},
               {"a": AppAssets.ic_timekeeping, "t": s.utilities_tab4, "code": "cc"},
               {"a": AppAssets.ic_work, "t": s.utilities_tab5, "code": "cv"},
+              {"a": AppAssets.ic_paper2, "t": "Đơn từ", "code": "dt"},
             ];
             return _gridItem(
               context,
@@ -356,6 +366,8 @@ class _HomePageState extends State<HomePage> {
             _openCheckIn();
           case "cv":
             _openTaskList();
+          case "dt":
+          _openApplication();
         }
       },
       child: Column(
