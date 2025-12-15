@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
+import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
@@ -64,6 +65,13 @@ class _ApplicationPageState extends State<ApplicationPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => TaskManagePage()),
+    );
+  }
+
+  void _openJustifications() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => JustificationPage(isFromHome: true,))
     );
   }
 
@@ -129,6 +137,12 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "icon": AppAssets.ic_paper2,
         "title": "Nghỉ phép",
         "onTap": () => _openOnLeave(),
+      },
+
+      {
+        "icon": AppAssets.ic_paper2,
+        "title": "Giải trình",
+        "onTap": () => _openJustifications(),
       },
     ];
 
