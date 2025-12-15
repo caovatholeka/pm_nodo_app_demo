@@ -11,6 +11,7 @@ import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/utils/date_utils.dart';
 import '../../../data/models/entities/on_leave_entity.dart';
@@ -107,10 +108,11 @@ class _OnLeavePageState extends State<OnLeavePage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Scaffold(
       backgroundColor: AppColors.bodyColor,
       appBar: MyAppBar(
-        titleAppbar: "Quản lý nghỉ phép",
+        titleAppbar: s.day_off_title,
         haveActionButton: true,
         haveBackButton: (widget.isFromHome ?? false),
         iconPathAsset: AppAssets.icNotificationBell,
@@ -239,7 +241,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
           return Center(child: CircularProgressIndicator());
         }
         if ((state.listLeaveEntities ?? []).isEmpty) {
-          return Center(child: Text("Không có dữ liệu").paddingOnly(top: 100));
+          return Center(child: Text(S.of(context).day_off_no_data).paddingOnly(top: 100));
         } else {
           return RefreshIndicator(
             onRefresh: _onRefresh,

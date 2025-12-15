@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/task_stage_entity.dart';
 import 'package:pm_app/app/features/ui/task/widget/status_widget.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../core/commons/app_shadow.dart';
 import '../../../../core/commons/screen_size.dart';
@@ -43,6 +44,7 @@ class _TaskStageBottomSheetState extends State<TaskStageBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Container(
       height: ScreenSize.of(context).height * 0.45,
       width: double.infinity,
@@ -61,7 +63,7 @@ class _TaskStageBottomSheetState extends State<TaskStageBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 6,),
-          Text("Chọn giai đoạn giao dịch",
+          Text(s.to_status,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,

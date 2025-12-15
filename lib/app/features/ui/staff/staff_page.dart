@@ -13,6 +13,7 @@ import 'package:pm_app/app/features/ui/staff/staff_detail_page.dart';
 import 'package:pm_app/app/features/widgets/advanced_filter_sheet.dart';
 import 'package:pm_app/app/features/widgets/app_cached_image.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../widgets/loading_more_row_widget.dart';
 
 class StaffPage extends StatefulWidget {
@@ -126,10 +127,11 @@ class _StaffPageState extends State<StaffPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: MyAppBar(
-        titleAppbar: "Danh sách nhân viên",
+        titleAppbar: s.employee_title,
         haveBackButton: (widget.isFromHome ?? false),
         haveActionButton: true,
         iconPathAsset: AppAssets.icNotificationBell,
@@ -150,8 +152,8 @@ class _StaffPageState extends State<StaffPage> {
                       prev.loadStatus != cur.loadStatus,
               builder: (context, state) {
                 if (state.loadStatus == LoadStatus.FAILURE) {
-                  return const Center(
-                    child: Text("Không thể tải danh sách nhân viên"),
+                  return Center(
+                    child: Text(S.of(context).employee_no_data),
                   );
                 }
 
@@ -222,8 +224,8 @@ class _StaffPageState extends State<StaffPage> {
           Expanded(
             child: TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: "Mã nhân viên, Tên nhân viên",
+              decoration:  InputDecoration(
+                hintText: S.of(context).employee_search_hint,
                 border: InputBorder.none,
                 isDense: true,
               ),
@@ -286,8 +288,8 @@ class _StaffPageState extends State<StaffPage> {
       return Center(
         child: Text(
           _activeFilter != null
-              ? "Không có kết quả nào phù hợp bộ lọc"
-              : "Không có nhân viên nào",
+              ? S.of(context).employee_no_data
+              : S.of(context).emploee_error,
           style: const TextStyle(
             fontSize: 15,
             color: Colors.black54,
@@ -334,7 +336,7 @@ class _StaffPageState extends State<StaffPage> {
                     ),
                   ),
                   trailing: Text(
-                    emp.code != null ? "NV${emp.code}" : "",
+                    emp.code != null ? "${S.of(context).employee_card_id}:${emp.code}" : "-",
                     style: const TextStyle(
                       color: Color.fromARGB(255, 0, 98, 255),
                       fontWeight: FontWeight.w700,

@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/features/ui/task/widget/status_widget.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ListTaskItem extends StatelessWidget {
   final TaskEntity entity;
@@ -40,6 +41,7 @@ class ListTaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return GestureDetector(
       onTap: onShowDetail,
       child: Container(

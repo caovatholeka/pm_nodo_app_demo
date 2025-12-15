@@ -18,6 +18,7 @@ import 'package:pm_app/app/features/ui/task/task_detail_page.dart';
 import 'package:pm_app/app/features/ui/task/widget/list_task_item.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -124,6 +125,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<TaskCubit,TaskState>(
         bloc: _cubit,
         listenWhen: (prev,cur) => prev.loadStatus != cur.loadStatus,
@@ -147,9 +149,9 @@ class _TaskManagePageState extends State<TaskManagePage> {
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
             appBar: MyAppBar(
-            titleAppbar: "Việc cần làm",
+            titleAppbar: s.to_do_title,
             haveActionButton: true,
-            badgeCount: 300,
+            // badgeCount: 300,
             haveBackButton: true,
             iconPathAsset: AppAssets.icNotificationBell,
             isTransparent: false,
@@ -191,7 +193,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
               builder: (context, state){
                 return InputTextField(
                   title: "",
-                  hintText: "Tìm kiếm công việc",
+                  hintText: S.of(context).to_searchbar,
                   isRequiredField: false,
                   disableTitle: true,
                   enable: true,

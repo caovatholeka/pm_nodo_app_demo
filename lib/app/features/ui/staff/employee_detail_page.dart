@@ -13,6 +13,7 @@ import 'package:pm_app/app/features/widgets/info_box_special.dart';
 import 'package:pm_app/app/features/widgets/info_row.dart';
 import 'package:pm_app/app/features/widgets/info_row_special.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import 'employee_detail_cubit.dart';
 
@@ -64,6 +65,7 @@ class _EmployeeDetailViewState extends State<_EmployeeDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocBuilder<EmployeeDetailCubit, EmployeeDetailState>(
       builder: (context, state) {
         final employee = state.employee;
@@ -80,7 +82,7 @@ class _EmployeeDetailViewState extends State<_EmployeeDetailView> {
               child: IgnorePointer(
                 ignoring: !_showAppBar,
                 child: MyAppBar(
-                  titleAppbar: "Chi tiết nhân viên",
+                  titleAppbar: s.employee_detail_title,
                   haveBackButton: true,
                   isTransparent: true,
                   backAction: () => Navigator.pop(context),
@@ -182,7 +184,7 @@ class _EmployeeDetailViewState extends State<_EmployeeDetailView> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "${employee.jobTitle ?? ""} • NV${employee.code ?? "--"} • ${employee.phone ?? ""}",
+                          "${employee.jobTitle ?? ""} • ${S.of(context).employee_card_id}${employee.code ?? "--"} • ${employee.phone ?? ""}",
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.white,
