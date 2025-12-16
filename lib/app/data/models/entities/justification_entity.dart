@@ -11,6 +11,14 @@ class JustificationEntity {
   final String status;
   final int statusId;
 
+  final String? employeeName;
+  final String? departmentName;
+  final String? fromDate;
+  final String? toDate;
+  final String? reason;
+  final String? approver;
+  final String? follower;
+
   JustificationEntity({
     required this.code,
     required this.date,
@@ -18,6 +26,13 @@ class JustificationEntity {
     required this.creator,
     required this.status,
     required this.statusId,
+    this.employeeName,
+    this.departmentName,
+    this.fromDate,
+    this.toDate,
+    this.reason,
+    this.approver,
+    this.follower,
   });
 
   factory JustificationEntity.fromJson(Map<String, dynamic> json) =>

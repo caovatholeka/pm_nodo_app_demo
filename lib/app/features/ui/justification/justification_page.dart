@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
+import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/justification_list_item.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
@@ -30,10 +31,10 @@ class _JustificationPageState extends State<JustificationPage> {
     super.initState();
   }
 
-    void _showDetail() {
+  void _showDetail() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => JustificationDetail()),
+      MaterialPageRoute(builder: (_) => JustificationDetailPage()),
     );
   }
 
@@ -112,14 +113,24 @@ class _JustificationPageState extends State<JustificationPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(10),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CreateJustificationPage(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.add, color: Colors.white),
                     ),
-                    child: const Icon(Icons.add, color: Colors.white),
                   ),
                 ],
               ),
@@ -135,10 +146,14 @@ class _JustificationPageState extends State<JustificationPage> {
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
                     itemCount: state.listJustifications!.length,
                     itemBuilder: (context, index) {
-                      final JustificationEntity item =state.listJustifications![index];
-                      return JustificationListItem(entity: item, onTap: () {
-                        _showDetail();
-                      });
+                      final JustificationEntity item =
+                          state.listJustifications![index];
+                      return JustificationListItem(
+                        entity: item,
+                        onTap: () {
+                          _showDetail();
+                        },
+                      );
                     },
                   );
                 },

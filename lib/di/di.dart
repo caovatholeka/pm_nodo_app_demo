@@ -15,6 +15,8 @@ import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
+import 'package:pm_app/app/features/ui/justification/bloc/justification_cubit.dart';
+import 'package:pm_app/app/features/ui/justification/bloc/justification_detail_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
@@ -157,5 +159,11 @@ Future<void> init() async {
 
   sl.registerFactory<EmployeeDetailCubit>(
     () => EmployeeDetailCubit(repository: sl<EmployeeRepository>()),
+  );
+
+  sl.registerLazySingleton<JustificationCubit>(() => JustificationCubit());
+
+  sl.registerLazySingleton<JustificationDetailCubit>(
+    () => JustificationDetailCubit(),
   );
 }
