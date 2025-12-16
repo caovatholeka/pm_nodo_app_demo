@@ -115,4 +115,6 @@ class AppAssets {
   static final icTask = 'assets/images/icons/ic_task.svg';
   static final icCheckIn = 'assets/images/icons/ic_checkinout.svg';
   static final icOnLeave = 'assets/images/icons/ic_onLeave.svg';
+
+  static final icfilterADV = 'assets/images/icons/ic_filter.svg';
 }

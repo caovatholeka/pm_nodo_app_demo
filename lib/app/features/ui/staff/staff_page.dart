@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
@@ -152,16 +153,14 @@ class _StaffPageState extends State<StaffPage> {
                       prev.loadStatus != cur.loadStatus,
               builder: (context, state) {
                 if (state.loadStatus == LoadStatus.FAILURE) {
-                  return Center(
-                    child: Text(S.of(context).employee_no_data),
-                  );
+                  return Center(child: Text(S.of(context).employee_no_data));
                 }
 
                 return Padding(
                   padding: const EdgeInsets.all(5),
                   child: Container(
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      color: Color.fromARGB(255, 255, 255, 255),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(24),
                         topRight: Radius.circular(24),
@@ -191,84 +190,88 @@ class _StaffPageState extends State<StaffPage> {
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 10),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
       child: Row(
         children: [
-          // const Icon(Icons.search, color: Colors.grey, size: 22),
-          InkWell(
-            onTap: _onSearchPressed,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              width: 28,
-              height: 28,
-              child: Icon(
-                Icons.search,
-                color: AppColors.themeBlackDefault,
-                size: 20,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-
           Expanded(
-            child: TextField(
-              controller: _searchController,
-              decoration:  InputDecoration(
-                hintText: S.of(context).employee_search_hint,
-                border: InputBorder.none,
-                isDense: true,
+            child: Container(
+              height: 45,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: const Color(0xFFEAF2FF), 
+                  width: 0.5,
+                ),
               ),
-              onSubmitted: (_) => _onSearchPressed(),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: S.of(context).employee_search_hint,
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                      onSubmitted: (_) => _onSearchPressed(),
+                    ),
+                  ),
+
+                  if (_isSearchActive)
+                    InkWell(
+                      onTap: () {
+                        _searchController.clear();
+                        _activeFilter = null;
+                        _cubit.getListEmployees();
+                        setState(() => _isSearchActive = false);
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(Icons.close, size: 18, color: Colors.grey),
+                      ),
+                    ),
+                  Container(
+                    height: 40,
+                    width: 1,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    color: Color(0xFFEAF2FF),
+                  ),
+                  InkWell(
+                    onTap: _onSearchPressed,
+                    child: const Padding(
+                      padding: EdgeInsets.only(left: 5),
+                      child: Icon(Icons.search, size: 20, color: Colors.grey),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
-          InkWell(
-            // onTap: _onSearchPressed,
-            onTap: (){
-              _searchController.clear();
-              _cubit.getListEmployees(query: "");
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              width: 28,
-              height: 28,
-              child: Icon(
-                Icons.close,
-                color:
-                    _isSearchActive
-                        ? AppColors.themeBlackDefault
-                        : Colors.transparent,
-                size: 20,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 6),
+          const SizedBox(width: 10),
 
           InkWell(
             onTap: _openFilterSheet,
             child: Container(
-              width: 34,
-              height: 34,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFF0062FF),
-                borderRadius: BorderRadius.circular(8),
+                color: const Color(0xFFEAF2FF),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
-                Icons.tune_rounded,
-                color: Colors.white,
-                size: 20,
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: SvgPicture.asset(
+                    AppAssets.icfilterADV,
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
             ),
           ),
@@ -280,7 +283,7 @@ class _StaffPageState extends State<StaffPage> {
   Widget _buildList({required List employees, required StaffState state}) {
     if (state.loadStatus == LoadStatus.LOADING) {
       return const Center(
-        child: CircularProgressIndicator(color:Color(0xFF0062FF)),
+        child: CircularProgressIndicator(color: Color(0xFF0062FF)),
       );
     }
 
@@ -336,7 +339,9 @@ class _StaffPageState extends State<StaffPage> {
                     ),
                   ),
                   trailing: Text(
-                    emp.code != null ? "${S.of(context).employee_card_id}:${emp.code}" : "-",
+                    emp.code != null
+                        ? "${S.of(context).employee_card_id}:${emp.code}"
+                        : "-",
                     style: const TextStyle(
                       color: Color.fromARGB(255, 0, 98, 255),
                       fontWeight: FontWeight.w700,
