@@ -201,7 +201,7 @@ class _StaffPageState extends State<StaffPage> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: const Color(0xFFEAF2FF), 
-                  width: 0.5,
+                  width: 1,
                 ),
               ),
               child: Row(
