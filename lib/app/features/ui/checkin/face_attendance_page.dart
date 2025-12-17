@@ -18,6 +18,7 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/face_scan_cubit.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'widget/camera_cover_preview.dart';
 import 'widget/center_face_guide_painter.dart';
 import 'widget/face_guide_painter.dart';
@@ -428,6 +429,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final camReady = _initialized && _cam != null && _cam!.value.isInitialized;
     return BlocListener<FaceScanCubit, FaceScanState>(
       bloc: _cubit,
@@ -512,8 +514,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: !_scanStarted
-                      ? const Text(
-                    'Nhấp vào nút này để bắt đầu và đảm bảo máy ảnh của bạn đã được thiết lập và sẵn sàng',
+                      ?Text(
+                    s.check_in_hint,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.white,

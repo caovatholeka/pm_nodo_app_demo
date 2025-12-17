@@ -109,11 +109,12 @@
 
 
   "check_in_title": "Check In",
-  "check_in_subtitle": "Make sure you are in the office and in a well-lit area for optimal facial recognition.",
-  "check_in_button": "Check In Now",
-  "check_in_hint":"Press this button to begin and ensure your camera is set up and ready.",
-  "check_in_hint2":"Hold still!",
-  "check_in_hint3":"Look straight at the camera.",
+  "check_in_subtitle": "Make sure you are in the office and premises with ",
+  "check_in_subtitle2":"sufficient illuninaiton to recognize your face optimally",
+  "check_in_button": "Start Timekeeping",
+  "check_in_hint":"Press this button to start and make sure that your camera is set and ready",
+  "check_in_hint2":"Hold the camera",
+  "check_in_hint3":"Look straight to the camera when we verify your face.",
 
   "day_off_title":"Day Off Requests",
   "day_off_btn_delete":"Delete",

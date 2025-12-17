@@ -267,8 +267,7 @@ class _AccountPageState extends State<AccountPage> {
                                 image: DecorationImage(
                                   image: profile.avatarUrl != null
                                       ? NetworkImage(profile.avatarUrl!)
-                                      : AssetImage(AppAssets.img_df_avatar)
-                                          as ImageProvider,
+                                      : AssetImage('assets/images/img_df_avatar.jpg'),
                                   fit: BoxFit.cover,
                                 ),
                               ),

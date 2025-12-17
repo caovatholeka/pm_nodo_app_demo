@@ -18,6 +18,7 @@ class JustificationEntity {
   final String? reason;
   final String? approver;
   final String? follower;
+  final String? method;
 
   JustificationEntity({
     required this.code,
@@ -33,6 +34,7 @@ class JustificationEntity {
     this.reason,
     this.approver,
     this.follower,
+    this.method
   });
 
   factory JustificationEntity.fromJson(Map<String, dynamic> json) =>

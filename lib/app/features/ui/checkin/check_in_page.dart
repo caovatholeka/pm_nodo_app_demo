@@ -17,6 +17,7 @@ import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/square_avatar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/utils/utils.dart';
@@ -267,6 +268,7 @@ Future<void> _requestLocationPermission() async {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<CheckInCubit, CheckInState>(
       bloc: _cubit,
       buildWhen: (prev, cur) =>
@@ -372,7 +374,7 @@ Future<void> _requestLocationPermission() async {
     return Scaffold(
         backgroundColor: AppColors.bodyColor,
         appBar: MyAppBar(
-          titleAppbar: "Chấm công",
+          titleAppbar: S.of(context).check_in_title,
           haveBackButton: (widget.isFromHome ?? false) ? true : false,
           haveActionButton: true,
           iconPathAsset: AppAssets.icNotificationBell,
@@ -448,6 +450,7 @@ Future<void> _requestLocationPermission() async {
   }
 
   get _bodyContent{
+    final s = S.of(context);
     return RefreshIndicator(
       onRefresh: _onRefresh,
       child: Column(
@@ -475,8 +478,8 @@ Future<void> _requestLocationPermission() async {
           //   ),
           //   textAlign: TextAlign.center,
           // ).paddingOnly(bottom: 12),
-          Text("Đảm bảo bạn đang ở văn phòng và nơi có đủ ảnh sáng \n "
-              "để nhận diện được khuôn mặt một cách tối ưu",
+          Text("${s.check_in_subtitle} \n "
+              "${s.check_in_subtitle2}",
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
@@ -544,7 +547,7 @@ Future<void> _requestLocationPermission() async {
                         SvgPicture.asset(AppAssets.camScan,width: 24,height: 24,),
                         const SizedBox(width: 4,),
                         Text(
-                          "Chấm Công",
+                          S.of(context).check_in_button,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

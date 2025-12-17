@@ -323,7 +323,7 @@ class _StaffPageState extends State<StaffPage> {
                     size: 58,
                   ),
                   title: Text(
-                    emp.name ?? "Không có tên",
+                    emp.name ?? "-",
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -331,7 +331,7 @@ class _StaffPageState extends State<StaffPage> {
                     ),
                   ),
                   subtitle: Text(
-                    "Phòng ban: ${emp.department ?? 'Chưa có'}\n${emp.jobTitle ?? ''}",
+                    "${S.of(context).employee_card_department}: ${emp.department ?? '-'}\n${emp.jobTitle ?? ''}",
                     style: const TextStyle(
                       color: Colors.black54,
                       fontSize: 13,

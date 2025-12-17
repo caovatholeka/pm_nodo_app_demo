@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class FaceMaskWithWave extends StatelessWidget {
   const FaceMaskWithWave({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final size = MediaQuery.of(context).size;
 
     final maskW = size.width * 0.70;
@@ -34,9 +36,9 @@ class FaceMaskWithWave extends StatelessWidget {
           right: 0,
           bottom: 88 + MediaQuery.of(context).padding.bottom,
           child: Column(
-            children: const [
+            children: [
               Text(
-                'Giữ yên camera',
+                s.check_in_hint2,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -46,7 +48,7 @@ class FaceMaskWithWave extends StatelessWidget {
               ),
               SizedBox(height: 6),
               Text(
-                'Nhìn thẳng vào camera trong khi chúng tôi xác minh\nkhuôn mặt của bạn',
+                s.check_in_hint3,
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 12,

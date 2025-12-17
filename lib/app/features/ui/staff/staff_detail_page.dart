@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../data/models/enums/load_status.dart';
@@ -85,7 +86,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                 child: IgnorePointer(
                   ignoring: !_showAppBar,
                   child: MyAppBar(
-                    titleAppbar: "Chi tiết nhân viên",
+                    titleAppbar: S.of(context).employee_detail_title,
                     haveBackButton: true,
                     isTransparent: true,
                     backAction: () => Navigator.pop(context),
@@ -186,7 +187,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "${employee.jobTitle ?? ""} • NV${employee.code ?? "--"} • ${employee.phone ?? ""}",
+                          "${employee.jobTitle ?? ""} • ${S.of(context).employee_card_id}: ${employee.code ?? "--"} • ${employee.phone ?? ""}",
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.white,
@@ -206,7 +207,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               ExpandableSection(
-                title: "Thông tin cá nhân",
+                title: S.of(context).employee_personal,
                 initiallyExpanded: true,
                 style: ExpandableStyle.minimal,
                 children: [

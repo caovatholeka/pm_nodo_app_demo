@@ -344,7 +344,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 210),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
