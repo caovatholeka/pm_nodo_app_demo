@@ -14,6 +14,7 @@ import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
 import 'package:pm_app/app/features/ui/on_leave/widget/onleave_day_item_widget.dart';
 import 'package:pm_app/app/features/widgets/common_bottom_sheet.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../core/utils/validators.dart';
@@ -275,7 +276,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           (BuildContext context) => CommonBottomSheet(
             listValues: list,
             currentValue: _createCubit.state.currentDateLeaveType,
-            title: "Loại ngày nghỉ",
+            title: S.of(context).day_off_type,
           ),
     );
     _createCubit.onChangeDateTypeLeaves(item);
@@ -284,6 +285,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<CreateOnLeaveCubit, CreateOnLeaveState>(
       bloc: _createCubit,
       buildWhen: (prev, cur) => prev.createStatus != cur.createStatus ||
@@ -303,7 +305,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           _createCubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(
-            title: "Thông báo",
+            title: s.success,
             message:
                 widget.isEdit ?? false
                     ? "Cập nhật đơn xin nghỉ thành công"
@@ -322,7 +324,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           _createCubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
-            title: "Cảnh báo",
+            title: s.warning,
             message: state.errMsg,
           );
         } else {
@@ -335,8 +337,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           backgroundColor: AppColors.bodyColor,
           appBar: MyAppBar(
             titleAppbar:  widget.isEdit == true
-              ? "Cập nhật yêu cầu nghỉ phép"
-              : "Tạo yêu cầu nghỉ phép"
+              ? s.day_off_edit_title
+              : s.day_off_create_title
             ,
             haveBackButton: true,
             haveActionButton: true,
@@ -367,8 +369,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                             prev.listDateTypeLeaves != cur.listDateTypeLeaves,
                           builder: (context,state){
                             return InputTextField(
-                              title: "Loại ngày nghỉ",
-                              hintText: "",
+                              title: s.day_off_type,
+                              hintText: s.day_off_type_hint,
                               isRequiredField: true,
                               controller: dateTypeController..text = state.leaveDateType ?? "",
                               enable: true,
@@ -391,7 +393,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                     prev.fromDateTime != cur.fromDateTime,
                                   builder: (context,state){
                                     return InputTextField(
-                                      title: "Từ ngày",
+                                      title: s.day_off_from,
                                       hintText: "",
                                       isRequiredField: true,
                                       enable: true,
@@ -409,7 +411,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                                   .inDays <
                                                   0) {
                                                 AppSnackBar.showError(
-                                                  title: "Cảnh báo",
+                                                  title: s.warning,
                                                   message:
                                                   "Từ ngày không được lớn hơn đến ngày",
                                                 );
@@ -440,7 +442,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             } else {
                                               if(selectedDate.difference(DateTime.now()).inDays < 0) {
                                                 AppSnackBar.showError(
-                                                  title: "Cảnh báo",
+                                                  title: s.warning,
                                                   message:
                                                   "Từ ngày không được nhỏ hơn hôm nay",
                                                 );
@@ -466,7 +468,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                     prev.toDateTime != cur.toDateTime,
                                   builder: (context,state){
                                     return InputTextField(
-                                      title: "Đến ngày",
+                                      title: s.day_off_to,
                                       hintText: "",
                                       isRequiredField: true,
                                       enable: true,
@@ -484,7 +486,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                                 _createCubit.state.fromDateTime!,
                                               ).inDays < 0) {
                                                 AppSnackBar.showError(
-                                                  title: "Cảnh báo",
+                                                  title: s.warning,
                                                   message:
                                                   "Từ ngày không được lớn hơn đến ngày",
                                                 );
@@ -517,7 +519,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
                                               if(selectedDate.difference(DateTime.now()).inDays < 0) {
                                                 AppSnackBar.showError(
-                                                  title: "Cảnh báo",
+                                                  title: s.warning,
                                                   message:
                                                   "Đến ngày không được nhỏ hơn hôm nay",
                                                 );
@@ -591,7 +593,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                             prev.toDateTime != cur.toDateTime,
                           builder: (context,state){
                             return InputTextField(
-                              title: "Số ngày nghỉ",
+                              title: s.day_off_total,
                               hintText: "",
                               isRequiredField: false,
                               enable: false,
@@ -601,7 +603,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                           }),
 
                       InputTextField(
-                        title: "Số phép còn lại",
+                        title: s.day_off_left,
                         hintText: "",
                         isRequiredField: false,
                         enable: false,
@@ -616,8 +618,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                       ).paddingOnly(bottom: 20),
 
                       InputTextField(
-                        title: "Lý do",
-                        hintText: "Nhập lý do nghỉ",
+                        title: s.day_off_reason,
+                        hintText: s.day_off_reason_hint,
                         isRequiredField: true,
                         enable: true,
                         controller: reasonController..text = state.reason ?? "",
@@ -673,7 +675,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                   borderRadius: BorderRadius.all(Radius.circular(6))
               ),
               child: Center(
-                child: Text("Lưu",
+                child: Text(S.of(context).save,
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -695,7 +697,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
               double.parse(totalDaysController.text)
       ) {
         AppSnackBar.showWarning(
-          title: "Cảnh báo",
+          title: S.of(context).warning,
           message: "Quỹ phép của nhân viên không còn đủ!",
         );
       } else {
@@ -709,7 +711,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
 
   _showUpdate(){
     _showDialog(
-      title: "Xác nhận",
+      title: S.of(context).confirm,
       message:"Thông tin sẽ được thay đổi. Bạn chắc chắn "
           "muốn thay đổi thông tin này?",
       success: true,
@@ -727,7 +729,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
               double.parse(totalDaysController.text)
       ) {
         AppSnackBar.showWarning(
-          title: "Cảnh báo",
+          title: S.of(context).warning,
           message: "Quỹ phép của nhân viên không còn đủ!",
         );
       } else {

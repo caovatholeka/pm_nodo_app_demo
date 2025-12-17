@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
+import 'package:pm_app/app/features/ui/account/personal_info/personal_state.dart';
+import 'package:pm_app/app/features/widgets/expenable_section.dart';
 import 'package:pm_app/generated/l10n.dart';
-import '../../../../core/commons/app_assets.dart';
-import '../../../widgets/expenable_section.dart';
-
-import 'personal_cubit.dart';
-import 'personal_state.dart';
 import 'package:pm_app/app/features/widgets/info_box_special.dart';
 import 'package:pm_app/app/features/widgets/info_row_special.dart';
 import 'package:pm_app/app/features/widgets/info_row.dart';
@@ -24,7 +23,8 @@ class PersonalInfoPage extends StatefulWidget {
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final _cubit = GetIt.I.get<PersonalCubit>();
 
-  bool _showAppBar = true; 
+  bool _showAppBar = true;
+
   @override
   void initState() {
     super.initState();
@@ -34,10 +34,10 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: const Color(0xFFF4F6F8),
-
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AnimatedOpacity(
@@ -61,6 +61,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
+
           final user = state.profile;
           if (user == null) {
             return const Center(child: Text("Lỗi tải thông tin"));
@@ -102,25 +103,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                 Stack(
                                   alignment: Alignment.bottomRight,
                                   children: [
-                                    Container(
-                                      width: 96,
-                                      height: 96,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 3,
-                                        ),
-                                        image: DecorationImage(
-                                          image: (user.avatarUrl != null &&
-                                                  user.avatarUrl!.isNotEmpty)
-                                              ? NetworkImage(user.avatarUrl!)
-                                              : AssetImage(
-                                                  AppAssets.img_df_avatar,
-                                                ) as ImageProvider,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
+                                    _buildAvatar(
+                                      user.avatarUrl,
+                                      96,
                                     ),
                                     Container(
                                       width: 28,
@@ -149,7 +134,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                 Padding(
                                   padding: const EdgeInsets.only(right: 15),
                                   child: Text(
-                                    "${user.jobTitle ?? ""} • ${user.employeeCode ?? ""} • ${user.phone ?? ""}",
+                                    "${user.jobTitle ?? ""} • ${s.employee_card_id}: ${user.employeeCode ?? ""} • ${user.phone ?? ""}",
                                     style: const TextStyle(
                                       fontSize: 13,
                                       color: Colors.white,
@@ -170,7 +155,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
                       ExpandableSection(
-                        title: s.personal_info_profile,
+                        title: s.employee_personal,
                         initiallyExpanded: true,
                         style: ExpandableStyle.minimal,
                         children: [
@@ -195,10 +180,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           ),
                         ],
                       ),
+
                       ExpandableSection(
                         title: s.profile_job_position,
-                        style: ExpandableStyle.minimal,
                         initiallyExpanded: true,
+                        style: ExpandableStyle.minimal,
                         children: [
                           InfoBoxSpecial(
                             children: [
@@ -228,6 +214,7 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           ),
                         ],
                       ),
+
                       ExpandableSection(
                         title: s.profile_other,
                         initiallyExpanded: true,
@@ -240,7 +227,8 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                     ? s.profile_status1
                                     : s.profile_status2,
                                 subtitlePrefix: s.profile_dateJoin,
-                                subtitleValue: user.dateJoinCompany ?? "-",
+                                subtitleValue:
+                                    user.dateJoinCompany ?? "-",
                                 showDivider: false,
                               ),
                             ],
@@ -255,6 +243,35 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildAvatar(String? url, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 3),
+      ),
+      child: ClipOval(
+        child: Image.network(
+          url ?? '',
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            return Image.asset(
+              AppAssets.img_df_avatar,
+              fit: BoxFit.cover,
+            );
+          },
+          loadingBuilder: (_, child, progress) {
+            if (progress == null) return child;
+            return const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            );
+          },
+        ),
       ),
     );
   }

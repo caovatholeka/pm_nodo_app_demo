@@ -123,7 +123,7 @@ class ListTaskItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          "Người giao việc: ${entity.assigner?.name ?? ""}",
+                          "${s.to_do_card_taskmaster}: ${entity.assigner?.name ?? ""}",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -133,7 +133,7 @@ class ListTaskItem extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          "Người nhận việc: ${entity.userIds?.map((user) => user.name).toList().join(", ") ??""}",
+                          "${s.to_taskempl}: ${entity.userIds?.map((user) => user.name).toList().join(", ") ??""}",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
@@ -154,7 +154,7 @@ class ListTaskItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Hạn chót",
+                    s.to_do_card_deadline,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -182,7 +182,7 @@ class ListTaskItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Loại công việc",
+                    s.to_jobtype,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,

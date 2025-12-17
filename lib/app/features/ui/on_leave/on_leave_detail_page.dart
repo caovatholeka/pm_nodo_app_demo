@@ -10,6 +10,7 @@ import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -146,6 +147,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<DetailOnLeaveCubit, DetailOnLeaveState>(
       bloc: _cubit,
       listener: (context, state) {
@@ -211,7 +213,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         return Scaffold(
           backgroundColor: AppColors.bodyColor,
           appBar: MyAppBar(
-            titleAppbar: "Chi tiết yêu cầu nghỉ phép",
+            titleAppbar: s.day_off_detail_title,
             haveBackButton: true,
           ),
           // extendBodyBehindAppBar: true,
@@ -249,13 +251,13 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildItem(
-          "Nhân viên",
+          S.of(context).day_off_card_employee,
           entity?.employeeName ?? "",
         ).paddingOnly(bottom: 12),
         CustomDashView(),
 
         _buildItem(
-          "Phòng ban",
+          S.of(context).day_off_card_department,
           entity?.departmentName ?? "",
         ).paddingOnly(top: 12, bottom: 12),
         CustomDashView(),
@@ -265,33 +267,37 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         //     .paddingOnly(top: 12, bottom: 12),
         // CustomDashView(),
         _buildItem(
-          "Loại nghỉ",
+          S.of(context).day_off_card_type,
           entity?.holidayStatus ?? "",
         ).paddingOnly(top: 12, bottom: 12),
         CustomDashView(),
 
         _buildItem(
-          "Từ ngày",
+          S.of(context).day_off_card_from,
           AppDateUtils.changeIso8601StringToDateTimeString(entity?.dateFrom),
         ).paddingOnly(top: 12, bottom: 12),
         CustomDashView(),
 
         _buildItem(
-          "Đến ngày",
+          S.of(context).day_off_card_to,
           AppDateUtils.changeIso8601StringToDateTimeString(entity?.dateTo),
         ).paddingOnly(top: 12, bottom: 12),
         CustomDashView(),
 
         _buildItem(
-          "Lý do nghỉ",
+          S.of(context).day_off_card_reason,
           entity?.description ?? "",
         ).paddingOnly(top: 12, bottom: 12),
         CustomDashView(),
 
         _buildItem(
-          "Số phép còn lại",
-          GlobalData.instance.userProfile?.remainLeave.toString().replaceAll(".0","",) ??"",)
-          .paddingOnly(top: 12, bottom: 12),
+          S.of(context).day_off_left,
+          GlobalData.instance.userProfile?.remainLeave.toString().replaceAll(
+                ".0",
+                "",
+              ) ??
+              "",
+        ).paddingOnly(top: 12, bottom: 12),
         CustomDashView(),
 
         Padding(
@@ -301,13 +307,13 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         CustomDashView(),
 
         _buildItem(
-          "Lý do hủy",
+          S.of(context).day_off_card_cancel_reason,
           entity?.reasonCancel ?? "",
-        ).paddingOnly(top: 12,bottom: 12),
+        ).paddingOnly(top: 12, bottom: 12),
         CustomDashView(),
 
         _buildItem(
-          "Người duyệt",
+          S.of(context).day_off_approver,
           entity?.userApprove?.name ?? "",
         ).paddingOnly(top: 12, bottom: 12),
 
@@ -326,7 +332,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             children: [
               Expanded(
                 child: PrimaryButton(
-                  mainText: "Xóa",
+                  mainText: S.of(context).day_off_btn_delete,
                   type: PrimaryButtonType.secondary,
                   callback: () => showDeleteConfirmDialog(),
                 ),
@@ -334,7 +340,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: PrimaryButton(
-                  mainText: "Gửi duyệt",
+                  mainText: S.of(context).day_off_btn_send_approval,
                   type: PrimaryButtonType.primary,
                   callback: () {
                     _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
@@ -344,7 +350,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: PrimaryButton(
-                  mainText: "Cập nhật",
+                  mainText: S.of(context).day_off_btn_edit,
                   type: PrimaryButtonType.primary,
                   callback: () => doUpdate(context),
                 ),
@@ -363,7 +369,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
       builder:
           (_) => CustomDialog(
             iconPath: AppAssets.ic_delete,
-            title: "Xác nhận xoá",
+            title: S.of(context).confirm_delete,
             content: "Bạn có chắc muốn xoá bản ghi này không?",
             success: false,
             confirmText: "Xoá",
@@ -417,7 +423,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Trạng thái",
+          S.of(context).day_off_card_status,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,

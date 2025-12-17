@@ -30,7 +30,7 @@
 
   "otp_verify_title": "OTP Verification",
   "otp_verify_subtitle": "Enter the OTP sent to your email",
-  "otp_timer_label": "Resend OTP in {timeLeft}",
+  "otp_timer_label": "Resend OTP in: ",
   "resend_otp": "Resend OTP",
   "otp_success": "OTP verified successfully!",
   "otp_resend_success": "A new OTP has been sent to your email.",
@@ -44,6 +44,7 @@
   "attendance_card_status2": "Check Out",
   "attendance_cardCheck_in":"Not Yet",
   "attendance_cardCheck_out":"Done at",
+  "smallHint": "In case of any issues, please reach out to the company’s\n HR department for assistance",
 
   "utilities_title":"Utilities",
   "utilities_tab1": "Employees",
@@ -51,6 +52,8 @@
   "utilities_tab3": "Day Off",
   "utilities_tab4": "Clock In",
   "utilities_tab5":"To Do",
+  "utilities_tab6":"Application",
+  "utilities_tab7":"Justification",
 
   "to_do_title":"To Do List",
   "to_do_all": "See All",
@@ -169,13 +172,15 @@
   "profile_info_name":"Employee Name",
   "profile_info_address":"Address",
   "profile_job_position":"Job Position Details",
-  "profile_jobTitle":"Job Title:",
-  "profile_manager":"Manager:",
-  "profile_address":"Address:",
+  "profile_jobTitle":"Job Title: ",
+  "profile_manager":"Manager: ",
+  "profile_address":"Address: ",
 
   "profile_other":"Other Information",
-  "profile_dateJoin":"Date of Employment:",
+  "profile_dateJoin":"Date of Employment: ",
   "profile_work":"Working",
+  "profile_not_work": "Resigned",
+  "profile_od":"Office",
   "profile_status1":"Contract Signed",
   "profile_status2":"Contract Not Signed",
 
@@ -206,6 +211,17 @@
 
   "language_title":"Select Language",
   "language_option1":"Vietnamese",
-  "language_option2":"English"
+  "language_option2":"English",
+
+  "attendance_date_format": "{month} {day}, {year}",
+  "@attendance_date_format": {
+    "placeholders": {
+      "day": {},
+      "month": {},
+      "year": {}
+    }
+  },
+  
+  "justification_title":"Late Arrival/Early Request"
 
 }

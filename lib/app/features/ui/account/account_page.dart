@@ -56,8 +56,7 @@ class _AccountPageState extends State<AccountPage> {
             Navigator.pop(context);
 
             try {
-              // final api = GetIt.I<ApiClient>();
-              ApiClient  api = ApiUtil.instance.createApiClient();
+              ApiClient api = ApiUtil.instance.createApiClient();
               final token = await SharedPrefsHelper.getToken();
               if (token?.accessToken != null) {
                 final dio = GetIt.I<Dio>();
@@ -75,7 +74,7 @@ class _AccountPageState extends State<AccountPage> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (_) => const LoginPage()),
-              (r) => false,
+              (_) => false,
             );
           },
           success: false,
@@ -118,9 +117,11 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
+  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+
     return BlocBuilder<AccountCubit, AccountState>(
       bloc: _cubit,
       builder: (context, state) {
@@ -143,17 +144,7 @@ class _AccountPageState extends State<AccountPage> {
                 delegate: SliverChildListDelegate(
                   [
                     const SizedBox(height: 18),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        s.profile_general_title,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ),
+                    _sectionTitle(s.profile_general_title),
                     _roundedMenuContainer(
                       children: [
                         _menuItem(
@@ -178,30 +169,9 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    Padding(
-                      padding: const EdgeInsets.only(left:10),
-                      child: Text(
-                        s.profile_about_title,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ),
+                    _sectionTitle(s.profile_about_title),
                     _roundedMenuContainer(
                       children: [
-                        // _menuItem(
-                        //   icon: AppAssets.icHelpCenter,
-                        //   title: "Help Center",
-                        //   onTap: () {},
-                        // ),
-                        // _menuItem(
-                        //   icon: AppAssets.icUser,
-                        //   title: "Privacy Policy",
-                        //   onTap: () {},
-                        // ),
                         _menuItem(
                           icon: AppAssets.icLogout,
                           title: s.profile_about_btn1,
@@ -225,10 +195,6 @@ class _AccountPageState extends State<AccountPage> {
 
     final avatarSize = screen.width * 0.18;
     final cameraSize = avatarSize * 0.28;
-    final nameFontSize = screen.width * 0.045;
-    final subInfoFontSize = screen.width * 0.028;
-    final spacing12 = screen.width * 0.03;
-    final spacing6 = screen.width * 0.015;
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -239,38 +205,30 @@ class _AccountPageState extends State<AccountPage> {
               bottomLeft: Radius.circular(26),
               bottomRight: Radius.circular(26),
             ),
-            child: SvgPicture.asset(AppAssets.profileBG, fit: BoxFit.cover),
+            child: SvgPicture.asset(
+              AppAssets.profileBG,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
+
         Padding(
           padding: EdgeInsets.only(bottom: screen.height * 0.032),
           child: status == LoadStatus.LOADING
               ? const CircularProgressIndicator(
-                  color: AppColors.appBarGradientStart)
-              : profile != null
-                  ? Column(
+                  color: AppColors.appBarGradientStart,
+                )
+              : profile == null
+                  ? const SizedBox.shrink()
+                  : Column(
                       mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Stack(
                           alignment: Alignment.bottomRight,
                           children: [
-                            Container(
-                              width: avatarSize,
-                              height: avatarSize,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: avatarSize * 0.05,
-                                ),
-                                image: DecorationImage(
-                                  image: profile.avatarUrl != null
-                                      ? NetworkImage(profile.avatarUrl!)
-                                      : AssetImage('assets/images/img_df_avatar.jpg'),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                            _buildAvatar(
+                              profile.avatarUrl,
+                              avatarSize,
                             ),
                             Container(
                               width: cameraSize,
@@ -286,33 +244,70 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ],
                         ),
-                        SizedBox(height: spacing12),
+                        const SizedBox(height: 12),
                         Text(
                           profile.name ?? "",
                           style: TextStyle(
-                            fontSize: nameFontSize,
+                            fontSize: screen.width * 0.045,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: spacing6),
-                        Padding(
-                          padding:
-                              EdgeInsets.only(right: screen.width * 0.09),
-                          child: Text(
-                            "${profile.jobTitle ?? ''}  •  NV: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: AppColors.colorPrimary50,
-                              fontSize: subInfoFontSize,
-                            ),
+                        const SizedBox(height: 6),
+                        Text(
+                          "${profile.jobTitle ?? ''}  •  ${S.of(context).employee_card_id}: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
+                          style: TextStyle(
+                            color: AppColors.colorPrimary50,
+                            fontSize: screen.width * 0.028,
                           ),
                         ),
                       ],
-                    )
-                  : const SizedBox.shrink(),
+                    ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAvatar(String? url, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: size * 0.05),
+      ),
+      child: ClipOval(
+        child: Image.network(
+          url ?? '',
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            return Image.asset(
+              AppAssets.img_df_avatar,
+              fit: BoxFit.cover,
+            );
+          },
+          loadingBuilder: (_, child, progress) {
+            if (progress == null) return child;
+            return const Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, bottom: 4),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: Colors.grey.shade600,
+        ),
+      ),
     );
   }
 
@@ -357,13 +352,10 @@ class _AccountPageState extends State<AccountPage> {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(right: 6),
-              child: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
-              ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
             ),
           ],
         ),

@@ -19,11 +19,7 @@ import '../../widgets/my_app_bar.dart';
 class StaffDetailPage extends StatefulWidget {
   final int employeeId;
 
-  const StaffDetailPage({
-    super.key,
-    required this.employeeId,
-  });
-
+  const StaffDetailPage({super.key, required this.employeeId});
 
   @override
   State<StaffDetailPage> createState() => _StaffDetailPageState();
@@ -40,10 +36,8 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
 
   @override
   void dispose() {
-
     super.dispose();
   }
-
 
   bool _showAppBar = true;
 
@@ -53,9 +47,10 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
     }
 
     try {
-      final cleaned = base64String.contains(',')
-          ? base64String.split(',').last
-          : base64String;
+      final cleaned =
+          base64String.contains(',')
+              ? base64String.split(',').last
+              : base64String;
       final bytes = base64Decode(cleaned);
       if (bytes.isEmpty) return AssetImage(AppAssets.img_df_avatar);
       return MemoryImage(bytes);
@@ -66,74 +61,76 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<StaffCubit,StaffState>(
-        bloc: _cubit,
-        listener: (context,state){
+    return BlocConsumer<StaffCubit, StaffState>(
+      bloc: _cubit,
+      listener: (context, state) {},
+      builder: (context, state) {
+        final employee = state.employee;
 
-        },
-        builder: (context,state) {
-          final employee = state.employee;
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          backgroundColor: const Color(0xFFF4F6F8),
 
-          return Scaffold(
-            extendBodyBehindAppBar: true,
-            backgroundColor: const Color(0xFFF4F6F8),
-
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(kToolbarHeight),
-              child: AnimatedOpacity(
-                opacity: _showAppBar ? 1 : 0,
-                duration: const Duration(milliseconds: 250),
-                child: IgnorePointer(
-                  ignoring: !_showAppBar,
-                  child: MyAppBar(
-                    titleAppbar: S.of(context).employee_detail_title,
-                    haveBackButton: true,
-                    isTransparent: true,
-                    backAction: () => Navigator.pop(context),
-                  ),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: AnimatedOpacity(
+              opacity: _showAppBar ? 1 : 0,
+              duration: const Duration(milliseconds: 250),
+              child: IgnorePointer(
+                ignoring: !_showAppBar,
+                child: MyAppBar(
+                  titleAppbar: S.of(context).employee_detail_title,
+                  haveBackButton: true,
+                  isTransparent: true,
+                  backAction: () => Navigator.pop(context),
                 ),
               ),
             ),
+          ),
 
-            body: NotificationListener<UserScrollNotification>(
-              onNotification: (scroll) {
-                if (scroll.direction == ScrollDirection.reverse && _showAppBar) {
-                  setState(() => _showAppBar = false);
-                } else if (scroll.direction == ScrollDirection.forward && !_showAppBar) {
-                  setState(() => _showAppBar = true);
+          body: NotificationListener<UserScrollNotification>(
+            onNotification: (scroll) {
+              if (scroll.direction == ScrollDirection.reverse && _showAppBar) {
+                setState(() => _showAppBar = false);
+              } else if (scroll.direction == ScrollDirection.forward &&
+                  !_showAppBar) {
+                setState(() => _showAppBar = true);
+              }
+              return true;
+            },
+
+            child: Builder(
+              builder: (_) {
+                if (state.loadStatus == LoadStatus.LOADING) {
+                  return const Center(child: CircularProgressIndicator());
                 }
-                return true;
-              },
 
-              child: Builder(
-                builder: (_) {
-                  if (state.loadStatus == LoadStatus.LOADING) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (state.loadStatus == LoadStatus.FAILURE) {
-                    return const Center(
-                      child: Text(
-                        "Không thể tải thông tin nhân viên",
-                        style: TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
+                if (state.loadStatus == LoadStatus.FAILURE) {
+                  return const Center(
+                    child: Text(
+                      "Không thể tải thông tin nhân viên",
+                      style: TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
                       ),
-                    );
-                  }
+                    ),
+                  );
+                }
 
-                  if (employee == null) {
-                    return const Center(child: Text("Không có dữ liệu nhân viên"));
-                  }
+                if (employee == null) {
+                  return const Center(
+                    child: Text("Không có dữ liệu nhân viên"),
+                  );
+                }
 
-                  return _buildBody(employee);
-                },
-              ),
+                return _buildBody(employee);
+              },
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildBody(employee) {
@@ -166,16 +163,13 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                           height: 96,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 3,
-                            ),
-                            image: DecorationImage(
-                              image: _buildAvatarImage(employee.avatarUrl),
-                              fit: BoxFit.cover,
-                            ),
+                            border: Border.all(color: Colors.white, width: 3),
+                          ),
+                          child: ClipOval(
+                            child: _buildSafeAvatar(employee.avatarUrl),
                           ),
                         ),
+
                         const SizedBox(height: 10),
                         Text(
                           employee.name ?? "-",
@@ -214,12 +208,12 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                   InfoBoxSpecial(
                     children: [
                       InfoRow(
-                        title: "Tên nhân viên",
+                        title: S.of(context).employee_per1,
                         subtitle: employee.name ?? "-",
                         showDivider: false,
                       ),
                       InfoRow(
-                        title: "Số điện thoại",
+                        title: S.of(context).employee_per2,
                         subtitle: employee.phone ?? "-",
                         showDivider: false,
                         isClickable: true,
@@ -233,7 +227,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                         type: "email",
                       ),
                       InfoRow(
-                        title: "Địa chỉ",
+                        title: S.of(context).employee_per3,
                         subtitle: employee.currentAddress ?? "-",
                         showDivider: false,
                       ),
@@ -243,7 +237,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
               ),
 
               ExpandableSection(
-                title: "Thông tin công việc",
+                title: S.of(context).employee_job_detail,
                 initiallyExpanded: true,
                 style: ExpandableStyle.minimal,
                 children: [
@@ -251,27 +245,28 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                     children: [
                       InfoRowSpecial(
                         title: employee.jobTitle ?? "-",
-                        subtitlePrefix: "Chức danh: ",
+                        subtitlePrefix: S.of(context).employee_jd1,
                         subtitleValue: employee.jobTitle ?? "-",
                         showDivider: false,
                       ),
                       const SizedBox(height: 12),
                       InfoRowSpecial(
                         title: employee.department ?? "-",
-                        subtitlePrefix: "Quản lý: ",
+                        subtitlePrefix: S.of(context).employee_jd2,
                         subtitleValue: employee.managerby ?? "-",
                         showDivider: false,
                       ),
                       const SizedBox(height: 12),
                       InfoRowSpecial(
-                        title: (employee.active ?? "") == "work"
-                            ? "Đang làm việc"
-                            : "Đã nghỉ việc",
-                        subtitlePrefix: "Địa chỉ làm việc: ",
+                        title:
+                            (employee.active ?? "") == "work"
+                                ? S.of(context).profile_work
+                                : S.of(context).profile_not_work,
+                        subtitlePrefix: S.of(context).employee_jd3,
                         subtitleValue:
-                        (employee.xlocationType ?? "") == "inhouse"
-                            ? "Văn phòng công ty"
-                            : "Onsite",
+                            (employee.xlocationType ?? "") == "inhouse"
+                                ? S.of(context).profile_od
+                                : "Onsite",
                         showDivider: false,
                       ),
                     ],
@@ -280,17 +275,18 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
               ),
 
               ExpandableSection(
-                title: "Khác",
+                title: S.of(context).employee_other,
                 initiallyExpanded: true,
                 style: ExpandableStyle.minimal,
                 children: [
                   InfoBoxSpecial(
                     children: [
                       InfoRowSpecial(
-                        title: (employee.contractStatus ?? "") == "signed"
-                            ? "Đã ký hợp đồng"
-                            : "Chưa ký",
-                        subtitlePrefix: "Ngày gia nhập: ",
+                        title:
+                            (employee.contractStatus ?? "") == "signed"
+                                ? S.of(context).profile_status1
+                                : S.of(context).profile_status2,
+                        subtitlePrefix: S.of(context).employee_o1,
                         subtitleValue: employee.dateJoinCompany ?? "-",
                         showDivider: false,
                       ),
@@ -307,3 +303,59 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
     );
   }
 }
+
+Widget _buildSafeAvatar(String? avatar) {
+  if (avatar == null || avatar.trim().isEmpty) {
+    return Image.asset(
+      AppAssets.img_df_avatar,
+      fit: BoxFit.cover,
+    );
+  }
+
+  if (avatar.startsWith('http')) {
+    return Image.network(
+      avatar,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) {
+        return Image.asset(
+          AppAssets.img_df_avatar,
+          fit: BoxFit.cover,
+        );
+      },
+      loadingBuilder: (_, child, progress) {
+        if (progress == null) return child;
+        return const Center(
+          child: CircularProgressIndicator(strokeWidth: 2),
+        );
+      },
+    );
+  }
+
+  try {
+    final cleaned =
+        avatar.contains(',') ? avatar.split(',').last : avatar;
+    final bytes = base64Decode(cleaned);
+
+    if (bytes.isEmpty) {
+      return Image.asset(AppAssets.img_df_avatar, fit: BoxFit.cover);
+    }
+
+    return Image.memory(
+      bytes,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) {
+        return Image.asset(
+          AppAssets.img_df_avatar,
+          fit: BoxFit.cover,
+        );
+      },
+    );
+  } catch (e) {
+    return Image.asset(
+      AppAssets.img_df_avatar,
+      fit: BoxFit.cover,
+    );
+  }
+}
+
+

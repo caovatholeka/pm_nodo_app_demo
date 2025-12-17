@@ -3,6 +3,7 @@ import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/core/param/employee_filter_param.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart' as widgets;
+import 'package:pm_app/generated/l10n.dart';
 
 class AdvancedFilterSheet extends StatefulWidget {
   final List<MasterDataItem> departments;
@@ -114,6 +115,7 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -133,10 +135,10 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                     onTap: () => Navigator.pop(context),
                     child: const Icon(Icons.close, size: 22, color: Colors.black87),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        "Bộ lọc nâng cao",
+                        s.employee_advanced_filter,
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 17,
@@ -147,8 +149,8 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                   ),
                   GestureDetector(
                     onTap: _clearFilters,
-                    child: const Text(
-                      "Xóa lọc",
+                    child:Text(
+                      s.employee_advanced_delete,
                       style: TextStyle(
                         color: Colors.redAccent,
                         fontWeight: FontWeight.w600,
@@ -164,24 +166,24 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
             const SizedBox(height: 16),
 
             InputTextField(
-              title: "Tên nhân viên",
-              hintText: "Nhập tên nhân viên",
+              title: s.employee_advanced_name,
+              hintText: s.employee_advanced_namehint,
               controller: nameController,
               isRequiredField: false,
             ),
             const SizedBox(height: 10),
 
             InputTextField(
-              title: "Mã nhân viên",
-              hintText: "Nhập mã nhân viên",
+              title: s.employee_advanced_code,
+              hintText: s.employee_advanced_codehint,
               controller: codeController,
               isRequiredField: false,
             ),
             const SizedBox(height: 10),
 
             widgets.DropdownInputField(
-              title: "Phòng ban",
-              hint: "Chọn phòng ban",
+              title: s.employee_advanced_department,
+              hint: s.employee_advanced_select_department,
               items: widget.departments.map((e) => e.text ?? "").toList(),
               selectedValue: selectedDeptId == null
                   ? null
@@ -197,8 +199,8 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
             const SizedBox(height: 10),
 
             widgets.DropdownInputField(
-              title: "Chức vụ",
-              hint: "Chọn chức vụ",
+              title: s.employee_advanced_position,
+              hint: s.employee_advanced_select_position,
               items: widget.jobTitles.map((e) => e.text ?? "").toList(),
               selectedValue: selectedJobId == null
                   ? null
@@ -215,15 +217,15 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
 
             InputTextField(
               title: "Email",
-              hintText: "Nhập email",
+              hintText: s.employee_advanced_emailhint,
               controller: emailController,
               isRequiredField: false,
             ),
             const SizedBox(height: 10),
 
             widgets.DropdownInputField(
-              title: "Trạng thái",
-              hint: "Chọn trạng thái",
+              title: s.employee_advanced_status,
+              hint: s.employee_advanced_select_status,
               items: widget.statuses,              
               selectedValue: selectedStatus,
               onChanged: (val) {
@@ -243,8 +245,8 @@ class _AdvancedFilterSheetState extends State<AdvancedFilterSheet> {
                   backgroundColor: const Color(0xFF0062FF),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: const Text(
-                  "Áp dụng",
+                child:Text(
+                  s.employee_advanced_apply,
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),

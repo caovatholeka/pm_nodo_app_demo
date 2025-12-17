@@ -9,6 +9,7 @@ import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/justification_list_item.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import 'bloc/justification_cubit.dart';
 
@@ -73,12 +74,13 @@ class _JustificationPageState extends State<JustificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocProvider(
       create: (_) => _cubit,
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
         appBar: MyAppBar(
-          titleAppbar: "Đăng ký đi muộn về sớm",
+          titleAppbar: s.justification_title,
           haveBackButton: widget.isFromHome ?? false,
           haveActionButton: true,
           iconPathAsset: AppAssets.icNotificationBell,

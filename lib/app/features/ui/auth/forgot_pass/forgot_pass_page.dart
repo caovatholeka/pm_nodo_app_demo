@@ -5,6 +5,7 @@ import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_page.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:pm_app/di/di.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'forgot_cubit.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../widgets/input_text_field.dart';
@@ -58,7 +59,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
   @override
   Widget build(BuildContext context) {
     final keyboard = MediaQuery.of(context).viewInsets.bottom;
-
+    final s = S.of(context);
     return BlocConsumer<ForgotCubit, ForgotState>(
       listener: (context, state) {
         if (state.forgotStatus == LoadStatus.FAILURE) {
@@ -143,14 +144,38 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                     key: _formKey,
                                     child: Column(
                                       children: [
+                                        const SizedBox(height: 10),
                                         Image.asset(
                                           AppAssets.appLogo2,
                                           width: 120,
-                                          height: 120,
+                                          height: 48,
                                         ),
                                         const SizedBox(height: 12),
-                                        const Text(
-                                          "Quên mật khẩu",
+                                        RichText(
+                                          text: TextSpan(
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: Colors.black87,
+                                              height: 1.4,
+                                              
+                                            ),
+                                            children: [
+                                              const TextSpan(
+                                                text: '* ',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(text: s.change_password_condistion)
+                                            ],
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 10),
+
+                                        Text(
+                                          s.forgot_password_title,
                                           style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w700,
@@ -159,8 +184,8 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                         const SizedBox(height: 18),
 
                                         InputTextField(
-                                          title: "Tên đăng nhập",
-                                          hintText: "Nhập tên đăng nhập",
+                                          title: s.username,
+                                          hintText: s.username_hint,
                                           isRequiredField: true,
                                           controller: _userCtrl,
                                           bgrColor: true,
@@ -171,8 +196,8 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                         ),
                                         const SizedBox(height: 16),
                                         InputTextField(
-                                          title: "Mật khẩu mới",
-                                          hintText: "Nhập mật khẩu mới",
+                                          title: s.password,
+                                          hintText: s.password_hint,
                                           isRequiredField: true,
                                           controller: _passCtrl,
                                           isPasswordField: true,
@@ -186,8 +211,8 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                         ),
                                         const SizedBox(height: 16),
                                         InputTextField(
-                                          title: "Xác nhận mật khẩu mới",
-                                          hintText: "Xác nhận mật khẩu mới",
+                                          title: s.confirm_password,
+                                          hintText: s.confirm_password_hint,
                                           isRequiredField: true,
                                           controller: _confirmCtrl,
                                           isPasswordField: true,
@@ -201,7 +226,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                         ),
                                         const SizedBox(height: 24),
                                         PrimaryButton(
-                                          mainText: "Xác nhận",
+                                          mainText: s.confirm,
                                           buttonWidth: double.infinity,
                                           isLoading:
                                               state.forgotStatus ==
@@ -229,7 +254,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                 bottom: 24,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children:[
                     Icon(
                       Icons.info_outline,
                       size: 16,
@@ -238,7 +263,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
+                        S.of(context).smallHint,
                         style: TextStyle(
                           fontSize: 12,
                           color: Color(0xFFB5BBC6),

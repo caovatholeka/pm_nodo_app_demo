@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -153,6 +154,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<OtpVerifyCubit, OtpVerifyState>(
       listener: (context, state) {
         if (state.errorMessage != null) {
@@ -168,7 +170,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
 
         if (state.verifyStatus == LoadStatus.SUCCESS) {
           Flushbar(
-            message: "Xác thực thành công",
+            message: s.otp_verify_title,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 1),
             flushbarPosition: FlushbarPosition.TOP,
@@ -234,8 +236,8 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                         children: [
                           Image.asset(AppAssets.appLogo2, width: 120),
                           const SizedBox(height: 14),
-                          const Text(
-                            "Xác thực mã OTP",
+                          Text(
+                            s.otp_verify_title,
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -243,7 +245,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            "Vui lòng nhập mã OTP được gửi đến email của bạn.",
+                            s.otp_verify_subtitle,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
@@ -258,8 +260,8 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                               ? Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Text(
-                                    "Mã sẽ hết hạn sau ",
+                                  Text(
+                                    S.of(context).otp_timer_label,
                                     style: TextStyle(fontSize: 13),
                                   ),
                                   Text(
@@ -277,8 +279,8 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                                     state.resendStatus == LoadStatus.LOADING
                                         ? null
                                         : _onResend,
-                                child: const Text(
-                                  "Gửi lại mã OTP",
+                                child: Text(
+                                  s.resend_otp,
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Colors.blue,
@@ -288,7 +290,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                               ),
                           const SizedBox(height: 26),
                           PrimaryButton(
-                            mainText: "Xác nhận",
+                            mainText: s.confirm,
                             isLoading: state.verifyStatus == LoadStatus.LOADING,
                             callback: _onSubmit,
                           ),
@@ -307,7 +309,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children:[
                       Icon(
                         Icons.info_outline,
                         size: 16,
@@ -316,7 +318,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                       SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ.",
+                          s.smallHint,
                           style: TextStyle(
                             fontSize: 12,
                             color: Color(0xFFB5BBC6),

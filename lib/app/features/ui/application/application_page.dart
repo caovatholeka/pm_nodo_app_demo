@@ -11,6 +11,7 @@ import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ApplicationPage extends StatefulWidget {
   const ApplicationPage({super.key});
@@ -99,10 +100,11 @@ class _ApplicationPageState extends State<ApplicationPage> {
   }
 
   Widget _buildAppBar(BuildContext context) {
+    final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: MyAppBar(
-        titleAppbar: "Đơn từ",
+        titleAppbar: s.utilities_tab6,
         haveBackButton: true,
         haveActionButton: true,
         iconPathAsset: AppAssets.icNotificationBell,
@@ -112,36 +114,37 @@ class _ApplicationPageState extends State<ApplicationPage> {
   }
 
   Widget _buildGrid() {
+    final s = S.of(context);
     final items = [
       {
         "icon": AppAssets.ic_employee,
-        "title": "Nhân viên",
+        "title": s.utilities_tab1,
         "onTap": () => _openStaffPage(),
       },
       {
         "icon": AppAssets.ic_paper,
-        "title": "Dữ liệu công",
+        "title": s.utilities_tab2,
         "onTap": () => _goAttendanceData(),
       },
       {
         "icon": AppAssets.ic_timekeeping,
-        "title": "Chấm công",
+        "title": s.utilities_tab4,
         "onTap": () => _openCheckIn(),
       },
       {
         "icon": AppAssets.ic_work,
-        "title": "Việc cần làm",
+        "title": s.utilities_tab5,
         "onTap": () => _openTaskList(),
       },
       {
         "icon": AppAssets.ic_paper2,
-        "title": "Nghỉ phép",
+        "title": s.utilities_tab3,
         "onTap": () => _openOnLeave(),
       },
 
       {
         "icon": AppAssets.ic_paper2,
-        "title": "Giải trình",
+        "title": s.utilities_tab7,
         "onTap": () => _openJustifications(),
       },
     ];

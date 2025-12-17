@@ -58,10 +58,10 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ? null
                 : Container(
                   decoration: BoxDecoration(
-                    // image: DecorationImage(
-                    //   // image: AssetImage(AppAssets.appbarBg),
-                    //   fit: BoxFit.fill,
-                    // ),
+                    image: DecorationImage(
+                      image: AssetImage(AppAssets.appbarBg),
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
         leading:

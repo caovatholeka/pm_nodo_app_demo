@@ -9,6 +9,7 @@ import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/commons/app_colors.dart';
@@ -151,6 +152,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final keyboard = MediaQuery.of(context).viewInsets.bottom;
+    final s = S.of(context);
 
     return BlocConsumer<LogInCubit, LoginState>(
       bloc: _cubit,
@@ -215,20 +217,20 @@ class _LoginPageState extends State<LoginPage> {
                           width: 120,
                           height: 48,
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          "Đăng nhập",
+                        const SizedBox(height: 16),
+                        Text(
+                          s.login_title,
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 18),
                         Form(
                           key: _userKey,
                           child: InputTextField(
-                            title: "Tên đăng nhập",
-                            hintText: "Nhập tên đăng nhập",
+                            title: s.username,
+                            hintText: s.username_hint,
                             isRequiredField: true,
                             inputType: TextInputType.emailAddress,
                             controller: _userCtrl,
@@ -242,8 +244,8 @@ class _LoginPageState extends State<LoginPage> {
                         Form(
                           key: _passKey,
                           child: InputTextField(
-                            title: "Mật khẩu",
-                            hintText: "Nhập mật khẩu",
+                            title: s.password,
+                            hintText: s.password_hint,
                             isRequiredField: true,
                             controller: _passCtrl,
                             isPasswordField: true,
@@ -301,7 +303,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                const Text("Nhớ tài khoản"),
+                                 Text(s.remember_me),
                               ],
                             ),
                             GestureDetector(
@@ -320,7 +322,7 @@ class _LoginPageState extends State<LoginPage> {
                                 );
                               },
                               child: Text(
-                                "Quên mật khẩu?",
+                                s.forgot_password,
                                 style: TextStyle(
                                   color:
                                   AppColors
@@ -334,13 +336,14 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 24),
 
                         PrimaryButton(
-                          mainText: "Đăng nhập",
+                          mainText: s.login_button,
                           buttonWidth: double.infinity,
                           isLoading:
                           state.loginStatus ==
                               LoadStatus.LOADING,
                           callback: _login,
                         ),
+                         const SizedBox(height: 24)
                       ],
                     ),
                   ),
@@ -358,7 +361,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: RichText(
                           text: TextSpan(
                             text:
-                            "Nếu bạn gặp vấn đề, vui lòng liên hệ với phòng nhân sự của công ty để được hỗ trợ. ",
+                            S.of(context).smallHint,
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w400,

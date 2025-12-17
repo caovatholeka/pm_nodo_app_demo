@@ -90,12 +90,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _openApplication() {
-        Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => ApplicationPage()),
     );
   }
-  
 
   Future<void> _onRefresh() async {
     _cubit.getListAttendanceToday();
@@ -279,17 +278,14 @@ class _HomePageState extends State<HomePage> {
           child: SizedBox(
             width: context.sw(0.92),
             child: AttendanceStatusCard(
-              dateText: DateFormat(
-                "d 'tháng' M, yyyy",
-                "vi",
+              dateText: DateFormat.yMMMMd(
+                Localizations.localeOf(context).languageCode,
               ).format(DateTime.now()),
-              checkInTime: "08:30 AM",
-              checkOutTime: "18:00 PM",
+              checkInTime: "08:30",
+              checkOutTime: "18:00",
               checkInStatus: checkInStatus,
               checkOutStatus: checkOutStatus,
-              onCheckOutTap: () {
-                _openCheckIn();
-              },
+              onCheckOutTap: _openCheckIn,
             ),
           ),
         );
@@ -328,12 +324,16 @@ class _HomePageState extends State<HomePage> {
           ),
           itemBuilder: (_, index) {
             final map = [
-              {"a": AppAssets.ic_employee, "t": s.utilities_tab1 , "code": "nv"},
+              {"a": AppAssets.ic_employee, "t": s.utilities_tab1, "code": "nv"},
               {"a": AppAssets.ic_paper, "t": s.utilities_tab2, "code": "dlc"},
               {"a": AppAssets.ic_paper2, "t": s.utilities_tab3, "code": "np"},
-              {"a": AppAssets.ic_timekeeping, "t": s.utilities_tab4, "code": "cc"},
+              {
+                "a": AppAssets.ic_timekeeping,
+                "t": s.utilities_tab4,
+                "code": "cc",
+              },
               {"a": AppAssets.ic_work, "t": s.utilities_tab5, "code": "cv"},
-              {"a": AppAssets.ic_paper2, "t": "Đơn từ", "code": "dt"},
+              {"a": AppAssets.ic_paper2, "t": s.utilities_tab6, "code": "dt"},
             ];
             return _gridItem(
               context,
@@ -367,7 +367,7 @@ class _HomePageState extends State<HomePage> {
           case "cv":
             _openTaskList();
           case "dt":
-          _openApplication();
+            _openApplication();
         }
       },
       child: Column(
@@ -465,5 +465,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
