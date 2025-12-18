@@ -198,6 +198,9 @@
       "year": {}
     }
   },
-  "justification_title":"Đăng ký đi muộn về sớm"
+  "justification_title":"Đăng ký đi muộn về sớm",
+  "justification_reason_type":"Loại lý do: ",
+  "justification_create":"Người tạo: "
+
 
 }

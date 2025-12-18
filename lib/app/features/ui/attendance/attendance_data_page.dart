@@ -6,6 +6,7 @@ import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/attendance
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_tab.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/development_alert_dialog.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_colors.dart';
 
@@ -40,11 +41,12 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: AppColors.bodyColor,
       appBar: MyAppBar(
-        titleAppbar: "Dữ liệu chấm công",
+        titleAppbar: s.utilities_tab2,
         haveBackButton: true,
         haveActionButton: true,
         iconPathAsset: AppAssets.icNotificationBell,

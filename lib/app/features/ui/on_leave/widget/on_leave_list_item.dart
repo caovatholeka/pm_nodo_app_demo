@@ -64,9 +64,9 @@ class OnLeaveListItem extends StatelessWidget {
       case 6:
       case 13:
       case 17:
-        return "Nháp";
+        return S.of(context).day_off_status1;
       case 14:
-        return "Trưởng phòng duyệt";
+        return S.of(context).day_off_status2;
       case 11:
       case 15:
       case 9:

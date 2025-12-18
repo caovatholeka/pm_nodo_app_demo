@@ -222,6 +222,8 @@
     }
   },
   
-  "justification_title":"Late Arrival/Early Request"
+  "justification_title":"Late Arrival/Early Request",
+  "justification_reason_type":"Type: ",
+  "justification_create":"Creator: "
 
 }
