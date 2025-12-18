@@ -1,16 +1,15 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/ui/justification/bloc/create_justification_cubit.dart';
-import 'package:pm_app/app/features/ui/justification/bloc/create_justification_state.dart';
-import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
+import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart';
+import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
-import 'package:pm_app/app/features/widgets/input_text_field.dart';
 
 class CreateJustificationPage extends StatelessWidget {
   const CreateJustificationPage({super.key});
@@ -18,11 +17,10 @@ class CreateJustificationPage extends StatelessWidget {
   void _showDatePicker(BuildContext context, CreateJustificationCubit cubit) {
     DatePicker.showDatePicker(
       context,
-      showTitleActions: true,
-      currentTime: DateTime.now(),
       locale: LocaleType.vi,
+      currentTime: DateTime.now(),
       onConfirm: (date) {
-        cubit.changeDate(DateFormat('dd/MM/yyyy').format(date));
+        cubit.changeDate(DateFormat('yyyy-MM-dd').format(date));
       },
     );
   }
@@ -30,8 +28,32 @@ class CreateJustificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CreateJustificationCubit(),
-      child: BlocBuilder<CreateJustificationCubit, CreateJustificationState>(
+      create: (context) => CreateJustificationCubit(context.read()),
+      child: BlocConsumer<CreateJustificationCubit, CreateJustificationState>(
+        listenWhen:
+            (p, c) =>
+                p.errorMessage != c.errorMessage || p.isSuccess != c.isSuccess,
+        listener: (context, state) async {
+          if (state.errorMessage != null) {
+            await Flushbar(
+              message: state.errorMessage!,
+              flushbarPosition: FlushbarPosition.TOP,
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ).show(context);
+            return;
+          }
+
+          if (state.isSuccess == true) {
+            Navigator.of(context).pop(true);
+            await Flushbar(
+              message: 'Tạo yêu cầu thành công',
+              flushbarPosition: FlushbarPosition.TOP,
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ).show(context);
+          }
+        },
         builder: (context, state) {
           final cubit = context.read<CreateJustificationCubit>();
 
@@ -42,148 +64,82 @@ class CreateJustificationPage extends StatelessWidget {
               ),
               Scaffold(
                 backgroundColor: Colors.transparent,
-                resizeToAvoidBottomInset: false,
                 appBar: MyAppBar(
-                  titleAppbar: "Tạo yêu cầu đi muộn về sớm",
+                  titleAppbar: 'Tạo yêu cầu đi muộn về sớm',
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
                 ),
-                body: SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 140),
+                body: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 140),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            children: [
-                              DropdownInputField(
-                                title: "Loại lý do",
-                                hint: "Chọn loại lý do",
-                                items:
-                                    state.reasons.map((e) => e.name).toList(),
-                                selectedValue: state.selectedReason?.name,
-                                onChanged: (value) {
-                                  final item = state.reasons.firstWhere(
-                                    (e) => e.name == value,
-                                  );
-                                  cubit.selectReason(item);
-                                },
+                        DropdownInputField(
+                          title: 'Loại lý do',
+                          hint: '',
+                          items: const ['Việc cá nhân', 'Công việc'],
+                          selectedValue:
+                              state.reasonType == 'personal'
+                                  ? 'Việc cá nhân'
+                                  : state.reasonType == 'work'
+                                  ? 'Công việc'
+                                  : null,
+                          onChanged:
+                              (v) => cubit.changeReason(
+                                v == 'Việc cá nhân' ? 'personal' : 'work',
                               ),
-
-                              const SizedBox(height: 16),
-
-                              InputTextField(
-                                title: "Ngày",
-                                hintText: "Chọn ngày",
-                                isRequiredField: true,
-                                suffixIcon: AppAssets.icCalendar,
-                                readOnly: true,
-                                controller: TextEditingController(
-                                  text: state.date,
-                                ),
-                                callback: () => _showDatePicker(context, cubit),
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: DropdownInputField(
-                                      title: "Hình thức",
-                                      hint: "Chọn hình thức",
-                                      items:
-                                          state.methods
-                                              .map((e) => e.name)
-                                              .toList(),
-                                      selectedValue: state.selectedMethod?.name,
-                                      onChanged: (value) {
-                                        final item = state.methods.firstWhere(
-                                          (e) => e.name == value,
-                                        );
-                                        cubit.selectMethod(item);
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: InputTextField(
-                                      title: "Số giờ",
-                                      hintText: "Nhập số giờ",
-                                      isRequiredField: true,
-                                      inputType: TextInputType.number,
-                                      onChange: cubit.changeHours,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: DropdownInputField(
-                                      title: "Hình thức",
-                                      hint: "Chọn hình thức",
-                                      items:
-                                          state.methods
-                                              .map((e) => e.name)
-                                              .toList(),
-                                      selectedValue: state.selectedMethod?.name,
-                                      onChanged: (value) {
-                                        final item = state.methods.firstWhere(
-                                          (e) => e.name == value,
-                                        );
-                                        cubit.selectMethod(item);
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: InputTextField(
-                                      title: "Số giờ",
-                                      hintText: "Nhập số giờ",
-                                      isRequiredField: true,
-                                      inputType: TextInputType.number,
-                                      onChange: cubit.changeHours,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 16),
-
-                              InputTextField(
-                                title: "Ghi chú",
-                                hintText: "Nhập lý do",
-                                isRequiredField: true,
-                                maxLine: 6,
-                                onChange: cubit.changeNote,
-                              ),
-                            ],
-                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        InputTextField(
+                          title: 'Ngày',
+                          hintText: '',
+                          isRequiredField: true,
+                          readOnly: true,
+                          suffixIcon: AppAssets.icCalendar,
+                          controller: TextEditingController(text: state.date),
+                          callback: () => _showDatePicker(context, cubit),
+                        ),
+                        const SizedBox(height: 16),
+                        _row(
+                          state.firstFormType,
+                          cubit.changeFirstFormType,
+                          cubit.changeFirstHours,
+                        ),
+                        const SizedBox(height: 16),
+                        _row(
+                          state.secondFormType,
+                          cubit.changeSecondFormType,
+                          cubit.changeSecondHours,
+                        ),
+                        const SizedBox(height: 16),
+                        InputTextField(
+                          title: 'Ghi chú',
+                          hintText: '',
+                          isRequiredField: true,
+                          maxLine: 6,
+                          onChange: cubit.changeNote,
                         ),
                       ],
                     ),
                   ),
                 ),
                 bottomSheet: SafeArea(
-                  child: Container(
+                  child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: SizedBox(
                       height: 48,
+                      width: double.infinity,
                       child: PrimaryButton(
-                        mainText: "Lưu",
+                        mainText: 'Lưu',
                         enable: state.isFormValid,
                         isLoading: state.isSubmitting,
-                        callback: state.isFormValid ? cubit.submit : null,
+                        callback: cubit.submit,
                       ),
                     ),
                   ),
@@ -196,70 +152,38 @@ class CreateJustificationPage extends StatelessWidget {
     );
   }
 
-  Widget _blueDashedBox(
-    BuildContext context,
-    CreateJustificationCubit cubit,
-    CreateJustificationState state,
+  Widget _row(
+    String? value,
+    Function(String) onTypeChanged,
+    Function(String) onHourChanged,
   ) {
-    return DashedBorderBox(
-      radius: 12,
-      color: AppColors.themePrimaryDefault,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownInputField(
-                    title: "Hình thức",
-                    hint: "Chọn hình thức",
-                    items: state.methods.map((e) => e.name).toList(),
-                    selectedValue: state.selectedMethod?.name,
-                    onChanged: (value) {
-                      final item = state.methods.firstWhere(
-                        (e) => e.name == value,
-                      );
-                      cubit.selectMethod(item);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: InputTextField(
-                    title: "Số giờ",
-                    hintText: "Nhập số giờ",
-                    isRequiredField: true,
-                    inputType: TextInputType.number,
-                    onChange: cubit.changeHours,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              height: 36,
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide.none,
-                  backgroundColor: AppColors.themePrimaryDefault.withOpacity(
-                    0.15,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Icon(
-                  Icons.add,
-                  color: AppColors.themePrimaryDefault,
-                ),
-              ),
-            ),
-          ],
+    return Row(
+      children: [
+        Expanded(
+          child: DropdownInputField(
+            title: 'Hình thức',
+            hint: '',
+            items: const ['Đi muộn', 'Về sớm'],
+            selectedValue:
+                value == 'late'
+                    ? 'Đi muộn'
+                    : value == 'early'
+                    ? 'Về sớm'
+                    : null,
+            onChanged: (v) => onTypeChanged(v == 'Đi muộn' ? 'late' : 'early'),
+          ),
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: InputTextField(
+            title: 'Số giờ',
+            hintText: '',
+            isRequiredField: true,
+            inputType: TextInputType.number,
+            onChange: onHourChanged,
+          ),
+        ),
+      ],
     );
   }
 }

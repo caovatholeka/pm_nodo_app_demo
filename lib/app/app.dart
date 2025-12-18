@@ -10,6 +10,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_it/get_it.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
+import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
@@ -148,6 +149,7 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider(create: (context) => sl<WorkEntryRepository>()),
         RepositoryProvider(create: (context) => sl<UserRepository>()),
         RepositoryProvider(create: (context) => sl<TaskRepository>()),
+        RepositoryProvider(create: (context) => sl<JutificationRepository>()),
       ],
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),

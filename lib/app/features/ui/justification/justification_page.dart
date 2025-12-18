@@ -30,13 +30,14 @@ class _JustificationPageState extends State<JustificationPage> {
   @override
   void initState() {
     super.initState();
+    _cubit.loadList();
   }
 
-  void _showDetail() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => JustificationDetailPage()),
-    );
+  @override
+  void dispose() {
+    _filterCtrl.dispose();
+    _cubit.close();
+    super.dispose();
   }
 
   Future<void> _openCalendar() async {
@@ -51,11 +52,10 @@ class _JustificationPageState extends State<JustificationPage> {
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: Colors.white,
-      builder:
-          (_) => CalendarRangeSheet(
-            initial: _selectedRange ?? defaultRange,
-            locale: "vi",
-          ),
+      builder: (_) => CalendarRangeSheet(
+        initial: _selectedRange ?? defaultRange,
+        locale: "vi",
+      ),
     );
 
     if (res == null) {
@@ -68,13 +68,15 @@ class _JustificationPageState extends State<JustificationPage> {
 
     setState(() {
       _selectedRange = res;
-      _filterCtrl.text = "${_df.format(res.start)} - ${_df.format(res.end)}";
+      _filterCtrl.text =
+          "${_df.format(res.start)} - ${_df.format(res.end)}";
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+
     return BlocProvider(
       create: (_) => _cubit,
       child: Scaffold(
@@ -84,7 +86,6 @@ class _JustificationPageState extends State<JustificationPage> {
           haveBackButton: widget.isFromHome ?? false,
           haveActionButton: true,
           iconPathAsset: AppAssets.icNotificationBell,
-          actionCallBack: () {},
         ),
         body: Column(
           children: [
@@ -116,13 +117,14 @@ class _JustificationPageState extends State<JustificationPage> {
                   ),
                   const SizedBox(width: 12),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const CreateJustificationPage(),
                         ),
                       );
+                      _cubit.loadList();
                     },
                     child: Container(
                       width: 44,
@@ -140,20 +142,40 @@ class _JustificationPageState extends State<JustificationPage> {
             Expanded(
               child: BlocBuilder<JustificationCubit, JustificationState>(
                 builder: (context, state) {
-                  if ((state.listJustifications ?? []).isEmpty) {
-                    return const Center(child: Text("CHƯA CÓ GÌ CẢ!!!"));
+                  if (state.loadStatus == LoadStatus.LOADING) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (state.loadStatus == LoadStatus.FAILURE) {
+                    return Center(
+                      child: Text(state.error ?? 'Có lỗi xảy ra'),
+                    );
+                  }
+
+                  if (state.list.isEmpty) {
+                    return const Center(
+                      child: Text('CHƯA CÓ GÌ CẢ!!!'),
+                    );
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-                    itemCount: state.listJustifications!.length,
+                    padding:
+                        const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                    itemCount: state.list.length,
                     itemBuilder: (context, index) {
-                      final JustificationEntity item =
-                          state.listJustifications![index];
+                      final item = state.list[index];
                       return JustificationListItem(
                         entity: item,
                         onTap: () {
-                          _showDetail();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  JustificationDetailPage(id: item.id),
+                            ),
+                          );
                         },
                       );
                     },

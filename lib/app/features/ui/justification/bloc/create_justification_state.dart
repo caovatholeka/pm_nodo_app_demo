@@ -1,82 +1,71 @@
-import 'package:equatable/equatable.dart';
+part of 'create_justification_cubit.dart';
 
-class DropdownItem {
-  final String id;
-  final String name;
+class CreateJustificationState {
+  final String? date;
+  final String? reasonType;
+  final String? note;
 
-  const DropdownItem({
-    required this.id,
-    required this.name,
-  });
-}
+  final String? firstFormType;
+  final double? firstHours;
 
-class CreateJustificationState extends Equatable {
-  final List<DropdownItem> reasons;
-  final List<DropdownItem> methods;
-
-  final DropdownItem? selectedReason;
-  final DropdownItem? selectedMethod;
-
-  final String date;
-  final String hours;
-  final String note;
+  final String? secondFormType;
+  final double? secondHours;
 
   final bool isSubmitting;
+  final String? errorMessage;
+  final bool isSuccess;
 
   const CreateJustificationState({
-    this.reasons = const [],
-    this.methods = const [],
-    this.selectedReason,
-    this.selectedMethod,
-    this.date = '',
-    this.hours = '',
-    this.note = '',
+    this.date,
+    this.reasonType,
+    this.note,
+    this.firstFormType,
+    this.firstHours,
+    this.secondFormType,
+    this.secondHours,
     this.isSubmitting = false,
+    this.errorMessage,
+    this.isSuccess = false,
   });
 
   bool get isFormValid =>
-      selectedReason != null &&
-      selectedMethod != null &&
-      date.isNotEmpty &&
-      hours.isNotEmpty &&
-      note.isNotEmpty;
+      date != null &&
+      date!.isNotEmpty &&
+      reasonType != null &&
+      reasonType!.isNotEmpty &&
+      note != null &&
+      note!.trim().isNotEmpty &&
+      firstFormType != null &&
+      firstHours != null &&
+      secondFormType != null &&
+      secondHours != null;
 
   CreateJustificationState copyWith({
-    List<DropdownItem>? reasons,
-    List<DropdownItem>? methods,
-    DropdownItem? selectedReason,
-    DropdownItem? selectedMethod,
     String? date,
-    String? hours,
+    String? reasonType,
     String? note,
+    String? firstFormType,
+    double? firstHours,
+    String? secondFormType,
+    double? secondHours,
     bool? isSubmitting,
-    bool clear = false,
+    String? errorMessage,
+    bool? isSuccess,
   }) {
-    if (clear) {
-      return const CreateJustificationState();
-    }
-
     return CreateJustificationState(
-      reasons: reasons ?? this.reasons,
-      methods: methods ?? this.methods,
-      selectedReason: selectedReason ?? this.selectedReason,
-      selectedMethod: selectedMethod ?? this.selectedMethod,
       date: date ?? this.date,
-      hours: hours ?? this.hours,
+      reasonType: reasonType ?? this.reasonType,
       note: note ?? this.note,
+      firstFormType: firstFormType ?? this.firstFormType,
+      firstHours: firstHours ?? this.firstHours,
+      secondFormType: secondFormType ?? this.secondFormType,
+      secondHours: secondHours ?? this.secondHours,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      errorMessage: errorMessage,
+      isSuccess: isSuccess ?? this.isSuccess,
     );
   }
 
-  @override
-  List<Object?> get props => [
-        reasons,
-        methods,
-        selectedReason,
-        selectedMethod,
-        date,
-        hours,
-        note,
-        isSubmitting,
-      ];
+  factory CreateJustificationState.initial() =>
+      const CreateJustificationState();
 }

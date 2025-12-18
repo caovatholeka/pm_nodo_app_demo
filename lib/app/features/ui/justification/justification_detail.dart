@@ -1,12 +1,15 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 
 import 'bloc/justification_detail_cubit.dart';
 
@@ -20,7 +23,7 @@ class JustificationDetailPage extends StatefulWidget {
 }
 
 class _JustificationDetailPageState extends State<JustificationDetailPage> {
-  final _cubit = GetIt.I.get<JustificationDetailCubit>();
+  final _cubit = GetIt.I<JustificationDetailCubit>();
 
   @override
   void initState() {
@@ -28,14 +31,24 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     _cubit.getDetail(widget.id ?? 0);
   }
 
-  Color _statusColor(int id) {
-    switch (id) {
-      case 1:
+  Color _getStatusColorByName(String? name) {
+    switch (name) {
+      case 'Nháp':
         return Colors.orange;
-      case 11:
-        return Colors.green;
-      case 14:
+      case 'Chờ xác nhận':
+      case 'Trưởng phòng duyệt':
         return Colors.blue;
+      case 'Hoàn thành':
+      case 'Hợp lệ':
+        return Colors.green;
+      case 'Hủy':
+      case 'Không hợp lệ':
+        return Colors.red;
+      case 'Đã khóa':
+      case 'Khóa kì công':
+        return Colors.grey;
+      case 'Tính toán công':
+        return Colors.purple;
       default:
         return Colors.grey;
     }
@@ -43,48 +56,85 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<JustificationDetailCubit, JustificationDetailState>(
+    return BlocListener<JustificationDetailCubit, JustificationDetailState>(
       bloc: _cubit,
-      builder: (context, state) {
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset(
-                AppAssets.appBG2,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Scaffold(
-              backgroundColor: Colors.transparent,
-              appBar: MyAppBar(
-                titleAppbar: "Chi tiết yêu cầu MS",
-                haveBackButton: true,
-                haveActionButton: true,
-                iconPathAsset: AppAssets.icNotificationBell,
-              ),
-              body: SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                  child: Column(
-                    children: [
-                      _contentCard(state),
-                      const SizedBox(height: 20),
-                      _actionButtons(),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
+      listener: (context, state) async {
+        if (state.submitSuccess) {
+          await Flushbar(
+            message: 'Gửi duyệt thành công',
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetSubmitState();
+          Navigator.pop(context);
+        }
+
+        if (state.error != null) {
+          await Flushbar(
+            message: state.error!,
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ).show(context);
+
+          _cubit.resetSubmitState();
+        }
       },
+      child: BlocBuilder<JustificationDetailCubit, JustificationDetailState>(
+        bloc: _cubit,
+        builder: (context, state) {
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
+              ),
+              Scaffold(
+                backgroundColor: Colors.transparent,
+                appBar: MyAppBar(
+                  titleAppbar: "Chi tiết yêu cầu MS",
+                  haveBackButton: true,
+                  haveActionButton: true,
+                  iconPathAsset: AppAssets.icNotificationBell,
+                ),
+                body: SafeArea(child: _buildBody(state)),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
+  Widget _buildBody(JustificationDetailState state) {
+    if (state.loadStatus == LoadStatus.LOADING) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.loadStatus == LoadStatus.FAILURE) {
+      return Center(child: Text(state.error ?? "Đã xảy ra lỗi"));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+      child: Column(
+        children: [
+          _contentCard(state),
+          const SizedBox(height: 20),
+          _actionButtons(state),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
 
   Widget _contentCard(JustificationDetailState state) {
     final e = state.detail;
+    if (e == null) return const SizedBox();
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -92,39 +142,26 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: state.loadStatus == LoadStatus.LOADING || e == null
-          ? const SizedBox(
-              height: 200,
-              child: Center(child: CircularProgressIndicator()),
-            )
-          : Column(
-              children: [
-                _row("Nhân viên", "1"),
-                const CustomDashView(),
-
-                _row("Ca làm việc", "HC"),
-                const CustomDashView(),
-
-                _row("Phòng ban", "1"),
-                const CustomDashView(),
-
-                _row("Loại lý do", "Cá nhân"),
-                const CustomDashView(),
-
-                _row("Ngày", e.fromDate ?? ""),
-                const SizedBox(height: 12),
-                _dashedBlueBox(),
-                const SizedBox(height: 12),
-                _row("Ghi chú", e.reason ?? ""),
-                const CustomDashView(),
-
-                _statusRow(e.statusId),
-                const CustomDashView(),
-
-                _row("Người tạo", "1"),
-                const SizedBox(height: 16),
-              ],
-            ),
+      child: Column(
+        children: [
+          _row("Nhân viên", e.employeeName ?? ""),
+          const CustomDashView(),
+          _row("Phòng ban", e.departmentName ?? ""),
+          const CustomDashView(),
+          _row("Loại lý do", e.reasonType ?? ""),
+          const CustomDashView(),
+          _row("Ngày", e.date ?? ""),
+          const SizedBox(height: 12),
+          if (e.exceptionLines != null)
+            ...e.exceptionLines!.map(_exceptionBox).toList(),
+          const SizedBox(height: 12),
+          _row("Ghi chú", e.note ?? ""),
+          const CustomDashView(),
+          _statusRow(e.stage?.id ?? 0, e.stage?.name ?? ""),
+          const CustomDashView(),
+          _row("Người tạo", e.employeeName ?? ""),
+        ],
+      ),
     );
   }
 
@@ -137,10 +174,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             flex: 4,
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF6B7280),
-              ),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
             ),
           ),
           Expanded(
@@ -148,10 +182,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.black),
             ),
           ),
         ],
@@ -159,9 +190,8 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     );
   }
 
-
-  Widget _statusRow(int id) {
-    final color = _statusColor(id);
+  Widget _statusRow(int id, String name) {
+    final color = _getStatusColorByName(name);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -179,8 +209,10 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             child: Align(
               alignment: Alignment.centerRight,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
@@ -198,7 +230,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      "Nháp",
+                      name,
                       style: TextStyle(
                         fontSize: 12,
                         color: color,
@@ -215,46 +247,94 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     );
   }
 
-
-Widget _dashedBlueBox() {
-  return DashedBorderBox(
-    radius: 12,
-    color: const Color(0xFF3B82F6),
-    child: Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          _row("Hình thức", "Đi muộn"),
-          const CustomDashView(),
-          _row("Số giờ", "01:30"),
-        ],
-      ),
-    ),
-  );
-}
-
-
-
-  Widget _actionButtons() {
-    return Container(
-      child: Row(
-        children: [
-          Expanded(
-            child: PrimaryButton(
-              mainText: "Xóa",
-              type: PrimaryButtonType.secondary,
-            ),
+  Widget _exceptionBox(ExceptionLineEntity e) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DashedBorderBox(
+        radius: 12,
+        color: const Color(0xFF3B82F6),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              _row("Hình thức", _mapFormType(e.formType)),
+              const CustomDashView(),
+              _row("Số giờ", _formatHour(e.timeNumber)),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: PrimaryButton(
-              mainText: "Cập nhật",
-              type: PrimaryButtonType.primary,
-              callback: () {},
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  String _mapFormType(String? type) {
+    switch (type) {
+      case "late":
+        return "Đi muộn";
+      case "early":
+        return "Về sớm";
+      case "absence":
+        return "Vắng mặt";
+      default:
+        return type ?? "";
+    }
+  }
+
+  String _formatHour(double? hour) {
+    if (hour == null) return "";
+    final h = hour.floor();
+    final m = ((hour - h) * 60).round();
+    return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
+  }
+
+  Widget _actionButtons(JustificationDetailState state) {
+    return Row(
+      children: [
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Xóa",
+            type: PrimaryButtonType.secondary,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Gửi duyệt",
+            type: PrimaryButtonType.primary,
+            isLoading: state.isSubmitting,
+            callback: () {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder:
+                    (_) => CustomDialog(
+                      title: "Xác nhận gửi duyệt",
+                      content:
+                          "Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?",
+                      confirmText: "Gửi duyệt",
+                      cancelText: "Hủy",
+                      success: true,
+                      onConfirm: () {
+                        Navigator.pop(context);
+                        _cubit.submitApproval();
+                      },
+                      onCancel: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Cập nhật",
+            type: PrimaryButtonType.primary,
+            callback: () {},
+          ),
+        ),
+      ],
     );
   }
 }

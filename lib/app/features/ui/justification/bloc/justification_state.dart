@@ -1,27 +1,29 @@
 part of 'justification_cubit.dart';
 
-class JustificationState extends Equatable{
+class JustificationState extends Equatable {
   final LoadStatus loadStatus;
-  List<JustificationEntity>? listJustifications;
+  final List<JustificationEntity> list;
+  final String? error;
+  
 
-  JustificationState({
+  const JustificationState({
     this.loadStatus = LoadStatus.INITIAL,
-    this.listJustifications,
+    this.list = const [],
+    this.error,
   });
 
   JustificationState copyWith({
     LoadStatus? loadStatus,
-    List<JustificationEntity>? listJustifications,
+    List<JustificationEntity>? list,
+    String? error,
   }) {
     return JustificationState(
       loadStatus: loadStatus ?? this.loadStatus,
-      listJustifications:  listJustifications ?? this.listJustifications,
+      list: list ?? this.list,
+      error: error,
     );
   }
 
   @override
-  List<Object?> get props => [
-    loadStatus,
-    listJustifications,
-  ];
+  List<Object?> get props => [loadStatus, list, error];
 }

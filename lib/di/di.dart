@@ -4,6 +4,7 @@ import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
+import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
@@ -165,5 +166,8 @@ Future<void> init() async {
 
   sl.registerLazySingleton<JustificationDetailCubit>(
     () => JustificationDetailCubit(),
+  );
+  sl.registerLazySingleton<JutificationRepository>(
+    () => JutificationRepositoryImpl(),
   );
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
 import 'package:retrofit/retrofit.dart';
@@ -105,7 +106,9 @@ abstract class ApiClient {
 
   // Chi tiết chấm công
   @GET("/work_entry/attendance_detail")
-  Future<CommonResponse> getDetailWorkEntry(@Query("attendance_id") int? attendanceId,);
+  Future<CommonResponse> getDetailWorkEntry(
+    @Query("attendance_id") int? attendanceId,
+  );
 
   @POST('/work_entry/user/entries')
   Future<CommonResponse> getListWorkEntry(@Body() Map<String, dynamic> body);
@@ -130,9 +133,9 @@ abstract class ApiClient {
 
   @GET("/attendance/history")
   Future<CommonResponse> getListAttendanceHistory(
-      @Query("date_from") String? dateFrom,
-      @Query("date_to") String? dateTo,
-      );
+    @Query("date_from") String? dateFrom,
+    @Query("date_to") String? dateTo,
+  );
 
   //Quên mật khẩu
   @POST("/users/generate_otp")
@@ -150,16 +153,16 @@ abstract class ApiClient {
 
   @GET("/users/count_unread_notifications")
   Future<CommonResponse> countUnreadNoti();
-  
+
   // task
   // lay danh sach task
   @GET("/tasks/tasks")
   Future<CommonResponse> getListTask(
-      @Query("name") String? name,
-      @Query("stage_id") int? stageId,
-      @Query("page") int? page,
-      @Query("limit") int? limit,
-      );
+    @Query("name") String? name,
+    @Query("stage_id") int? stageId,
+    @Query("page") int? page,
+    @Query("limit") int? limit,
+  );
 
   // lay ds task stage
   @GET("/tasks/task_stages")
@@ -175,7 +178,6 @@ abstract class ApiClient {
   @POST("/tasks/create_task")
   Future<CommonResponse> createTask(@Body() CreateTaskParam param);
 
-
   @GET("/tasks/detail_task/{id}")
   Future<CommonResponse> getDetailTask(@Path("id") int id);
 
@@ -185,5 +187,19 @@ abstract class ApiClient {
   @POST("/tasks/update_task")
   Future<CommonResponse> updateTask(@Body() CreateTaskParam body);
 
+  //attendance exception (gửi giải trình)
+  @GET("/attendance_exception/attendance_exception_list")
+  Future<CommonResponse> getAttendanceList();
 
+  @GET("/attendance_exception/attendance_exception_detail/{id}")
+  Future<JustificationEntity> getDetailAttendance(@Path("id") int id);
+
+  @POST("/attendance_exception/attendance_exception_create")
+  Future<CommonResponse> createAttendance(@Body() Map<String, dynamic> body);
+
+  @PATCH("/attendance_exception/attendance_exception/{id}")
+  Future<dynamic> updateAttendance(@Body() Map<String, dynamic> body);
+
+  @POST("/attendance_exception/attendance_exception_submit/{id}")
+  Future<JustificationEntity> submitAttendance(@Path("id") int id);
 }
