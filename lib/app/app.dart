@@ -12,6 +12,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
+import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
@@ -150,6 +151,7 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider(create: (context) => sl<UserRepository>()),
         RepositoryProvider(create: (context) => sl<TaskRepository>()),
         RepositoryProvider(create: (context) => sl<JutificationRepository>()),
+        RepositoryProvider(create: (context) => sl<OvertimeRepository>()),
       ],
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),

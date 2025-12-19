@@ -45,4 +45,27 @@ class JustificationDetailCubit extends Cubit<JustificationDetailState> {
   void resetSubmitState() {
     emit(state.copyWith(submitSuccess: false, error: null));
   }
+
+  Future<void> deleteJustification(int id) async {
+  if (state.isSubmitting) return;
+
+  emit(state.copyWith(isSubmitting: true, error: null));
+
+  try {
+    await _repo.deleteJustification(id);
+
+    emit(state.copyWith(
+      isSubmitting: false,
+      submitSuccess: true,
+    ));
+  } catch (e, s) {
+    logger.e("DeleteJustification error: $e, Where: $s");
+
+    emit(state.copyWith(
+      isSubmitting: false,
+      error: e.toString(),
+    ));
+  }
+}
+
 }

@@ -6,6 +6,7 @@ import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
+import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
@@ -22,6 +23,8 @@ import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
+import 'package:pm_app/app/features/ui/overtime/cubit/overtime_cubit.dart';
+import 'package:pm_app/app/features/ui/overtime/cubit/overtime_detail_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/employee_detail_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
@@ -169,5 +172,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<JutificationRepository>(
     () => JutificationRepositoryImpl(),
+  );
+
+  //OT
+  sl.registerLazySingleton<OvertimeCubit>(() => OvertimeCubit());
+  sl.registerLazySingleton<OvertimeDetailCubit>(() => OvertimeDetailCubit());
+  sl.registerLazySingleton<OvertimeRepository>(
+    () => OvertimeRepositoryImpl(),
   );
 }

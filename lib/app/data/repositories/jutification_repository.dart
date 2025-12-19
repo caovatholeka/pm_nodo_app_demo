@@ -11,6 +11,7 @@ abstract class JutificationRepository {
   Future<dynamic> updateJustification(int id, Map<String, dynamic> body);
   Future<JustificationEntity> submitJustification(int id);
   Future<JustificationEntity> getDetailAttendance(int id);
+  Future<dynamic> deleteJustification(int id);
 }
 
 class JutificationRepositoryImpl extends JutificationRepository {
@@ -42,5 +43,10 @@ Future<dynamic> updateJustification(int id, Map<String, dynamic> body) async {
   @override
   Future<JustificationEntity> submitJustification(int id) async {
     return await _apiClient.submitAttendance(id);
+  }
+
+  @override
+  Future<dynamic> deleteJustification(int id) async {
+    return await _apiClient.deleteAttendance(id);
   }
 }

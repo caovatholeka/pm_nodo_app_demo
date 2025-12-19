@@ -3,7 +3,9 @@ import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
+import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
+import 'package:pm_app/app/features/ui/overtime/overtime_detail.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/entities/face_search_response_entity.dart';
@@ -205,4 +207,29 @@ abstract class ApiClient {
 
   @POST("/attendance_exception/attendance_exception_submit/{id}")
   Future<JustificationEntity> submitAttendance(@Path("id") int id);
+
+  @DELETE('/attendance_exception/attendance_exception_delete/{id}')
+  Future<dynamic> deleteAttendance(@Path("id") int id);
+
+  //OT
+  @GET("/overtime/overtime_list")
+  Future<CommonResponse> getListOT();
+
+  @GET("/overtime/overtime_detail/{id}")
+  Future<OvertimeEntity> getDetailOT(@Path("id") int id);
+
+  @POST("/overtime/overtime_create")
+  Future<CommonResponse> createOTRequest(@Body() Map<String, dynamic> body);
+
+  @PUT("/overtime/overtime_update/{id}")
+  Future<dynamic> updateOTRequest(
+    @Path("id") int id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST("/overtime/overtime_submit/{id}")
+  Future<OvertimeEntity> submitOT(@Path("id") int id);
+
+  @DELETE('/overtime/overtime_delete/{id}')
+  Future<dynamic> deleteOTRequest(@Path("id") int id);
 }

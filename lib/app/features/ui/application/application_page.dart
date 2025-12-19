@@ -8,6 +8,7 @@ import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
+import 'package:pm_app/app/features/ui/overtime/overtime_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -72,7 +73,14 @@ class _ApplicationPageState extends State<ApplicationPage> {
   void _openJustifications() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => JustificationPage(isFromHome: true,))
+      MaterialPageRoute(builder: (_) => JustificationPage(isFromHome: true)),
+    );
+  }
+
+  void _openOT() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => OvertimePage(isFromHome: true)),
     );
   }
 
@@ -146,6 +154,12 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "icon": AppAssets.ic_paper2,
         "title": s.utilities_tab7,
         "onTap": () => _openJustifications(),
+      },
+
+      {
+        "icon": AppAssets.ic_paper2,
+        "title": "OT",
+        "onTap": () => _openOT(),
       },
     ];
 

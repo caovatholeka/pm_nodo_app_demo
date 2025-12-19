@@ -1,0 +1,411 @@
+import 'package:another_flushbar/flushbar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
+import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
+import 'package:pm_app/app/features/ui/overtime/create_overtime.dart';
+import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
+import 'package:pm_app/app/features/ui/overtime/cubit/overtime_detail_cubit.dart';
+import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/app/features/widgets/primary_button.dart';
+
+class OvertimeDetail extends StatefulWidget {
+  final int? id;
+  const OvertimeDetail({super.key, this.id});
+
+  @override
+  State<OvertimeDetail> createState() => _OvertimeDetailPageState();
+}
+
+class _OvertimeDetailPageState extends State<OvertimeDetail> {
+  final _cubit = GetIt.I<OvertimeDetailCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit.getDetailOT(widget.id ?? 0);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  bool _isDraft(OvertimeDetailState state) {
+    return state.detail?.stage?.name == 'Nháp';
+  }
+
+  Color _getStatusColorByName(String? name) {
+    switch (name) {
+      case 'Nháp':
+        return Colors.orange;
+      case 'Chờ xác nhận':
+      case 'Trưởng phòng duyệt':
+        return Colors.blue;
+      case 'Hoàn thành':
+      case 'Hợp lệ':
+        return Colors.green;
+      case 'Hủy':
+      case 'Không hợp lệ':
+        return Colors.red;
+      case 'Đã khóa':
+      case 'Khóa kì công':
+        return Colors.grey;
+      case 'Tính toán công':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<OvertimeDetailCubit, OvertimeDetailState>(
+      bloc: _cubit,
+      listener: (context, state) async {
+        if (state.submitSuccess) {
+          await Flushbar(
+            message: 'Gửi duyệt thành công',
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetSubmitState();
+          Navigator.pop(context);
+        }
+
+        if (state.error != null) {
+          await Flushbar(
+            message: state.error!,
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ).show(context);
+
+          _cubit.resetSubmitState();
+        }
+      },
+      child: BlocBuilder<OvertimeDetailCubit, OvertimeDetailState>(
+        bloc: _cubit,
+        builder: (context, state) {
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
+              ),
+              Scaffold(
+                backgroundColor: Colors.transparent,
+                appBar: MyAppBar(
+                  titleAppbar: "Chi tiết yêu cầu OT",
+                  haveBackButton: true,
+                  haveActionButton: true,
+                  iconPathAsset: AppAssets.icNotificationBell,
+                ),
+                body: SafeArea(child: _buildBody(state)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(OvertimeDetailState state) {
+    if (state.loadStatus == LoadStatus.LOADING) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.loadStatus == LoadStatus.FAILURE) {
+      return Center(child: Text(state.error ?? "Đã xảy ra lỗi"));
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+      child: Column(
+        children: [
+          _contentCard(state),
+
+          if (_isDraft(state)) ...[
+            const SizedBox(height: 20),
+            _actionButtons(state),
+            const SizedBox(height: 24),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _contentCard(OvertimeDetailState state) {
+    final e = state.detail;
+    if (e == null) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          _row("Nhân viên", e.employeeName ?? ""),
+          const CustomDashView(),
+          _row(
+            "Ca làm việc",
+            e.overtimeDetail
+                    ?.map((d) => d.shift?.name)
+                    .whereType<String>()
+                    .toSet()
+                    .join(', ') ??
+                "",
+          ),
+          const CustomDashView(),
+          _row("Phòng ban", e.departmentName ?? ""),
+          const CustomDashView(),
+          _row("Ngày tạo", e.dateCreate ?? ""),
+          const CustomDashView(),
+          _row("Từ ngày", e.fromDate ?? ""),
+          const CustomDashView(),
+          _row("Đến ngày", e.toDate ?? ""),
+          const SizedBox(height: 16),
+
+          if (e.overtimeDetail != null)
+            ...e.overtimeDetail!.map(_overtimeDetailBox).toList(),
+
+          const SizedBox(height: 16),
+          _row(
+            "Hình thức nhận",
+            e.overtimeDetail
+                    ?.map((d) => _mapOTFormType(d.formType))
+                    .where((s) => s.isNotEmpty)
+                    .toSet()
+                    .join(', ') ??
+                "",
+          ),
+          const CustomDashView(),
+          _row("Ghi chú", e.note ?? ""),
+          const CustomDashView(),
+          _statusRow(e.stage?.name ?? ""),
+          const CustomDashView(),
+          _row("Người tạo", e.employeeName ?? ""),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+            ),
+          ),
+          Expanded(
+            flex: 6,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statusRow(String name) {
+    final color = _getStatusColorByName(name);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          const Expanded(
+            flex: 4,
+            child: Text(
+              "Trạng thái",
+              style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+            ),
+          ),
+          Expanded(
+            flex: 6,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: color,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _overtimeDetailBox(dynamic d) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DashedBorderBox(
+        radius: 12,
+        color: const Color(0xFF60A5FA),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              _row("Ngày", d.date ?? ""),
+              const CustomDashView(),
+              _row("Số giờ", _formatHour(d.overtime)),
+              const CustomDashView(),
+              _row("Hình thức nhận", _mapOTFormType(d.formType)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _mapOTFormType(String? type) {
+    switch (type) {
+      case 'pay':
+        return 'Trả tiền';
+      case 'leave':
+        return 'Nghỉ bù';
+      default:
+        return '';
+    }
+  }
+
+  String _formatHour(num? hour) {
+    if (hour == null) return "";
+    final h = hour.floor();
+    final m = ((hour - h) * 60).round();
+    return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
+  }
+
+  Widget _actionButtons(OvertimeDetailState state) {
+    return Row(
+      children: [
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Xóa",
+            type: PrimaryButtonType.secondary,
+            callback: () {
+              // final id = state.detail?.id;
+              // if(id == null) return;
+
+              // showDialog(
+              //   context: context,
+              //   barrierDismissible: false,
+              //    builder: (_) => CustomDialog(
+              //     title: "Xác nhận xóa",
+              //      content: "Bạn có chắc muốn xóa yêu cầu này không?",
+              //      confirmText: "Xóa",
+              //      cancelText: "Hủy",
+              //      success: false,
+              //      onConfirm: () {
+              //        Navigator.pop(context);
+              //        _cubit.deleteJustification(id);
+              //      },
+              //      onCancel: () => Navigator.pop(context),
+              //   ),
+              // );
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Gửi duyệt",
+            type: PrimaryButtonType.primary,
+            isLoading: state.isSubmitting,
+            callback: () {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder:
+                    (_) => CustomDialog(
+                      title: "Xác nhận gửi duyệt",
+                      content:
+                          "Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?",
+                      confirmText: "Gửi duyệt",
+                      cancelText: "Hủy",
+                      success: true,
+                      onConfirm: () {
+                        Navigator.pop(context);
+                        _cubit.submitApproval();
+                      },
+                      onCancel: () => Navigator.pop(context),
+                    ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Cập nhật",
+            type: PrimaryButtonType.primary,
+            callback: () async {
+              final res = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => BlocProvider(
+                        create: (_) => CreateOvertimeCubit(),
+                        child: CreateOTPage(initialData: state.detail),
+                      ),
+                ),
+              );
+
+              if (res == true) {
+                _cubit.getDetailOT(widget.id!);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}

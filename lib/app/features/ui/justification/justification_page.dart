@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/justification_list_item.dart';

@@ -309,7 +309,27 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           child: PrimaryButton(
             mainText: "Xóa",
             type: PrimaryButtonType.secondary,
-            callback: () {},
+            callback: () {
+              final id = state.detail?.id;
+              if(id == null) return;
+
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                 builder: (_) => CustomDialog(
+                  title: "Xác nhận xóa",
+                   content: "Bạn có chắc muốn xóa yêu cầu này không?",
+                   confirmText: "Xóa",
+                   cancelText: "Hủy",
+                   success: false,
+                   onConfirm: () {
+                     Navigator.pop(context);
+                     _cubit.deleteJustification(id);
+                   },
+                   onCancel: () => Navigator.pop(context),
+                ),
+              );
+            },
           ),
         ),
         const SizedBox(width: 12),
