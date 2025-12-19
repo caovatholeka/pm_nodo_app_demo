@@ -197,8 +197,11 @@ abstract class ApiClient {
   @POST("/attendance_exception/attendance_exception_create")
   Future<CommonResponse> createAttendance(@Body() Map<String, dynamic> body);
 
-  @PATCH("/attendance_exception/attendance_exception/{id}")
-  Future<dynamic> updateAttendance(@Body() Map<String, dynamic> body);
+  @PUT('/attendance_exception/attendance_exception/{id}')
+  Future<dynamic> updateAttendance(
+    @Path('id') int id,
+    @Body() Map<String, dynamic> body,
+  );
 
   @POST("/attendance_exception/attendance_exception_submit/{id}")
   Future<JustificationEntity> submitAttendance(@Path("id") int id);

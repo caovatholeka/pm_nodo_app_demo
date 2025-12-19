@@ -5,11 +5,12 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
-import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 
 import 'bloc/justification_detail_cubit.dart';
 
@@ -29,6 +30,15 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   void initState() {
     super.initState();
     _cubit.getDetail(widget.id ?? 0);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  bool _isDraft(JustificationDetailState state) {
+    return state.detail?.stage?.name == 'Nháp';
   }
 
   Color _getStatusColorByName(String? name) {
@@ -124,9 +134,12 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       child: Column(
         children: [
           _contentCard(state),
-          const SizedBox(height: 20),
-          _actionButtons(state),
-          const SizedBox(height: 24),
+
+          if (_isDraft(state)) ...[
+            const SizedBox(height: 20),
+            _actionButtons(state),
+            const SizedBox(height: 24),
+          ],
         ],
       ),
     );
@@ -152,12 +165,14 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           const CustomDashView(),
           _row("Ngày", e.date ?? ""),
           const SizedBox(height: 12),
+
           if (e.exceptionLines != null)
             ...e.exceptionLines!.map(_exceptionBox).toList(),
+
           const SizedBox(height: 12),
           _row("Ghi chú", e.note ?? ""),
           const CustomDashView(),
-          _statusRow(e.stage?.id ?? 0, e.stage?.name ?? ""),
+          _statusRow(e.stage?.name ?? ""),
           const CustomDashView(),
           _row("Người tạo", e.employeeName ?? ""),
         ],
@@ -182,7 +197,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 14, color: Colors.black),
+              style: const TextStyle(fontSize: 14),
             ),
           ),
         ],
@@ -190,7 +205,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     );
   }
 
-  Widget _statusRow(int id, String name) {
+  Widget _statusRow(String name) {
     final color = _getStatusColorByName(name);
 
     return Padding(
@@ -294,6 +309,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           child: PrimaryButton(
             mainText: "Xóa",
             type: PrimaryButtonType.secondary,
+            callback: () {},
           ),
         ),
         const SizedBox(width: 12),
@@ -318,9 +334,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                         Navigator.pop(context);
                         _cubit.submitApproval();
                       },
-                      onCancel: () {
-                        Navigator.pop(context);
-                      },
+                      onCancel: () => Navigator.pop(context),
                     ),
               );
             },
@@ -331,7 +345,19 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           child: PrimaryButton(
             mainText: "Cập nhật",
             type: PrimaryButtonType.primary,
-            callback: () {},
+            callback: () async {
+              final res = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => CreateJustificationPage(initialData: state.detail),
+                ),
+              );
+
+              if(res == true) {
+                _cubit.getDetail(widget.id!);
+              }
+            },
           ),
         ),
       ],

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/models/param/create_justification_param.dart';
 import 'package:pm_app/app/data/models/param/exception_line_param.dart';
@@ -10,7 +11,7 @@ class CreateJustificationCubit extends Cubit<CreateJustificationState> {
   final JutificationRepository repository;
 
   CreateJustificationCubit(this.repository)
-      : super(CreateJustificationState.initial());
+    : super(CreateJustificationState.initial());
 
   void changeDate(String value) {
     emit(state.copyWith(date: value));
@@ -40,15 +41,40 @@ class CreateJustificationCubit extends Cubit<CreateJustificationState> {
     emit(state.copyWith(secondHours: double.tryParse(value)));
   }
 
+  void initFromDetail(JustificationEntity? e) {
+    if (e == null) return;
+
+    emit(
+      state.copyWith(
+        id: e.id,
+        date: e.date,
+        reasonType: e.reasonType,
+        note: e.note,
+        firstFormType:
+            e.exceptionLines?.isNotEmpty == true
+                ? e.exceptionLines![0].formType
+                : null,
+        firstHours:
+            e.exceptionLines?.isNotEmpty == true
+                ? e.exceptionLines![0].timeNumber
+                : null,
+        secondFormType:
+            e.exceptionLines != null && e.exceptionLines!.length > 1
+                ? e.exceptionLines![1].formType
+                : null,
+        secondHours:
+            e.exceptionLines != null && e.exceptionLines!.length > 1
+                ? e.exceptionLines![1].timeNumber
+                : null,
+      ),
+    );
+  }
+
   Future<void> submit() async {
     if (!state.isFormValid || state.isSubmitting) return;
 
     emit(
-      state.copyWith(
-        isSubmitting: true,
-        errorMessage: null,
-        isSuccess: false,
-      ),
+      state.copyWith(isSubmitting: true, errorMessage: null, isSuccess: false),
     );
 
     try {
@@ -61,21 +87,21 @@ class CreateJustificationCubit extends Cubit<CreateJustificationState> {
             formType: state.firstFormType,
             timeNumber: state.firstHours,
           ),
-          ExceptionLineParam(
-            formType: state.secondFormType,
-            timeNumber: state.secondHours,
-          ),
+          if (state.secondFormType != null)
+            ExceptionLineParam(
+              formType: state.secondFormType,
+              timeNumber: state.secondHours,
+            ),
         ],
       );
 
-      await repository.createJustification(param);
+      if (state.isEdit) {
+        await repository.updateJustification(state.id!, param.toJson());
+      } else {
+        await repository.createJustification(param);
+      }
 
-      emit(
-        state.copyWith(
-          isSubmitting: false,
-          isSuccess: true,
-        ),
-      );
+      emit(state.copyWith(isSubmitting: false, isSuccess: true));
     } on DioException catch (e) {
       emit(
         state.copyWith(
@@ -83,13 +109,8 @@ class CreateJustificationCubit extends Cubit<CreateJustificationState> {
           errorMessage: _extractErrorMessage(e),
         ),
       );
-    } catch (_) {
-      emit(
-        state.copyWith(
-          isSubmitting: false,
-          errorMessage: 'Có lỗi xảy ra, vui lòng thử lại',
-        ),
-      );
+    } catch (e) {
+      emit(state.copyWith(isSubmitting: false, errorMessage: 'Có lỗi xảy ra'));
     }
   }
 

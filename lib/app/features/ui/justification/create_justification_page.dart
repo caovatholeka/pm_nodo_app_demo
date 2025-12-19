@@ -4,15 +4,68 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/features/ui/justification/bloc/create_justification_cubit.dart';
-import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 
-class CreateJustificationPage extends StatelessWidget {
-  const CreateJustificationPage({super.key});
+class CreateJustificationPage extends StatefulWidget {
+  final JustificationEntity? initialData;
+
+  const CreateJustificationPage({super.key, this.initialData});
+
+  bool get isEdit => initialData != null;
+
+  @override
+  State<CreateJustificationPage> createState() =>
+      _CreateJustificationPageState();
+}
+
+class _CreateJustificationPageState extends State<CreateJustificationPage> {
+  late final TextEditingController _dateCtrl;
+  late final TextEditingController _noteCtrl;
+  late final TextEditingController _firstHourCtrl;
+  late final TextEditingController _secondHourCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final e = widget.initialData;
+
+    _dateCtrl = TextEditingController(text: e?.date ?? '');
+    _noteCtrl = TextEditingController(text: e?.note ?? '');
+
+    if (e != null && e.exceptionLines != null) {
+      _firstHourCtrl = TextEditingController(
+        text:
+            e.exceptionLines!.isNotEmpty
+                ? e.exceptionLines![0].timeNumber?.toString()
+                : '',
+      );
+
+      _secondHourCtrl = TextEditingController(
+        text:
+            e.exceptionLines!.length > 1
+                ? e.exceptionLines![1].timeNumber?.toString()
+                : '',
+      );
+    } else {
+      _firstHourCtrl = TextEditingController();
+      _secondHourCtrl = TextEditingController();
+    }
+  }
+
+  @override
+  void dispose() {
+    _dateCtrl.dispose();
+    _noteCtrl.dispose();
+    _firstHourCtrl.dispose();
+    _secondHourCtrl.dispose();
+    super.dispose();
+  }
 
   void _showDatePicker(BuildContext context, CreateJustificationCubit cubit) {
     DatePicker.showDatePicker(
@@ -20,7 +73,9 @@ class CreateJustificationPage extends StatelessWidget {
       locale: LocaleType.vi,
       currentTime: DateTime.now(),
       onConfirm: (date) {
-        cubit.changeDate(DateFormat('yyyy-MM-dd').format(date));
+        final value = DateFormat('yyyy-MM-dd').format(date);
+        _dateCtrl.text = value;
+        cubit.changeDate(value);
       },
     );
   }
@@ -28,7 +83,10 @@ class CreateJustificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CreateJustificationCubit(context.read()),
+      create:
+          (context) =>
+              CreateJustificationCubit(context.read())
+                ..initFromDetail(widget.initialData),
       child: BlocConsumer<CreateJustificationCubit, CreateJustificationState>(
         listenWhen:
             (p, c) =>
@@ -47,7 +105,10 @@ class CreateJustificationPage extends StatelessWidget {
           if (state.isSuccess == true) {
             Navigator.of(context).pop(true);
             await Flushbar(
-              message: 'Tạo yêu cầu thành công',
+              message:
+                  widget.isEdit
+                      ? 'Cập nhật yêu cầu thành công'
+                      : 'Tạo yêu cầu thành công',
               flushbarPosition: FlushbarPosition.TOP,
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
@@ -65,7 +126,10 @@ class CreateJustificationPage extends StatelessWidget {
               Scaffold(
                 backgroundColor: Colors.transparent,
                 appBar: MyAppBar(
-                  titleAppbar: 'Tạo yêu cầu đi muộn về sớm',
+                  titleAppbar:
+                      widget.isEdit
+                          ? 'Cập nhật yêu cầu đi muộn về sớm'
+                          : 'Tạo yêu cầu đi muộn về sớm',
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
@@ -83,6 +147,7 @@ class CreateJustificationPage extends StatelessWidget {
                         DropdownInputField(
                           title: 'Loại lý do',
                           hint: '',
+                          isRequired: true,
                           items: const ['Việc cá nhân', 'Công việc'],
                           selectedValue:
                               state.reasonType == 'personal'
@@ -90,39 +155,48 @@ class CreateJustificationPage extends StatelessWidget {
                                   : state.reasonType == 'work'
                                   ? 'Công việc'
                                   : null,
-                          onChanged:
-                              (v) => cubit.changeReason(
-                                v == 'Việc cá nhân' ? 'personal' : 'work',
-                              ),
+                          onChanged: (v) {
+                            cubit.changeReason(
+                              v == 'Việc cá nhân' ? 'personal' : 'work',
+                            );
+                          },
                         ),
                         const SizedBox(height: 16),
+
+                        /// NGÀY
                         InputTextField(
                           title: 'Ngày',
                           hintText: '',
                           isRequiredField: true,
                           readOnly: true,
+                          controller: _dateCtrl,
                           suffixIcon: AppAssets.icCalendar,
-                          controller: TextEditingController(text: state.date),
                           callback: () => _showDatePicker(context, cubit),
                         ),
                         const SizedBox(height: 16),
+
                         _row(
                           state.firstFormType,
+                          _firstHourCtrl,
                           cubit.changeFirstFormType,
                           cubit.changeFirstHours,
                         ),
                         const SizedBox(height: 16),
+
                         _row(
                           state.secondFormType,
+                          _secondHourCtrl,
                           cubit.changeSecondFormType,
                           cubit.changeSecondHours,
                         ),
                         const SizedBox(height: 16),
+
                         InputTextField(
                           title: 'Ghi chú',
                           hintText: '',
                           isRequiredField: true,
                           maxLine: 6,
+                          controller: _noteCtrl,
                           onChange: cubit.changeNote,
                         ),
                       ],
@@ -153,7 +227,8 @@ class CreateJustificationPage extends StatelessWidget {
   }
 
   Widget _row(
-    String? value,
+    String? formType,
+    TextEditingController hourCtrl,
     Function(String) onTypeChanged,
     Function(String) onHourChanged,
   ) {
@@ -162,12 +237,13 @@ class CreateJustificationPage extends StatelessWidget {
         Expanded(
           child: DropdownInputField(
             title: 'Hình thức',
+            isRequired: true,
             hint: '',
             items: const ['Đi muộn', 'Về sớm'],
             selectedValue:
-                value == 'late'
+                formType == 'late'
                     ? 'Đi muộn'
-                    : value == 'early'
+                    : formType == 'early'
                     ? 'Về sớm'
                     : null,
             onChanged: (v) => onTypeChanged(v == 'Đi muộn' ? 'late' : 'early'),
@@ -179,6 +255,7 @@ class CreateJustificationPage extends StatelessWidget {
             title: 'Số giờ',
             hintText: '',
             isRequiredField: true,
+            controller: hourCtrl,
             inputType: TextInputType.number,
             onChange: onHourChanged,
           ),

@@ -1,6 +1,7 @@
 part of 'create_justification_cubit.dart';
 
 class CreateJustificationState {
+  
   final String? date;
   final String? reasonType;
   final String? note;
@@ -15,6 +16,9 @@ class CreateJustificationState {
   final String? errorMessage;
   final bool isSuccess;
 
+  final int? id;
+  bool get isEdit => id != null;
+
   const CreateJustificationState({
     this.date,
     this.reasonType,
@@ -26,6 +30,7 @@ class CreateJustificationState {
     this.isSubmitting = false,
     this.errorMessage,
     this.isSuccess = false,
+    this.id
   });
 
   bool get isFormValid =>
@@ -51,8 +56,10 @@ class CreateJustificationState {
     bool? isSubmitting,
     String? errorMessage,
     bool? isSuccess,
+    int? id
   }) {
     return CreateJustificationState(
+      id: id ?? this.id,
       date: date ?? this.date,
       reasonType: reasonType ?? this.reasonType,
       note: note ?? this.note,
