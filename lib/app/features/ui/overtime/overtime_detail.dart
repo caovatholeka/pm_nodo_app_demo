@@ -296,7 +296,10 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
             children: [
               _row("Ngày", d.date ?? ""),
               const CustomDashView(),
-              _row("Số giờ", _formatHour(d.overtime)),
+              _row(
+                "Số giờ",
+                d.overtime != null ? d.overtime!.toStringAsFixed(2) : "",
+              ),
               const CustomDashView(),
               _row("Hình thức nhận", _mapOTFormType(d.formType)),
             ],

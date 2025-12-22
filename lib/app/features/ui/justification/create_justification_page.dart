@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
@@ -128,7 +129,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                 appBar: MyAppBar(
                   titleAppbar:
                       widget.isEdit
-                          ? 'Cập nhật yêu cầu đi muộn về sớm'
+                          ? 'Cập nhật yêu cầu M/S'
                           : 'Tạo yêu cầu đi muộn về sớm',
                   haveBackButton: true,
                   haveActionButton: true,
@@ -163,7 +164,6 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        /// NGÀY
                         InputTextField(
                           title: 'Ngày',
                           hintText: '',
@@ -257,7 +257,14 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
             isRequiredField: true,
             controller: hourCtrl,
             inputType: TextInputType.number,
-            onChange: onHourChanged,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
+            ],
+            onChange: (v) {
+              final value = double.tryParse(v);
+              if (value == null) return;
+              onHourChanged(v);
+            },
           ),
         ),
       ],

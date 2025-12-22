@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // ✅ THÊM
 import 'package:flutter_svg/svg.dart';
+
 import '../../config/app_config.dart';
 import '../../core/commons/app_assets.dart';
 import '../../core/commons/app_colors.dart';
@@ -12,6 +14,7 @@ class InputTextField extends StatefulWidget {
   final Widget? prefixWidget;
   final int? maxLength;
   final TextInputType? inputType;
+  final List<TextInputFormatter>? inputFormatters; // ✅ THÊM
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final bool? readOnly;
@@ -45,6 +48,7 @@ class InputTextField extends StatefulWidget {
     this.prefixWidget,
     this.maxLength,
     this.inputType,
+    this.inputFormatters, 
     this.maxLine,
     this.callback,
     this.onEditingComplete,
@@ -69,13 +73,6 @@ class _InputTextFieldState extends State<InputTextField> {
   void initState() {
     super.initState();
     _obscure = widget.isPasswordField ? true : (widget.isObscured ?? false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && widget.isPasswordField) {
-        setState(() {
-          _obscure = true;
-        });
-      }
-    });
   }
 
   @override
@@ -85,7 +82,10 @@ class _InputTextFieldState extends State<InputTextField> {
       'Provide either controller OR initialValue, not both.',
     );
 
-    final fillColor = (widget.enable == true || widget.bgrColor == true) ? Colors.white : AppColors.lineGray50;
+    final fillColor =
+        (widget.enable == true || widget.bgrColor == true)
+            ? Colors.white
+            : AppColors.lineGray50;
 
     final baseBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
@@ -116,8 +116,6 @@ class _InputTextFieldState extends State<InputTextField> {
                     fontWeight: FontWeight.w400,
                     color: AppColors.gray,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(width: 4),
@@ -129,105 +127,62 @@ class _InputTextFieldState extends State<InputTextField> {
         ],
         ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              textSelectionTheme: TextSelectionThemeData(
-                selectionColor: Colors.grey.withOpacity(0.4),
-                selectionHandleColor: AppColors.themePrimaryDefault,
-              ),
-            ),
-            child: TextFormField(
-              controller: widget.controller,
-              focusNode: widget.focusNode,
-              initialValue: widget.controller == null ? widget.initialValue : null,
-              cursorHeight: 20,
-              textAlignVertical: TextAlignVertical.center,
-              enabled: widget.enable,
-              validator: widget.validator,
-              keyboardType: widget.inputType,
-              onChanged: widget.onChange,
-              onTap: (widget.enable == true || (widget.readOnly ?? false)) ? widget.callback : null,
-              readOnly: widget.readOnly ?? false,
-              onEditingComplete: widget.onEditingComplete,
-              onFieldSubmitted: widget.onSubmited,
-              obscureText: widget.isPasswordField ? _obscure : (widget.isObscured ?? false),
-              style: widget.style ?? const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: AppColors.gray,
-              ),
-              maxLines: widget.maxLine ?? 1,
-              maxLength: widget.maxLength,
-              autovalidateMode: AutovalidateMode.disabled,
-              decoration: InputDecoration(
-                contentPadding: (widget.maxLine ?? 1) > 1
-                    ? const EdgeInsets.symmetric(horizontal: 12, vertical: 14)
-                    : const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                hintText: widget.hintText,
-                counterText: "",
-                filled: true,
-                fillColor: fillColor,
-                hintStyle: const TextStyle(
+          child: TextFormField(
+            controller: widget.controller,
+            focusNode: widget.focusNode,
+            initialValue:
+                widget.controller == null ? widget.initialValue : null,
+            enabled: widget.enable,
+            validator: widget.validator,
+            keyboardType: widget.inputType,
+            inputFormatters: widget.inputFormatters, 
+            onChanged: widget.onChange,
+            onTap:
+                (widget.enable == true || (widget.readOnly ?? false))
+                    ? widget.callback
+                    : null,
+            readOnly: widget.readOnly ?? false,
+            onEditingComplete: widget.onEditingComplete,
+            onFieldSubmitted: widget.onSubmited,
+            obscureText:
+                widget.isPasswordField ? _obscure : (widget.isObscured ?? false),
+            style: widget.style ??
+                const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
-                  fontStyle: FontStyle.normal,
-                  height: 1.0,
-                  color: Color.fromRGBO(16, 16, 18, 0.4),
+                  color: AppColors.gray,
                 ),
-                prefixIcon: widget.prefixWidget != null
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: widget.prefixWidget,
-                      )
-                    : null,
-                prefixIconConstraints: const BoxConstraints(
-                  minWidth: 0,
-                  minHeight: 0,
-                ),
-                suffixIcon: widget.isPasswordField
-                    ? InkWell(
-                        onTap: () {
-                          setState(() => _obscure = !_obscure);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 12, left: 4),
-                          child: SvgPicture.asset(
-                            _obscure ? AppAssets.icEyeClose : AppAssets.icEyeVisible,
-                            width: 18,
-                            color: const Color(0xff666666),
-                          ),
+            maxLines: widget.maxLine ?? 1,
+            maxLength: widget.maxLength,
+            decoration: InputDecoration(
+              contentPadding:
+                  (widget.maxLine ?? 1) > 1
+                      ? const EdgeInsets.symmetric(horizontal: 12, vertical: 14)
+                      : const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              hintText: widget.hintText,
+              counterText: "",
+              filled: true,
+              fillColor: fillColor,
+              prefixIcon: widget.prefixWidget,
+              suffixIcon: widget.isPasswordField
+                  ? InkWell(
+                      onTap: () => setState(() => _obscure = !_obscure),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: SvgPicture.asset(
+                          _obscure
+                              ? AppAssets.icEyeClose
+                              : AppAssets.icEyeVisible,
+                          width: 18,
                         ),
-                      )
-                    : (widget.suffixIcon != null
-                        ? InkWell(
-                            onTap: widget.onSuffixAction ?? widget.callback,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 12, left: 4),
-                              child: SvgPicture.asset(
-                                widget.suffixIcon!,
-                                width: 12,
-                                color: const Color(0xff666666),
-                              ),
-                            ),
-                          )
-                        : null),
-                suffixIconConstraints: const BoxConstraints(
-                  minWidth: 16,
-                  minHeight: 16,
-                ),
-                border: baseBorder,
-                enabledBorder: baseBorder,
-                focusedBorder: baseBorder.copyWith(
-                  borderSide: BorderSide(
-                    width: 1,
-                    color: Colors.black.withAlpha(50),
-                  ),
-                ),
-                errorBorder: errorBorder,
-                focusedErrorBorder: errorBorder,
-                errorStyle: const TextStyle(fontSize: 12, height: 1, color: Colors.red),
-                errorMaxLines: 2,
-              ),
+                      ),
+                    )
+                  : null,
+              border: baseBorder,
+              enabledBorder: baseBorder,
+              focusedBorder: baseBorder,
+              errorBorder: errorBorder,
+              focusedErrorBorder: errorBorder,
             ),
           ),
         ),

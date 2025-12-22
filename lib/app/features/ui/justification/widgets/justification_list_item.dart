@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class JustificationListItem extends StatelessWidget {
   final JustificationEntity entity;
@@ -48,6 +49,7 @@ class JustificationListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final stage = entity.stage;
     final statusName = stage?.name;
 
@@ -102,7 +104,6 @@ class JustificationListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        /// HEADER
                         Row(
                           mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,
@@ -129,7 +130,6 @@ class JustificationListItem extends StatelessWidget {
                               ],
                             ),
 
-                            /// STATUS BADGE
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
@@ -169,14 +169,14 @@ class JustificationListItem extends StatelessWidget {
                         const SizedBox(height: 16),
 
                         _buildItem(
-                          'Loại lý do:',
+                          s.justification_reason_type,
                           entity.reasonType ?? '',
                         ),
 
                         const SizedBox(height: 12),
 
                         _buildItem(
-                          'Người tạo:',
+                          s.justification_create,
                           entity.employeeName ?? '',
                         ),
                       ],

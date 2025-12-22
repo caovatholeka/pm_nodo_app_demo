@@ -200,7 +200,22 @@
   },
   "justification_title":"Đăng ký đi muộn về sớm",
   "justification_reason_type":"Loại lý do: ",
-  "justification_create":"Người tạo: "
-
-
+  "justification_create":"Người tạo: ",
+  "justification_detail_employee":"Nhân viên",
+  "justification_detail_department":"Phòng ban",
+  "justification_detail_reason":"Loại lý do",
+  "justification_detail_date":"Ngày",
+  "justification_detail_form":"Hình thức",
+  "justification_detail_hours":"Số giờ",
+  "justification_detail_notes":"Ghi chú",
+  "justification_detail_status":"Trạng thái",
+  "justification_detail_sendbtn":"Gửi duyệt",
+  "justification_detail_updatebtn":"Cập nhật",
+  "justification_detail_title":"Chi tiết yêu cầu MS",
+  "justification_create_reasonType":"Loại lý do",
+  "justification_create_date":"Ngày",
+  "justification_create_form":"Hình thức",
+  "justification_create_hours":"Số giờ",
+  "justification_create_notes":"Ghi chú",
+  "justification_create_savebtn":"Lưu"  
 }

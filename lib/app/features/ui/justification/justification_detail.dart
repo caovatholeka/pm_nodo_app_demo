@@ -274,7 +274,10 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             children: [
               _row("Hình thức", _mapFormType(e.formType)),
               const CustomDashView(),
-              _row("Số giờ", _formatHour(e.timeNumber)),
+              _row(
+                "Số giờ",
+                e.timeNumber != null ? e.timeNumber!.toStringAsFixed(2) : "",
+              ),
             ],
           ),
         ),
@@ -295,44 +298,11 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     }
   }
 
-  String _formatHour(double? hour) {
-    if (hour == null) return "";
-    final h = hour.floor();
-    final m = ((hour - h) * 60).round();
-    return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
-  }
+
 
   Widget _actionButtons(JustificationDetailState state) {
     return Row(
       children: [
-        Expanded(
-          child: PrimaryButton(
-            mainText: "Xóa",
-            type: PrimaryButtonType.secondary,
-            callback: () {
-              final id = state.detail?.id;
-              if(id == null) return;
-
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                 builder: (_) => CustomDialog(
-                  title: "Xác nhận xóa",
-                   content: "Bạn có chắc muốn xóa yêu cầu này không?",
-                   confirmText: "Xóa",
-                   cancelText: "Hủy",
-                   success: false,
-                   onConfirm: () {
-                     Navigator.pop(context);
-                     _cubit.deleteJustification(id);
-                   },
-                   onCancel: () => Navigator.pop(context),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(width: 12),
         Expanded(
           child: PrimaryButton(
             mainText: "Gửi duyệt",
@@ -374,7 +344,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                 ),
               );
 
-              if(res == true) {
+              if (res == true) {
                 _cubit.getDetail(widget.id!);
               }
             },
