@@ -82,6 +82,9 @@ dependencies:
   app_badge_plus: ^1.2.5
   quick_actions: ^1.1.0
   pinput: ^6.0.1
+  multi_image_picker_plus: ^0.0.8
+  uuid: ^4.5.2
+  dotted_border: ^2.1.0
 
 dev_dependencies:
   flutter_test:

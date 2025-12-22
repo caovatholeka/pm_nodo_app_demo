@@ -31,6 +31,7 @@ class TaskCubit extends Cubit<TaskState> {
       updateStatus: LoadStatus.INITIAL,
       currentUsers: [],
       resetDateTime: true,
+      taskPriority: false
     ));
   }
 
@@ -41,6 +42,7 @@ class TaskCubit extends Cubit<TaskState> {
       currentUsers: [],
       deadlineTime: "",
       resetDateTime: true,
+      taskPriority: false
     ));
   }
 
@@ -168,7 +170,7 @@ class TaskCubit extends Cubit<TaskState> {
         deadLine: AppDateUtils.parseDateToYMD(state.deadlineTime), // state.deadlineTime,
         desc: state.description,
         userIds: userIds,
-        priority: state.taskPriority ? 1 : 0
+        priority: state.taskPriority ? "1" : null
       );
 
       final res =  await repository.createTask(createParam);
@@ -231,7 +233,7 @@ class TaskCubit extends Cubit<TaskState> {
         deadLine: AppDateUtils.parseDateToYMD(state.deadlineTime),
         desc: state.description,
         userIds: userIds,
-        priority: state.taskPriority ? 1 : 0
+        priority: state.taskPriority ? "1" : null
     );
     try{
       final res = await repository.updateTask(param);

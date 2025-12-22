@@ -15,6 +15,8 @@ abstract class UserRepository {
   Future<CommonResponse> markNotiRead(Map<String, dynamic> body);
   Future<CommonResponse> countUnreadNoti();
 
+  Future<CommonResponse> logOut(Map<String, dynamic> body);
+
   // lay trang thai task
   Future<CommonResponse> getTaskStages();
 
@@ -96,5 +98,10 @@ class UserRepositoryImpl extends UserRepository {
     String? dateTo,
   ) async {
     return _apiClient.getListAttendanceHistory(dateFrom, dateTo);
+  }
+
+  @override
+  Future<CommonResponse> logOut(Map<String, dynamic> body) async {
+    return _apiClient.logOut(body);
   }
 }

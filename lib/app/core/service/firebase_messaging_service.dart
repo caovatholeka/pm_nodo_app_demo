@@ -66,6 +66,18 @@ class FirebaseMessagingService {
     return _encodeBase64(rawId);
   }
 
+  static Future<String?> _getDeviceType() async {
+    String? type;
+
+    if (Platform.isAndroid) {
+      type = "android";
+    }
+    if (Platform.isIOS) {
+     type = "ios";
+    }
+    return type;
+  }
+
   static Future<void> initializeFCM({int retry = 0}) async {
     const maxRetry = 3;
 
@@ -102,10 +114,15 @@ class FirebaseMessagingService {
 
       final token = await _messaging.getToken();
       final deviceId = await _getDeviceId();
+      final deviceType = await _getDeviceType();
+
       logger.d("🔔 FCM TOKEN: $token");
       logger.d("📱 DEVICE ID: $deviceId");
+      logger.d("📱 DEVICE TYPE: $deviceType");
+
       SharedPrefsHelper.setDeviceId(deviceId ?? "");
       SharedPrefsHelper.setFcmToken(token ?? "");
+      SharedPrefsHelper.setDeviceType(deviceType ?? "unknown device");
 
       _setupForegroundHandlers();
     } on FirebaseException catch (e, s) {

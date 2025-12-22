@@ -6,7 +6,10 @@ class AppAssets {
   static final appBg = 'assets/images/app_bg.jpg';
   static final icAttachCamera = 'assets/images/icons/ic_attach_camera.png';
   static final icAttachImage = 'assets/images/icons/ic_attach_image.png';
+  static final icAttachFile = 'assets/images/ic_attach_file.png';
+  static final icAttachPDF = 'assets/images/ic_attach_pdf.png';
   static final imgProfileBG = 'assets/images/img_profileBG.svg';
+  static final icCloud = 'assets/images/ic_cloud_computing.png';
 
   static final appLogo = 'assets/images/icons/ic_app_logo.svg';
   static final homeBG = 'assets/images/img_homeBG.svg';

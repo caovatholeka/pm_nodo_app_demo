@@ -151,7 +151,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
             appBar: MyAppBar(
             titleAppbar: s.to_do_title,
             haveActionButton: true,
-            // badgeCount: 300,
+            badgeCount: 0,
             haveBackButton: true,
             iconPathAsset: AppAssets.icNotificationBell,
             isTransparent: false,

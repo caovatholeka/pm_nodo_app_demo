@@ -15,6 +15,7 @@ import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/features/ui/work_trip/work_trip_page.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';

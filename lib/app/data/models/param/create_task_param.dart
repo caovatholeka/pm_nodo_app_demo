@@ -20,7 +20,7 @@ class CreateTaskParam {
   List<int>? userIds;
 
   @JsonKey(name: "priority")
-  int? priority;
+  String? priority;
 
   CreateTaskParam({
     this.taskId,
@@ -37,7 +37,7 @@ class CreateTaskParam {
     String? deadLine,
     String? desc,
     List<int>? userIds,
-    int? priority,
+    String? priority,
   }) {
     return CreateTaskParam(
       taskId: taskId ?? this.taskId,

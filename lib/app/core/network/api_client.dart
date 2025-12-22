@@ -6,12 +6,15 @@ import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
 import 'package:pm_app/app/features/ui/overtime/overtime_detail.dart';
+import 'package:pm_app/app/data/models/param/create_work_trip_param.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/entities/face_search_response_entity.dart';
+import '../../data/models/entities/file_entity.dart';
 import '../../data/models/param/create_leave_param.dart';
 import '../../data/models/response/common_response.dart';
 import '../../data/models/response/on_leave_response.dart';
+import '../../data/models/response/work_trip_response.dart';
 
 part 'api_client.g.dart';
 
@@ -232,4 +235,15 @@ abstract class ApiClient {
 
   @DELETE('/overtime/overtime_delete/{id}')
   Future<dynamic> deleteOTRequest(@Path("id") int id);
+  ///Upload files
+  @POST("")
+  Future<List<FileEntity>> uploadFiles(@Body() FormData? body);
+
+  // danh sach cong tac
+  @GET("/going_on_business/going_on_business_list")
+  Future<CommonResponse> getListBusinessTrip();
+
+  // tao phiếu công tác
+  @POST("/going_on_business/going_on_business_create")
+  Future<WorkTripResponse> createBusinessTrip(@Body() CreateWorkTripParam body);
 }
