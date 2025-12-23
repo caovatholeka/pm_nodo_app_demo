@@ -1,8 +1,10 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 
@@ -40,6 +42,49 @@ class _NotificationPageState extends State<NotificationPage> {
     context.read<NotiCubit>().loadNotifications("all");
   }
 
+  void _onMarkAllRead(BuildContext context) {
+    final cubit = context.read<NotiCubit>();
+    final unread = cubit.state.totalUnread;
+    if (unread == 0) {
+      Flushbar(
+        message: "Các thông báo đã được đọc hết",
+        backgroundColor: const Color(0xFFFFC107),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin: const EdgeInsets.all(16),
+        borderRadius: BorderRadius.circular(12),
+        duration: const Duration(seconds: 2),
+        icon: const Icon(Icons.info_outline, color: Colors.white),
+      ).show(context);
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => CustomDialog(
+            title: "Đọc tất cả thông báo",
+            content:
+                "Bạn có chắc chắn muốn đánh dấu tất cả thông báo là đã đọc không?",
+            confirmText: "Đồng ý",
+            cancelText: "Hủy",
+            onConfirm: () {
+              Navigator.pop(context);
+              cubit.markRead(markAll: true);
+              Flushbar(
+                message: "Đã đọc hết thông báo!!!!",
+                backgroundColor: const Color.fromARGB(255, 0, 255, 85),
+                flushbarPosition: FlushbarPosition.TOP,
+                margin: const EdgeInsets.all(16),
+                borderRadius: BorderRadius.circular(12),
+                duration: const Duration(seconds: 2),
+                icon: const Icon(Icons.info_outline, color: Colors.white),
+              ).show(context);
+            },
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -52,7 +97,7 @@ class _NotificationPageState extends State<NotificationPage> {
         haveActionButton: true,
         iconPathAsset: AppAssets.icReadAll,
         actionCallBack: () {
-          context.read<NotiCubit>().markRead(markAll: true);
+          _onMarkAllRead(context);
         },
       ),
 

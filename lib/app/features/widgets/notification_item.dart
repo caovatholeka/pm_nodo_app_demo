@@ -10,6 +10,11 @@ class NotificationItem extends StatelessWidget {
 
   const NotificationItem({super.key, required this.item});
 
+  bool get _hasLink {
+    final l = item.link;
+    return l != null && l.trim().isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isUnread = !(item.isSeen ?? false);
@@ -32,7 +37,9 @@ class NotificationItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
         decoration: BoxDecoration(
-          color: isUnread ? Colors.white : const Color.fromARGB(255, 241, 240, 240),
+          color: isUnread
+              ? Colors.white
+              : const Color.fromARGB(255, 241, 240, 240),
           borderRadius: BorderRadius.circular(18),
           boxShadow: isUnread
               ? [
@@ -61,9 +68,7 @@ class NotificationItem extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 6),
-
                 Text(
                   timeAgo(item.createDate, context),
                   style: TextStyle(
@@ -84,9 +89,27 @@ class NotificationItem extends StatelessWidget {
                 color: Colors.grey.shade600,
               ),
             ),
+
+            // if (_hasLink) ...[
+            //   const SizedBox(height: 6),
+            //   GestureDetector(
+            //     onTap: () {
+
+            //     },
+            //     child: const Text(
+            //       "Nhấn vào đây để vào",
+            //       style: TextStyle(
+            //         fontSize: 13,
+            //         color: Colors.blue,
+            //         fontWeight: FontWeight.w600,
+            //       ),
+            //     ),
+            //   ),
+            // ],
           ],
         ),
       ),
     );
   }
 }
+

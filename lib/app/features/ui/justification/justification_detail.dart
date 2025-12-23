@@ -11,6 +11,7 @@ import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import 'bloc/justification_detail_cubit.dart';
 
@@ -66,6 +67,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<JustificationDetailCubit, JustificationDetailState>(
       bloc: _cubit,
       listener: (context, state) async {
@@ -106,7 +108,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
               Scaffold(
                 backgroundColor: Colors.transparent,
                 appBar: MyAppBar(
-                  titleAppbar: "Chi tiết yêu cầu MS",
+                  titleAppbar: s.justification_detail_title,
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
@@ -146,6 +148,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   }
 
   Widget _contentCard(JustificationDetailState state) {
+    final s = S.of(context);
     final e = state.detail;
     if (e == null) return const SizedBox();
 
@@ -157,24 +160,24 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       ),
       child: Column(
         children: [
-          _row("Nhân viên", e.employeeName ?? ""),
+          _row(s.justification_detail_employee, e.employeeName ?? ""),
           const CustomDashView(),
-          _row("Phòng ban", e.departmentName ?? ""),
+          _row(s.justification_detail_department, e.departmentName ?? ""),
           const CustomDashView(),
-          _row("Loại lý do", e.reasonType ?? ""),
+          _row(s.justification_detail_reason, e.reasonType ?? ""),
           const CustomDashView(),
-          _row("Ngày", e.date ?? ""),
+          _row(s.justification_detail_date, e.date ?? ""),
           const SizedBox(height: 12),
 
           if (e.exceptionLines != null)
             ...e.exceptionLines!.map(_exceptionBox).toList(),
 
           const SizedBox(height: 12),
-          _row("Ghi chú", e.note ?? ""),
+          _row(s.justification_detail_notes, e.note ?? ""),
           const CustomDashView(),
           _statusRow(e.stage?.name ?? ""),
           const CustomDashView(),
-          _row("Người tạo", e.employeeName ?? ""),
+          _row(s.justification_create, e.employeeName ?? ""),
         ],
       ),
     );
@@ -207,15 +210,15 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   Widget _statusRow(String name) {
     final color = _getStatusColorByName(name);
-
+    final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 4,
             child: Text(
-              "Trạng thái",
+              s.justification_detail_status,
               style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
             ),
           ),
@@ -263,6 +266,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   }
 
   Widget _exceptionBox(ExceptionLineEntity e) {
+    final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DashedBorderBox(
@@ -272,10 +276,10 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              _row("Hình thức", _mapFormType(e.formType)),
+              _row(s.justification_detail_form, _mapFormType(e.formType)),
               const CustomDashView(),
               _row(
-                "Số giờ",
+                s.justification_detail_hours,
                 e.timeNumber != null ? e.timeNumber!.toStringAsFixed(2) : "",
               ),
             ],
@@ -301,11 +305,12 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
 
   Widget _actionButtons(JustificationDetailState state) {
+    final s = S.of(context);
     return Row(
       children: [
         Expanded(
           child: PrimaryButton(
-            mainText: "Gửi duyệt",
+            mainText: s.justification_detail_sendbtn,
             type: PrimaryButtonType.primary,
             isLoading: state.isSubmitting,
             callback: () {
@@ -333,7 +338,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
         const SizedBox(width: 12),
         Expanded(
           child: PrimaryButton(
-            mainText: "Cập nhật",
+            mainText: s.justification_detail_updatebtn,
             type: PrimaryButtonType.primary,
             callback: () async {
               final res = await Navigator.push(

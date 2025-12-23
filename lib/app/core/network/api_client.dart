@@ -151,7 +151,10 @@ abstract class ApiClient {
   Future<CommonResponse> getNotification(@Body() Map<String, dynamic> body);
 
   @POST("/users/mark_notification_read")
-  Future<CommonResponse> markNotiRead(@Body() Map<String, dynamic> body);
+  Future<CommonResponse> markNotiRead(
+    @Body() Map<String, dynamic> body,
+    @Query("noti_id") int notiId,
+  );
 
   @GET("/users/count_unread_notifications")
   Future<CommonResponse> countUnreadNoti();

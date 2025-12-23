@@ -43,6 +43,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    super.initState();
     _appCubit.getProfile();
 
     if ((_appCubit.state.listTaskStages ?? []).isEmpty) {
@@ -51,7 +52,10 @@ class _HomePageState extends State<HomePage> {
 
     _cubit.getListAttendanceToday();
     _cubit.getListNewTasks();
-    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotiCubit>().countUnreadNoti();
+    });
   }
 
   void _openStaffPage() {
@@ -211,31 +215,65 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) => BlocProvider(
-                      create:
-                          (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
-                      child: const NotificationPage(),
+        BlocBuilder<NotiCubit, NotiState>(
+          buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+          builder: (context, state) {
+            final unread = state.totalUnread;
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NotificationPage()),
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.all(context.sw(0.03)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(context.sw(0.04)),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    SvgPicture.asset(
+                      AppAssets.ic_notification,
+                      width: context.sw(0.065),
                     ),
+
+                    if (unread > 0)
+                      Positioned(
+                        top: -6,
+                        right: -6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Text(
+                            unread > 99 ? "99+" : unread.toString(),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             );
           },
-          child: Container(
-            padding: EdgeInsets.all(context.sw(0.03)),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(context.sw(0.04)),
-            ),
-            child: SvgPicture.asset(
-              AppAssets.ic_notification,
-              width: context.sw(0.065),
-            ),
-          ),
         ),
       ],
     );

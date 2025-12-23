@@ -124,22 +124,4 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> countUnreadNoti() async {
-    try {
-      final res = await userRepository.countUnreadNoti();
-
-      if (res.code == 200) {
-        final total = res.totalUnread ?? 8;
-
-        emit(state.copyWith(totalUnread: total));
-
-        logger.d("🔔 unread total = $total");
-      } else {
-        logger.e("API error code: ${res.message}");
-      }
-    } catch (e, s) {
-      logger.e("Error: $e");
-      logger.d("$s");
-    }
-  }
 }

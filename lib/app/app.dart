@@ -17,6 +17,7 @@ import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/create_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
@@ -71,8 +72,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     initConnectivity();
     _loadSavedLanguage();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _updateConnectionStatus,
+    );
   }
 
   Future<void> _loadSavedLanguage() async {
@@ -124,6 +126,7 @@ class _MyAppState extends State<MyApp> {
   List<SingleChildWidget> _buildBlocProviders() {
     return [
       BlocProvider(create: (context) => sl<AppCubit>()),
+      BlocProvider(create: (context) => sl<NotiCubit>()..countUnreadNoti()),
       BlocProvider(create: (context) => sl<SplashCubit>()),
       BlocProvider(create: (context) => sl<OnLeaveCubit>()),
       BlocProvider(create: (context) => sl<CreateOnLeaveCubit>()),
@@ -167,9 +170,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   GetMaterialApp materialApp(Locale? locale) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
@@ -192,7 +193,9 @@ class _MyAppState extends State<MyApp> {
         return GestureDetector(
           onTap: () => hideKeyboard(context),
           child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(1.0)),
             child: child!,
           ),
         );

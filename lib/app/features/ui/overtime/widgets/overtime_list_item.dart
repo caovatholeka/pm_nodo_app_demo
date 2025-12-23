@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class OvertimeListItem extends StatelessWidget {
   final OvertimeEntity entity;
@@ -59,6 +60,7 @@ class OvertimeListItem extends StatelessWidget {
     final bgColor = _getBgColorByName(statusName);
 
     final dateRangeText = _formatDateRange(entity.fromDate, entity.toDate);
+    final s = S.of(context);
     
 
     return InkWell(
@@ -98,7 +100,6 @@ class OvertimeListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        /// HEADER
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -123,7 +124,6 @@ class OvertimeListItem extends StatelessWidget {
                               ],
                             ),
 
-                            /// STATUS BADGE
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
@@ -160,11 +160,11 @@ class OvertimeListItem extends StatelessWidget {
 
                         const SizedBox(height: 16),
 
-                        _buildItem('Ghi chú:', entity.note ?? ''),
+                        _buildItem(s.ot_cardNote, entity.note ?? ''),
 
                         const SizedBox(height: 12),
 
-                        _buildItem('Người tạo:', entity.employeeName ?? ''),
+                        _buildItem(s.ot_cardCreator, entity.employeeName ?? ''),
                       ],
                     ),
                   ),

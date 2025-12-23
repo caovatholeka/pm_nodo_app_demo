@@ -20,27 +20,40 @@ class NotiCubit extends Cubit<NotiState> {
     return {"type": type, "page": page, "limit": limit};
   }
 
+
   Future<void> loadNotifications(String type) async {
-    emit(state.copyWith(status: LoadStatus.LOADING, currentPage: 1));
+    emit(
+      state.copyWith(
+        status: LoadStatus.LOADING,
+        currentPage: 1,
+        canLoadMore: true,
+      ),
+    );
 
-    final params = _buildNotiParams(type, page: 1);
-    final res = await userRepository.getNotification(params);
+    try {
+      final params = _buildNotiParams(type);
+      final res = await userRepository.getNotification(params);
 
-    if (res.code == 200) {
-      final list =
-          (res.data as List)
-              .map((e) => NotificationEntity.fromJson(e))
-              .toList();
+      if (res.code == 200) {
+        final list =
+            (res.data as List)
+                .map((e) => NotificationEntity.fromJson(e))
+                .toList();
 
-      emit(
-        state.copyWith(
-          status: LoadStatus.SUCCESS,
-          notifications: list,
-          totalUnread: res.totalUnread ?? 0,
-          canLoadMore: list.length >= params["limit"],
-        ),
-      );
-    } else {
+        emit(
+          state.copyWith(
+            status: LoadStatus.SUCCESS,
+            notifications: list,
+            totalUnread: res.totalUnread ?? 0,
+            canLoadMore: list.length >= params["limit"],
+          ),
+        );
+      } else {
+        emit(state.copyWith(status: LoadStatus.FAILURE));
+      }
+    } catch (e, s) {
+      logger.e("loadNotifications error: $e");
+      logger.d("stack: $s");
       emit(state.copyWith(status: LoadStatus.FAILURE));
     }
   }
@@ -50,38 +63,92 @@ class NotiCubit extends Cubit<NotiState> {
 
     emit(state.copyWith(status: LoadStatus.LOADING_MORE));
 
-    final nextPage = state.currentPage + 1;
-    final params = _buildNotiParams(type, page: nextPage);
+    try {
+      final nextPage = state.currentPage + 1;
+      final params = _buildNotiParams(type, page: nextPage);
 
-    final res = await userRepository.getNotification(params);
+      final res = await userRepository.getNotification(params);
 
-    if (res.code == 200) {
-      final addList =
-          (res.data as List)
-              .map((e) => NotificationEntity.fromJson(e))
-              .toList();
+      if (res.code == 200) {
+        final addList =
+            (res.data as List)
+                .map((e) => NotificationEntity.fromJson(e))
+                .toList();
 
-      emit(
-        state.copyWith(
-          status: LoadStatus.SUCCESS,
-          notifications: [...state.notifications, ...addList],
-          currentPage: nextPage,
-          canLoadMore: addList.length >= params["limit"],
-        ),
-      );
-    } else {
+        emit(
+          state.copyWith(
+            status: LoadStatus.SUCCESS,
+            notifications: [...state.notifications, ...addList],
+            currentPage: nextPage,
+            canLoadMore: addList.length >= params["limit"],
+          ),
+        );
+      } else {
+        emit(state.copyWith(status: LoadStatus.FAILURE));
+      }
+    } catch (e, s) {
+      logger.e("loadMore error: $e");
+      logger.d("stack: $s");
       emit(state.copyWith(status: LoadStatus.FAILURE));
     }
   }
 
-  Future<void> markRead({required bool markAll, int? id}) async {
-    try {
-      final body = {"mark_all": markAll ? "True" : "False", "noti_id": id ?? 0};
-    } catch (e, s) {
-      logger.e("markRead error: $e");
-      logger.d("where: $s");
+Future<void> markRead({required bool markAll, int? id}) async {
+  if (markAll) {
+    final updatedList =
+        state.notifications.map((e) => e.copyWith(isSeen: true)).toList();
+
+    emit(
+      state.copyWith(
+        notifications: updatedList,
+        totalUnread: 0,
+      ),
+    );
+  } else if (id != null) {
+    final updatedList = state.notifications.map((e) {
+      if (e.id == id && !(e.isSeen ?? false)) {
+        return e.copyWith(isSeen: true);
+      }
+      return e;
+    }).toList();
+
+    emit(
+      state.copyWith(
+        notifications: updatedList,
+        totalUnread:
+            state.totalUnread > 0 ? state.totalUnread - 1 : 0,
+      ),
+    );
+  }
+
+  try {
+    final body = {
+      "mark_all": markAll ? "True" : "False",
+    };
+
+    await userRepository.markNotiRead(
+      body,
+      markAll ? 0 : (id ?? 0),
+    );
+  } catch (e) {
+    logger.e('err: $e');
+  }
+}
+
+
+
+  Future<void> countUnreadNoti() async{
+    try{
+      final res = await userRepository.countUnreadNoti();
+      if(res.code == 200) {
+        emit(state.copyWith(totalUnread: res.totalUnread ?? 0));
+      }
+      
+    }catch(e,s){
+      logger.e("err: $e");
+      logger.d("stack: $s");
     }
   }
 
-
+  
 }

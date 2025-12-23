@@ -11,6 +11,7 @@ import 'package:pm_app/app/features/widgets/dropdown_input_field.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class CreateJustificationPage extends StatefulWidget {
   final JustificationEntity? initialData;
@@ -83,6 +84,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocProvider(
       create:
           (context) =>
@@ -129,8 +131,8 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                 appBar: MyAppBar(
                   titleAppbar:
                       widget.isEdit
-                          ? 'Cập nhật yêu cầu M/S'
-                          : 'Tạo yêu cầu đi muộn về sớm',
+                          ? s.justification_update_title
+                          : s.justification_create_title,
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
@@ -146,7 +148,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                     child: Column(
                       children: [
                         DropdownInputField(
-                          title: 'Loại lý do',
+                          title: s.justification_create_reasonType,
                           hint: '',
                           isRequired: true,
                           items: const ['Việc cá nhân', 'Công việc'],
@@ -165,7 +167,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                         const SizedBox(height: 16),
 
                         InputTextField(
-                          title: 'Ngày',
+                          title: s.justification_create_date,
                           hintText: '',
                           isRequiredField: true,
                           readOnly: true,
@@ -192,7 +194,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                         const SizedBox(height: 16),
 
                         InputTextField(
-                          title: 'Ghi chú',
+                          title: s.justification_create_notes,
                           hintText: '',
                           isRequiredField: true,
                           maxLine: 6,
@@ -210,7 +212,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                       height: 48,
                       width: double.infinity,
                       child: PrimaryButton(
-                        mainText: 'Lưu',
+                        mainText: s.justification_create_savebtn,
                         enable: state.isFormValid,
                         isLoading: state.isSubmitting,
                         callback: cubit.submit,
@@ -236,7 +238,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
       children: [
         Expanded(
           child: DropdownInputField(
-            title: 'Hình thức',
+            title: S.of(context).justification_create_form,
             isRequired: true,
             hint: '',
             items: const ['Đi muộn', 'Về sớm'],
@@ -252,7 +254,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
         const SizedBox(width: 12),
         Expanded(
           child: InputTextField(
-            title: 'Số giờ',
+            title: S.of(context).justification_create_hours,
             hintText: '',
             isRequiredField: true,
             controller: hourCtrl,

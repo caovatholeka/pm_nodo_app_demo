@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // ✅ THÊM
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../config/app_config.dart';
@@ -14,7 +14,7 @@ class InputTextField extends StatefulWidget {
   final Widget? prefixWidget;
   final int? maxLength;
   final TextInputType? inputType;
-  final List<TextInputFormatter>? inputFormatters; // ✅ THÊM
+  final List<TextInputFormatter>? inputFormatters;
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final bool? readOnly;
@@ -48,7 +48,7 @@ class InputTextField extends StatefulWidget {
     this.prefixWidget,
     this.maxLength,
     this.inputType,
-    this.inputFormatters, 
+    this.inputFormatters,
     this.maxLine,
     this.callback,
     this.onEditingComplete,
@@ -89,10 +89,7 @@ class _InputTextFieldState extends State<InputTextField> {
 
     final baseBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(
-        width: 1,
-        color: Colors.black.withAlpha(25),
-      ),
+      borderSide: BorderSide(width: 1, color: Colors.black.withAlpha(25)),
     );
 
     final errorBorder = OutlineInputBorder(
@@ -135,7 +132,7 @@ class _InputTextFieldState extends State<InputTextField> {
             enabled: widget.enable,
             validator: widget.validator,
             keyboardType: widget.inputType,
-            inputFormatters: widget.inputFormatters, 
+            inputFormatters: widget.inputFormatters,
             onChanged: widget.onChange,
             onTap:
                 (widget.enable == true || (widget.readOnly ?? false))
@@ -145,8 +142,11 @@ class _InputTextFieldState extends State<InputTextField> {
             onEditingComplete: widget.onEditingComplete,
             onFieldSubmitted: widget.onSubmited,
             obscureText:
-                widget.isPasswordField ? _obscure : (widget.isObscured ?? false),
-            style: widget.style ??
+                widget.isPasswordField
+                    ? _obscure
+                    : (widget.isObscured ?? false),
+            style:
+                widget.style ??
                 const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
@@ -158,26 +158,35 @@ class _InputTextFieldState extends State<InputTextField> {
               contentPadding:
                   (widget.maxLine ?? 1) > 1
                       ? const EdgeInsets.symmetric(horizontal: 12, vertical: 14)
-                      : const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                      : const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 16,
+                      ),
               hintText: widget.hintText,
               counterText: "",
               filled: true,
               fillColor: fillColor,
               prefixIcon: widget.prefixWidget,
-              suffixIcon: widget.isPasswordField
-                  ? InkWell(
-                      onTap: () => setState(() => _obscure = !_obscure),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: SvgPicture.asset(
-                          _obscure
-                              ? AppAssets.icEyeClose
-                              : AppAssets.icEyeVisible,
-                          width: 18,
+              suffixIcon:
+                  widget.isPasswordField
+                      ? InkWell(
+                        onTap: () => setState(() => _obscure = !_obscure),
+                        child: SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Center(
+                            child: SvgPicture.asset(
+                              _obscure
+                                  ? AppAssets.icEyeClose
+                                  : AppAssets.icEyeVisible,
+                              width: 18,
+                              height: 18,
+                            ),
+                          ),
                         ),
-                      ),
-                    )
-                  : null,
+                      )
+                      : null,
+
               border: baseBorder,
               enabledBorder: baseBorder,
               focusedBorder: baseBorder,

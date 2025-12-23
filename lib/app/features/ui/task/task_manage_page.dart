@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -33,7 +32,6 @@ class TaskManagePage extends StatefulWidget {
 }
 
 class _TaskManagePageState extends State<TaskManagePage> {
-
   final _cubit = GetIt.I.get<TaskCubit>();
   final _appCubit = GetIt.I<AppCubit>();
 
@@ -53,9 +51,9 @@ class _TaskManagePageState extends State<TaskManagePage> {
   }
 
   initData() async {
-     // _tabs = _appCubit.state.listTaskStages ?? [];
-     await _cubit.getListStages();
-     // _cubit.onChangeCurrentTabItem(_tabs.first);
+    // _tabs = _appCubit.state.listTaskStages ?? [];
+    await _cubit.getListStages();
+    // _cubit.onChangeCurrentTabItem(_tabs.first);
     // _cubit.getListTasks();
   }
 
@@ -63,41 +61,42 @@ class _TaskManagePageState extends State<TaskManagePage> {
     _cubit.getListTasks();
   }
 
-  Future<void> _createNewTask() async{
+  Future<void> _createNewTask() async {
     final bool? result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CreateNewTask()),
     );
 
-    if(result != null && result){
+    if (result != null && result) {
       _onRefresh();
     }
   }
 
-  Future<void> _openDetailTask(TaskEntity entity) async{
+  Future<void> _openDetailTask(TaskEntity entity) async {
     final bool? result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => TaskDetailPage(
-        taskEntity: entity,
-        taskId: entity.id,
-      )),
+      MaterialPageRoute(
+        builder:
+            (context) => TaskDetailPage(taskEntity: entity, taskId: entity.id),
+      ),
     );
 
-    if(result != null && result){
+    if (result != null && result) {
       _onRefresh();
     }
   }
 
-  void _updateTaskStatus(TaskEntity entity) async{
+  void _updateTaskStatus(TaskEntity entity) async {
     final picked = await showModalBottomSheet<TaskStageEntity>(
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => TaskStageBottomSheet(
-        listStages: _cubit.state.listTaskStages,
-        currentTaskStatus: entity.stage?.code ?? "",
-      ),
+      builder:
+          (ctx) => TaskStageBottomSheet(
+            listStages: _cubit.state.listTaskStages,
+            currentTaskStatus: entity.stage?.code ?? "",
+          ),
     );
 
     if (picked != null) {
@@ -110,7 +109,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
-    void _goNotification() {
+  void _goNotification() {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -126,29 +125,27 @@ class _TaskManagePageState extends State<TaskManagePage> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    return BlocConsumer<TaskCubit,TaskState>(
-        bloc: _cubit,
-        listenWhen: (prev,cur) => prev.loadStatus != cur.loadStatus,
-        listener: (context,state){
-          if(state.updateStageStatus == LoadStatus.LOADING ||
-            state.getStageStatus == LoadStatus.LOADING){
-            LoadingOverlay.show(context);
-          }
-          else if(state.getStageStatus == LoadStatus.SUCCESS){
-            LoadingOverlay.hide(context);
-            // _tabs = List.from(state.listTaskStages ?? []);
-          }
-          if(state.updateStageStatus == LoadStatus.SUCCESS){
-            LoadingOverlay.hide(context);
-          }
-          else{
-            LoadingOverlay.hide(context);
-          }
-        },
-        builder: (context,state){
-          return Scaffold(
-            backgroundColor: AppColors.bodyColor,
-            appBar: MyAppBar(
+    return BlocConsumer<TaskCubit, TaskState>(
+      bloc: _cubit,
+      listenWhen: (prev, cur) => prev.loadStatus != cur.loadStatus,
+      listener: (context, state) {
+        if (state.updateStageStatus == LoadStatus.LOADING ||
+            state.getStageStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+        } else if (state.getStageStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+          // _tabs = List.from(state.listTaskStages ?? []);
+        }
+        if (state.updateStageStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+        } else {
+          LoadingOverlay.hide(context);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.bodyColor,
+          appBar: MyAppBar(
             titleAppbar: s.to_do_title,
             haveActionButton: true,
             // badgeCount: 300,
@@ -160,24 +157,25 @@ class _TaskManagePageState extends State<TaskManagePage> {
             },
             backAction: () => Navigator.pop(context),
           ),
-            body: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _filterWidget,
-                  _tabWidget,
-                  Flexible(
-                    // width: double.infinity,
-                    child:_listTasksWidget
-                  ),
-                ],
-              ),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _filterWidget,
+                _tabWidget,
+                Flexible(
+                  // width: double.infinity,
+                  child: _listTasksWidget,
+                ),
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   get _filterWidget {
@@ -187,54 +185,66 @@ class _TaskManagePageState extends State<TaskManagePage> {
       children: [
         Expanded(
           flex: 8,
-          child: BlocBuilder<TaskCubit,TaskState>(
-              bloc: _cubit,
-              buildWhen: (prev,cur) => prev.query != cur.query,
-              builder: (context, state){
-                return InputTextField(
-                  title: "",
-                  hintText: S.of(context).to_searchbar,
-                  isRequiredField: false,
-                  disableTitle: true,
-                  enable: true,
-                  controller: _searchController..text = state.query ?? "",
-                  onChange: (val){
-                    _cubit.onChangeQuery(val);
-                  },
-                  suffixIcon: (state.query ?? "").isNotEmpty ?  AppAssets.icClose : null,
-                  onSuffixAction: (){
-                    _cubit.onChangeQuery("");
+          child: BlocBuilder<TaskCubit, TaskState>(
+            bloc: _cubit,
+            buildWhen: (prev, cur) => prev.query != cur.query,
+            builder: (context, state) {
+              return InputTextField(
+                title: "",
+                hintText: S.of(context).to_searchbar,
+                isRequiredField: false,
+                disableTitle: true,
+                enable: true,
+                controller: _searchController..text = state.query ?? "",
+                onChange: (val) {
+                  _cubit.onChangeQuery(val);
+                },
+                suffixIcon:
+                    (state.query ?? "").isNotEmpty ? AppAssets.icClose : null,
+                onSuffixAction: () {
+                  _cubit.onChangeQuery("");
+                  _cubit.getListTasks();
+                },
+                prefixWidget: InkWell(
+                  onTap: () {
+                    dismissKeyboard();
                     _cubit.getListTasks();
                   },
-                  prefixWidget: InkWell(
-                    onTap: (){
-                      dismissKeyboard();
-                      _cubit.getListTasks();
-                    },
-                    child:  SvgPicture.asset(AppAssets.icSearch,width: 18,),
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: Center(
+                      child: SvgPicture.asset(
+                        AppAssets.icSearch,
+                        width: 18,
+                        height: 18,
+                      ),
+                    ),
                   ),
-
-                );
-              })
-
-        ),
-        const SizedBox(width: 8,),
-        Expanded(
-            flex: 1,
-            child: InkWell(
-              onTap: (){
-                _createNewTask();
-              },
-              child: Container(
-                height: 44,
-                width: 46,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    color: AppColors.mainPrimaryColor6
                 ),
-                child: Center(child: Icon(Icons.add,color: AppColors.whiteColor,)),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 1,
+          child: InkWell(
+            onTap: () {
+              _createNewTask();
+            },
+            child: Container(
+              height: 44,
+              width: 46,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: AppColors.mainPrimaryColor6,
               ),
-            )
+              child: Center(
+                child: Icon(Icons.add, color: AppColors.whiteColor),
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -243,113 +253,130 @@ class _TaskManagePageState extends State<TaskManagePage> {
   get _tabWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: BlocBuilder<TaskCubit,TaskState>(
-          bloc: _cubit,
-          buildWhen: (prev,cur) => prev.loadStatus != cur.loadStatus ||
-              prev.currentTabIndex != cur.currentTabIndex ||
-              prev.listTaskStages != cur.listTaskStages,
-          builder: (context,state){
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 40,
-                  child: ListView.separated(
-                    physics: const ClampingScrollPhysics(),
-                    // padding: const EdgeInsets.only(left: 10, right: 10),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: (state.listTaskStages ?? []).length,
-                    itemBuilder: (buildContext, index) {
-                      TaskStageEntity item = (state.listTaskStages ?? [])[index];
-                      return InkWell(
-                        onTap: (){
-                          // on change tabs
-                          if (index != _cubit.state.currentTabIndex) {
-                            _cubit.onChangeTab(index);
-                            _cubit.onChangeCurrentTabItem(item);
-                            _cubit.getListTasks();
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: (index == state.currentTabIndex) ? AppColors.themePrimaryDefault :
-                                  AppColors.whiteColor,
-                            borderRadius: BorderRadius.all(Radius.circular(1000)),
-                            border: Border.all(
-                                color: Color(0xFFD6E8Ff),
-                                width: 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 12,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
+      child: BlocBuilder<TaskCubit, TaskState>(
+        bloc: _cubit,
+        buildWhen:
+            (prev, cur) =>
+                prev.loadStatus != cur.loadStatus ||
+                prev.currentTabIndex != cur.currentTabIndex ||
+                prev.listTaskStages != cur.listTaskStages,
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  physics: const ClampingScrollPhysics(),
+                  // padding: const EdgeInsets.only(left: 10, right: 10),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: (state.listTaskStages ?? []).length,
+                  itemBuilder: (buildContext, index) {
+                    TaskStageEntity item = (state.listTaskStages ?? [])[index];
+                    return InkWell(
+                      onTap: () {
+                        // on change tabs
+                        if (index != _cubit.state.currentTabIndex) {
+                          _cubit.onChangeTab(index);
+                          _cubit.onChangeCurrentTabItem(item);
+                          _cubit.getListTasks();
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              (index == state.currentTabIndex)
+                                  ? AppColors.themePrimaryDefault
+                                  : AppColors.whiteColor,
+                          borderRadius: BorderRadius.all(Radius.circular(1000)),
+                          border: Border.all(
+                            color: Color(0xFFD6E8Ff),
+                            width: 1,
                           ),
-                          child: Center(
-                            child: Text(
-                              item.name ?? "",
-                              style: (index == state.currentTabIndex) ?
-                              TextStyle(
-                                  color: AppColors.whiteColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14
-                              ) :
-                              TextStyle(
-                                  color: AppColors.neutral600,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14
-                              ),
-                              textAlign: TextAlign.center,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 12,
+                              offset: const Offset(0, 3),
                             ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            item.name ?? "",
+                            style:
+                                (index == state.currentTabIndex)
+                                    ? TextStyle(
+                                      color: AppColors.whiteColor,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    )
+                                    : TextStyle(
+                                      color: AppColors.neutral600,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                    ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
-                      );
-                    },
+                      ),
+                    );
+                  },
 
-                    separatorBuilder: (buildContext, index) {
-                      return const SizedBox(width: 4);
-                    },
-                  ),
+                  separatorBuilder: (buildContext, index) {
+                    return const SizedBox(width: 4);
+                  },
                 ),
-              ],
-            );
-          }),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
   get _listTasksWidget {
-    return BlocBuilder<TaskCubit,TaskState>(
-        bloc: _cubit,
-        buildWhen: (prev,cur) => prev.loadStatus != cur.loadStatus ||
-          prev.listTasks != cur.listTasks,
-        builder: (context,state){
-          return state.loadStatus == LoadStatus.LOADING ?
-             const Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,),) :
-
-          ((state.listTasks ??[]).isNotEmpty ?
-          RefreshIndicator(
-            onRefresh: _onRefresh,
-            child: ListView.builder(
-                padding: const EdgeInsets.only(top: 20),
-                shrinkWrap: true,
-                controller: controller,
-                itemCount: (state.listTasks ?? []).length,
-                itemBuilder: (context,index){
-                  TaskEntity entity = (state.listTasks ?? [])[index];
-                  return ListTaskItem(entity: entity,
-                    onShowDetail: (){
-                      _openDetailTask(entity);
+    return BlocBuilder<TaskCubit, TaskState>(
+      bloc: _cubit,
+      buildWhen:
+          (prev, cur) =>
+              prev.loadStatus != cur.loadStatus ||
+              prev.listTasks != cur.listTasks,
+      builder: (context, state) {
+        return state.loadStatus == LoadStatus.LOADING
+            ? const Center(
+              child: CircularProgressIndicator(
+                color: AppColors.themePrimaryDefault,
+              ),
+            )
+            : ((state.listTasks ?? []).isNotEmpty
+                ? RefreshIndicator(
+                  onRefresh: _onRefresh,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(top: 20),
+                    shrinkWrap: true,
+                    controller: controller,
+                    itemCount: (state.listTasks ?? []).length,
+                    itemBuilder: (context, index) {
+                      TaskEntity entity = (state.listTasks ?? [])[index];
+                      return ListTaskItem(
+                        entity: entity,
+                        onShowDetail: () {
+                          _openDetailTask(entity);
+                        },
+                        onShowChangeStatus: () {
+                          _updateTaskStatus(entity);
+                        },
+                      ).paddingOnly(bottom: 30);
                     },
-                    onShowChangeStatus: (){
-                      _updateTaskStatus(entity);
-                    },
-                  ).paddingOnly(bottom: 30);
-                }),
-            ) : Center(child: Text("Không có dữ liệu"),)
-          );
-        });
+                  ),
+                )
+                : Center(child: Text("Không có dữ liệu")));
+      },
+    );
   }
 }
