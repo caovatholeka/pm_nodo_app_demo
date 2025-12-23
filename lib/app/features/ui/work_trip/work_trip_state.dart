@@ -2,10 +2,16 @@ part of 'work_trip_cubit.dart';
 
 class WorkTripState extends Equatable {
   final LoadStatus loadDataStatus;
+  final LoadStatus detailStatus;
   final LoadStatus createStatus;
+  final LoadStatus submitStatus;
+  final LoadStatus deleteStatus;
+  final LoadStatus updateStatus;
+
   final String? errMsg;
 
   final List<WorkTripEntity>? listWorkTrips;
+  final WorkTripEntity? detailWorkTrip;
 
   final List<UserEntity>? listUsers;
   final List<UserEntity>? currentUsers;
@@ -45,9 +51,15 @@ class WorkTripState extends Equatable {
 
   WorkTripState({
     this.loadDataStatus = LoadStatus.INITIAL,
+    this.detailStatus = LoadStatus.INITIAL,
     this.createStatus = LoadStatus.INITIAL,
+    this.submitStatus = LoadStatus.INITIAL,
+    this.updateStatus = LoadStatus.INITIAL,
+    this.deleteStatus = LoadStatus.INITIAL,
+
     this.errMsg,
     this.listWorkTrips,
+    this.detailWorkTrip,
     this.listUsers,
     this.currentUsers,
     this.strUsers,
@@ -70,9 +82,14 @@ class WorkTripState extends Equatable {
   WorkTripState copyWith({
     bool resetDateTime = false,
     LoadStatus? loadDataStatus,
+    LoadStatus? detailStatus,
     LoadStatus? createStatus,
+    LoadStatus? submitStatus,
+    LoadStatus? updateStatus,
+    LoadStatus? deleteStatus,
     String? errMsg,
     List<WorkTripEntity>? listWorkTrips,
+    WorkTripEntity? detailWorkTrip,
     List<UserEntity>? listUsers,
     List<UserEntity>? currentUsers,
     String? strUsers,
@@ -93,9 +110,14 @@ class WorkTripState extends Equatable {
   }) {
     return WorkTripState(
         loadDataStatus: loadDataStatus ?? this.loadDataStatus,
+      detailStatus: detailStatus ?? this.detailStatus,
       createStatus: createStatus ?? this.createStatus,
+      submitStatus: submitStatus ?? this.submitStatus,
+      deleteStatus: deleteStatus ?? this.deleteStatus,
+      updateStatus: updateStatus ?? this.updateStatus,
       errMsg: errMsg ?? this.errMsg,
       listWorkTrips: listWorkTrips ?? this.listWorkTrips,
+      detailWorkTrip: detailWorkTrip ?? this.detailWorkTrip,
       listUsers: listUsers ?? this.listUsers,
       currentUsers: currentUsers ?? this.currentUsers,
       strUsers: strUsers ?? this.strUsers,
@@ -119,9 +141,14 @@ class WorkTripState extends Equatable {
   @override
   List<Object?> get props => [
     loadDataStatus,
+    detailStatus,
     createStatus,
+    updateStatus,
+    submitStatus,
+    deleteStatus,
     errMsg,
     listWorkTrips,
+    detailWorkTrip,
     listUsers,
     address,
     note,

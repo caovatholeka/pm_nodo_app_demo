@@ -8,6 +8,7 @@ import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/features/ui/work_trip/request_new_trip_page.dart';
 import 'package:pm_app/app/features/ui/work_trip/widget/work_trip_list_item.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
+import 'package:pm_app/app/features/ui/work_trip/work_trip_detail_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 import '../../../core/commons/app_assets.dart';
@@ -35,6 +36,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
 
   @override
   void dispose() {
+    _cubit.onResetStatus();
     super.dispose();
   }
 
@@ -44,6 +46,20 @@ class _WorkTripPageState extends State<WorkTripPage> {
 
   Future _onRefresh() async {
     _cubit.getListWorkTrips();
+  }
+
+  Future _openDetail(WorkTripEntity entity) async{
+    final bool? result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => WorkTripDetailPage(
+        workEntity: entity,
+        workId: entity.id,
+      )),
+    );
+
+    if(result != null && result){
+      _onRefresh();
+    }
   }
 
   Future requestNewTrip() async {
@@ -151,7 +167,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
               return WorkTripListItem(
                 entity: entity,
                 onShowDetail: () {
-                  // _openDetail(entity);
+                  _openDetail(entity);
                 },
               ).paddingOnly(bottom: 12);
             },

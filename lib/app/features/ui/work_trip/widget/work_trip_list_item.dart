@@ -17,7 +17,7 @@ class WorkTripListItem extends StatelessWidget {
     switch (id) {
       case 25:
         return AppColors.colorDraft;
-      case 14:
+      case 26:
         return AppColors.colorApproved;
       case 9:
         return AppColors.colorFinished;
@@ -32,7 +32,7 @@ class WorkTripListItem extends StatelessWidget {
     switch (status) {
       case 25:
         return AppColors.colorDraft.withValues(alpha: 0.1);
-      case 14:
+      case 26:
         return AppColors.colorApproved.withValues(alpha: 0.1);
       case 11:
       case 15:
@@ -51,7 +51,7 @@ class WorkTripListItem extends StatelessWidget {
     switch (status) {
       case 25:
         return "Nháp";
-      case 14:
+      case 26:
         return "Trưởng phòng duyệt";
       case 11:
       case 15:
@@ -158,7 +158,7 @@ class WorkTripListItem extends StatelessWidget {
                         const SizedBox(height: 12),
                         _buildItem("Ghi chú:", entity.note ?? ""),
                         const SizedBox(height: 12),
-                        _buildItem("Người tạo:", "Administrator"),
+                        _buildItem("Người tạo:", entity.employeeName ?? ""),
                       ],
                     ),
                   ),

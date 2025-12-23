@@ -11,6 +11,7 @@ import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/overtime/overtime_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
+import 'package:pm_app/app/features/ui/work_trip/work_trip_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -81,6 +82,13 @@ class _ApplicationPageState extends State<ApplicationPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => OvertimePage(isFromHome: true)),
+    );
+  }
+
+  void _openBusinessTrip() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => WorkTripPage()),
     );
   }
 
@@ -160,6 +168,12 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "icon": AppAssets.ic_paper2,
         "title": "OT",
         "onTap": () => _openOT(),
+      },
+
+      {
+        "icon": AppAssets.ic_paper2,
+        "title": "Đơn công tác",
+        "onTap": () => _openBusinessTrip(),
       },
     ];
 

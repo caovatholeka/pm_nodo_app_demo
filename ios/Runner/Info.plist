@@ -41,9 +41,15 @@
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>Ứng dụng cần quyền truy cập vị trí của bạn để hiển thị vị trí chấm công.</string>
 		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ trường học.</string>
+		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ điểm chấm công.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ trường học.</string>
+		<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ điểm chấm công.</string>
+        <key>NSLocationTemporaryUsageDescriptionDictionary</key>
+        <dict>
+          <key>checkin</key>
+          <string>Cần vị trí chính xác để xác nhận bạn đang ở đúng điểm chấm công.</string>
+        </dict>
+
 		<key>NSPhotoLibraryAddUsageDescription</key>
 		<string>Ứng dụng cần quyền lưu ảnh/video vào Thư viện của bạn khi xuất hoặc tải về.</string>
 		<key>NSPhotoLibraryUsageDescription</key>

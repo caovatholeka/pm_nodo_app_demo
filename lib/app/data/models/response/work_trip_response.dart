@@ -24,7 +24,7 @@ class WorkTripResponse {
   String? toDate;
 
   @JsonKey(name:"number_of_days")
-  String? numberOfDays;
+  double? numberOfDays;
 
   @JsonKey()
   String? state;
@@ -48,7 +48,7 @@ class WorkTripResponse {
     this.stage,
     this.numberOfDays,
     this.employees,
-    this.schedules
+    this.schedules,
   });
 
 

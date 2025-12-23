@@ -4,6 +4,7 @@ import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
+import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
 import 'package:pm_app/app/features/ui/overtime/overtime_detail.dart';
 import 'package:pm_app/app/data/models/param/create_work_trip_param.dart';
@@ -246,4 +247,20 @@ abstract class ApiClient {
   // tao phiếu công tác
   @POST("/going_on_business/going_on_business_create")
   Future<WorkTripResponse> createBusinessTrip(@Body() CreateWorkTripParam body);
+
+  // chi tiet phieu ct
+  @GET("/going_on_business/going_on_business_detail/{id}")
+  Future<WorkTripEntity> getDetailWorkTrip(@Path("id") int id);
+
+  // gui duyet
+  @POST("/going_on_business/going_on_business_submit/{id}")
+  Future<CommonResponse> submitWorkTrip(@Body() CreateWorkTripParam body,@Path("id") int id);
+
+  // xoa
+  @DELETE("/going_on_business/going_on_business_delete/{id}")
+  Future<CommonResponse> deleteWorkTrip(@Path("id") int id);
+
+  // update
+  @PUT("/going_on_business/going_on_business_update/{id}")
+  Future<WorkTripResponse> updateWorkTrip(@Body() CreateWorkTripParam body, @Path("id") int id);
 }

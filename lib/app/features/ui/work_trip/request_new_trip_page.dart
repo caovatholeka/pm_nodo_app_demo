@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/data/models/entities/schedule_entity.dart';
+import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
@@ -28,7 +29,10 @@ import '../on_leave/widget/onleave_day_item_widget.dart';
 import '../task/bottomsheet/select_user_bottom_sheet.dart';
 
 class RequestNewTripPage extends StatefulWidget {
-  const RequestNewTripPage({super.key});
+  bool? isEdit;
+  WorkTripEntity? detailEntity;
+
+  RequestNewTripPage({super.key, this.isEdit, this.detailEntity});
 
   @override
   State<RequestNewTripPage> createState() => _RequestNewTripPageState();
@@ -158,11 +162,14 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
           }
           else if(state.createStatus == LoadStatus.SUCCESS){
             LoadingOverlay.hide(context);
+            _cubit.onResetStatus();
             AppSnackBar.showInfo(title: "Thành công",message: state.errMsg ?? "Phiếu công tác được tạo thành công!");
             Navigator.pop(context,true);
+            _cubit.onResetStatus();
           }else if(state.createStatus == LoadStatus.FAILURE){
             LoadingOverlay.hide(context);
-            AppSnackBar.showWarning(title: "Cảnh báo",message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau");
+            AppSnackBar.showError(title: "Cảnh báo",message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau");
+            _cubit.onResetStatus();
           }
           else {
             LoadingOverlay.hide(context);

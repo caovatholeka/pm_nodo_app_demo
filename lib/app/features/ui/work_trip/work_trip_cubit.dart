@@ -1,4 +1,5 @@
 
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -31,19 +32,33 @@ class WorkTripCubit extends Cubit<WorkTripState> {
     required this.tripRepository
   }) : super(WorkTripState());
 
+  onResetStatus() async {
+    emit(state.copyWith(
+        detailStatus: LoadStatus.INITIAL,
+      loadDataStatus: LoadStatus.INITIAL,
+      createStatus: LoadStatus.INITIAL,
+      submitStatus: LoadStatus.INITIAL,
+      deleteStatus: LoadStatus.INITIAL
+    ));
+  }
+
+  onResetData() async {
+
+  }
+
   getListWorkTrips() async{
-    emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
+    emit(state.copyWith(detailStatus: LoadStatus.LOADING));
     try{
       List<WorkTripEntity>? list;
       final res = await tripRepository.getListBusinessTrip();
       if(res.data != null){
         list = mapList(res.data, WorkTripEntity.fromJson);
-        emit(state.copyWith(loadDataStatus: LoadStatus.SUCCESS,listWorkTrips: list));
+        emit(state.copyWith(detailStatus: LoadStatus.SUCCESS,listWorkTrips: list));
       }
 
     }catch(e){
       logger.d(e);
-      emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE));
+      emit(state.copyWith(detailStatus: LoadStatus.FAILURE));
     }
 
   }
@@ -73,11 +88,64 @@ class WorkTripCubit extends Cubit<WorkTripState> {
         emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: res.message));
       }
 
-    }catch(e){
+    }on DioException catch(e,s){
       logger.d(e);
-      emit(state.copyWith(createStatus: LoadStatus.FAILURE));
+      logger.d(s);
+      final res = e.response!.data as Map<String, dynamic>;
+      String err = res["message"] ?? "Lỗi hệ thống: vui lòng thử lại sau!!";
+      emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: err));
     }
   }
+
+  // lay chi tet phieu cong  tac
+  void getWorkTripDetail(int id) async{
+    emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
+    try{
+      final detail = await tripRepository.getDetailWorkTrip(id);
+      emit(state.copyWith(loadDataStatus: LoadStatus.SUCCESS,detailWorkTrip: detail));
+    }catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  // gửi duyệt
+  void onSubmitWorkTrip(int id) async {
+    emit(state.copyWith(submitStatus: LoadStatus.LOADING));
+    try{
+      List<int> userIds = [];
+      for(UserEntity user in (state.detailWorkTrip?.employees ?? [])){
+        userIds.add(user.id ?? 0);
+      }
+
+      CreateWorkTripParam param = CreateWorkTripParam(
+        employeeIds: userIds,
+        note: state.detailWorkTrip?.note ?? "",
+        address: state.detailWorkTrip?.address ?? "",
+        schedules: state.detailWorkTrip?.schedules
+      );
+      await tripRepository.submitWorkTrip(param,id);
+      emit(state.copyWith(submitStatus: LoadStatus.SUCCESS));
+    }catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(submitStatus: LoadStatus.FAILURE));
+    }
+  }
+  // xoá
+  void onDeleteWorkTrip(int id) async {
+    emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
+    try{
+      await tripRepository.deleteWorkTrip(id);
+      emit(state.copyWith(deleteStatus: LoadStatus.SUCCESS));
+    }catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(deleteStatus: LoadStatus.FAILURE));
+    }
+  }
+
 
   void getListUsers() async{
     try {

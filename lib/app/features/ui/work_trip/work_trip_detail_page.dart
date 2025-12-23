@@ -1,0 +1,477 @@
+import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/work_trip/request_new_trip_page.dart';
+import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+
+import '../../../core/commons/app_assets.dart';
+import '../../../core/commons/app_colors.dart';
+import '../../../core/commons/global_data.dart';
+import '../../widgets/app_snackbar.dart';
+import '../../widgets/custom_dash_view.dart';
+import '../../widgets/custom_dialog.dart';
+
+class WorkTripDetailPage extends StatefulWidget {
+  int? workId;
+  WorkTripEntity? workEntity;
+
+  WorkTripDetailPage({super.key, this.workId, this.workEntity});
+
+
+  @override
+  State<WorkTripDetailPage> createState() => _WorkTripDetailPageState();
+}
+
+class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
+  final _cubit = GetIt.I.get<WorkTripCubit>();
+  
+  
+  @override
+  void initState() {
+    _cubit.getWorkTripDetail(widget.workId ?? 0);
+    super.initState();
+  }
+  
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // helper funcs
+  Color getStatusColor(int id) {
+    switch (id) {
+      case 25:
+        return AppColors.colorDraft;
+      case 26:
+        return AppColors.colorApproved;
+      case 9:
+        return AppColors.colorFinished;
+      case 12:
+        return AppColors.colorCancel;
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  Color getBgColor(int status) {
+    switch (status) {
+      case 25:
+        return AppColors.colorDraft.withValues(alpha: 0.1);
+      case 26:
+        return AppColors.colorApproved.withValues(alpha: 0.1);
+      case 11:
+      case 15:
+      case 9:
+        return AppColors.colorFinished.withValues(alpha: 0.1);
+      case 20:
+      case 16:
+      case 12:
+        return AppColors.colorCancel.withValues(alpha: 0.1);
+      default:
+        return Colors.transparent;
+    }
+  }
+  String getStatusTitle(int status) {
+    switch (status) {
+      case 25:
+        return "Nháp";
+      case 26:
+        return "Trưởng phòng duyệt";
+      case 11:
+      case 15:
+      case 9:
+        return "Hoàn thành";
+      case 20:
+      case 16:
+      case 12:
+        return "Huỷ";
+      default:
+        return "";
+    }
+  }
+
+  String mapScheduleDateType(String type){
+    if(type == "before"){
+      return "Sáng";
+    }else if(type == "after"){
+      return "Chiều";
+    }else{
+      return "Cả ngày";
+    }
+  }
+
+  Future<void> doUpdate(BuildContext context) async {
+    final bool? updated = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => RequestNewTripPage(
+          isEdit: true,
+          detailEntity: _cubit.state.detailWorkTrip,
+        ),
+      ),
+    );
+    if (updated == true) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  void showDeleteConfirmDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder:
+          (_) => CustomDialog(
+        iconPath: AppAssets.ic_delete,
+        title: "Xoá yêu cầu",
+        content:
+        "Bạn có chắc muốn xoá yêu cầu này không? \n"
+            "Thao tác này không thể hoàn tác",
+        success: false,
+        confirmText: "Xoá",
+        cancelText: "Huỷ bỏ",
+        onConfirm: () {
+          Navigator.pop(context);
+          _cubit.onDeleteWorkTrip(_cubit.state.detailWorkTrip?.id ?? 0);
+        },
+      ),
+    );
+  }
+
+  void _onSubmitWorkTrip() {
+    _cubit.onSubmitWorkTrip(_cubit.state.detailWorkTrip?.id ?? 0);
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<WorkTripCubit,WorkTripState>(
+        bloc: _cubit,
+        listener: (context,state){
+          if(state.detailStatus == LoadStatus.LOADING ||
+            state.deleteStatus == LoadStatus.LOADING ||
+            state.submitStatus == LoadStatus.LOADING){
+            LoadingOverlay.show(context);
+          }else if(state.detailStatus == LoadStatus.SUCCESS){
+            LoadingOverlay.hide(context);
+          }
+          else if(state.deleteStatus ==  LoadStatus.SUCCESS) {
+            LoadingOverlay.hide(context);
+            _cubit.onResetStatus();
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(
+              title: "Thành công",
+              message: "Xoá công tác thành công!!",
+            );
+            Navigator.pop(context, true);
+          }
+          else if(state.submitStatus ==  LoadStatus.SUCCESS) {
+            LoadingOverlay.hide(context);
+            _cubit.onResetStatus();
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(
+              title: "Thành công",
+              message: "Gủi duyệt thành công!!",
+            );
+            Navigator.pop(context, true);
+          }
+          else {
+            LoadingOverlay.hide(context);
+          }
+        },
+        builder: (context,state){
+          return Scaffold(
+            backgroundColor: AppColors.bodyColor,
+            appBar: MyAppBar(titleAppbar: "Chi tiết đơn công tác",
+              haveBackButton: true,
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.only(left: 16,right: 16),
+              child: BlocBuilder<WorkTripCubit,WorkTripState>(
+                bloc: _cubit,
+                buildWhen: (prev,cur) => prev.detailWorkTrip != cur.detailWorkTrip ||
+                    prev.detailStatus != cur.detailStatus,
+                builder: (context,state) {
+                  final employees = (state.detailWorkTrip?.employees ??[]).map((u) => u.name).join(',\n');
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 24,),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.all(Radius.circular(12))
+                        ),
+                        child: Column(
+                          children: [
+                            _buildItem("Nhân viên:", employees).paddingOnly(bottom: 8),
+                            CustomDashView().paddingOnly(bottom: 8),
+                            _buildItem("Tổng số người:",
+                                (state.detailWorkTrip?.totalPeople ?? 0)
+                                    .toString()).paddingOnly(bottom: 8),
+                            CustomDashView().paddingOnly(bottom: 8),
+                            _buildItem("Nhân viên tạo:",
+                                (state.detailWorkTrip?.employeeName ?? "")).paddingOnly(bottom: 8),
+                            CustomDashView().paddingOnly(bottom: 8),
+                            _buildItem("Từ ngày:",
+                                (state.detailWorkTrip?.fromDate ?? "")).paddingOnly(bottom: 8),
+                            CustomDashView().paddingOnly(bottom: 8),
+                            _buildItem("Đến ngày:",
+                                (state.detailWorkTrip?.toDate ?? "")).paddingOnly(bottom: 8),
+                            CustomDashView().paddingOnly(bottom: 8),
+                            _buildItem("Số ngày:",
+                                (state.detailWorkTrip?.numberOfDays ?? "0.0").toString()).paddingOnly(bottom: 8),
+                            CustomDashView().paddingOnly(bottom: 8),
+                            _buildListSchedules,
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12,),
+                      _buildItem("Cần phòng khách sạn", "Có").paddingOnly(bottom: 6),
+                      CustomDashView().paddingOnly(bottom: 10),
+                      _buildItem("Qua đêm", "Có").paddingOnly(bottom: 6),
+                      CustomDashView().paddingOnly(bottom: 10),
+                      _buildItem("Ghi chú", state.detailWorkTrip?.note ?? "").paddingOnly(bottom: 6),
+                      CustomDashView().paddingOnly(bottom: 10),
+                      _statusLine,
+                      CustomDashView().paddingOnly(bottom: 30),
+
+                      (((state.detailWorkTrip?.createUid ?? 0) == GlobalData.instance.userProfile?.employeeId)
+                        && state.detailWorkTrip?.stage?.id == 25) ? // trạng thái nháp
+                          _bottomSheetWidget : const SizedBox.shrink(),
+                     const SizedBox(height: 30,)
+
+                    ],
+                  );
+                }
+              ),
+            ),
+          );
+        });
+  }
+
+  // Widgets
+  get _statusWidget {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      decoration: BoxDecoration(
+        color: getBgColor(_cubit.state.detailWorkTrip?.stage?.id ?? 0),
+        borderRadius: BorderRadius.circular(99),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: getStatusColor(_cubit.state.detailWorkTrip?.stage?.id ?? 0),
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            getStatusTitle(_cubit.state.detailWorkTrip?.stage?.id ?? 0),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w400,
+              color: getStatusColor(_cubit.state.detailWorkTrip?.stage?.id ?? 0),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  get _statusLine {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Trạng thái",
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: AppColors.themeBlackDefault,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+        ),
+        _statusWidget,
+      ],
+    );
+  }
+  get _buildListSchedules {
+    return Column(
+      children: (_cubit.state.detailWorkTrip?.schedules ?? []).map((schedule) {
+        return DottedBorder(
+            color: AppColors.themePrimaryDefault,
+            dashPattern: [4, 4],
+            strokeWidth: 1,
+            strokeCap: StrokeCap.round,
+            borderType: BorderType.RRect,
+            radius: Radius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6,vertical: 8),
+              child: Column(
+                children: [
+                  _buildItem("Ngày:",
+                      (schedule.dateFrom ?? "")).paddingOnly(bottom: 6),
+                  CustomDashView().paddingOnly(bottom: 6),
+                  _buildItem("Loại:",
+                      mapScheduleDateType((schedule.type ?? ""))).paddingOnly(bottom: 6),
+                ],
+              ),
+            )).paddingOnly(bottom: 12);
+      }
+      ).toList(),
+    );
+  }
+
+  get _bottomSheetWidget{
+    return BlocBuilder<WorkTripCubit,WorkTripState>(
+        bloc: _cubit,
+        buildWhen: (prev,cur) => prev.detailWorkTrip != cur.detailWorkTrip,
+        builder: (context,state){
+          return Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    _onSubmitWorkTrip();
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.whiteColor,
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                      border: Border.all(
+                        width: 1,
+                        color: AppColors.themeBlackDefault.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Text(
+                      "Gửi duyệt",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.themePrimaryDefault,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    showDeleteConfirmDialog();
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.whiteColor,
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                      border: Border.all(
+                        width: 1,
+                        color: AppColors.themeBlackDefault.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Text(
+                      "Xoá",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.themePrimaryDefault,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    doUpdate(context);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.themePrimaryDefault,
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                      border: Border.all(
+                        width: 1,
+                        color: AppColors.themeBlackDefault.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Text(
+                      "Cập nhật",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.whiteColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+  Widget _buildItem(String title, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+          flex: 4,
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: AppColors.themeBlackDefault,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ),
+        Flexible(
+          flex: 6,
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: AppColors.themeBlackDefault,
+            ),
+            textAlign: TextAlign.right,
+            maxLines: 3,
+            overflow: TextOverflow.fade,
+          ),
+        ),
+      ],
+    );
+  }
+}

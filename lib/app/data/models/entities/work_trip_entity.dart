@@ -1,4 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pm_app/app/data/models/entities/schedule_entity.dart';
+import 'package:pm_app/app/data/models/entities/user_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_flow_stage_entity.dart';
 
 part 'work_trip_entity.g.dart';
@@ -18,6 +20,24 @@ class WorkTripEntity {
   String? toDate;
 
   @JsonKey()
+  String? address;
+
+  @JsonKey(name: "total_people")
+  int? totalPeople;
+
+  @JsonKey(name: "number_of_days")
+  int? numberOfDays;
+
+  @JsonKey(name:"employee_id")
+  int? employeeId;
+
+  @JsonKey(name:"create_uid")
+  int? createUid;
+
+  @JsonKey(name:"employee_name")
+  String? employeeName;
+
+  @JsonKey()
   String? note;
 
   @JsonKey()
@@ -32,6 +52,12 @@ class WorkTripEntity {
   @JsonKey()
   WorkFlowStageEntity? stage;
 
+  @JsonKey()
+  List<UserEntity>? employees;
+
+  @JsonKey()
+  List<ScheduleEntity>? schedules;
+
   WorkTripEntity({
     this.id,
     this.name,
@@ -39,9 +65,17 @@ class WorkTripEntity {
     this.toDate,
     this.note,
     this.state,
+    this.address,
+    this.totalPeople,
+    this.numberOfDays,
+    this.employees,
+    this.schedules,
     this.employeeCount,
     this.reasonCancel,
-    this.stage
+    this.stage,
+    this.employeeId,
+    this.createUid,
+    this.employeeName
   });
 
   WorkTripEntity copyWith({
@@ -53,7 +87,15 @@ class WorkTripEntity {
     String? state,
     String? reasonCancel,
     int? employeeCount,
-    WorkFlowStageEntity? stage
+    String? address,
+    int? totalPeople,
+    int? numberOfDays,
+    WorkFlowStageEntity? stage,
+    int? employeeId,
+    int? createUid,
+    String? employeeName,
+    List<UserEntity>? employees,
+    List<ScheduleEntity>? schedules,
   }) {
     return WorkTripEntity(
       id: id ?? this.id,
@@ -61,10 +103,18 @@ class WorkTripEntity {
       fromDate: fromDate ?? this.fromDate,
       toDate: toDate ?? this.toDate,
       note: note ?? this.note,
+      address: address ?? this.address,
+      totalPeople: totalPeople ?? this.totalPeople,
+      numberOfDays: numberOfDays ?? this.numberOfDays,
       state: state ?? this.state,
       reasonCancel: reasonCancel ?? this.reasonCancel,
       employeeCount: employeeCount ?? this.employeeCount,
-      stage: stage ?? this.stage
+      stage: stage ?? this.stage,
+      employeeId: employeeId ?? this.employeeId,
+      createUid: createUid ?? this.createUid,
+      employeeName: employeeName ?? this.employeeName,
+      employees: employees ?? this.employees,
+      schedules: schedules ?? this.schedules
     );
   }
 

@@ -347,7 +347,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 210),
+                  const SizedBox(height: 60),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -376,7 +376,7 @@ class _LoginPageState extends State<LoginPage> {
                                   fontWeight: FontWeight.w400,
                                   color: AppColors.neutral400,
                                   height: 1.25,
-                                  // decoration: TextDecoration.underline,  // nếu muốn underline
+                                  // decoration: TextDecoration.underline,
                                 ),
                                 recognizer:
                                 TapGestureRecognizer()
