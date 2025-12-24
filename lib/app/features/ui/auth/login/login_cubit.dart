@@ -26,12 +26,14 @@ class LogInCubit extends Cubit<LoginState> {
     try {
       String deviceId = await SharedPrefsHelper.getDeviceId();
       String fcmToken = await SharedPrefsHelper.getFcmToken();
+      String deviceType = await SharedPrefsHelper.getDeviceType();
 
       final param = {
         "login": username,
         "password": password,
         "device_id": deviceId,
         "fcm_token": fcmToken,
+        "device_type": deviceType
       };
       final result = await authRepository.authLogin(param);
 

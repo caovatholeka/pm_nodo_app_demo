@@ -104,7 +104,9 @@ class ListTaskItem extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SvgPicture.asset(AppAssets.icStar, width: 24, height: 24),
+                  (entity.priority ?? "").isNotEmpty ?
+                  SvgPicture.asset(AppAssets.icStar, width: 24, height: 24)
+                  : SvgPicture.asset(AppAssets.icStar, width: 24, height: 24, color: Colors.grey,),
                   const SizedBox(width: 8),
 
                   Expanded(

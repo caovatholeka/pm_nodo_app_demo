@@ -8,6 +8,7 @@ import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -42,6 +43,12 @@ class _AccountPageState extends State<AccountPage> {
     _cubit.fetchUserProfile();
   }
 
+  @override
+  void dispose() {
+    _cubit.onResetStatus();
+    super.dispose();
+  }
+
   void _logout() async {
     showDialog(
       context: context,
@@ -55,6 +62,8 @@ class _AccountPageState extends State<AccountPage> {
           onConfirm: () async {
             Navigator.pop(context);
 
+            // await _cubit.doLogout();
+            String deviceType = await SharedPrefsHelper.getDeviceType();
             try {
               ApiClient api = ApiUtil.instance.createApiClient();
               final token = await SharedPrefsHelper.getToken();
@@ -62,7 +71,7 @@ class _AccountPageState extends State<AccountPage> {
                 final dio = GetIt.I<Dio>();
                 dio.options.headers['Authorization'] =
                     'Bearer ${token!.accessToken}';
-                await api.logOut({});
+                await api.logOut({ "device_type" : deviceType,});
               }
             } catch (_) {}
 
@@ -120,74 +129,127 @@ class _AccountPageState extends State<AccountPage> {
   // ================= UI =================
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
+    return BlocConsumer<AccountCubit, AccountState>(
+        bloc: _cubit,
+        listener: (context,state) async{
+          // if(state.logoutStatus == LoadStatus.LOADING){
+          //   LoadingOverlay.show(context);
+          // }else if(state.logoutStatus == LoadStatus.SUCCESS) {
+          //   LoadingOverlay.hide(context);
+          //   await SharedPrefsHelper.saveToken(null);
+          //   await SharedPrefsHelper.setIsLoginApp(false);
+          //   _cubit.onResetStatus();
+          //   GlobalData.instance.bottomNavIndex.value = 0;
+          //
+          //   Navigator.pushAndRemoveUntil(
+          //     context,
+          //     MaterialPageRoute(builder: (_) => const LoginPage()),
+          //         (r) => false,
+          //   );
+          // }else{
+          //   _cubit.onResetStatus();
+          //   LoadingOverlay.hide(context);
+          // }
+        },
+        builder: (context,state){
+          return BlocBuilder<AccountCubit, AccountState>(
+            bloc: _cubit,
+            builder: (context, state) {
+              final profile = state.profile;
+              final screen = ScreenSize.of(context);
+              final appBarHeight = screen.height * 0.24;
 
-    return BlocBuilder<AccountCubit, AccountState>(
-      bloc: _cubit,
-      builder: (context, state) {
-        final profile = state.profile;
-        final screen = ScreenSize.of(context);
-        final appBarHeight = screen.height * 0.24;
-
-        return Scaffold(
-          backgroundColor: const Color(0xFFF4F6F8),
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: appBarHeight,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: _header(profile, state.loadStatus),
-                ),
-              ),
-
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    const SizedBox(height: 18),
-                    _sectionTitle(s.profile_general_title),
-                    _roundedMenuContainer(
-                      children: [
-                        _menuItem(
-                          icon: AppAssets.icUser,
-                          title: s.profile_gen_btn1,
-                          onTap: _goInfo,
-                        ),
-                        _menuItem(
-                          icon: AppAssets.icNotificationPF,
-                          title: s.profile_gen_btn2,
-                          onTap: _goNotification,
-                        ),
-                        _menuItem(
-                          icon: AppAssets.icProtect,
-                          title: s.profile_gen_btn3,
-                          onTap: _goPassword,
-                        ),
-                        _menuItem(
-                          icon: AppAssets.icLangague,
-                          title: s.profile_gen_btn4,
-                          onTap: _goLanguge,
-                        ),
-                      ],
+              return Scaffold(
+                backgroundColor: const Color(0xFFF4F6F8),
+                body: CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      expandedHeight: appBarHeight,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: _header(profile, state.loadStatus),
+                      ),
                     ),
-                    _sectionTitle(s.profile_about_title),
-                    _roundedMenuContainer(
-                      children: [
-                        _menuItem(
-                          icon: AppAssets.icLogout,
-                          title: s.profile_about_btn1,
-                          onTap: _logout,
-                        ),
-                      ],
+
+                    SliverList(
+                      delegate: SliverChildListDelegate(
+                        [
+                          const SizedBox(height: 18),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Cài đặt chung",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ),
+                          _roundedMenuContainer(
+                            children: [
+                              _menuItem(
+                                icon: AppAssets.icUser,
+                                title: "Thông tin cá nhân",
+                                onTap: _goInfo,
+                              ),
+                              _menuItem(
+                                icon: AppAssets.icNotificationPF,
+                                title: "Thông báo",
+                                onTap: _goNotification,
+                              ),
+                              _menuItem(
+                                icon: AppAssets.icProtect,
+                                title: "Thiết lập mật khẩu",
+                                onTap: _goPassword,
+                              ),
+                              _menuItem(
+                                icon: AppAssets.icLangague,
+                                title: "Ngôn ngữ",
+                                onTap: _goLanguge,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Padding(
+                            padding: const EdgeInsets.only(left:10),
+                            child: Text(
+                              "Về ứng dụng",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ),
+                          _roundedMenuContainer(
+                            children: [
+                              // _menuItem(
+                              //   icon: AppAssets.icHelpCenter,
+                              //   title: "Help Center",
+                              //   onTap: () {},
+                              // ),
+                              // _menuItem(
+                              //   icon: AppAssets.icUser,
+                              //   title: "Privacy Policy",
+                              //   onTap: () {},
+                              // ),
+                              _menuItem(
+                                icon: AppAssets.icLogout,
+                                title: "Đăng xuất",
+                                onTap: _logout,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
                   ],
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              );
+            },
+          );
+        });
   }
 
   Widget _header(profile, LoadStatus status) {

@@ -15,6 +15,7 @@ class SharedPrefsHelper {
   static const String _appLanguagePrefs = '_app_language_prefs';
   static const String _appFcmToken = '_app_fcm_token';
   static const String _appDeviceToken = '_app_device_token';
+  static const String _appDeviceType = '_app_device_type';
   static const String _appDeviceId = '_app_device_id';
   static const String _userId = 'app_user_id';
   static const String _checkIn = 'check_in_out';
@@ -125,6 +126,17 @@ static Future<void> saveToken(TokenEntity? token) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String code = prefs.getString(_appDeviceId) ?? '';
     return code;
+  }
+
+  static Future<void> setDeviceType(String type) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_appDeviceType, type);
+  }
+
+  static Future<String> getDeviceType() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String type = prefs.getString(_appDeviceType) ?? '';
+    return type;
   }
 
   // lưu trạng thái check-in out

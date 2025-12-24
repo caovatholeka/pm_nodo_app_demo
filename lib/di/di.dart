@@ -8,8 +8,10 @@ import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
+import 'package:pm_app/app/data/repositories/upload_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
+import 'package:pm_app/app/data/repositories/work_trip_repository.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -30,6 +32,7 @@ import 'package:pm_app/app/features/ui/staff/employee_detail_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
+import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
 import '../app/config/app_config.dart';
 import '../app/core/network/api_client.dart';
 import '../app/core/network/api_client_face_id.dart';
@@ -110,6 +113,9 @@ Future<void> init() async {
   sl.registerLazySingleton<StaffCubit>(() => StaffCubit(repository: sl()));
   sl.registerLazySingleton<EmployeeFilterCubit>(() => EmployeeFilterCubit());
 
+  sl.registerLazySingleton<WorkTripCubit>(() => WorkTripCubit(uploadRepo: sl(),
+    tripRepository: sl()));
+
   sl.registerLazySingleton<AttendanceDataCubit>(
     () => AttendanceDataCubit(repository: sl()),
   );
@@ -120,6 +126,8 @@ Future<void> init() async {
   sl.registerLazySingleton<CheckInRepository>(() => CheckInRepositoryImpl());
   sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl());
   sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepositoryImpl());
+  sl.registerLazySingleton<UploadRepository>(() => UploadRepositoryImpl());
+  sl.registerLazySingleton<WorkTripRepository>(() => WorkTripRepositoryImpl());
 
   sl.registerLazySingleton<AttendanceRepository>(
     () => AttendanceRepositoryImpl(),
