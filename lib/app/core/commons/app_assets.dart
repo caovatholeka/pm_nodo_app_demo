@@ -120,4 +120,11 @@ class AppAssets {
   static final icOnLeave = 'assets/images/icons/ic_onLeave.svg';
 
   static final icfilterADV = 'assets/images/icons/ic_filter.svg';
+
+  static final icCheckInNoti = 'assets/images/icons/checkin_noti.svg';
+  static final icEmployeeNoti = 'assets/images/icons/employee_noti.svg';
+  static final icBellNoti = 'assets/images/icons/ic_bell_noti.svg';
+  static final icPaperPNoti = 'assets/images/icons/ic_paperP_noti.svg';
+  static final icPenPNoti = 'assets/images/icons/ic_penP_noti.svg';
+  static final icPaperNoti = 'assets/images/icons/paper_notification.svg';
 }

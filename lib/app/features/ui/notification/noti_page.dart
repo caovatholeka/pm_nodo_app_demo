@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -130,6 +131,20 @@ class _NotificationPageState extends State<NotificationPage> {
 
                   child: BlocBuilder<NotiCubit, NotiState>(
                     builder: (context, state) {
+                      
+                      if (state.status == LoadStatus.LOADING) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 40),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xFF1E88FF), 
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       final sorted = _sortByDate(state.notifications);
                       final grouped = _groupByDay(sorted);
 
