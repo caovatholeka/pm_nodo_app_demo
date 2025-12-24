@@ -26,12 +26,15 @@ class WorkTripState extends Equatable {
   String? toDate;  // đến ngày
 
   // cần phòng khách sạn
-  final bool? needRoom;
+  final bool needRoom;
   // vé máy bay
-  final bool? needTicket;
+  final bool needTicket;
 
   // qua đêm
-  final bool? isOvernight;
+  final bool isOvernight;
+
+  String? startDateFilter;
+  String? endDateFilter;
 
   // số ngày công tác
   List<ScheduleEntity>? listScheduleDays;
@@ -67,6 +70,8 @@ class WorkTripState extends Equatable {
     this.note,
     this.files = const [],
     this.addFileStatus,
+    this.startDateFilter = "",
+    this.endDateFilter = "",
     this.editFileStatus = LoadStatus.INITIAL,
     this.deleteFileStatus = LoadStatus.INITIAL,
     this.fromDateTime,
@@ -74,9 +79,9 @@ class WorkTripState extends Equatable {
     this.fromDate,
     this.toDate,
     this.listScheduleDays,
-    this.needRoom,
-    this.needTicket,
-    this.isOvernight
+    this.needRoom = false,
+    this.needTicket = false,
+    this.isOvernight = false
   });
 
   WorkTripState copyWith({
@@ -96,6 +101,8 @@ class WorkTripState extends Equatable {
     String? note,
     String? address,
     List<AttachFile>? files,
+    String? startDateFilter,
+    String? endDateFilter,
     LoadStatus? addFileStatus,
     LoadStatus? editFileStatus,
     LoadStatus? deleteFileStatus,
@@ -122,6 +129,8 @@ class WorkTripState extends Equatable {
       currentUsers: currentUsers ?? this.currentUsers,
       strUsers: strUsers ?? this.strUsers,
       address: address ?? this.address,
+      startDateFilter: startDateFilter ?? this.startDateFilter,
+      endDateFilter: endDateFilter ?? this.endDateFilter,
       note: note ?? this.note,
       files: files ?? this.files,
       addFileStatus: addFileStatus ?? this.addFileStatus,
@@ -148,7 +157,12 @@ class WorkTripState extends Equatable {
     deleteStatus,
     errMsg,
     listWorkTrips,
+    needTicket,
+    needRoom,
+    isOvernight,
     detailWorkTrip,
+    startDateFilter,
+    endDateFilter,
     listUsers,
     address,
     note,

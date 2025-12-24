@@ -26,7 +26,7 @@ class WorkTripEntity {
   int? totalPeople;
 
   @JsonKey(name: "number_of_days")
-  int? numberOfDays;
+  double? numberOfDays;
 
   @JsonKey(name:"employee_id")
   int? employeeId;
@@ -89,7 +89,7 @@ class WorkTripEntity {
     int? employeeCount,
     String? address,
     int? totalPeople,
-    int? numberOfDays,
+    double? numberOfDays,
     WorkFlowStageEntity? stage,
     int? employeeId,
     int? createUid,

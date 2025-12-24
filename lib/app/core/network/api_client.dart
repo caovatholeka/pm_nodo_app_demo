@@ -245,7 +245,12 @@ abstract class ApiClient {
 
   // danh sach cong tac
   @GET("/going_on_business/going_on_business_list")
-  Future<CommonResponse> getListBusinessTrip();
+  Future<CommonResponse> getListBusinessTrip(
+      @Query("limit") int? limit,
+      @Query("page") int? page,
+      @Query("start_date") String? startDate,
+      @Query("end_date") String? endDate,
+      );
 
   // tao phiếu công tác
   @POST("/going_on_business/going_on_business_create")

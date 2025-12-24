@@ -43,14 +43,28 @@ class WorkTripCubit extends Cubit<WorkTripState> {
   }
 
   onResetData() async {
-
+    emit(state.copyWith(
+      note:"",
+      fromDate: "",
+      toDate: "",
+      listScheduleDays:[],
+      resetDateTime: true,
+    ));
   }
 
   getListWorkTrips() async{
+    int limit = 100;
+    int page = 1;
+
     emit(state.copyWith(detailStatus: LoadStatus.LOADING));
     try{
       List<WorkTripEntity>? list;
-      final res = await tripRepository.getListBusinessTrip();
+      final res = await tripRepository.getListBusinessTrip(
+        limit,
+        page,
+        AppDateUtils.parseDateToYMD(state.startDateFilter),
+        AppDateUtils.parseDateToYMD(state.endDateFilter),
+      );
       if(res.data != null){
         list = mapList(res.data, WorkTripEntity.fromJson);
         emit(state.copyWith(detailStatus: LoadStatus.SUCCESS,listWorkTrips: list));
@@ -94,6 +108,40 @@ class WorkTripCubit extends Cubit<WorkTripState> {
       final res = e.response!.data as Map<String, dynamic>;
       String err = res["message"] ?? "Lỗi hệ thống: vui lòng thử lại sau!!";
       emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: err));
+    }
+  }
+
+  void updateWorkTrip(int id) async {
+    emit(state.copyWith(updateStatus: LoadStatus.LOADING));
+    List<int> userIds = [];
+    for(UserEntity user in (state.currentUsers ?? [])){
+      userIds.add(user.id ?? 0);
+    }
+    try{
+      CreateWorkTripParam updateParam = CreateWorkTripParam(
+          employeeIds: userIds,
+          note: state.note ?? "",
+          address: state.address ?? "",
+          needTicket: state.needTicket ?? false,
+          needRoom: state.needRoom ?? false,
+          schedules: state.listScheduleDays
+      );
+
+      logger.d("createParam :: ${updateParam.toJson()}");
+
+      final res = await tripRepository.updateWorkTrip(updateParam,id);
+      if((res.schedules ?? []).isNotEmpty){
+        emit(state.copyWith(updateStatus: LoadStatus.SUCCESS,errMsg: res.message));
+      }else{
+        emit(state.copyWith(updateStatus: LoadStatus.FAILURE,errMsg: res.message));
+      }
+
+    }on DioException catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      final res = e.response!.data as Map<String, dynamic>;
+      String err = res["message"] ?? "Lỗi hệ thống: vui lòng thử lại sau!!";
+      emit(state.copyWith(updateStatus: LoadStatus.FAILURE,errMsg: err));
     }
   }
 
@@ -146,6 +194,9 @@ class WorkTripCubit extends Cubit<WorkTripState> {
     }
   }
 
+  onChangeDateFilter(String start, String end) {
+    emit(state.copyWith(startDateFilter: start, endDateFilter: end));
+  }
 
   void getListUsers() async{
     try {
@@ -210,19 +261,17 @@ class WorkTripCubit extends Cubit<WorkTripState> {
     emit(state.copyWith(listScheduleDays: list));
   }
 
-  onChangeNeedTicket(){
-    bool need = state.needTicket ?? false;
-    emit(state.copyWith(needTicket: !need));
+  onChangeNeedTicket(bool need){
+    // bool need = state.needTicket ?? false;
+    emit(state.copyWith(needTicket: need));
   }
 
-  onChangeNeedRoom(){
-    bool need = state.needRoom ?? false;
-    emit(state.copyWith(needRoom: !need));
+  onChangeNeedRoom(bool need){
+    emit(state.copyWith(needRoom: need));
   }
 
-  onchangeIsOverNight(){
-    bool change = state.isOvernight ?? false;
-    emit(state.copyWith(isOvernight: !change));
+  onchangeIsOverNight(bool change){
+    emit(state.copyWith(isOvernight: change));
   }
 
   // browser file

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/features/ui/work_trip/request_new_trip_page.dart';
@@ -13,6 +14,8 @@ import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
+import '../../../data/models/enums/load_status.dart';
+import '../../widgets/custom_calendar_range_sheet.dart';
 import '../../widgets/input_text_field.dart';
 
 class WorkTripPage extends StatefulWidget {
@@ -27,6 +30,21 @@ class _WorkTripPageState extends State<WorkTripPage> {
 
   ScrollController controller = ScrollController();
   TextEditingController _searchController = TextEditingController();
+
+  static DateTime _mondayOf(DateTime d) {
+    final x = DateTime(d.year, d.month, d.day);
+    final delta = x.weekday - 1;
+    return x.subtract(Duration(days: delta));
+  }
+
+  static DateTimeRange _weekOf(DateTime d) {
+    final start = _mondayOf(d);
+    final end = start.add(const Duration(days: 6));
+    return DateTimeRange(start: start, end: end);
+  }
+
+  DateTimeRange selectedWeek = _weekOf(DateTime.now());
+  final _df = DateFormat('dd/MM/yyyy');
 
   @override
   void initState() {
@@ -85,7 +103,9 @@ class _WorkTripPageState extends State<WorkTripPage> {
         builder: (context,state){
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
-            appBar: MyAppBar(titleAppbar: "Đơn công tác"),
+            appBar: MyAppBar(titleAppbar: "Đơn công tác",
+              haveBackButton: true,
+            ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.only(left: 16,right: 16),
               child: Column(
@@ -94,7 +114,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
                 children: [
                   const SizedBox(height: 16,),
                   _filterWidget,
-                  const SizedBox(height: 16,),
+                  // const SizedBox(height: 16,),
                   _listWidget,
                   const SizedBox(height: 32,),
                 ],
@@ -111,19 +131,54 @@ class _WorkTripPageState extends State<WorkTripPage> {
       children: [
         Expanded(
             flex: 8,
-            child: InputTextField(
-              title: "",
-              hintText: "",
-              isRequiredField: false,
-              disableTitle: true,
-              enable: true,
-              readOnly: true,
-              controller: _searchController,
-              suffixIcon:AppAssets.icCalendar,
-              onSuffixAction: (){
-                // _cubit.getListTasks();
-                logger.d("open calendar");
-              },
+            child: BlocBuilder<WorkTripCubit,WorkTripState>(
+              bloc: _cubit,
+              buildWhen:  (prev, cur) =>
+                  prev.startDateFilter != cur.startDateFilter ||
+                  prev.endDateFilter != cur.endDateFilter,
+              builder: (context,state) {
+                String week = "";
+                if ((state.startDateFilter ?? "").isNotEmpty) {
+                  week = "${state.startDateFilter} - ${state.endDateFilter}";
+                }
+                return InputTextField(
+                  title: "",
+                  hintText: "",
+                  isRequiredField: false,
+                  disableTitle: true,
+                  enable: true,
+                  readOnly: true,
+                  controller: _searchController..text = week,
+                  suffixIcon:AppAssets.icCalendar,
+                  callback: () async{
+                    final res = await showModalBottomSheet<DateTimeRange?>(
+                      context: context,
+                      isScrollControlled: true,
+                      showDragHandle: true,
+                      backgroundColor: Colors.white,
+                      builder:
+                          (_) => CalendarRangeSheet(
+                        initial: selectedWeek,
+                        locale: "en",
+                      ),
+                    );
+
+                    if (res == null) {
+                      _searchController.clear();
+                      _cubit.onChangeDateFilter("", "");
+                      _cubit.getListWorkTrips();
+                      return;
+                    }
+
+                    selectedWeek = res;
+                    String start = _df.format(selectedWeek.start);
+                    String end = _df.format(selectedWeek.end);
+
+                    _cubit.onChangeDateFilter(start, end);
+                    _cubit.getListWorkTrips();
+                  },
+                );
+              }
             )
         ),
         const SizedBox(width: 8,),
@@ -155,24 +210,31 @@ class _WorkTripPageState extends State<WorkTripPage> {
 
       },
       builder: (context,state) {
-        return RefreshIndicator(
-          onRefresh: _onRefresh,
-          child: ListView.builder(
-            padding: const EdgeInsets.only(top: 20),
-            shrinkWrap: true,
-            controller: controller,
-            itemCount: (state.listWorkTrips ?? []).length,
-            itemBuilder: (context, index) {
-              WorkTripEntity entity = (state.listWorkTrips ?? [])[index];
-              return WorkTripListItem(
-                entity: entity,
-                onShowDetail: () {
-                  _openDetail(entity);
-                },
-              ).paddingOnly(bottom: 12);
-            },
-          ),
-        );
+        if (state.loadDataStatus == LoadStatus.LOADING) {
+          return Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,));
+        }
+        if ((state.listWorkTrips ?? []).isEmpty) {
+          return Center(child: Text("Không có dữ liệu").paddingOnly(top: 100));
+        }else {
+          return RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 20),
+              shrinkWrap: true,
+              controller: controller,
+              itemCount: (state.listWorkTrips ?? []).length,
+              itemBuilder: (context, index) {
+                WorkTripEntity entity = (state.listWorkTrips ?? [])[index];
+                return WorkTripListItem(
+                  entity: entity,
+                  onShowDetail: () {
+                    _openDetail(entity);
+                  },
+                ).paddingOnly(bottom: 12);
+              },
+            ),
+          );
+        }
       }
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/work_trip/request_new_trip_page.dart';
@@ -227,17 +228,17 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                                 (state.detailWorkTrip?.toDate ?? "")).paddingOnly(bottom: 8),
                             CustomDashView().paddingOnly(bottom: 8),
                             _buildItem("Số ngày:",
-                                (state.detailWorkTrip?.numberOfDays ?? "0.0").toString()).paddingOnly(bottom: 8),
+                                "${state.detailWorkTrip?.numberOfDays ?? 0.0}").paddingOnly(bottom: 8),
                             CustomDashView().paddingOnly(bottom: 8),
                             _buildListSchedules,
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 12,),
-                      _buildItem("Cần phòng khách sạn", "Có").paddingOnly(bottom: 6),
-                      CustomDashView().paddingOnly(bottom: 10),
-                      _buildItem("Qua đêm", "Có").paddingOnly(bottom: 6),
-                      CustomDashView().paddingOnly(bottom: 10),
+                      ).paddingOnly(bottom: 12),
+                      // const SizedBox(height: 12,),
+                      // _buildItem("Cần phòng khách sạn", "Có").paddingOnly(bottom: 6),
+                      // CustomDashView().paddingOnly(bottom: 10),
+                      // _buildItem("Qua đêm", "Có").paddingOnly(bottom: 6),
+                      // CustomDashView().paddingOnly(bottom: 10),
                       _buildItem("Ghi chú", state.detailWorkTrip?.note ?? "").paddingOnly(bottom: 6),
                       CustomDashView().paddingOnly(bottom: 10),
                       _statusLine,

@@ -7,7 +7,9 @@ import '../models/response/common_response.dart';
 import '../models/response/work_trip_response.dart';
 
 abstract class WorkTripRepository {
-  Future<CommonResponse> getListBusinessTrip();
+  Future<CommonResponse> getListBusinessTrip(
+      int limit,int page, String? startDate, String? endDate
+      );
   Future<CommonResponse> getListEmployees({
     int? limit,
     int? page,
@@ -35,8 +37,8 @@ class WorkTripRepositoryImpl extends WorkTripRepository {
   ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
-  Future<CommonResponse> getListBusinessTrip() async {
-    return await _apiClient.getListBusinessTrip();
+  Future<CommonResponse> getListBusinessTrip(int limit,int page, String? startDate, String? endDate) async {
+    return await _apiClient.getListBusinessTrip(limit,page,startDate,endDate);
   }
 
   @override

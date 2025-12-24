@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/schedule_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -16,6 +17,7 @@ import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
+import '../../../../generated/l10n.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/validators.dart';
@@ -25,6 +27,7 @@ import '../../widgets/app_snackbar.dart';
 import '../../widgets/attach_file_bottom_sheet.dart';
 import '../../widgets/check_box_icon.dart';
 import '../../widgets/check_box_selection.dart';
+import '../../widgets/custom_dialog.dart';
 import '../on_leave/widget/onleave_day_item_widget.dart';
 import '../task/bottomsheet/select_user_bottom_sheet.dart';
 
@@ -53,6 +56,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
   TextEditingController createdByController = TextEditingController();
   TextEditingController fromDateController = TextEditingController();
   TextEditingController toDateController = TextEditingController();
+  TextEditingController totalDaysController = TextEditingController(text: '0');
   TextEditingController addressController = TextEditingController();
   TextEditingController noteController = TextEditingController();
 
@@ -65,13 +69,118 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
 
   @override
   void initState() {
-    _cubit.getListUsers();
+    if((_cubit.state.listUsers ??[]).isEmpty){
+      _cubit.getListUsers();
+    }
+
+    if (widget.isEdit ?? false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _prefillForEdit();
+      });
+    }
+
     super.initState();
   }
 
   @override
   void dispose() {
+    _cubit.onResetStatus();
+    _cubit.onResetData();
     super.dispose();
+  }
+
+  List<ScheduleEntity> _buildDaysForEdit({
+    required DateTime from,
+    required DateTime to,
+    required List<dynamic>? lineSchedules,
+  }) {
+    final List<ScheduleEntity> out = [];
+
+    if (lineSchedules != null && lineSchedules.isNotEmpty) {
+      for (final e in lineSchedules) {
+        if (e is ScheduleEntity) {
+          final d = _tryParseIso(e.dateFrom);
+          if (d != null) {
+            out.add(
+              ScheduleEntity(
+                dateFrom: _formatYyyyMmDd(d),
+                dateTo: _formatYyyyMmDd(d),
+                type: (e.type ?? 'full'),
+              ),
+            );
+          }
+        } else if (e is Map) {
+          final d = _tryParseIso(e['date_from'] as String?);
+          final t = (e['type'] as String?) ?? 'full';
+          if (d != null) {
+            out.add(ScheduleEntity(dateFrom: _formatYyyyMmDd(d),
+                dateTo: _formatYyyyMmDd(d),
+                type: t));
+          }
+        }
+      }
+      if (out.isNotEmpty) return out;
+    }
+
+    final allDays = AppDateUtils.daysBetween(from, to);
+    for (final d in allDays) {
+      out.add(ScheduleEntity(dateFrom:_formatYyyyMmDd(d),dateTo: _formatYyyyMmDd(d), type: 'full'));
+    }
+    return out;
+  }
+
+  Future<void> _prefillForEdit() async {
+    final detail = widget.detailEntity;
+    if (!(widget.isEdit ?? false) || detail == null) return;
+
+    final from = _tryParseIso(detail.fromDate ?? "");
+    final to = _tryParseIso(detail.toDate);
+
+    final note = detail.note ?? "";
+
+    final schedules = detail.schedules ?? [];
+    if (from != null) {
+      _cubit.setFromDate(from);
+      fromDateController
+          .text = AppDateUtils.changeIso8601StringToDateTimeString(
+        from.toIso8601String(),
+      );
+    }
+    if (to != null) {
+      _cubit.setToDate(to);
+      toDateController.text = AppDateUtils.changeIso8601StringToDateTimeString(
+        to.toIso8601String(),
+      );
+    }
+
+    //lý do
+    noteController.text = note;
+    _cubit.onChangeNote(note);
+
+    // nhan vien
+    List<UserEntity> users = detail.employees ?? [];
+    if(users.isNotEmpty){
+      _cubit.onChangeCurrentUsers(users);
+      _cubit.onChangeUser((detail.employees ??[]).map((u) => u.name).join(','));
+    }
+
+    // danh sach ngay cong tac
+    if (from != null && to != null) {
+      listDays = _buildDaysForEdit(from: from, to: to, lineSchedules: schedules);
+      _cubit.onChangeListSchedulesDays(listDays);
+
+      // leave days
+      // final total = _sumDaysByType(listDays);
+      // totalDaysController.text = _fmtTotal(total);
+      // totalSchedulesDays = int.parse(_fmtTotal(total));
+    } else {
+      listDays = [];
+      _cubit.onChangeListSchedulesDays(listDays);
+      // totalDaysController.text = '0';
+      // totalSchedulesDays = 0;
+    }
+
+
   }
 
   _showDatePicker({DateTime? defaultValue, DateChangedCallback? onConfirm}) {
@@ -123,7 +232,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
     return AppDateUtils().formatIsoToYyyyMmDd(d.toIso8601String());
   }
 
-  double _sumDaysByType(List<LeaveDayEntity> days) {
+  double _sumDaysByType(List<ScheduleEntity> days) {
     double sum = 0;
     for (final d in days) {
       final t = (d.type ?? 'full').toLowerCase();
@@ -157,7 +266,8 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
     return BlocConsumer<WorkTripCubit,WorkTripState>(
         bloc: _cubit,
         listener: (context,state){
-          if(state.createStatus == LoadStatus.LOADING){
+          if(state.createStatus == LoadStatus.LOADING ||
+            state.updateStatus == LoadStatus.LOADING){
             LoadingOverlay.show(context);
           }
           else if(state.createStatus == LoadStatus.SUCCESS){
@@ -165,8 +275,19 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
             _cubit.onResetStatus();
             AppSnackBar.showInfo(title: "Thành công",message: state.errMsg ?? "Phiếu công tác được tạo thành công!");
             Navigator.pop(context,true);
+          }
+          else if(state.createStatus == LoadStatus.FAILURE){
+            LoadingOverlay.hide(context);
+            AppSnackBar.showError(title: "Cảnh báo",message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau");
             _cubit.onResetStatus();
-          }else if(state.createStatus == LoadStatus.FAILURE){
+          }
+          else if(state.updateStatus == LoadStatus.SUCCESS){
+            LoadingOverlay.hide(context);
+            _cubit.onResetStatus();
+            AppSnackBar.showInfo(title: "Thành công",message: state.errMsg ?? "Phiếu công tác được cập nhật thành công!");
+            Navigator.pop(context);
+            Navigator.pop(context,true);
+          } else if(state.updateStatus == LoadStatus.FAILURE){
             LoadingOverlay.hide(context);
             AppSnackBar.showError(title: "Cảnh báo",message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau");
             _cubit.onResetStatus();
@@ -178,7 +299,9 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
         builder: (context,state){
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
-            appBar: MyAppBar(titleAppbar: "Tạo mới phiếu công tác"),
+            appBar: MyAppBar(titleAppbar: "Tạo mới phiếu công tác",
+              haveBackButton: true,
+            ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -472,8 +595,8 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                           },
                         ),
 
-                        const SizedBox(height: 20,),
-                        _utilsWidget,
+                        // const SizedBox(height: 20,),
+                        // _utilsWidget,
 
                         // địa chỉ
                         InputTextField(
@@ -501,8 +624,8 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                             },
                           ),
                         ).paddingOnly(bottom: 20),
-                        _attachFile,
-                        const SizedBox(height: 20,)
+                        // _attachFile,
+                        // const SizedBox(height: 20,)
                       ],
                     ),
                   ),
@@ -541,9 +664,9 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                           ),).paddingOnly(right: 6),
                         InkWell(
                           onTap: (){
-                            _cubit.onChangeNeedRoom();
+                            _cubit.onChangeNeedRoom(!state.needRoom);
                           },
-                          child: (state.needRoom ?? false) ? CheckBoxSelection() :
+                          child: state.needRoom ? CheckBoxSelection() :
                             CheckBoxIcon(),
                         )
                       ],
@@ -551,27 +674,38 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                   ),
                   const SizedBox(width: 16,),
                   // vé máy bay
-                  Expanded(
-                    flex: 4,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Vé máy bay",
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.neutral400
-                          ),).paddingOnly(right: 6),
-                        InkWell(
-                          onTap: (){
-                            _cubit.onChangeNeedTicket();
-                          },
-                          child: (state.needTicket ?? false) ? CheckBoxSelection() :
-                            CheckBoxIcon(),
-                        )
-                      ],
-                    ),
-                  )
+                  BlocBuilder<WorkTripCubit,WorkTripState>(
+                      bloc: _cubit,
+                      buildWhen: (prev,cur) => prev.needTicket != cur.needTicket,
+                      builder: (context,state){
+                        return Expanded(
+                          flex: 4,
+                          child: InkWell(
+                            onTap: (){
+                              _cubit.onChangeNeedTicket(!state.needTicket);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text("Vé máy bay",
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w400,
+                                      color: AppColors.neutral400
+                                  ),).paddingOnly(right: 6),
+                                InkWell(
+                                  onTap: (){
+                                    _cubit.onChangeNeedTicket(!state.needTicket);
+                                  },
+                                  child: state.needTicket ? CheckBoxSelection() :
+                                  CheckBoxIcon(),
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      })
+
                 ],
               ).paddingOnly(bottom: 16),
               Row(
@@ -585,9 +719,9 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                     ),).paddingOnly(right: 6),
                   InkWell(
                     onTap: (){
-                      _cubit.onchangeIsOverNight();
+                      _cubit.onchangeIsOverNight(!state.isOvernight);
                     },
-                    child: (state.isOvernight ?? false) ? CheckBoxSelection() : CheckBoxIcon(),
+                    child: state.isOvernight? CheckBoxSelection() : CheckBoxIcon(),
                   )
                 ],
               )
@@ -701,21 +835,19 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
             isEnable = true;
           }
           return InkWell(
-            // onTap:isEnable ? (){
-            //   _cubit.createNewWorkTrip();
-            // } : (){},
-            onTap: (){
-              _cubit.createNewWorkTrip();
-            },
+            onTap:isEnable ? (){
+              (widget.isEdit ?? false) ?
+              _showUpdate()
+              : _cubit.createNewWorkTrip();
+            } : (){},
             child: Container(
               margin: const EdgeInsets.only(bottom: 36),
               width: double.infinity,
               height: 46,
               decoration: BoxDecoration(
-                  // color: isEnable ?
-                  // AppColors.themePrimaryDefault
-                  //     : Color(0xFFDFDFDF),
-                  color: AppColors.themePrimaryDefault,
+                  color: isEnable ?
+                  AppColors.themePrimaryDefault
+                      : Color(0xFFDFDFDF),
                   borderRadius: BorderRadius.all(Radius.circular(6))
               ),
               child: Center(
@@ -731,5 +863,41 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
           );
         });
 
+  }
+  _showUpdate(){
+    _showDialog(
+      title: S.of(context).confirm,
+      message:"Thông tin sẽ được thay đổi. Bạn chắc chắn "
+          "muốn thay đổi thông tin này?",
+      success: true,
+      onConfirm: () {
+        _cubit.updateWorkTrip(widget.detailEntity?.id ?? 0);
+        Navigator.of(context).maybePop();
+      },
+    );
+  }
+  void _showDialog({
+    required String title,
+    required String message,
+    bool success = true,
+    VoidCallback? onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder:
+          (_) => CustomDialog(
+        iconPath: success ? AppAssets.ic_done : AppAssets.ic_delete,
+        title: title,
+        content: message,
+        success: success,
+        onConfirm: () {
+          Navigator.pop(context);
+          if (onConfirm != null) onConfirm();
+        },
+        onCancel: () => Navigator.pop(context),
+      ),
+    );
   }
 }
