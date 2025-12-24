@@ -182,216 +182,72 @@ class _LoginPageState extends State<LoginPage> {
       builder: (context, state) {
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          body: Container(
-            height: double.infinity,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(AppAssets.appBG2),
-                fit: BoxFit.fill,
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
               ),
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 16,right: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: ScreenSize.of(context).height*0.2,),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 12,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          AppAssets.appLogo2,
-                          width: 120,
-                          height: 48,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          s.login_title,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Form(
-                          key: _userKey,
-                          child: InputTextField(
-                            title: s.username,
-                            hintText: s.username_hint,
-                            isRequiredField: true,
-                            inputType: TextInputType.emailAddress,
-                            controller: _userCtrl,
-                            bgrColor: true,
-                            validator:
-                                (v) => Validator()
-                                .validateUserName(v?.trim()),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Form(
-                          key: _passKey,
-                          child: InputTextField(
-                            title: s.password,
-                            hintText: s.password_hint,
-                            isRequiredField: true,
-                            controller: _passCtrl,
-                            isPasswordField: true,
-                            bgrColor: true,
-                            validator:
-                                (v) => Validator.validateEmpty(
-                              v,
-                              "Mật khẩu",
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
 
-                        Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap:
-                                      () => _cubit.onRememberMe(
-                                    !(state.rememberMe ??
-                                        false),
-                                  ),
-                                  child: Container(
-                                    width: 20,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      color:
-                                      (state.rememberMe ??
-                                          false)
-                                          ? AppColors
-                                          .themePrimaryDefault
-                                          : Colors.white,
-                                      borderRadius:
-                                      BorderRadius.circular(
-                                        4,
-                                      ),
-                                      border: Border.all(
-                                        color:
-                                        Colors.grey.shade400,
-                                        width: 1.4,
-                                      ),
-                                    ),
-                                    child:
-                                    (state.rememberMe ??
-                                        false)
-                                        ? const Icon(
-                                      Icons.check,
-                                      size: 16,
-                                      color: Colors.white,
-                                    )
-                                        : null,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                 Text(s.remember_me),
-                              ],
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (_) => BlocProvider.value(
-                                      value:
-                                      sl<ForgotCubit>(),
-                                      child:
-                                      const ForgotPassPage(),
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                s.forgot_password,
-                                style: TextStyle(
-                                  color:
-                                  AppColors
-                                      .themePrimaryDefault,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
+              SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final keyboard = MediaQuery.of(context).viewInsets.bottom;
 
-                        PrimaryButton(
-                          mainText: s.login_button,
-                          buttonWidth: double.infinity,
-                          isLoading:
-                          state.loginStatus ==
-                              LoadStatus.LOADING,
-                          callback: _login,
-                        ),
-                         const SizedBox(height: 24)
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 210),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: Color(0xFFB5BBC6),
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        bottom: keyboard,
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            text:
-                            S.of(context).smallHint,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFFB5BBC6),
-                              height: 1.25,
-                            ),
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            mainAxisAlignment:
+                                keyboard == 0
+                                    ? MainAxisAlignment.center
+                                    : MainAxisAlignment.start,
                             children: [
-                              TextSpan(
-                                text: AppConfig.nameEnv ?? '',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.neutral400,
-                                  height: 1.25,
-                                  // decoration: TextDecoration.underline,  // nếu muốn underline
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
                                 ),
-                                recognizer:
-                                TapGestureRecognizer()
-                                  ..onTap = () => showEnv(context),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.06),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: _buildLoginForm(context, state),
                               ),
+
+                              const SizedBox(height: 34),
+
+                              if (keyboard == 0)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: _buildFooter(context),
+                                ),
                             ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ),
+
           /*
           body: Stack(
             children: [
@@ -636,6 +492,149 @@ class _LoginPageState extends State<LoginPage> {
         */
         );
       },
+    );
+  }
+
+  Widget _buildLoginForm(BuildContext context, LoginState state) {
+    final s = S.of(context);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Image.asset(AppAssets.appLogo2, width: 120, height: 48),
+        const SizedBox(height: 16),
+
+        Text(
+          s.login_title,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 18),
+
+        Form(
+          key: _userKey,
+          child: InputTextField(
+            title: s.username,
+            hintText: s.username_hint,
+            isRequiredField: true,
+            controller: _userCtrl,
+            bgrColor: true,
+            validator: (v) => Validator().validateUserName(v?.trim()),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        Form(
+          key: _passKey,
+          child: InputTextField(
+            title: s.password,
+            hintText: s.password_hint,
+            isRequiredField: true,
+            controller: _passCtrl,
+            isPasswordField: true,
+            bgrColor: true,
+            validator: (v) => Validator.validateEmpty(v, s.password),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        _buildRememberForgot(state, context),
+
+        const SizedBox(height: 26),
+
+        PrimaryButton(
+          mainText: s.login_button,
+          isLoading: state.loginStatus == LoadStatus.LOADING,
+          callback: _login,
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.info_outline, size: 16, color: Color(0xFFB5BBC6)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              text: S.of(context).smallHint,
+              style: const TextStyle(fontSize: 12, color: Color(0xFFB5BBC6)),
+              children: [
+                TextSpan(
+                  text: AppConfig.nameEnv ?? '',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.neutral400,
+                  ),
+                  recognizer:
+                      TapGestureRecognizer()..onTap = () => showEnv(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRememberForgot(LoginState state, BuildContext context) {
+    final s = S.of(context);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () => _cubit.onRememberMe(!(state.rememberMe ?? false)),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color:
+                      (state.rememberMe ?? false)
+                          ? AppColors.themePrimaryDefault
+                          : Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.grey.shade400, width: 1.4),
+                ),
+                child:
+                    (state.rememberMe ?? false)
+                        ? const Icon(Icons.check, size: 16, color: Colors.white)
+                        : null,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(s.remember_me),
+          ],
+        ),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => BlocProvider.value(
+                      value: sl<ForgotCubit>(),
+                      child: const ForgotPassPage(),
+                    ),
+              ),
+            );
+          },
+          child: Text(
+            s.forgot_password,
+            style: TextStyle(
+              color: AppColors.themePrimaryDefault,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
