@@ -163,18 +163,22 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     _isBusy = true;
 
     try {
-      final bytes = _concatenatePlanes(image.planes);
-      final input = InputImage.fromBytes(
-        bytes: bytes,
-        metadata: InputImageMetadata(
-          size: Size(image.width.toDouble(), image.height.toDouble()),
-          rotation: _rotationFromSensor(_cam!.description.sensorOrientation),
-          format: Platform.isAndroid
-              ? InputImageFormat.nv21
-              : InputImageFormat.bgra8888,
-          bytesPerRow: image.planes.first.bytesPerRow,
-        ),
-      );
+      // final bytes = _concatenatePlanes(image.planes);
+      // final input = InputImage.fromBytes(
+      //   bytes: bytes,
+      //   metadata: InputImageMetadata(
+      //     size: Size(image.width.toDouble(), image.height.toDouble()),
+      //     rotation: _rotationFromSensor(_cam!.description.sensorOrientation),
+      //     format: Platform.isAndroid
+      //         ? InputImageFormat.nv21
+      //         : InputImageFormat.bgra8888,
+      //     bytesPerRow: image.planes.first.bytesPerRow,
+      //   ),
+      // );
+      //
+      // final faces = await _detector.processImage(input);
+      final input = _cameraImageToInputImage(image);
+      if (input == null) return;
 
       final faces = await _detector.processImage(input);
 
@@ -306,6 +310,128 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       default:
         return InputImageRotation.rotation0deg;
     }
+  }
+
+  InputImageRotation _inputImageRotation() {
+    if (_cam == null) return InputImageRotation.rotation0deg;
+
+    final sensor = _cam!.description.sensorOrientation;
+    final device = _cam!.value.deviceOrientation;
+
+    int deviceDeg;
+    switch (device) {
+      case DeviceOrientation.portraitUp:
+        deviceDeg = 0;
+        break;
+      case DeviceOrientation.landscapeLeft:
+        deviceDeg = 90;
+        break;
+      case DeviceOrientation.portraitDown:
+        deviceDeg = 180;
+        break;
+      case DeviceOrientation.landscapeRight:
+        deviceDeg = 270;
+        break;
+    }
+
+    final isFront = _cam!.description.lensDirection == CameraLensDirection.front;
+
+    int rotationCompensation;
+    if (Platform.isAndroid) {
+      rotationCompensation =
+      isFront ? (sensor + deviceDeg) % 360 : (sensor - deviceDeg + 360) % 360;
+    } else {
+      rotationCompensation = sensor;
+    }
+
+    switch (rotationCompensation) {
+      case 90:
+        return InputImageRotation.rotation90deg;
+      case 180:
+        return InputImageRotation.rotation180deg;
+      case 270:
+        return InputImageRotation.rotation270deg;
+      case 0:
+      default:
+        return InputImageRotation.rotation0deg;
+    }
+  }
+
+  InputImage? _cameraImageToInputImage(CameraImage image) {
+    if (_cam == null) return null;
+
+    if (Platform.isIOS) {
+      if (image.planes.isEmpty) return null;
+      final plane = image.planes.first;
+
+      return InputImage.fromBytes(
+        bytes: plane.bytes,
+        metadata: InputImageMetadata(
+          size: Size(image.width.toDouble(), image.height.toDouble()),
+          rotation: _inputImageRotation(),
+          format: InputImageFormat.bgra8888,
+          bytesPerRow: plane.bytesPerRow,
+        ),
+      );
+    }
+
+    if (image.planes.length < 3) return null;
+
+    final nv21 = _yuv420ToNv21(image);
+
+    return InputImage.fromBytes(
+      bytes: nv21,
+      metadata: InputImageMetadata(
+        size: Size(image.width.toDouble(), image.height.toDouble()),
+        rotation: _inputImageRotation(),
+        format: InputImageFormat.nv21,
+        bytesPerRow: image.width,
+      ),
+    );
+  }
+
+  Uint8List _yuv420ToNv21(CameraImage image) {
+    final int width = image.width;
+    final int height = image.height;
+
+    final Plane yPlane = image.planes[0];
+    final Plane uPlane = image.planes[1];
+    final Plane vPlane = image.planes[2];
+
+    final Uint8List yBytes = yPlane.bytes;
+    final Uint8List uBytes = uPlane.bytes;
+    final Uint8List vBytes = vPlane.bytes;
+
+    final int yRowStride = yPlane.bytesPerRow;
+    final int uvRowStride = uPlane.bytesPerRow;
+
+    final int uvPixelStride = uPlane.bytesPerPixel ?? 1;
+
+    final int outSize = width * height + (width * height ~/ 2);
+    final Uint8List out = Uint8List(outSize);
+
+    int outIndex = 0;
+
+    for (int row = 0; row < height; row++) {
+      final int yRowStart = row * yRowStride;
+      out.setRange(outIndex, outIndex + width, yBytes, yRowStart);
+      outIndex += width;
+    }
+
+    final int uvHeight = height ~/ 2;
+    final int uvWidth = width ~/ 2;
+
+    for (int row = 0; row < uvHeight; row++) {
+      final int uvRowStart = row * uvRowStride;
+      for (int col = 0; col < uvWidth; col++) {
+        final int uvIndex = uvRowStart + col * uvPixelStride;
+
+        out[outIndex++] = vBytes[uvIndex];
+        out[outIndex++] = uBytes[uvIndex];
+      }
+    }
+
+    return out;
   }
 
   Uint8List _concatenatePlanes(List<Plane> planes) {

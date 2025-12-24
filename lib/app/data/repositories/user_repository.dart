@@ -12,7 +12,7 @@ abstract class UserRepository {
   Future<dynamic> sendOTP(Map<String, dynamic> body);
   Future<dynamic> verifyOtp(Map<String, dynamic> body);
   Future<CommonResponse> getNotification(Map<String, dynamic> body);
-  Future<CommonResponse> markNotiRead(Map<String, dynamic> body);
+    Future<CommonResponse> markNotiRead(Map<String, dynamic> body, int notiId);
   Future<CommonResponse> countUnreadNoti();
 
   Future<CommonResponse> logOut(Map<String, dynamic> body);
@@ -77,15 +77,14 @@ class UserRepositoryImpl extends UserRepository {
   }
 
   @override
-  Future<CommonResponse> markNotiRead(Map<String, dynamic> body) {
-    return _apiClient.markNotiRead(body);
+  Future<CommonResponse> markNotiRead(Map<String, dynamic> body, int notiId) async {
+    return _apiClient.markNotiRead(body, notiId);
   }
 
   @override
   Future<CommonResponse> countUnreadNoti() {
     return _apiClient.countUnreadNoti();
   }
-  
 
   @override
   Future<CommonResponse> getTaskStages() async {

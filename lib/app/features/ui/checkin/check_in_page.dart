@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
@@ -22,7 +24,6 @@ import 'package:pm_app/generated/l10n.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/utils/utils.dart';
 import '../../widgets/app_snackbar.dart';
-import 'face_scan_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -34,6 +35,8 @@ import '../../../data/models/enums/load_status.dart';
 import '../../widgets/primary_button.dart';
 import 'bloc/check_in_cubit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import '../../../core/commons/app_colors.dart';
 
 class CheckInPage extends StatefulWidget {
@@ -62,10 +65,18 @@ class _CheckInPageState extends State<CheckInPage> {
 
   void _onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
-    // await _fitToAllCheckIn();
+    logger.d("_onMapCreated ::: load map thanh cong!!!!");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _moveCameraToCurrentPlace();
     });
+  }
+
+  void _initMapRenderer() {
+    final GoogleMapsFlutterPlatform mapsImplementation =
+        GoogleMapsFlutterPlatform.instance;
+    if (mapsImplementation is GoogleMapsFlutterAndroid) {
+      mapsImplementation.useAndroidViewSurface = true;
+    }
   }
 
 Future<void> _requestLocationPermission() async {
@@ -152,6 +163,7 @@ Future<void> _requestLocationPermission() async {
 
   Future<void> _onInit() async {
     await _requestLocationPermission();
+    _initMapRenderer();
     _cubit.getListCheckInInfo();
   }
 

@@ -132,31 +132,31 @@ class _ApplicationPageState extends State<ApplicationPage> {
   Widget _buildGrid() {
     final s = S.of(context);
     final items = [
-      {
-        "icon": AppAssets.ic_employee,
-        "title": s.utilities_tab1,
-        "onTap": () => _openStaffPage(),
-      },
-      {
-        "icon": AppAssets.ic_paper,
-        "title": s.utilities_tab2,
-        "onTap": () => _goAttendanceData(),
-      },
-      {
-        "icon": AppAssets.ic_timekeeping,
-        "title": s.utilities_tab4,
-        "onTap": () => _openCheckIn(),
-      },
-      {
-        "icon": AppAssets.ic_work,
-        "title": s.utilities_tab5,
-        "onTap": () => _openTaskList(),
-      },
-      {
-        "icon": AppAssets.ic_paper2,
-        "title": s.utilities_tab3,
-        "onTap": () => _openOnLeave(),
-      },
+      // {
+      //   "icon": AppAssets.ic_employee,
+      //   "title": s.utilities_tab1,
+      //   "onTap": () => _openStaffPage(),
+      // },
+      // {
+      //   "icon": AppAssets.ic_paper,
+      //   "title": s.utilities_tab2,
+      //   "onTap": () => _goAttendanceData(),
+      // },
+      // {
+      //   "icon": AppAssets.ic_timekeeping,
+      //   "title": s.utilities_tab4,
+      //   "onTap": () => _openCheckIn(),
+      // },
+      // {
+      //   "icon": AppAssets.ic_work,
+      //   "title": s.utilities_tab5,
+      //   "onTap": () => _openTaskList(),
+      // },
+      // {
+      //   "icon": AppAssets.ic_paper2,
+      //   "title": s.utilities_tab3,
+      //   "onTap": () => _openOnLeave(),
+      // },
 
       {
         "icon": AppAssets.ic_paper2,

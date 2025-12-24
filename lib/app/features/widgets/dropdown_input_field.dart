@@ -29,7 +29,6 @@ class DropdownInputField extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// ===== TITLE + REQUIRED =====
           RichText(
             text: TextSpan(
               text: title,

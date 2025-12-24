@@ -14,6 +14,7 @@ import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class OvertimeDetail extends StatefulWidget {
   final int? id;
@@ -66,6 +67,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocListener<OvertimeDetailCubit, OvertimeDetailState>(
       bloc: _cubit,
       listener: (context, state) async {
@@ -106,7 +108,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
               Scaffold(
                 backgroundColor: Colors.transparent,
                 appBar: MyAppBar(
-                  titleAppbar: "Chi tiết yêu cầu OT",
+                  titleAppbar: s.ot_detail_title,
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
@@ -148,7 +150,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   Widget _contentCard(OvertimeDetailState state) {
     final e = state.detail;
     if (e == null) return const SizedBox();
-
+    final s = S.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
@@ -157,10 +159,10 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
       ),
       child: Column(
         children: [
-          _row("Nhân viên", e.employeeName ?? ""),
+          _row(s.ot_detail_employee, e.employeeName ?? ""),
           const CustomDashView(),
           _row(
-            "Ca làm việc",
+            s.ot_detail_workshift,
             e.overtimeDetail
                     ?.map((d) => d.shift?.name)
                     .whereType<String>()
@@ -169,13 +171,13 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
                 "",
           ),
           const CustomDashView(),
-          _row("Phòng ban", e.departmentName ?? ""),
+          _row(s.ot_detail_department, e.departmentName ?? ""),
           const CustomDashView(),
-          _row("Ngày tạo", e.dateCreate ?? ""),
+          _row(s.ot_detail_createDate, e.dateCreate ?? ""),
           const CustomDashView(),
-          _row("Từ ngày", e.fromDate ?? ""),
+          _row(s.ot_detail_fromDate, e.fromDate ?? ""),
           const CustomDashView(),
-          _row("Đến ngày", e.toDate ?? ""),
+          _row(s.ot_detail_toDate, e.toDate ?? ""),
           const SizedBox(height: 16),
 
           if (e.overtimeDetail != null)
@@ -183,7 +185,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
 
           const SizedBox(height: 16),
           _row(
-            "Hình thức nhận",
+            s.ot_detail_receive,
             e.overtimeDetail
                     ?.map((d) => _mapOTFormType(d.formType))
                     .where((s) => s.isNotEmpty)
@@ -192,11 +194,11 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
                 "",
           ),
           const CustomDashView(),
-          _row("Ghi chú", e.note ?? ""),
+          _row(s.ot_detail_notes, e.note ?? ""),
           const CustomDashView(),
           _statusRow(e.stage?.name ?? ""),
           const CustomDashView(),
-          _row("Người tạo", e.employeeName ?? ""),
+          _row(s.ot_detail_creator, e.employeeName ?? ""),
         ],
       ),
     );
@@ -229,15 +231,15 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
 
   Widget _statusRow(String name) {
     final color = _getStatusColorByName(name);
-
+    final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 4,
             child: Text(
-              "Trạng thái",
+              s.ot_detail_status,
               style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
             ),
           ),
@@ -285,6 +287,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   Widget _overtimeDetailBox(dynamic d) {
+    final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DashedBorderBox(
@@ -294,11 +297,14 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              _row("Ngày", d.date ?? ""),
+              _row(s.ot_detail_date, d.date ?? ""),
               const CustomDashView(),
-              _row("Số giờ", _formatHour(d.overtime)),
+              _row(
+                s.ot_detail_totalHour,
+                d.overtime != null ? d.overtime!.toStringAsFixed(2) : "",
+              ),
               const CustomDashView(),
-              _row("Hình thức nhận", _mapOTFormType(d.formType)),
+              _row(s.ot_detail_receive, _mapOTFormType(d.formType)),
             ],
           ),
         ),
@@ -325,39 +331,12 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   Widget _actionButtons(OvertimeDetailState state) {
+    final s = S.of(context);
     return Row(
       children: [
         Expanded(
           child: PrimaryButton(
-            mainText: "Xóa",
-            type: PrimaryButtonType.secondary,
-            callback: () {
-              // final id = state.detail?.id;
-              // if(id == null) return;
-
-              // showDialog(
-              //   context: context,
-              //   barrierDismissible: false,
-              //    builder: (_) => CustomDialog(
-              //     title: "Xác nhận xóa",
-              //      content: "Bạn có chắc muốn xóa yêu cầu này không?",
-              //      confirmText: "Xóa",
-              //      cancelText: "Hủy",
-              //      success: false,
-              //      onConfirm: () {
-              //        Navigator.pop(context);
-              //        _cubit.deleteJustification(id);
-              //      },
-              //      onCancel: () => Navigator.pop(context),
-              //   ),
-              // );
-            },
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: PrimaryButton(
-            mainText: "Gửi duyệt",
+            mainText: s.ot_detail_send,
             type: PrimaryButtonType.primary,
             isLoading: state.isSubmitting,
             callback: () {
@@ -385,7 +364,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
         const SizedBox(width: 12),
         Expanded(
           child: PrimaryButton(
-            mainText: "Cập nhật",
+            mainText: s.ot_detail_update,
             type: PrimaryButtonType.primary,
             callback: () async {
               final res = await Navigator.push(

@@ -85,6 +85,9 @@ dependencies:
   multi_image_picker_plus: ^0.0.8
   uuid: ^4.5.2
   dotted_border: ^2.1.0
+  google_maps_flutter_platform_interface: ^2.14.0
+  google_maps_flutter_android: ^2.18.3
+#  camerawesome: ^2.5.0
 
 dev_dependencies:
   flutter_test:

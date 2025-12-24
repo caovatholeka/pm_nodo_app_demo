@@ -11,6 +11,7 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/repositories/auth_repository.dart';
@@ -98,8 +99,10 @@ void main() {
                   (_) => AppCubit(
                     authRepository: getIt<AuthRepository>(),
                     userRepository: getIt<UserRepository>(),
-                  )..countUnreadNoti(),
+                  ),
             ),
+
+            BlocProvider(create: (_) => getIt<NotiCubit>()..countUnreadNoti()),
           ],
           child: MyApp(),
         ),

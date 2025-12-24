@@ -3,9 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
-import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
-import 'package:pm_app/app/features/ui/justification/widgets/justification_list_item.dart';
 import 'package:pm_app/app/features/ui/overtime/create_overtime.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/overtime_cubit.dart';
 import 'package:pm_app/app/features/ui/overtime/overtime_detail.dart';
@@ -77,12 +74,13 @@ class _OvertimePageState extends State<OvertimePage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocProvider(
       create: (_) => _cubit,
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
         appBar: MyAppBar(
-          titleAppbar: "Đăng ký làm thêm giờ",
+          titleAppbar: s.ot_pageTitle,
           haveBackButton: widget.isFromHome ?? false,
           haveActionButton: true,
           iconPathAsset: AppAssets.icNotificationBell,

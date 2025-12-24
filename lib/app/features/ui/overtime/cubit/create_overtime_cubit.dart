@@ -1,10 +1,10 @@
 import 'package:equatable/equatable.dart';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/overtime_line_entity.dart';
-import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/param/create_overtime_param.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 
@@ -13,7 +13,7 @@ part 'create_overtime_state.dart';
 class CreateOvertimeCubit extends Cubit<CreateOvertimeState> {
   final OvertimeRepository _repo = GetIt.I<OvertimeRepository>();
 
-  CreateOvertimeCubit() : super(const CreateOvertimeState());
+  CreateOvertimeCubit() : super(CreateOvertimeState.initial());
 
   void setFromDate(String value) {
     emit(state.copyWith(fromDate: value));
@@ -27,93 +27,98 @@ class CreateOvertimeCubit extends Cubit<CreateOvertimeState> {
     emit(state.copyWith(note: value));
   }
 
-  void initOvertimeLines(List<DateTime> days) {
-    final lines = days
-        .map(
-          (d) => OvertimeLineEntity(
-            date: DateFormat('yyyy-MM-dd').format(d),
-            overtime: null,
-            formType: null,
-          ),
-        )
-        .toList();
+  void initFromDetail(int id) {
+    emit(state.copyWith(id: id));
+  }
 
-    emit(state.copyWith(overtimeLines: lines));
+  void initOvertimeLines(List<DateTime> days) {
+    emit(
+      state.copyWith(
+        overtimeLines:
+            days
+                .map(
+                  (d) => OvertimeLineEntity(
+                    date: DateFormat('yyyy-MM-dd').format(d),
+                    overtime: null,
+                    formType: null,
+                  ),
+                )
+                .toList(),
+      ),
+    );
   }
 
   void updateOvertimeLine(int index, OvertimeLineEntity line) {
-    final updated = List<OvertimeLineEntity>.from(state.overtimeLines);
-    if (index < 0 || index >= updated.length) return;
-    updated[index] = line;
-    emit(state.copyWith(overtimeLines: updated));
+    final lines = List<OvertimeLineEntity>.from(state.overtimeLines);
+    if (index < 0 || index >= lines.length) return;
+
+    lines[index] = line;
+    emit(state.copyWith(overtimeLines: lines));
   }
 
   Future<void> submit() async {
-    if (state.fromDate.isEmpty ||
-        state.toDate.isEmpty ||
-        state.overtimeLines.isEmpty) {
-      emit(state.copyWith(error: 'Vui lòng nhập đầy đủ thông tin'));
-      return;
-    }
+    if (!state.isFormValid || state.isSubmitting) return;
 
-    emit(state.copyWith(
-      loadStatus: LoadStatus.LOADING,
-      error: null,
-      submitSuccess: false,
-    ));
+    emit(
+      state.copyWith(
+        isSubmitting: true,
+        errorMessage: null,
+        successMessage: null,
+        isSuccess: false,
+      ),
+    );
 
     try {
       final param = CreateOvertimeParam(
-        fromDate: state.fromDate,
-        toDate: state.toDate,
+        fromDate: state.fromDate!,
+        toDate: state.toDate!,
         note: state.note,
         overtimeLines: state.overtimeLines,
       );
 
-      await _repo.createOTRequest(param);
+      final res =
+          state.isEdit
+              ? await _repo.updateOTRequest(state.id!, param.toJson())
+              : await _repo.createOTRequest(param);
 
-      emit(state.copyWith(
-        loadStatus: LoadStatus.SUCCESS,
-        submitSuccess: true,
-      ));
-    } catch (e, s) {
-      logger.e('CreateOvertime error: $e, where: $s');
-      emit(state.copyWith(
-        loadStatus: LoadStatus.FAILURE,
-        error: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          isSuccess: true,
+          successMessage:
+              res is Map && res['message'] is String
+                  ? res['message']
+                  : 'Thành công',
+        ),
+      );
+    } on DioException catch (e) {
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: _extractErrorMessage(e),
+        ),
+      );
+    } catch (_) {
+      emit(state.copyWith(isSubmitting: false, errorMessage: 'Có lỗi xảy ra'));
     }
   }
 
-  void resetSubmitState() {
-    emit(state.copyWith(submitSuccess: false, error: null));
+  String _extractErrorMessage(DioException e) {
+    final data = e.response?.data;
+
+    if (data is Map<String, dynamic>) {
+      if (data['message'] is String) return data['message'];
+      if (data['errors'] is Map) {
+        final errors = data['errors'] as Map;
+        if (errors.isNotEmpty) {
+          final v = errors.values.first;
+          if (v is List && v.isNotEmpty) {
+            return v.first.toString();
+          }
+        }
+      }
+    }
+
+    return 'Dữ liệu không hợp lệ';
   }
-
-  Future<void> update(int id) async {
-  if (state.overtimeLines.any(
-    (e) => e.overtime == null || e.formType == null,
-  )) {
-    emit(state.copyWith(error: 'Vui lòng nhập đủ số giờ và hình thức'));
-    return;
-  }
-
-  emit(state.copyWith(loadStatus: LoadStatus.LOADING, error: null));
-
-  try {
-    await _repo.updateOTRequest(
-      id,
-      CreateOvertimeParam(
-        fromDate: state.fromDate,
-        toDate: state.toDate,
-        note: state.note,
-        overtimeLines: state.overtimeLines,
-      ).toJson(),
-    );
-
-    emit(state.copyWith(loadStatus: LoadStatus.SUCCESS, submitSuccess: true));
-  } catch (e) {
-    emit(state.copyWith(loadStatus: LoadStatus.FAILURE, error: e.toString()));
-  }
-}
-
 }

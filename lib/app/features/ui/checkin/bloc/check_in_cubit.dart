@@ -163,23 +163,20 @@ class CheckInCubit extends Cubit<CheckInState> {
   void onChangeAddress(Position position) async {
     emit(state.copyWith(positionParam: position));
 
-    final acc = position.accuracy;
-    logger.d("New position: ${position.latitude}, ${position.longitude}, acc=$acc m");
+    // final acc = position.accuracy;
+    // logger.d("New position: ${position.latitude}, ${position.longitude}, acc=$acc m");
 
-    if (acc > 80) {
-      logger.d(" Bỏ qua position vì accuracy quá kém: $acc m");
-      // Có thể emit thêm state.gpsStatus = GpsStatus.inaccurate để show cảnh báo
-      return;
-    }
+    // if (acc > 80) {
+    //   logger.d(" Bỏ qua position vì accuracy quá kém: $acc m");
+    //   return;
+    // }
 
-    // 2. Nếu giống hệt vị trí cũ & đã có address thì thôi
     if (position.latitude == state.position?.latitude &&
         position.longitude == state.position?.longitude &&
         (state.address ?? '').isNotEmpty) {
       return;
     }
 
-    // 3. Tính khoảng cách so với vị trí cũ (nếu có)
     final oldPos = state.position;
     if (oldPos != null) {
       final metersDistanceBetween = Geolocator.distanceBetween(
