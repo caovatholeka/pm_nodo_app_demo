@@ -46,6 +46,21 @@ class _NotificationPageState extends State<NotificationPage> {
   void _onMarkAllRead(BuildContext context) {
     final cubit = context.read<NotiCubit>();
     final unread = cubit.state.totalUnread;
+    final state = cubit.state;
+
+    if(state.notifications.isEmpty) {
+      Flushbar(
+        message: "Không có thông báo nào để đọc",
+        backgroundColor: const Color(0xFFFFC107),
+        flushbarPosition: FlushbarPosition.TOP,
+        margin:  const EdgeInsets.all(16),
+        borderRadius: BorderRadius.circular(12),
+        duration: const Duration(seconds: 2),
+        icon: const Icon(Icons.info_outline, color: Colors.white),
+      ).show(context);
+      return;
+    }
+
     if (unread == 0) {
       Flushbar(
         message: "Các thông báo đã được đọc hết",
