@@ -39,46 +39,57 @@ class _JustificationPageState extends State<JustificationPage> {
     super.dispose();
   }
 
-Future<void> _openCalendar() async {
-  final now = DateTime.now();
+  Future<void> _openCalendar() async {
+    final now = DateTime.now();
 
-  final defaultRange = DateTimeRange(
-    start: DateTime(now.year, now.month, 1),
-    end: DateTime(now.year, now.month + 1, 0),
-  );
+    final defaultRange = DateTimeRange(
+      start: DateTime(now.year, now.month, 1),
+      end: DateTime(now.year, now.month + 1, 0),
+    );
 
-  final res = await showModalBottomSheet<DateTimeRange?>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    backgroundColor: Colors.white,
-    builder: (_) => CalendarRangeSheet(
-      initial: _selectedRange ?? defaultRange,
-      locale: "vi",
-    ),
-  );
+    final res = await showModalBottomSheet<DateTimeRange?>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      builder: (_) => CalendarRangeSheet(
+        initial: _selectedRange ?? defaultRange,
+        locale: "vi",
+      ),
+    );
 
-  if (res == null) {
+    if (res == null) {
+      setState(() {
+        _selectedRange = null;
+        _filterCtrl.clear();
+      });
+
+      _cubit.loadList();
+      return;
+    }
+
     setState(() {
-      _selectedRange = null;
-      _filterCtrl.clear();
+      _selectedRange = res;
+      _filterCtrl.text =
+          "${_df.format(res.start)} - ${_df.format(res.end)}";
     });
 
-    _cubit.loadList();
-    return;
+    _cubit.loadList(
+      startDate: DateFormat('yyyy-MM-dd').format(res.start),
+      endDate: DateFormat('yyyy-MM-dd').format(res.end),
+    );
   }
 
-  setState(() {
-    _selectedRange = res;
-    _filterCtrl.text =
-        "${_df.format(res.start)} - ${_df.format(res.end)}";
-  });
-
-  _cubit.loadList(
-    startDate: DateFormat('yyyy-MM-dd').format(res.start),
-    endDate: DateFormat('yyyy-MM-dd').format(res.end),
-  );
-}
+  void _refreshList() {
+    if (_selectedRange != null) {
+      _cubit.loadList(
+        startDate: DateFormat('yyyy-MM-dd').format(_selectedRange!.start),
+        endDate: DateFormat('yyyy-MM-dd').format(_selectedRange!.end),
+      );
+    } else {
+      _cubit.loadList();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +142,7 @@ Future<void> _openCalendar() async {
                           builder: (_) => const CreateJustificationPage(),
                         ),
                       );
-                      _cubit.loadList();
+                      _refreshList();
                     },
                     child: Container(
                       width: 44,
@@ -168,21 +179,21 @@ Future<void> _openCalendar() async {
                   }
 
                   return ListView.builder(
-                    padding:
-                        const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
                     itemCount: state.list.length,
                     itemBuilder: (context, index) {
                       final item = state.list[index];
                       return JustificationListItem(
                         entity: item,
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
                                   JustificationDetailPage(id: item.id),
                             ),
                           );
+                          _refreshList();
                         },
                       );
                     },

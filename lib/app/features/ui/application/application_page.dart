@@ -128,7 +128,7 @@ class _ApplicationPageState extends State<ApplicationPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: MyAppBar(
-        titleAppbar: s.utilities_tab6,
+        titleAppbar: s.application_title,
         haveBackButton: true,
         haveActionButton: true,
         iconPathAsset: AppAssets.icNotificationBell,
@@ -168,25 +168,25 @@ class _ApplicationPageState extends State<ApplicationPage> {
 
       {
         "icon": AppAssets.ic_paper2,
-        "title": s.utilities_tab7,
+        "title": s.app_until1,
         "onTap": () => _openJustifications(),
       },
 
       {
         "icon": AppAssets.ic_paper2,
-        "title": "OT",
+        "title": s.app_until2,
         "onTap": () => _openOT(),
       },
 
       {
         "icon": AppAssets.ic_paper2,
-        "title": "Đơn công tác",
+        "title": s.app_until3,
         "onTap": () => _openBusinessTrip(),
       },
 
       {
         "icon": AppAssets.ic_paper2,
-        "title": "Phiếu đánh giá",
+        "title": s.app_until4,
         "onTap": () => _openAppraisalForm(),
       },
     ];
@@ -201,6 +201,7 @@ class _ApplicationPageState extends State<ApplicationPage> {
           crossAxisCount: 3,
           mainAxisSpacing: 28,
           crossAxisSpacing: 28,
+          mainAxisExtent:110
         ),
         itemBuilder: (context, index) {
           final item = items[index];

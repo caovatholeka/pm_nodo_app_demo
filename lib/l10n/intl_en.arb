@@ -225,6 +225,8 @@
   "justification_title":"Justification Request",
   "justification_reason_type":"Type: ",
   "justification_create":"Creator: ",
+    "justification_reason_type1":"Personal",
+  "justification_reason_type2":"Work",
   "justification_detail_employee":"Employee",
   "justification_detail_department":"Department",
   "justification_detail_reason":"Reason type",
@@ -271,5 +273,11 @@
   "ot_input_Date":"Date",
   "ot_input_totalTime":"Total time",
   "ot_input_recevice":"Recevie method",
-  "ot_input_notes":"Notes"
+  "ot_input_notes":"Notes",
+
+  "application_title":"Application",
+  "app_until1":"Justification",
+  "app_until2":"Overtime",
+  "app_until3":"Work Trip",
+  "app_until4":"Appraisal Form"
 }

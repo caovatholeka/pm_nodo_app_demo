@@ -65,6 +65,20 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     }
   }
 
+  String _getReasonTypeText(String? type) {
+    if (type == null || type.isEmpty) return '';
+    
+    final s = S.of(context);
+    switch (type.toLowerCase()) {
+      case 'personal':
+        return s.justification_reason_type1;
+      case 'work':
+        return s.justification_reason_type2;
+      default:
+        return type; 
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -164,7 +178,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           const CustomDashView(),
           _row(s.justification_detail_department, e.departmentName ?? ""),
           const CustomDashView(),
-          _row(s.justification_detail_reason, e.reasonType ?? ""),
+          _row(s.justification_detail_reason, _getReasonTypeText(e.reasonType)),
           const CustomDashView(),
           _row(s.justification_detail_date, e.date ?? ""),
           const SizedBox(height: 12),

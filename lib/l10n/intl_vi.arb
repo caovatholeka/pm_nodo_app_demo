@@ -202,6 +202,8 @@
   "justification_title":"Đăng ký đi muộn về sớm",
   "justification_reason_type":"Loại lý do: ",
   "justification_create":"Người tạo: ",
+  "justification_reason_type1":"Cá nhân",
+  "justification_reason_type2":"Công việc",
   "justification_detail_employee":"Nhân viên",
   "justification_detail_department":"Phòng ban",
   "justification_detail_reason":"Loại lý do",
@@ -212,7 +214,7 @@
   "justification_detail_status":"Trạng thái",
   "justification_detail_sendbtn":"Gửi duyệt",
   "justification_detail_updatebtn":"Cập nhật",
-  "justification_detail_title":"Chi tiết yêu cầu MS",
+  "justification_detail_title":" Chi tiết yêu cầu Đi sớm/Về muộn",
   "justification_create_reasonType":"Loại lý do",
   "justification_create_date":"Ngày",
   "justification_create_form":"Hình thức",
@@ -221,6 +223,7 @@
   "justification_create_savebtn":"Lưu",
   "justification_create_title":"Tạo yêu cầu M/S",
   "justification_update_title":"Cập nhật yêu cầu M/S",
+  
 
   "ot_pageTitle":"Tạo yêu cầu làm thêm giờ",
   "ot_cardNote":"Ghi chú",
@@ -248,5 +251,11 @@
   "ot_input_Date":"Ngày",
   "ot_input_totalTime":"Số ngày",
   "ot_input_recevice":"Hình thức nhận",
-  "ot_input_notes":"Ghi chú"
+  "ot_input_notes":"Ghi chú",
+
+  "application_title":"Đơn từ",
+  "app_until1":"Đi sớm - Về muộn",
+  "app_until2":"OT",
+  "app_until3":"Đơn công tác",
+  "app_until4":"Phiếu đánh giá"
 }

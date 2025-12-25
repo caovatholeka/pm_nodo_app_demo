@@ -47,6 +47,20 @@ class JustificationListItem extends StatelessWidget {
     return _getStatusColorByName(name).withValues(alpha: 0.1);
   }
 
+  String _getReasonTypeText(String? type, BuildContext context) {
+    if (type == null || type.isEmpty) return '';
+    
+    final s = S.of(context);
+    switch (type.toLowerCase()) {
+      case 'personal':
+        return s.justification_reason_type1; 
+      case 'work':
+        return s.justification_reason_type2; 
+      default:
+        return type; 
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -170,7 +184,7 @@ class JustificationListItem extends StatelessWidget {
 
                         _buildItem(
                           s.justification_reason_type,
-                          entity.reasonType ?? '',
+                          _getReasonTypeText(entity.reasonType, context), // Sửa dòng này
                         ),
 
                         const SizedBox(height: 12),

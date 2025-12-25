@@ -128,9 +128,14 @@ class _CreateOTPageState extends State<CreateOTPage> {
 
   List<DateTime> _generateDays(DateTime from, DateTime to) {
     final days = <DateTime>[];
-    for (var d = from; !d.isAfter(to); d = d.add(const Duration(days: 1))) {
-      days.add(d);
+    var current = DateTime(from.year, from.month, from.day);
+    final end = DateTime(to.year, to.month, to.day);
+    
+    while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
+      days.add(current);
+      current = current.add(const Duration(days: 1));
     }
+    
     return days;
   }
 
