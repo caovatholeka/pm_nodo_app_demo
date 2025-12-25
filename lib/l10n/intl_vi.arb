@@ -257,5 +257,13 @@
   "app_until1":"Đi sớm - Về muộn",
   "app_until2":"OT",
   "app_until3":"Đơn công tác",
-  "app_until4":"Phiếu đánh giá"
+  "app_until4":"Phiếu đánh giá",
+
+  "account_page_title1":"Cài đặt chung",
+  "account_page_util1":"Thông tin cá nhân",
+  "account_page_util2":"Thông báo",
+  "account_page_util3":"Thiết lập mật khẩu",
+  "account_page_util4":"Ngôn ngữ",
+  "account_page_util5":"Đăng xuất",
+  "account_page_title2":"Về ứng dụng"
 }

@@ -279,5 +279,13 @@
   "app_until1":"Justification",
   "app_until2":"Overtime",
   "app_until3":"Work Trip",
-  "app_until4":"Appraisal Form"
+  "app_until4":"Appraisal Form",
+
+  "account_page_title1":"General",
+  "account_page_util1":"Personal Information",
+  "account_page_util2":"Notification",
+  "account_page_util3":"Change Password",
+  "account_page_util4":"Change Languge",
+  "account_page_util5":"Logout",
+  "account_page_title2":"About"
 }

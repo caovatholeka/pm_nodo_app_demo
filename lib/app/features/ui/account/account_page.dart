@@ -8,7 +8,6 @@ import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/generated/l10n.dart';
-import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -126,9 +125,9 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  // ================= UI =================
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<AccountCubit, AccountState>(
         bloc: _cubit,
         listener: (context,state) async{
@@ -177,7 +176,7 @@ class _AccountPageState extends State<AccountPage> {
                           Padding(
                             padding: const EdgeInsets.only(left: 10),
                             child: Text(
-                              "Cài đặt chung",
+                              s.account_page_title1,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -189,22 +188,22 @@ class _AccountPageState extends State<AccountPage> {
                             children: [
                               _menuItem(
                                 icon: AppAssets.icUser,
-                                title: "Thông tin cá nhân",
+                                title: s.account_page_util1,
                                 onTap: _goInfo,
                               ),
                               _menuItem(
                                 icon: AppAssets.icNotificationPF,
-                                title: "Thông báo",
+                                title: s.account_page_util2,
                                 onTap: _goNotification,
                               ),
                               _menuItem(
                                 icon: AppAssets.icProtect,
-                                title: "Thiết lập mật khẩu",
+                                title: s.account_page_util3,
                                 onTap: _goPassword,
                               ),
                               _menuItem(
                                 icon: AppAssets.icLangague,
-                                title: "Ngôn ngữ",
+                                title: s.account_page_util4,
                                 onTap: _goLanguge,
                               ),
                             ],
@@ -213,7 +212,7 @@ class _AccountPageState extends State<AccountPage> {
                           Padding(
                             padding: const EdgeInsets.only(left:10),
                             child: Text(
-                              "Về ứng dụng",
+                              s.account_page_title2,
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -235,7 +234,7 @@ class _AccountPageState extends State<AccountPage> {
                               // ),
                               _menuItem(
                                 icon: AppAssets.icLogout,
-                                title: "Đăng xuất",
+                                title: s.account_page_util5,
                                 onTap: _logout,
                               ),
                             ],
@@ -359,19 +358,19 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  Widget _sectionTitle(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, bottom: 4),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          color: Colors.grey.shade600,
-        ),
-      ),
-    );
-  }
+    // Widget _sectionTitle(String text) {
+    //   return Padding(
+    //     padding: const EdgeInsets.only(left: 10, bottom: 4),
+    //     child: Text(
+    //       text,
+    //       style: TextStyle(
+    //         fontSize: 13,
+    //         fontWeight: FontWeight.w700,
+    //         color: Colors.grey.shade600,
+    //       ),
+    //     ),
+    //   );
+    // }
 
   Widget _roundedMenuContainer({required List<Widget> children}) {
     return Container(
