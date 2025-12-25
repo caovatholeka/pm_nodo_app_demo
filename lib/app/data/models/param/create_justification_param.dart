@@ -43,10 +43,14 @@ class CreateJustificationParam {
 
   Map<String, dynamic> toJson() {
     final map = _$CreateJustificationParamToJson(this);
-    map.removeWhere((key, value) =>
-        value == null ||
-        (value is String && value.trim().isEmpty) ||
-        (value is List && value.isEmpty));
+
+    map.removeWhere((key, value) {
+      if (key == 'exception_lines') return false;
+      if (value == null) return true;
+      if (value is String && value.trim().isEmpty) return true;
+      return false;
+    });
+
     return map;
   }
 }

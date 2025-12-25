@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/pages/appraisal_page.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_page.dart';
@@ -92,6 +93,13 @@ class _ApplicationPageState extends State<ApplicationPage> {
     );
   }
 
+  void _openAppraisalForm() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AppraisalPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,6 +182,12 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "icon": AppAssets.ic_paper2,
         "title": "Đơn công tác",
         "onTap": () => _openBusinessTrip(),
+      },
+
+      {
+        "icon": AppAssets.ic_paper2,
+        "title": "Phiếu đánh giá",
+        "onTap": () => _openAppraisalForm(),
       },
     ];
 

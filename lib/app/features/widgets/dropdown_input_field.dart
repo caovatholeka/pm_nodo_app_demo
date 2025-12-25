@@ -139,7 +139,6 @@ class DropdownInputField extends StatelessWidget {
               const SizedBox(height: 10),
               const Divider(height: 1, thickness: 1, color: Colors.black12),
 
-              /// list
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,

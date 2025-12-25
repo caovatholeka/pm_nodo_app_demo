@@ -39,38 +39,47 @@ class _OvertimePageState extends State<OvertimePage> {
     super.dispose();
   }
 
-  Future<void> _openCalendar() async {
-    final now = DateTime.now();
-    final defaultRange = DateTimeRange(
-      start: DateTime(now.year, now.month, 1),
-      end: DateTime(now.year, now.month + 1, 0),
-    );
+Future<void> _openCalendar() async {
+  final now = DateTime.now();
 
-    final res = await showModalBottomSheet<DateTimeRange?>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Colors.white,
-      builder: (_) => CalendarRangeSheet(
-        initial: _selectedRange ?? defaultRange,
-        locale: "vi",
-      ),
-    );
+  final defaultRange = DateTimeRange(
+    start: DateTime(now.year, now.month, 1),
+    end: DateTime(now.year, now.month + 1, 0),
+  );
 
-    if (res == null) {
-      setState(() {
-        _selectedRange = null;
-        _filterCtrl.clear();
-      });
-      return;
-    }
+  final res = await showModalBottomSheet<DateTimeRange?>(
+    context: context,
+    isScrollControlled: true,
+    showDragHandle: true,
+    backgroundColor: Colors.white,
+    builder: (_) => CalendarRangeSheet(
+      initial: _selectedRange ?? defaultRange,
+      locale: "vi",
+    ),
+  );
 
+  if (res == null) {
     setState(() {
-      _selectedRange = res;
-      _filterCtrl.text =
-          "${_df.format(res.start)} - ${_df.format(res.end)}";
+      _selectedRange = null;
+      _filterCtrl.clear();
     });
+
+    _cubit.loadOTList();
+    return;
   }
+
+  setState(() {
+    _selectedRange = res;
+    _filterCtrl.text =
+        "${_df.format(res.start)} - ${_df.format(res.end)}";
+  });
+
+  _cubit.loadOTList(
+    startDate: DateFormat('yyyy-MM-dd').format(res.start),
+    endDate: DateFormat('yyyy-MM-dd').format(res.end),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +151,7 @@ class _OvertimePageState extends State<OvertimePage> {
                 builder: (context, state) {
                   if (state.loadStatus == LoadStatus.LOADING) {
                     return const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(color: Colors.blue,),
                     );
                   }
 

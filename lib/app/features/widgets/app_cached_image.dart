@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../core/commons/app_assets.dart';
-import '../../core/commons/app_colors.dart';
 
 class AppCircleAvatar extends StatelessWidget {
   final String url;

@@ -54,7 +54,6 @@ class _CheckInPageState extends State<CheckInPage> {
 
   String actionCheckIn = "";
 
-  // google maps
   GoogleMapController? _mapController;
   Set<Marker> oldMarkers = {};
   final MapType _mapType = MapType.terrain;

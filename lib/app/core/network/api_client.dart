@@ -198,7 +198,9 @@ abstract class ApiClient {
 
   //attendance exception (gửi giải trình)
   @GET("/attendance_exception/attendance_exception_list")
-  Future<CommonResponse> getAttendanceList();
+  Future<CommonResponse> getAttendanceList(
+    @Queries() Map<String, dynamic>? params,
+  );
 
   @GET("/attendance_exception/attendance_exception_detail/{id}")
   Future<JustificationEntity> getDetailAttendance(@Path("id") int id);
@@ -220,7 +222,7 @@ abstract class ApiClient {
 
   //OT
   @GET("/overtime/overtime_list")
-  Future<CommonResponse> getListOT();
+  Future<CommonResponse> getListOT(@Queries() Map<String, dynamic>? params);
 
   @GET("/overtime/overtime_detail/{id}")
   Future<OvertimeEntity> getDetailOT(@Path("id") int id);
@@ -239,6 +241,7 @@ abstract class ApiClient {
 
   @DELETE('/overtime/overtime_delete/{id}')
   Future<dynamic> deleteOTRequest(@Path("id") int id);
+
   ///Upload files
   @POST("")
   Future<List<FileEntity>> uploadFiles(@Body() FormData? body);
@@ -246,11 +249,11 @@ abstract class ApiClient {
   // danh sach cong tac
   @GET("/going_on_business/going_on_business_list")
   Future<CommonResponse> getListBusinessTrip(
-      @Query("limit") int? limit,
-      @Query("page") int? page,
-      @Query("start_date") String? startDate,
-      @Query("end_date") String? endDate,
-      );
+    @Query("limit") int? limit,
+    @Query("page") int? page,
+    @Query("start_date") String? startDate,
+    @Query("end_date") String? endDate,
+  );
 
   // tao phiếu công tác
   @POST("/going_on_business/going_on_business_create")
@@ -262,7 +265,10 @@ abstract class ApiClient {
 
   // gui duyet
   @POST("/going_on_business/going_on_business_submit/{id}")
-  Future<CommonResponse> submitWorkTrip(@Body() CreateWorkTripParam body,@Path("id") int id);
+  Future<CommonResponse> submitWorkTrip(
+    @Body() CreateWorkTripParam body,
+    @Path("id") int id,
+  );
 
   // xoa
   @DELETE("/going_on_business/going_on_business_delete/{id}")
@@ -270,5 +276,8 @@ abstract class ApiClient {
 
   // update
   @PUT("/going_on_business/going_on_business_update/{id}")
-  Future<WorkTripResponse> updateWorkTrip(@Body() CreateWorkTripParam body, @Path("id") int id);
+  Future<WorkTripResponse> updateWorkTrip(
+    @Body() CreateWorkTripParam body,
+    @Path("id") int id,
+  );
 }

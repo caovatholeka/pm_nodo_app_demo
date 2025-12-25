@@ -6,7 +6,7 @@ import '../models/param/create_justification_param.dart';
 import '../models/response/common_response.dart';
 
 abstract class JutificationRepository {
-  Future<CommonResponse> getAttendanceList();
+  Future<CommonResponse> getAttendanceList({Map<String, dynamic>? params});
   Future<CommonResponse> createJustification(CreateJustificationParam body);
   Future<dynamic> updateJustification(int id, Map<String, dynamic> body);
   Future<JustificationEntity> submitJustification(int id);
@@ -18,8 +18,8 @@ class JutificationRepositoryImpl extends JutificationRepository {
   ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
-  Future<CommonResponse> getAttendanceList() async {
-    return await _apiClient.getAttendanceList();
+  Future<CommonResponse> getAttendanceList({Map<String, dynamic>? params}) async {
+    return await _apiClient.getAttendanceList(params);
   }
 
   @override
@@ -34,11 +34,10 @@ class JutificationRepositoryImpl extends JutificationRepository {
     return await _apiClient.createAttendance(body.toJson());
   }
 
-@override
-Future<dynamic> updateJustification(int id, Map<String, dynamic> body) async {
-  return await _apiClient.updateAttendance(id, body);
-}
-
+  @override
+  Future<dynamic> updateJustification(int id, Map<String, dynamic> body) async {
+    return await _apiClient.updateAttendance(id, body);
+  }
 
   @override
   Future<JustificationEntity> submitJustification(int id) async {

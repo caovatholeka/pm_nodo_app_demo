@@ -7,7 +7,7 @@ import '../../core/network/api_util.dart';
 import '../models/response/common_response.dart';
 
 abstract class OvertimeRepository {
-  Future<CommonResponse> getListOT();
+  Future<CommonResponse> getListOT({Map<String, dynamic>? params});
   Future<OvertimeEntity> getOTDetail(int id);
   Future<CommonResponse> createOTRequest(CreateOvertimeParam body);
   Future<dynamic> updateOTRequest(int id, Map<String, dynamic> body);
@@ -19,8 +19,8 @@ class OvertimeRepositoryImpl extends OvertimeRepository {
   ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
   @override
-  Future<CommonResponse> getListOT() async{
-    return await _apiClient.getListOT();
+  Future<CommonResponse> getListOT({Map<String, dynamic>? params}) async{
+    return await _apiClient.getListOT(params);
   }
 
   @override
