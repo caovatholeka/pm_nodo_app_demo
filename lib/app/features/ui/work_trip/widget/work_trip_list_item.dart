@@ -15,13 +15,30 @@ class WorkTripListItem extends StatelessWidget {
 
   Color getStatusColor(int id) {
     switch (id) {
+      case 1:
       case 25:
+      case 6:
+      case 13:
+      case 17:
+      case 21:
         return AppColors.colorDraft;
+      case 14:
+      case 22:
       case 26:
+      case 30:
         return AppColors.colorApproved;
-      case 9:
+      case 15:
+      case 19:
+      case 23:
+      case 27:
+      case 31:
         return AppColors.colorFinished;
+      case 20:
+      case 16:
       case 12:
+      case 24:
+      case 28:
+      case 32:
         return AppColors.colorCancel;
       default:
         return Colors.transparent;
@@ -30,17 +47,30 @@ class WorkTripListItem extends StatelessWidget {
 
   Color getBgColor(int status) {
     switch (status) {
+      case 1:
       case 25:
+      case 6:
+      case 13:
+      case 17:
+      case 21:
         return AppColors.colorDraft.withValues(alpha: 0.1);
+      case 14:
+      case 22:
       case 26:
+      case 30:
         return AppColors.colorApproved.withValues(alpha: 0.1);
-      case 11:
       case 15:
-      case 9:
+      case 19:
+      case 23:
+      case 27:
+      case 31:
         return AppColors.colorFinished.withValues(alpha: 0.1);
       case 20:
       case 16:
       case 12:
+      case 24:
+      case 28:
+      case 32:
         return AppColors.colorCancel.withValues(alpha: 0.1);
       default:
         return Colors.transparent;
@@ -49,17 +79,30 @@ class WorkTripListItem extends StatelessWidget {
 
   String getStatusTitle(int status) {
     switch (status) {
+      case 1:
       case 25:
+      case 6:
+      case 13:
+      case 17:
+      case 21:
         return "Nháp";
+      case 14:
+      case 22:
       case 26:
+      case 30:
         return "Trưởng phòng duyệt";
-      case 11:
       case 15:
-      case 9:
+      case 19:
+      case 23:
+      case 27:
+      case 31:
         return "Hoàn thành";
       case 20:
       case 16:
       case 12:
+      case 24:
+      case 28:
+      case 32:
         return "Huỷ";
       default:
         return "";

@@ -47,13 +47,30 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   // helper funcs
   Color getStatusColor(int id) {
     switch (id) {
+      case 1:
       case 25:
+      case 6:
+      case 13:
+      case 17:
+      case 21:
         return AppColors.colorDraft;
+      case 14:
+      case 22:
       case 26:
+      case 30:
         return AppColors.colorApproved;
-      case 9:
+      case 15:
+      case 19:
+      case 23:
+      case 27:
+      case 31:
         return AppColors.colorFinished;
+      case 20:
+      case 16:
       case 12:
+      case 24:
+      case 28:
+      case 32:
         return AppColors.colorCancel;
       default:
         return Colors.transparent;
@@ -62,39 +79,67 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
 
   Color getBgColor(int status) {
     switch (status) {
+      case 1:
       case 25:
+      case 6:
+      case 13:
+      case 17:
+      case 21:
         return AppColors.colorDraft.withValues(alpha: 0.1);
+      case 14:
+      case 22:
       case 26:
+      case 30:
         return AppColors.colorApproved.withValues(alpha: 0.1);
-      case 11:
       case 15:
-      case 9:
+      case 19:
+      case 23:
+      case 27:
+      case 31:
         return AppColors.colorFinished.withValues(alpha: 0.1);
       case 20:
       case 16:
       case 12:
+      case 24:
+      case 28:
+      case 32:
         return AppColors.colorCancel.withValues(alpha: 0.1);
       default:
         return Colors.transparent;
     }
   }
+
   String getStatusTitle(int status) {
     switch (status) {
+      case 1:
       case 25:
+      case 6:
+      case 13:
+      case 17:
+      case 21:
         return "Nháp";
+      case 14:
+      case 22:
       case 26:
+      case 30:
         return "Trưởng phòng duyệt";
-      case 11:
       case 15:
-      case 9:
+      case 19:
+      case 23:
+      case 27:
+      case 31:
         return "Hoàn thành";
       case 20:
       case 16:
       case 12:
+      case 24:
+      case 28:
+      case 32:
         return "Huỷ";
       default:
         return "";
     }
+
   }
 
   String mapScheduleDateType(String type){
@@ -154,45 +199,77 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<WorkTripCubit,WorkTripState>(
         bloc: _cubit,
-        listener: (context,state){
-          if(state.detailStatus == LoadStatus.LOADING ||
-            state.deleteStatus == LoadStatus.LOADING ||
-            state.submitStatus == LoadStatus.LOADING){
+        listenWhen: (prev, cur) =>
+        prev.detailStatus != cur.detailStatus ||
+            prev.deleteStatus != cur.deleteStatus ||
+            prev.submitStatus != cur.submitStatus,
+        listener: (context, state) {
+          if (state.deleteStatus == LoadStatus.SUCCESS) {
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(title: "Thành công", message: "Xoá công tác thành công!!");
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
+              Navigator.of(context).pop(true);
+              _cubit.onResetStatus();
+            });
+            return;
+          }
+
+          if (state.submitStatus == LoadStatus.SUCCESS) {
+            LoadingOverlay.hide(context);
+            AppSnackBar.showInfo(title: "Thành công", message: "Gửi duyệt thành công!!");
+
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
+              Navigator.of(context).pop(true);
+              _cubit.onResetStatus();
+            });
+            return;
+          }
+
+          if (state.submitStatus == LoadStatus.FAILURE ||
+              state.deleteStatus == LoadStatus.FAILURE) {
+            LoadingOverlay.hide(context);
+            AppSnackBar.showError(
+              title: "Cảnh báo",
+              message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau!",
+            );
+            _cubit.onResetStatus();
+            return;
+          }
+
+          final isLoading =
+              state.submitStatus == LoadStatus.LOADING ||
+                  state.deleteStatus == LoadStatus.LOADING ||
+                  state.detailStatus == LoadStatus.LOADING;
+
+          if (isLoading) {
             LoadingOverlay.show(context);
-          }else if(state.detailStatus == LoadStatus.SUCCESS){
-            LoadingOverlay.hide(context);
-          }
-          else if(state.deleteStatus ==  LoadStatus.SUCCESS) {
-            LoadingOverlay.hide(context);
-            _cubit.onResetStatus();
-            LoadingOverlay.hide(context);
-            AppSnackBar.showInfo(
-              title: "Thành công",
-              message: "Xoá công tác thành công!!",
-            );
-            Navigator.pop(context, true);
-          }
-          else if(state.submitStatus ==  LoadStatus.SUCCESS) {
-            LoadingOverlay.hide(context);
-            _cubit.onResetStatus();
-            LoadingOverlay.hide(context);
-            AppSnackBar.showInfo(
-              title: "Thành công",
-              message: "Gủi duyệt thành công!!",
-            );
-            Navigator.pop(context, true);
-          }
-          else {
+          } else {
             LoadingOverlay.hide(context);
           }
         },
         builder: (context,state){
+          bool isDraft = false;
+          if(state.detailWorkTrip?.stage?.id == 25 ||
+              state.detailWorkTrip?.stage?.id == 1 ||
+              state.detailWorkTrip?.stage?.id == 6 ||
+              state.detailWorkTrip?.stage?.id == 13 ||
+              state.detailWorkTrip?.stage?.id == 17 ||
+              state.detailWorkTrip?.stage?.id == 21){
+            isDraft = true;
+          }
+
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
             appBar: MyAppBar(titleAppbar: "Chi tiết đơn công tác",
               haveBackButton: true,
             ),
-            body: SingleChildScrollView(
+            body:
+            (state.detailStatus == LoadStatus.LOADING) ?
+            Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,)) :
+            SingleChildScrollView(
               padding: const EdgeInsets.only(left: 16,right: 16),
               child: BlocBuilder<WorkTripCubit,WorkTripState>(
                 bloc: _cubit,
@@ -244,8 +321,9 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                       _statusLine,
                       CustomDashView().paddingOnly(bottom: 30),
 
-                      (((state.detailWorkTrip?.createUid ?? 0) == GlobalData.instance.userProfile?.employeeId)
-                        && state.detailWorkTrip?.stage?.id == 25) ? // trạng thái nháp
+                      // (((state.detailWorkTrip?.createUid ?? 0) == GlobalData.instance.userProfile?.employeeId)
+                      //   && isDraft) ? // trạng thái nháp
+                        isDraft ?
                           _bottomSheetWidget : const SizedBox.shrink(),
                      const SizedBox(height: 30,)
 
@@ -343,7 +421,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
             children: [
               Expanded(
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async{
                     _onSubmitWorkTrip();
                   },
                   child: Container(

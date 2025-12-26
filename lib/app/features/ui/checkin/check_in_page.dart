@@ -71,11 +71,11 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   void _initMapRenderer() {
-    final GoogleMapsFlutterPlatform mapsImplementation =
-        GoogleMapsFlutterPlatform.instance;
-    if (mapsImplementation is GoogleMapsFlutterAndroid) {
-      mapsImplementation.useAndroidViewSurface = true;
-    }
+    // final GoogleMapsFlutterPlatform mapsImplementation =
+    //     GoogleMapsFlutterPlatform.instance;
+    // if (mapsImplementation is GoogleMapsFlutterAndroid) {
+    //   mapsImplementation.useAndroidViewSurface = true;
+    // }
   }
 
 Future<void> _requestLocationPermission() async {

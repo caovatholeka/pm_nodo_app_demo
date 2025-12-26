@@ -47,6 +47,8 @@ class WorkTripCubit extends Cubit<WorkTripState> {
       note:"",
       fromDate: "",
       toDate: "",
+      strUsers: "",
+      currentUsers: [],
       listScheduleDays:[],
       resetDateTime: true,
     ));
@@ -56,7 +58,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
     int limit = 100;
     int page = 1;
 
-    emit(state.copyWith(detailStatus: LoadStatus.LOADING));
+    emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
     try{
       List<WorkTripEntity>? list;
       final res = await tripRepository.getListBusinessTrip(
@@ -67,12 +69,12 @@ class WorkTripCubit extends Cubit<WorkTripState> {
       );
       if(res.data != null){
         list = mapList(res.data, WorkTripEntity.fromJson);
-        emit(state.copyWith(detailStatus: LoadStatus.SUCCESS,listWorkTrips: list));
+        emit(state.copyWith(loadDataStatus: LoadStatus.SUCCESS,listWorkTrips: list));
       }
 
     }catch(e){
       logger.d(e);
-      emit(state.copyWith(detailStatus: LoadStatus.FAILURE));
+      emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE));
     }
 
   }
@@ -147,14 +149,14 @@ class WorkTripCubit extends Cubit<WorkTripState> {
 
   // lay chi tet phieu cong  tac
   void getWorkTripDetail(int id) async{
-    emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
+    emit(state.copyWith(detailStatus: LoadStatus.LOADING));
     try{
       final detail = await tripRepository.getDetailWorkTrip(id);
-      emit(state.copyWith(loadDataStatus: LoadStatus.SUCCESS,detailWorkTrip: detail));
+      emit(state.copyWith(detailStatus: LoadStatus.SUCCESS,detailWorkTrip: detail));
     }catch(e,s){
       logger.d(e);
       logger.d(s);
-      emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE));
+      emit(state.copyWith(detailStatus: LoadStatus.FAILURE));
     }
   }
 
@@ -201,7 +203,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
   void getListUsers() async{
     try {
       final List<UserEntity>? list;
-      final res = await tripRepository.getListEmployees(page: 1,limit: 200);
+      final res = await tripRepository.getListEmployees(page: 1,limit: 200,scope: "my_team");
       if(res.data != null){
         list = mapList(res.data, UserEntity.fromJson);
         emit(state.copyWith(listUsers: list));
