@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/config/app_config.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 
 class DropdownInputField extends StatelessWidget {
   final String title;
@@ -9,6 +11,8 @@ class DropdownInputField extends StatelessWidget {
   final String? selectedValue;
   final ValueChanged<String?> onChanged;
   final bool isRequired;
+  final bool? disableTitle;
+  final bool? enable;
 
   const DropdownInputField({
     super.key,
@@ -18,94 +22,92 @@ class DropdownInputField extends StatelessWidget {
     required this.selectedValue,
     required this.onChanged,
     this.isRequired = false,
+    this.disableTitle,
+    this.enable = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final controller = TextEditingController(text: selectedValue ?? '');
+    
+    final fillColor = (enable == true) ? Colors.white : AppColors.lineGray50;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              text: title,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF374151),
-                fontWeight: FontWeight.w500,
-              ),
-              children: [
-                if (isRequired)
-                  const TextSpan(
-                    text: ' *',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.w600,
-                    ),
+    final baseBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(width: 1, color: Colors.black.withAlpha(25)),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (disableTitle != true) ...[
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: AppConfig.fontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.gray,
                   ),
-              ],
-            ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              if (isRequired)
+                SvgPicture.asset(AppAssets.starRating),
+            ],
           ),
-
-          const SizedBox(height: 6),
-
-          GestureDetector(
-            onTap: () {
+          const SizedBox(height: 4),
+        ],
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: GestureDetector(
+            onTap: enable == true ? () {
               FocusScope.of(context).unfocus();
               _openBottomSheet(context);
-            },
+            } : null,
             child: AbsorbPointer(
               child: TextField(
                 controller: controller,
                 readOnly: true,
+                enabled: enable,
                 decoration: InputDecoration(
-                  hintText: hint,
-                  hintStyle: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF9CA3AF),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 16,
                   ),
+                  hintText: hint,
+                  counterText: "",
+                  filled: true,
+                  fillColor: fillColor,
                   suffixIcon: Padding(
                     padding: const EdgeInsets.all(12),
                     child: SvgPicture.asset(
                       AppAssets.icArrowDown,
-                      width: 5,
-                      height: 5,
+                      width: 18,
+                      height: 18,
                     ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  filled: true,
-                  fillColor: const Color(0xFFF9FAFB),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF2563EB),
-                    ),
-                  ),
+                  border: baseBorder,
+                  enabledBorder: baseBorder,
+                  focusedBorder: baseBorder,
+                  disabledBorder: baseBorder,
                 ),
                 style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.gray,
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-
 
   void _openBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -127,7 +129,6 @@ class DropdownInputField extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-
               Text(
                 title,
                 style: const TextStyle(
@@ -135,10 +136,8 @@ class DropdownInputField extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-
               const SizedBox(height: 10),
               const Divider(height: 1, thickness: 1, color: Colors.black12),
-
               Flexible(
                 child: ListView.separated(
                   shrinkWrap: true,
@@ -176,7 +175,6 @@ class DropdownInputField extends StatelessWidget {
                   },
                 ),
               ),
-
               const SizedBox(height: 12),
             ],
           ),

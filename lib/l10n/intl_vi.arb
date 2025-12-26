@@ -63,7 +63,7 @@
   "to_jobtype": "Loại công việc",
   "to_description": "Mô tả",
   "to_do_card_employee": "Nhân viên: ",
-  "to_do_card_deadline": "Hạn chóp",
+  "to_do_card_deadline": "Hạn chót",
   "to_do_card_jobType": "Loại công việc",
   "to_taskempl": "Người được phân công",
   "to_do_no_data": "Không có việc cần làm.",

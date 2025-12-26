@@ -89,7 +89,7 @@ class _InputTextFieldState extends State<InputTextField> {
 
     final baseBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(width: 1, color: Colors.black.withAlpha(25)),
+      borderSide: BorderSide(width: 1, color: const Color.fromARGB(255, 133, 133, 133).withAlpha(25)),
     );
 
     final errorBorder = OutlineInputBorder(
@@ -150,7 +150,7 @@ class _InputTextFieldState extends State<InputTextField> {
                 const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.gray,
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
             maxLines: widget.maxLine ?? 1,
             maxLength: widget.maxLength,
@@ -163,6 +163,11 @@ class _InputTextFieldState extends State<InputTextField> {
                         vertical: 16,
                       ),
               hintText: widget.hintText,
+              hintStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: Color(0xFFBDBDBD),
+              ),
               counterText: "",
               filled: true,
               fillColor: fillColor,
