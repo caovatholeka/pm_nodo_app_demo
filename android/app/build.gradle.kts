@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.nodo.pm_app"
-        minSdk = 23 //flutter.minSdkVersion
+        minSdk = flutter.minSdkVersion //flutter.minSdkVersion
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"

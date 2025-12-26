@@ -263,10 +263,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                                 ? S.of(context).profile_work
                                 : S.of(context).profile_not_work,
                         subtitlePrefix: S.of(context).employee_jd3,
-                        subtitleValue:
-                            (employee.xlocationType ?? "") == "inhouse"
-                                ? S.of(context).profile_od
-                                : "Onsite",
+                        subtitleValue: employee.currentAddress ?? "-",
                         showDivider: false,
                       ),
                     ],

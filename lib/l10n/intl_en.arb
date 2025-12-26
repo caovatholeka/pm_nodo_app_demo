@@ -287,5 +287,25 @@
   "account_page_util3":"Change Password",
   "account_page_util4":"Change Languge",
   "account_page_util5":"Logout",
-  "account_page_title2":"About"
+  "account_page_title2":"About",
+
+  "dialog_logout_title":"Confirm Logout?",
+  "dialog_logout_subtitle":"Are you sure you want to logout?",
+  "dialog_logout_btn1":"Logout",
+  "dialog_logout_btn2":"Cancel",
+
+  "work_data_tab1":"Attendance Data",
+  "work_data_tab2":"Justification",
+  "work_data_dayLeft":"Remaining Leave Balance",
+  "work_data_checkInStatus":"Attendance Status",
+  "work_data_status1":"Present",
+  "work_data_status2":"Not Checked In",
+  "work_data_status3":"Missing Check-out",
+  "work_data_status4":"Unpaid Leave",
+  "work_data_status5":"Late Arrival / Early Departure",
+  "work_data_stauts6":"Weekend",
+  "work_data_status7":"Missing Check-in",
+  "work_data_status8":"Half-day",
+  "work_data_title":"Activity",
+  "work_data_location":"Location"
 }

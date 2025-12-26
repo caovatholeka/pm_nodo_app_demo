@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class LeaveBalanceCard extends StatelessWidget {
   final String remainingDays;
@@ -23,8 +24,8 @@ class LeaveBalanceCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween, 
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            'Số phép còn lại',
+           Text(
+            S.of(context).work_data_dayLeft,
             style: TextStyle(
               fontSize: 13,
               color: AppColors.textGrayB3,

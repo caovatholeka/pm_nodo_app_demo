@@ -69,7 +69,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
                 right: 0,
                 bottom: padding,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     padding: const EdgeInsets.symmetric(

@@ -135,7 +135,7 @@
   "day_off_card_cancel_reason": "Lý do hủy",
   "day_off_approver": "Người phê duyệt",
   "day_off_btn_edit": "Cập nhật",
-  "day_off_btn_send_approval": "Gửi duyệt.",
+  "day_off_btn_send_approval": "Gửi duyệt",
   "day_off_edit_title": "Cập nhật yêu cầu nghỉ phép",
   "day_off_confirm_dialog_edit": "Bạn có chắc chắn muốn chỉnh sửa yêu cầu nghỉ phép này không?",
   "day_off_confirm_dialog_delete": "Bạn có chắc chắn muốn xóa yêu cầu nghỉ phép này không?",
@@ -265,5 +265,25 @@
   "account_page_util3":"Thiết lập mật khẩu",
   "account_page_util4":"Ngôn ngữ",
   "account_page_util5":"Đăng xuất",
-  "account_page_title2":"Về ứng dụng"
+  "account_page_title2":"Về ứng dụng",
+
+  "dialog_logout_title":"Xác nhận đăng xuất?",
+  "dialog_logout_subtitle":"Bạn có chắc muốn đăng xuấy không?",
+  "dialog_logout_btn1":"Đăng xuất",
+  "dialog_logout_btn2":"Hủy",
+
+  "work_data_tab1":"Dữ liệu công",
+  "work_data_tab2":"Giải trình công",
+  "work_data_dayLeft":"Số phép còn lại",
+  "work_data_checkInStatus":"Trạng thái chấm công",
+  "work_data_status1":"Công đi làm",
+  "work_data_status2":"Chưa chấm công",
+  "work_data_status3":"Thiếu giờ ra",
+  "work_data_status4":"Nghỉ không lương",
+  "work_data_status5":"Đi muộn / Về sớm",
+  "work_data_stauts6":"Nghỉ cuối tuần",
+  "work_data_status7":"Thiếu giờ vào",
+  "work_data_status8":"Nửa ngày công",
+  "work_data_title":"Hoạt động",
+  "work_data_location":"Địa điểm"
 }

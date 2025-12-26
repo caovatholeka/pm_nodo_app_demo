@@ -82,9 +82,9 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
                       ),
-                      tabs: const [
-                        Tab(text: "Dữ liệu chấm công"),
-                        Tab(text: "Giải trình công"),
+                      tabs: [
+                        Tab(text: s.work_data_tab1),
+                        Tab(text: s.work_data_tab2),
                       ],
                     ),
                   ),
