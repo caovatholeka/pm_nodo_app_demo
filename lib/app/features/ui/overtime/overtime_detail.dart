@@ -317,7 +317,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
       case 'pay':
         return 'Trả tiền';
       case 'leave':
-        return 'Nghỉ bù';
+        return 'Nghỉ Phép';
       default:
         return '';
     }
