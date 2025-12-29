@@ -184,11 +184,11 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "onTap": () => _openBusinessTrip(),
       },
 
-      {
-        "icon": AppAssets.ic_paper2,
-        "title": s.app_until4,
-        "onTap": () => _openAppraisalForm(),
-      },
+      // {
+      //   "icon": AppAssets.ic_paper2,
+      //   "title": s.app_until4,
+      //   "onTap": () => _openAppraisalForm(),
+      // },
     ];
 
     return Padding(

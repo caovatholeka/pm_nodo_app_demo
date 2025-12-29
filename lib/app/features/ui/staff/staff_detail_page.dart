@@ -102,7 +102,7 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
             child: Builder(
               builder: (_) {
                 if (state.loadStatus == LoadStatus.LOADING) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: Color(0xFF0062FF)));
                 }
 
                 if (state.loadStatus == LoadStatus.FAILURE) {
