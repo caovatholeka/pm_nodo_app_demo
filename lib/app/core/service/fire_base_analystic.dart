@@ -1,6 +1,4 @@
-import 'dart:async';
 import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -52,6 +50,10 @@ class FirebaseAnalysticService {
       name: name,
       parameters: parameters,
     );
+  }
+
+  static void setCustomKey(String key, Object value) {
+    _crashlytics.setCustomKey(key, value);
   }
 
   static void testCrash() {

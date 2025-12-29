@@ -45,7 +45,7 @@ dependencies:
   rxdart: ^0.28.0
   connectivity_plus: ^6.1.5
   horizontal_data_table: ^4.3.1
-  firebase_analytics: ^10.8.0
+  firebase_analytics: ^10.10.7
   firebase_core: ^2.32.0
   firebase_messaging: ^14.7.10
 #  firebase_crashlytics: ^3.4.9
@@ -87,6 +87,7 @@ dependencies:
   dotted_border: ^2.1.0
   google_maps_flutter_platform_interface: ^2.14.0
   google_maps_flutter_android: ^2.18.3
+  firebase_crashlytics: ^3.5.7
 #  camerawesome: ^2.5.0
 
 dev_dependencies:

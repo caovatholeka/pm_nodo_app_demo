@@ -5,11 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
-import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
-import 'package:pm_app/app/core/service/fire_base_analystic.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
@@ -20,22 +17,26 @@ import 'package:pm_app/app/data/repositories/auth_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'firebase_options.dart';
-
 import 'app/app.dart';
 import 'di/di.dart' as di;
 import 'app/core/service/firebase_messaging_service.dart';
+import 'app/core/service/fire_base_analystic.dart';
+import 'app/core/service/app_bloc_observer.dart';
 
 final getIt = GetIt.instance;
 
 void main() {
+  Bloc.observer = AppBlocObserver();
+
   runZonedGuarded(
     () async {
       final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-       await FirebaseAnalysticService.initialize();
+      await FirebaseAnalysticService.initialize();
 
       try {
         FirebaseMessagingService.initializeFCM();
@@ -66,23 +67,24 @@ void main() {
           );
           return;
         }
+
         GlobalData.instance.quickActionPending = null;
         GlobalData.instance.isFromQuickAction = true;
         QuickNavigator.navigate(type);
       });
 
-      quickActions.setShortcutItems(<ShortcutItem>[
-        const ShortcutItem(
+      quickActions.setShortcutItems(const <ShortcutItem>[
+        ShortcutItem(
           type: 'action_tasks',
           localizedTitle: 'Việc cần làm',
           icon: 'ic_task',
         ),
-        const ShortcutItem(
+        ShortcutItem(
           type: 'action_checkin',
           localizedTitle: 'Chấm công',
           icon: 'ic_checkinout',
         ),
-        const ShortcutItem(
+        ShortcutItem(
           type: 'action_leave',
           localizedTitle: 'Nghỉ phép',
           icon: 'ic_onleave',
@@ -90,35 +92,29 @@ void main() {
       ]);
 
       FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-      // set env
+
       final appEnv = await SharedPrefsHelper.getAppEnv();
       AppConfig.setEnvironment(appEnv);
-
-      final GoogleMapsFlutterPlatform mapsImplementation =
-          GoogleMapsFlutterPlatform.instance;
-      if (mapsImplementation is GoogleMapsFlutterAndroid) {
-        mapsImplementation.useAndroidViewSurface = true;
-      }
 
       runApp(
         MultiBlocProvider(
           providers: [
             BlocProvider(
-              create:
-                  (_) => AppCubit(
-                    authRepository: getIt<AuthRepository>(),
-                    userRepository: getIt<UserRepository>(),
-                  ),
+              create: (_) => AppCubit(
+                authRepository: getIt<AuthRepository>(),
+                userRepository: getIt<UserRepository>(),
+              ),
             ),
-
-            BlocProvider(create: (_) => getIt<NotiCubit>()..countUnreadNoti()),
+            BlocProvider(
+              create: (_) => getIt<NotiCubit>()..countUnreadNoti(),
+            ),
           ],
           child: MyApp(),
         ),
       );
     },
     (error, stack) {
-      debugPrint("Uncaught error: $error");
+      FirebaseAnalysticService.recordError(error, stack, fatal: true);
     },
   );
 }
