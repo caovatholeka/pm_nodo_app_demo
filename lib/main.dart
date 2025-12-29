@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/service/fire_base_analystic.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
@@ -32,6 +33,8 @@ void main() {
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
+       await FirebaseAnalysticService.initialize();
+
       try {
         FirebaseMessagingService.initializeFCM();
       } catch (_) {
@@ -47,7 +50,6 @@ void main() {
 
       const quickActions = QuickActions();
       quickActions.initialize((String type) async {
-        /// Nếu đang login → chỉ queue
         if (GlobalData.instance.isLoggingIn) {
           GlobalData.instance.quickActionPending = type;
           return;
