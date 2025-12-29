@@ -246,6 +246,7 @@
   "justification_create_savebtn":"Save",
   "justification_create_title":"Create justification request",
   "justification_update_title":"Update justification request",
+  "justification_emptyData":"No data!",
 
   "ot_pageTitle":"Overtime request",
   "ot_cardNote":"Notes",
@@ -274,6 +275,7 @@
   "ot_input_totalTime":"Total time",
   "ot_input_recevice":"Recevie method",
   "ot_input_notes":"Notes",
+  "ot_emptyData":"No data!",
 
   "application_title":"Application",
   "app_until1":"Justification",
@@ -307,5 +309,41 @@
   "work_data_status7":"Missing Check-in",
   "work_data_status8":"Half-day",
   "work_data_title":"Activity",
-  "work_data_location":"Location"
+  "work_data_location":"Location",
+
+  "bt_title":"Bussiness trip request",
+  "bt_empty":"No Data!!",
+  "bt_card_total":"Total employee",
+  "bt_card_notes":"Notes",
+  "bt_card_createby":"Created by",
+  "bt_status1":"Draft",
+  "bt_status2":"Head of approval department",
+  "bt_status3":"Completed",
+
+  "bt_createTitle":"Create bussiness request",
+  "bt_updateTitle":"Update bussiness request",
+  "bt_titleEmployee":"Chose employee",
+  "bt_totalEmployee":"Total employee",
+  "bt_createEmployee":"Create by",
+  "bt_formDate":"Form",
+  "bt_toDate":"To",
+  "bt_address":"Address",
+  "bt_notes":"Notes",
+  "bt_hintNotes":"Add a note",
+  "bt_btnSave":"Save",
+
+  "bt_detailTitle":"Bussiness request detail",
+  "bt_employee":"Employee",
+  "bt_detail_total":"Total employee",
+  "bt_detail_createBy":"Created by",
+  "bt_detail_form":"Form",
+  "bt_detail_to":"To",
+  "bt_detail_totalDay":"Total day",
+  "bt_detail_date":"Date:",
+  "bt_detail_type":"Type:",
+  "bt_detail_notes":"Note",
+  "bt_detail_status":"Status",
+  "bt_detail_sendApproval":"Send",
+  "bt_detail_update":"Update",
+  "bt_detail_delete":"Delete"
 }

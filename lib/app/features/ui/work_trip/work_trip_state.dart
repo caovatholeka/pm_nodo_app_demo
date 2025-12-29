@@ -51,6 +51,7 @@ class WorkTripState extends Equatable {
 
   /// xóa file
   LoadStatus deleteFileStatus;
+  
 
   WorkTripState({
     this.loadDataStatus = LoadStatus.INITIAL,

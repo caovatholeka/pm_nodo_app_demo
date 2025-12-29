@@ -11,6 +11,7 @@ import 'package:pm_app/app/features/ui/work_trip/widget/work_trip_list_item.dart
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_detail_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -94,6 +95,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<WorkTripCubit,WorkTripState>(
         bloc: _cubit,
         listenWhen: (prev,cur) => prev.loadDataStatus != cur.loadDataStatus,
@@ -103,7 +105,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
         builder: (context,state){
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
-            appBar: MyAppBar(titleAppbar: "Đơn công tác",
+            appBar: MyAppBar(titleAppbar: s.bt_title,
               haveBackButton: true,
             ),
             body: SingleChildScrollView(
@@ -204,6 +206,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
   }
 
   get _listWidget {
+    final s = S.of(context);
     return BlocConsumer<WorkTripCubit,WorkTripState>(
       bloc: _cubit,
       listener: (prev,cur){
@@ -215,7 +218,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
         }
         else {
           return (state.listWorkTrips ?? []).isEmpty ?
-          Center(child: Text("Không có dữ liệu").paddingOnly(top: 100)):
+          Center(child: Text(s.bt_empty).paddingOnly(top: 100)):
           RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView.builder(

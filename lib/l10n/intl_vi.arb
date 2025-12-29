@@ -223,6 +223,7 @@
   "justification_create_savebtn":"Lưu",
   "justification_create_title":"Tạo yêu cầu M/S",
   "justification_update_title":"Cập nhật yêu cầu M/S",
+  "justification_emptyData":"Không có dữ liệu",
   
 
   "ot_pageTitle":"Tạo yêu cầu làm thêm giờ",
@@ -252,6 +253,7 @@
   "ot_input_totalTime":"Số ngày",
   "ot_input_recevice":"Hình thức nhận",
   "ot_input_notes":"Ghi chú",
+  "ot_emptyData":"Không có dữ liệu!",
 
   "application_title":"Đơn từ",
   "app_until1":"Đi sớm - Về muộn",
@@ -285,5 +287,41 @@
   "work_data_status7":"Thiếu giờ vào",
   "work_data_status8":"Nửa ngày công",
   "work_data_title":"Hoạt động",
-  "work_data_location":"Địa điểm"
+  "work_data_location":"Địa điểm",
+
+  "bt_title":"Đơn công tác",
+  "bt_empty":"Không có dữ liệu!",
+  "bt_card_total":"Tổng số người",
+  "bt_card_notes":"Ghi chú",
+  "bt_card_createby":"Người tạo",
+  "bt_status1":"Nháp",
+  "bt_status2":"Trưởng phòng duyệt",
+  "bt_status3":"Hoàn thành",
+
+  "bt_createTitle":"Tạo mới phiếu công tác",
+  "bt_updateTitle":"Cập nhật phiếu công tác",
+  "bt_titleEmployee":"Nhân viên",
+  "bt_totalEmployee":"Tổng người",
+  "bt_createEmployee":"Nhân viên tạo",
+  "bt_formDate":"Từ ngày",
+  "bt_toDate":"Đến ngyaf",
+  "bt_address":"Địa chỉ",
+  "bt_notes":"Ghi chú",
+  "bt_hintNotes":"Thêm ghi chú",
+  "bt_btnSave":"Lưu",
+
+  "bt_detailTitle":"Chi tiết đơn công tác",
+  "bt_employee":"Nhân viên",
+  "bt_detail_total":"Tổng nhân viên",
+  "bt_detail_createBy":"Nhân viên tạo",
+  "bt_detail_form":"Từ ngày",
+  "bt_detail_to":"Đến ngày",
+  "bt_detail_totalDay":"Số ngày",
+  "bt_detail_date":"Ngày",
+  "bt_detail_type":"Loại",
+  "bt_detail_notes":"Ghi chú",
+  "bt_detail_status":"Trạng thái",
+  "bt_detail_sendApproval":"Gửi duyệt",
+  "bt_detail_update":"Cập nhật",
+  "bt_detail_delete":"Xóa"
 }

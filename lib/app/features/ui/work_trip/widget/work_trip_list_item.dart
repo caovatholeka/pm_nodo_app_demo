@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../core/commons/app_colors.dart';
 
@@ -77,7 +78,7 @@ class WorkTripListItem extends StatelessWidget {
     }
   }
 
-  String getStatusTitle(int status) {
+  String getStatusTitle(int status, BuildContext context) {
     switch (status) {
       case 1:
       case 25:
@@ -85,25 +86,25 @@ class WorkTripListItem extends StatelessWidget {
       case 13:
       case 17:
       case 21:
-        return "Nháp";
+        return S.of(context).bt_status1;
       case 14:
       case 22:
       case 26:
       case 30:
-        return "Trưởng phòng duyệt";
+        return S.of(context).bt_status2;
       case 15:
       case 19:
       case 23:
       case 27:
       case 31:
-        return "Hoàn thành";
+        return S.of(context).bt_status3;
       case 20:
       case 16:
       case 12:
       case 24:
       case 28:
       case 32:
-        return "Huỷ";
+        return S.of(context).cancel;
       default:
         return "";
     }
@@ -184,7 +185,7 @@ class WorkTripListItem extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    getStatusTitle(statusId),
+                                    getStatusTitle(statusId, context),
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w400,
@@ -197,11 +198,11 @@ class WorkTripListItem extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        _buildItem("Tổng số người:",  "${entity.employeeCount ?? 0}"),
+                        _buildItem(S.of(context).bt_card_total,  "${entity.employeeCount ?? 0}"),
                         const SizedBox(height: 12),
-                        _buildItem("Ghi chú:", entity.note ?? ""),
+                        _buildItem(S.of(context).bt_card_notes, entity.note ?? ""),
                         const SizedBox(height: 12),
-                        _buildItem("Người tạo:", entity.employeeName ?? ""),
+                        _buildItem(S.of(context).bt_card_createby, entity.employeeName ?? ""),
                       ],
                     ),
                   ),
