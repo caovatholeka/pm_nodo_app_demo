@@ -19,6 +19,7 @@ abstract class WorkTripRepository {
     int? departmentId,
     int? jobTitleId,
     String? active,
+    String? scope,
   });
 
   Future<WorkTripResponse> createBusinessTrip(CreateWorkTripParam body);
@@ -56,6 +57,7 @@ class WorkTripRepositoryImpl extends WorkTripRepository {
     int? departmentId,
     int? jobTitleId,
     String? active,
+    String? scope,
   }) {
     return _apiClient.getListEmployees(
       limit,
@@ -66,6 +68,7 @@ class WorkTripRepositoryImpl extends WorkTripRepository {
       departmentId,
       jobTitleId,
       active,
+      scope
     );
   }
 

@@ -213,10 +213,10 @@ class _WorkTripPageState extends State<WorkTripPage> {
         if (state.loadDataStatus == LoadStatus.LOADING) {
           return Center(child: CircularProgressIndicator(color: AppColors.themePrimaryDefault,));
         }
-        if ((state.listWorkTrips ?? []).isEmpty) {
-          return Center(child: Text("Không có dữ liệu").paddingOnly(top: 100));
-        }else {
-          return RefreshIndicator(
+        else {
+          return (state.listWorkTrips ?? []).isEmpty ?
+          Center(child: Text("Không có dữ liệu").paddingOnly(top: 100)):
+          RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView.builder(
               padding: const EdgeInsets.only(top: 20),

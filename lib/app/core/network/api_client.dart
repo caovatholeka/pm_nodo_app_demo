@@ -57,6 +57,7 @@ abstract class ApiClient {
     @Query("department_id") int? departmentId,
     @Query("job_id") int? jobTitle,
     @Query("state") String? active,
+    @Query("scope") String? scope,
   );
 
   @GET("/metadata/jobs")

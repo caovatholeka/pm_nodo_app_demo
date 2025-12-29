@@ -13,6 +13,7 @@ abstract class EmployeeRepository {
     int? departmentId,
     int? jobTitleId,
     String? active,
+    String? scope,
   });
 
   Future<EmployeeEntity> getDetailEmployee(int id);
@@ -34,6 +35,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
   int? departmentId,
   int? jobTitleId,
   String? active,
+  String? scope,
 }) {
   return _apiClient.getListEmployees(
     limit,
@@ -44,6 +46,7 @@ class EmployeeRepositoryImpl extends EmployeeRepository {
     departmentId,
     jobTitleId,
     active,
+    scope
   );
 }
 

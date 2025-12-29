@@ -265,35 +265,75 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<WorkTripCubit,WorkTripState>(
         bloc: _cubit,
-        listener: (context,state){
-          if(state.createStatus == LoadStatus.LOADING ||
-            state.updateStatus == LoadStatus.LOADING){
+        listener: (context, state) async {
+          // helper: chạy sau frame để tránh !_debugLocked
+          Future<void> postFrame(VoidCallback fn) async {
+            if (!context.mounted) return;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
+              fn();
+            });
+          }
+
+          final isLoading =
+              state.createStatus == LoadStatus.LOADING ||
+                  state.updateStatus == LoadStatus.LOADING;
+
+          if (isLoading) {
             LoadingOverlay.show(context);
+            return;
           }
-          else if(state.createStatus == LoadStatus.SUCCESS){
-            LoadingOverlay.hide(context);
-            _cubit.onResetStatus();
-            AppSnackBar.showInfo(title: "Thành công",message: state.errMsg ?? "Phiếu công tác được tạo thành công!");
-            Navigator.pop(context,true);
+
+          LoadingOverlay.hide(context);
+
+          if (state.createStatus == LoadStatus.SUCCESS) {
+            AppSnackBar.showInfo(
+              title: "Thành công",
+              message: state.errMsg ?? "Phiếu công tác được tạo thành công!",
+            );
+
+            await postFrame(() {
+              Navigator.of(context).pop(true);
+              _cubit.onResetStatus();
+            });
+            return;
           }
-          else if(state.createStatus == LoadStatus.FAILURE){
-            LoadingOverlay.hide(context);
-            AppSnackBar.showError(title: "Cảnh báo",message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau");
+
+          if (state.createStatus == LoadStatus.FAILURE) {
+            AppSnackBar.showError(
+              title: "Cảnh báo",
+              message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
+            );
             _cubit.onResetStatus();
+            return;
           }
-          else if(state.updateStatus == LoadStatus.SUCCESS){
-            LoadingOverlay.hide(context);
-            _cubit.onResetStatus();
-            AppSnackBar.showInfo(title: "Thành công",message: state.errMsg ?? "Phiếu công tác được cập nhật thành công!");
-            Navigator.pop(context);
-            Navigator.pop(context,true);
-          } else if(state.updateStatus == LoadStatus.FAILURE){
-            LoadingOverlay.hide(context);
-            AppSnackBar.showError(title: "Cảnh báo",message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau");
-            _cubit.onResetStatus();
+
+          if (state.updateStatus == LoadStatus.SUCCESS) {
+            AppSnackBar.showInfo(
+              title: "Thành công",
+              message: state.errMsg ?? "",
+            );
+
+            await postFrame(() {
+              // Navigator.of(context).pop(true);
+              int count = 0;
+              Navigator.of(context).popUntil((route) {
+                count++;
+                return count >= 2;
+              });
+              _cubit.onResetStatus();
+            });
+
+            return;
           }
-          else {
-            LoadingOverlay.hide(context);
+
+          if (state.updateStatus == LoadStatus.FAILURE) {
+            AppSnackBar.showError(
+              title: "Cảnh báo",
+              message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
+            );
+            _cubit.onResetStatus();
+            return;
           }
         },
         builder: (context,state){
