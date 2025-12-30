@@ -8,7 +8,7 @@ class GroupAttachFile extends StatefulWidget {
   final List<AttachFile> imageList;
   final Function callback;
 
-  GroupAttachFile({
+  const GroupAttachFile({super.key, 
     required this.imageList,
     required this.callback,
   });
@@ -42,7 +42,7 @@ class _GroupAttachFileState extends State<GroupAttachFile> {
 
   void _pressCloseListener(String id) {
     widget.callback(id);
-    logger.d("Press cell ImageAttachGroup fileId = ${id}");
+    logger.d("Press cell ImageAttachGroup fileId = $id");
   }
 
 }

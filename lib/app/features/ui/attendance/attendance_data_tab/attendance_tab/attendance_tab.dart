@@ -1,25 +1,19 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
-import 'package:pm_app/app/core/utils/utils.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/bottom_sheet/detail_work_entry_bottom_sheet.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/activity_item.dart';
-import 'package:pm_app/app/features/widgets/attendance_card.dart' as attendance;
 import 'package:pm_app/app/features/widgets/leave_balance_card.dart' as leave;
 import 'package:pm_app/app/features/widgets/legend_item.dart' as legend;
 

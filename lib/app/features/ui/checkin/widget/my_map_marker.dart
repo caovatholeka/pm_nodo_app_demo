@@ -1,12 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/check_in_info_entity.dart';
 
-import '../../../../core/commons/app_colors.dart';
-import '../../../../core/commons/app_shadow.dart';
 
 class MyMapMarker extends StatelessWidget {
   CheckInInfoEntity? infoEntity;

@@ -157,7 +157,7 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
             ),
           ),
 
-          Container(
+          SizedBox(
             width: double.infinity,
             height: 40,
             child: Row(

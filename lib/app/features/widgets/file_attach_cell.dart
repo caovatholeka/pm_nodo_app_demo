@@ -15,7 +15,7 @@ class FileAttachCell extends StatefulWidget {
   final Function callback;
   final int index;
 
-  FileAttachCell({required this.file, required this.callback, required this.index});
+  const FileAttachCell({super.key, required this.file, required this.callback, required this.index});
 
   @override
   State<FileAttachCell> createState() => _FileAttachCellState();
@@ -32,7 +32,7 @@ class _FileAttachCellState extends State<FileAttachCell> {
   }
 
   Widget _buildImageItemByAsset({required Asset asset, required String name}) {
-    return Container(
+    return SizedBox(
       width: imageSize + imagePadding / 2,
       height: imageSize + imagePadding / 2,
       child: Stack(
@@ -94,7 +94,7 @@ class _FileAttachCellState extends State<FileAttachCell> {
   }
 
   Widget _buildImageItemByPath({required String path, required String name}) {
-    return Container(
+    return SizedBox(
       width: imageSize + imagePadding / 2,
       height: imageSize + imagePadding / 2,
       child: Stack(
@@ -156,7 +156,7 @@ class _FileAttachCellState extends State<FileAttachCell> {
   }
 
   Widget _buildImageItemByUrlPath({required String imgUrl, required String name}) {
-    return Container(
+    return SizedBox(
       width: imageSize + imagePadding / 2,
       height: imageSize + imagePadding / 2,
       child: Stack(
@@ -169,7 +169,7 @@ class _FileAttachCellState extends State<FileAttachCell> {
                 height: imageSize,
                 child: ClipRRect(
                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  child: imgUrl == null ? Container(): CachedNetworkImage(
+                  child: CachedNetworkImage(
                     imageUrl: imgUrl,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Center(

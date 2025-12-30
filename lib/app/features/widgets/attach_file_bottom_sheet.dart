@@ -21,7 +21,7 @@ import 'error_list_widget.dart';
 class AttachFileBottomSheet extends StatefulWidget {
   final WorkTripCubit cubit;
 
-  AttachFileBottomSheet({
+  const AttachFileBottomSheet({super.key, 
     required this.cubit,
   });
 

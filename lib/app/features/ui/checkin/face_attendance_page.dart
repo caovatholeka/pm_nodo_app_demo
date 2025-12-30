@@ -1,16 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:path/path.dart' as p;
@@ -20,8 +16,6 @@ import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
 import 'widget/camera_cover_preview.dart';
-import 'widget/center_face_guide_painter.dart';
-import 'widget/face_guide_painter.dart';
 import 'widget/mask_with_wave.dart';
 
 class FaceAttendancePage extends StatefulWidget {

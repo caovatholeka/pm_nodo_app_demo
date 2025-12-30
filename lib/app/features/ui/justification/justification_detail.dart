@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
@@ -14,6 +15,18 @@ import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import 'bloc/justification_detail_cubit.dart';
+
+class StatusUI {
+  final String text;
+  final Color color;
+  final Color bgColor;
+
+  const StatusUI({
+    required this.text,
+    required this.color,
+    required this.bgColor,
+  });
+}
 
 class JustificationDetailPage extends StatefulWidget {
   final int? id;
@@ -33,41 +46,43 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     _cubit.getDetail(widget.id ?? 0);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  bool _isDraft(String? name) {
+    return name == 'Nháp';
   }
 
-  bool _isDraft(JustificationDetailState state) {
-    return state.detail?.stage?.name == 'Nháp';
-  }
+  StatusUI _getStatusUI(BuildContext context, String? name) {
+    final s = S.of(context);
 
-  Color _getStatusColorByName(String? name) {
     switch (name) {
       case 'Nháp':
-        return Colors.orange;
-      case 'Chờ xác nhận':
+        return StatusUI(
+          text: s.bt_status1,
+          color: AppColors.colorDraft,
+          bgColor: AppColors.colorDraft.withValues(alpha: 0.15),
+        );
       case 'Trưởng phòng duyệt':
-        return Colors.blue;
+        return StatusUI(
+          text: s.bt_status2,
+          color: AppColors.colorApproved,
+          bgColor: AppColors.colorApproved.withValues(alpha: 0.15),
+        );
       case 'Hoàn thành':
-      case 'Hợp lệ':
-        return Colors.green;
-      case 'Hủy':
-      case 'Không hợp lệ':
-        return Colors.red;
-      case 'Đã khóa':
-      case 'Khóa kì công':
-        return Colors.grey;
-      case 'Tính toán công':
-        return Colors.purple;
+        return StatusUI(
+          text: s.bt_status3,
+          color: AppColors.colorFinished,
+          bgColor: AppColors.colorFinished.withValues(alpha: 0.15),
+        );
       default:
-        return Colors.grey;
+        return StatusUI(
+          text: name ?? '',
+          color: Colors.grey,
+          bgColor: Colors.grey.withValues(alpha: 0.15),
+        );
     }
   }
 
   String _getReasonTypeText(String? type) {
     if (type == null || type.isEmpty) return '';
-    
     final s = S.of(context);
     switch (type.toLowerCase()) {
       case 'personal':
@@ -75,7 +90,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       case 'work':
         return s.justification_reason_type2;
       default:
-        return type; 
+        return type;
     }
   }
 
@@ -95,7 +110,6 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
-
           _cubit.resetSubmitState();
           Navigator.pop(context);
         }
@@ -107,7 +121,6 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ).show(context);
-
           _cubit.resetSubmitState();
         }
       },
@@ -142,7 +155,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     }
 
     if (state.loadStatus == LoadStatus.FAILURE) {
-      return Center(child: Text(state.error ?? "Đã xảy ra lỗi"));
+      return Center(child: Text(state.error ?? 'Đã xảy ra lỗi'));
     }
 
     return SingleChildScrollView(
@@ -150,8 +163,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       child: Column(
         children: [
           _contentCard(state),
-
-          if (_isDraft(state)) ...[
+          if (_isDraft(state.detail?.stage?.name)) ...[
             const SizedBox(height: 20),
             _actionButtons(state),
             const SizedBox(height: 24),
@@ -166,6 +178,8 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     final e = state.detail;
     if (e == null) return const SizedBox();
 
+    final statusUI = _getStatusUI(context, e.stage?.name);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: BoxDecoration(
@@ -174,24 +188,22 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       ),
       child: Column(
         children: [
-          _row(s.justification_detail_employee, e.employeeName ?? ""),
+          _row(s.justification_detail_employee, e.employeeName ?? ''),
           const CustomDashView(),
-          _row(s.justification_detail_department, e.departmentName ?? ""),
+          _row(s.justification_detail_department, e.departmentName ?? ''),
           const CustomDashView(),
           _row(s.justification_detail_reason, _getReasonTypeText(e.reasonType)),
           const CustomDashView(),
-          _row(s.justification_detail_date, e.date ?? ""),
+          _row(s.justification_detail_date, e.date ?? ''),
           const SizedBox(height: 12),
-
           if (e.exceptionLines != null)
-            ...e.exceptionLines!.map(_exceptionBox).toList(),
-
+            ...e.exceptionLines!.map(_exceptionBox),
           const SizedBox(height: 12),
-          _row(s.justification_detail_notes, e.note ?? ""),
+          _row(s.justification_detail_notes, e.note ?? ''),
           const CustomDashView(),
-          _statusRow(e.stage?.name ?? ""),
+          _statusRow(statusUI),
           const CustomDashView(),
-          _row(s.justification_create, e.employeeName ?? ""),
+          _row(s.justification_create, e.employeeName ?? ''),
         ],
       ),
     );
@@ -222,8 +234,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     );
   }
 
-  Widget _statusRow(String name) {
-    final color = _getStatusColorByName(name);
+  Widget _statusRow(StatusUI statusUI) {
     final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -233,7 +244,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             flex: 4,
             child: Text(
               s.justification_detail_status,
-              style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
             ),
           ),
           Expanded(
@@ -241,12 +252,9 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             child: Align(
               alignment: Alignment.centerRight,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: statusUI.bgColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -256,16 +264,16 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                       width: 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: color,
+                        color: statusUI.color,
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      name,
+                      statusUI.text,
                       style: TextStyle(
                         fontSize: 12,
-                        color: color,
+                        color: statusUI.color,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -294,7 +302,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
               const CustomDashView(),
               _row(
                 s.justification_detail_hours,
-                e.timeNumber != null ? e.timeNumber!.toStringAsFixed(2) : "",
+                e.timeNumber != null ? e.timeNumber!.toStringAsFixed(2) : '',
               ),
             ],
           ),
@@ -305,18 +313,16 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   String _mapFormType(String? type) {
     switch (type) {
-      case "late":
-        return "Đi muộn";
-      case "early":
-        return "Về sớm";
-      case "absence":
-        return "Vắng mặt";
+      case 'late':
+        return 'Đi muộn';
+      case 'early':
+        return 'Về sớm';
+      case 'absence':
+        return 'Vắng mặt';
       default:
-        return type ?? "";
+        return type ?? '';
     }
   }
-
-
 
   Widget _actionButtons(JustificationDetailState state) {
     final s = S.of(context);
@@ -331,20 +337,19 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder:
-                    (_) => CustomDialog(
-                      title: "Xác nhận gửi duyệt",
-                      content:
-                          "Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?",
-                      confirmText: "Gửi duyệt",
-                      cancelText: "Hủy",
-                      success: true,
-                      onConfirm: () {
-                        Navigator.pop(context);
-                        _cubit.submitApproval();
-                      },
-                      onCancel: () => Navigator.pop(context),
-                    ),
+                builder: (_) => CustomDialog(
+                  title: 'Xác nhận gửi duyệt',
+                  content:
+                      'Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?',
+                  confirmText: 'Gửi duyệt',
+                  cancelText: 'Hủy',
+                  success: true,
+                  onConfirm: () {
+                    Navigator.pop(context);
+                    _cubit.submitApproval();
+                  },
+                  onCancel: () => Navigator.pop(context),
+                ),
               );
             },
           ),
@@ -358,11 +363,10 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
               final res = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (_) => CreateJustificationPage(initialData: state.detail),
+                  builder: (_) =>
+                      CreateJustificationPage(initialData: state.detail),
                 ),
               );
-
               if (res == true) {
                 _cubit.getDetail(widget.id!);
               }

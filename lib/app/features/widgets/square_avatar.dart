@@ -6,10 +6,10 @@ class AvatarSquare extends StatelessWidget {
   final double size;
 
   const AvatarSquare({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.size = 70, // 70x70
-  }) : super(key: key);
+  });
 
   bool _isValidUrl(String? url) {
     if (url == null) return false;

@@ -295,7 +295,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
                         InputTextField(
                           title: s.justification_create_notes,
                           hintText: '',

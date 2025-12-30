@@ -8,7 +8,7 @@ enum PrimaryButtonType {
 }
 
 class PrimaryButton extends StatelessWidget {
-  PrimaryButton({
+  const PrimaryButton({
     super.key,
     this.callback,
     required this.mainText,

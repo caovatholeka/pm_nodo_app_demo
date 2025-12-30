@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 
 import 'day_cell.dart';

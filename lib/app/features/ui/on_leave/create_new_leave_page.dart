@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -17,14 +16,12 @@ import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/generated/l10n.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
-import '../../../core/utils/validators.dart';
 import '../../../data/models/entities/on_leave_entity.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/input_text_field.dart';
 import '../../widgets/loading_overlay.dart';
 import '../../widgets/my_app_bar.dart';
-import '../../widgets/primary_button.dart';
 
 class CreateNewLeavePage extends StatefulWidget {
   bool? isEdit;

@@ -291,12 +291,12 @@ class WorkTripCubit extends Cubit<WorkTripState> {
     try {
       List<FileEntity> fileUploadInfo =
       await uploadRepo.uploadFiles(files[0].file!);
-      if (fileUploadInfo != null && fileUploadInfo.isNotEmpty) {
+      if (fileUploadInfo.isNotEmpty) {
         FileEntity fileUpload = fileUploadInfo[0];
         files[0].fileUpload = fileUpload;
       }
 
-      List<AttachFile> results = []..addAll(state.files);
+      List<AttachFile> results = [...state.files];
       results.add(files[0]);
 
       emit(state.copyWith(addFileStatus: LoadStatus.SUCCESS, files: results));
@@ -311,7 +311,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
     // try {
     List<AttachFile> results = state.files;
     if (files.isNotEmpty) {
-      files.forEach((element) {
+      for (var element in files) {
         var uuid = const Uuid();
         var id = uuid.v1();
         String? name = element.name ?? element.url?.split("/").last;
@@ -326,7 +326,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
           fileUpload: element,
         );
         results.add(file);
-      });
+      }
     }
 
     emit(state.copyWith(addFileStatus: LoadStatus.SUCCESS, files: results));
@@ -344,7 +344,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
         AttachFile file = results.where((element) {
           return element.id == id;
         }).first;
-        if (file != null) results.remove(file);
+        results.remove(file);
       }
 
       emit(
@@ -363,11 +363,9 @@ class WorkTripCubit extends Cubit<WorkTripState> {
         AttachFile file = results.where((element) {
           return element.id == id;
         }).first;
-        if (file != null) {
-          int pos = results.indexOf(file);
-          if (pos != -1) results[pos] = file;
-        }
-      }
+        int pos = results.indexOf(file);
+        if (pos != -1) results[pos] = file;
+            }
       emit(state.copyWith(editFileStatus: LoadStatus.SUCCESS, files: results));
     } catch (e) {
       logger.e(e);

@@ -83,7 +83,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
         emit(state.copyWith(status: LoadStatus.FAILURE, message: msg));
       }
     } catch (e) {
-      logger.e("err: ${e}");
+      logger.e("err: $e");
       if (!isClosed) {
         emit(
           state.copyWith(

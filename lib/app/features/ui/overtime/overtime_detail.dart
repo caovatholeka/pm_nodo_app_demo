@@ -181,7 +181,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
           const SizedBox(height: 16),
 
           if (e.overtimeDetail != null)
-            ...e.overtimeDetail!.map(_overtimeDetailBox).toList(),
+            ...e.overtimeDetail!.map(_overtimeDetailBox),
 
           const SizedBox(height: 16),
           _row(

@@ -6,7 +6,7 @@ class ErrorListWidget extends StatelessWidget {
   final RefreshCallback onRefresh;
   final double? height;
 
-  const ErrorListWidget({this.text = 'Không thể kết nối tới Server', required this.onRefresh, this.height});
+  const ErrorListWidget({super.key, this.text = 'Không thể kết nối tới Server', required this.onRefresh, this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class ErrorListWidget extends StatelessWidget {
         onRefresh: onRefresh,
         child: ListView.builder(
           itemBuilder: (context, index) {
-            return Container(
+            return SizedBox(
               height:height ?? 100,
               width: double.infinity,
               child: Center(

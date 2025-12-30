@@ -50,7 +50,7 @@ class AttachFileHelper {
 
     List<AttachFile> attachFiles = [];
     // now can be get data
-    files.files.forEach((platformFile) {
+    for (var platformFile in files.files) {
       var uuid = Uuid();
       var id = uuid.v1();
       String name = platformFile.path!.split("/").last;
@@ -62,7 +62,7 @@ class AttachFileHelper {
         mime: getMimeType(name),
       );
       attachFiles.add(file);
-    });
+    }
     return attachFiles;
   }
 
@@ -130,14 +130,16 @@ class AttachFileHelper {
         type.compareTo("image/gif") == 0 || //.gif
         type.compareTo("image/heic") == 0 || //.heic
         type.compareTo("image/heif") == 0 //.heif
-    ) return true;
+    ) {
+      return true;
+    }
     return false;
   }
 
   String getMimeType(String name) {
-    if (equalsIgnoreCase(name, ".pdf"))
+    if (equalsIgnoreCase(name, ".pdf")) {
       return "application/pdf";
-    else if (equalsIgnoreCase(name, ".doc"))
+    } else if (equalsIgnoreCase(name, ".doc"))
       return "application/msword";
     else if (equalsIgnoreCase(name, ".docx"))
       return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";

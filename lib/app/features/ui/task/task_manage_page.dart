@@ -36,7 +36,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
   final _appCubit = GetIt.I<AppCubit>();
 
   ScrollController controller = ScrollController();
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   // late final List<TaskStageEntity> _tabs;
   @override

@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
@@ -10,11 +8,9 @@ import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/core/utils/widget_to_marker.dart';
-import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/models/entities/check_in_info_entity.dart';
 import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
 import 'package:pm_app/app/features/ui/checkin/widget/my_map_marker.dart';
-import 'package:pm_app/app/features/widgets/cached_image_widget.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -35,8 +31,6 @@ import '../../../data/models/enums/load_status.dart';
 import '../../widgets/primary_button.dart';
 import 'bloc/check_in_cubit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
-import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import '../../../core/commons/app_colors.dart';
 
 class CheckInPage extends StatefulWidget {

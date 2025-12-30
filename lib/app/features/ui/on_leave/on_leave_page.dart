@@ -13,7 +13,6 @@ import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 
-import '../../../core/utils/date_utils.dart';
 import '../../../data/models/entities/on_leave_entity.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../widgets/custom_calendar_range_sheet.dart';
@@ -241,7 +240,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
           return Center(child: CircularProgressIndicator());
         }
         if ((state.listLeaveEntities ?? []).isEmpty) {
-          return Center(child: Text("Không có dữ liệu").paddingOnly(top: 100));
+          return Center(child: Text(S.of(context).bt_empty).paddingOnly(top: 100));
         } else {
           return RefreshIndicator(
             onRefresh: _onRefresh,

@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/schedule_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -21,7 +20,6 @@ import '../../../../generated/l10n.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../core/utils/validators.dart';
-import '../../../data/models/entities/leave_day_entity.dart';
 import '../../../data/models/entities/user_entity.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attach_file_bottom_sheet.dart';
@@ -339,7 +337,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
         builder: (context,state){
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
-            appBar: MyAppBar(titleAppbar: "Tạo mới phiếu công tác",
+            appBar: MyAppBar(titleAppbar: (widget.isEdit ?? false) ? S.of(context).bt_updateTitle : S.of(context).bt_createTitle,
               haveBackButton: true,
             ),
             body: SingleChildScrollView(
@@ -387,7 +385,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                                               prev.listUsers != cur.listUsers,
                                           builder: (context,state){
                                             return InputTextField(
-                                              title: "Nhân viên",
+                                              title: S.of(context).bt_titleEmployee,
                                               hintText: "",
                                               isRequiredField: true,
                                               controller: staffsController,
@@ -405,7 +403,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                                   ),
                                   // Tổng số người
                                   InputTextField(
-                                    title: "Tổng số người",
+                                    title: S.of(context).bt_totalEmployee,
                                     hintText: "",
                                     isRequiredField: false,
                                     readOnly: true,
@@ -418,7 +416,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                             }),
 
                         InputTextField(
-                          title: "Nhân viên tạo",
+                          title: S.of(context).bt_createEmployee,
                           hintText: "",
                           isRequiredField: false,
                           readOnly: true,
@@ -436,7 +434,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                                       prev.fromDateTime != cur.fromDateTime,
                                   builder: (context,state){
                                     return InputTextField(
-                                      title: "Từ ngày",
+                                      title: S.of(context).bt_formDate,
                                       hintText: "",
                                       isRequiredField: true,
                                       enable: true,
@@ -514,7 +512,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                                       prev.toDateTime != cur.toDateTime,
                                   builder: (context,state){
                                     return InputTextField(
-                                      title: "Đến ngày",
+                                      title: S.of(context).bt_toDate,
                                       hintText: "",
                                       isRequiredField: true,
                                       enable: true,
@@ -640,7 +638,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
 
                         // địa chỉ
                         InputTextField(
-                          title: "Địa chỉ",
+                          title: S.of(context).bt_address,
                           hintText: "",
                           isRequiredField: false,
                           controller: addressController,
@@ -653,8 +651,8 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                         Form(
                           key: _noteKey,
                           child: InputTextField(
-                            title: "Ghi chú",
-                            hintText: "Thêm ghi chú",
+                            title: S.of(context).bt_notes,
+                            hintText: S.of(context).bt_hintNotes,
                             isRequiredField: true,
                             enable: true,
                             controller: noteController,
@@ -891,7 +889,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
                   borderRadius: BorderRadius.all(Radius.circular(6))
               ),
               child: Center(
-                child: Text("Lưu",
+                child: Text(S.of(context).bt_btnSave,
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

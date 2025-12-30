@@ -30,7 +30,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
   final _cubit = GetIt.I<WorkTripCubit>();
 
   ScrollController controller = ScrollController();
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   static DateTime _mondayOf(DateTime d) {
     final x = DateTime(d.year, d.month, d.day);

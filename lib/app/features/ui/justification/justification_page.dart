@@ -173,8 +173,8 @@ class _JustificationPageState extends State<JustificationPage> {
                   }
 
                   if (state.list.isEmpty) {
-                    return const Center(
-                      child: Text('CHƯA CÓ GÌ CẢ!!!'),
+                    return Center(
+                      child: Text(S.of(context).justification_emptyData),
                     );
                   }
 

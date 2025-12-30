@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_detail_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_line_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_flow_stage_entity.dart';

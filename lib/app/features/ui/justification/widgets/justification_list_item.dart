@@ -4,6 +4,18 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/generated/l10n.dart';
 
+class StatusUI {
+  final String text;
+  final Color color;
+  final Color bgColor;
+
+  const StatusUI({
+    required this.text,
+    required this.color,
+    required this.bgColor,
+  });
+}
+
 class JustificationListItem extends StatelessWidget {
   final JustificationEntity entity;
   final VoidCallback? onTap;
@@ -14,61 +26,57 @@ class JustificationListItem extends StatelessWidget {
     this.onTap,
   });
 
-  Color _getStatusColorByName(String? name) {
-    switch (name) {
-      case 'Nháp':
-        return AppColors.colorDraft;
+  StatusUI _getStatusUI(BuildContext context, String? statusName) {
+    final s = S.of(context);
 
-      case 'Chờ xác nhận':
+    switch (statusName) {
+      case 'Nháp':
+        return StatusUI(
+          text: s.bt_status1,
+          color: AppColors.colorDraft,
+          bgColor: AppColors.colorDraft.withValues(alpha: 0.1),
+        );
+
       case 'Trưởng phòng duyệt':
-        return AppColors.colorApproved;
+        return StatusUI(
+          text: s.bt_status2,
+          color: AppColors.colorApproved,
+          bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
+        );
 
       case 'Hoàn thành':
-      case 'Hợp lệ':
-        return AppColors.colorFinished;
-
-      case 'Hủy':
-      case 'Không hợp lệ':
-        return AppColors.colorCancel;
-
-      case 'Đã khóa':
-      case 'Khóa kì công':
-        return Colors.grey;
-
-      case 'Tính toán công':
-        return Colors.purple;
+        return StatusUI(
+          text: s.bt_status3,
+          color: AppColors.colorFinished,
+          bgColor: AppColors.colorFinished.withValues(alpha: 0.1),
+        );
 
       default:
-        return Colors.grey;
+        return StatusUI(
+          text: statusName ?? '',
+          color: Colors.grey,
+          bgColor: Colors.grey.withValues(alpha: 0.1),
+        );
     }
-  }
-
-  Color _getBgColorByName(String? name) {
-    return _getStatusColorByName(name).withValues(alpha: 0.1);
   }
 
   String _getReasonTypeText(String? type, BuildContext context) {
     if (type == null || type.isEmpty) return '';
-    
     final s = S.of(context);
     switch (type.toLowerCase()) {
       case 'personal':
-        return s.justification_reason_type1; 
+        return s.justification_reason_type1;
       case 'work':
-        return s.justification_reason_type2; 
+        return s.justification_reason_type2;
       default:
-        return type; 
+        return type;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final stage = entity.stage;
-    final statusName = stage?.name;
-
-    final statusColor = _getStatusColorByName(statusName);
-    final bgColor = _getBgColorByName(statusName);
+    final statusUI = _getStatusUI(context, entity.stage?.name);
 
     final df = DateFormat('dd/MM/yyyy');
     final dateText = entity.date != null
@@ -102,7 +110,7 @@ class JustificationListItem extends StatelessWidget {
                 Container(
                   width: 4,
                   decoration: BoxDecoration(
-                    color: statusColor,
+                    color: statusUI.color,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10),
                       bottomLeft: Radius.circular(10),
@@ -119,12 +127,10 @@ class JustificationListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   entity.name ?? '',
@@ -143,16 +149,14 @@ class JustificationListItem extends StatelessWidget {
                                 ),
                               ],
                             ),
-
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: bgColor,
-                                borderRadius:
-                                    BorderRadius.circular(99),
+                                color: statusUI.bgColor,
+                                borderRadius: BorderRadius.circular(99),
                               ),
                               child: Row(
                                 children: [
@@ -160,18 +164,17 @@ class JustificationListItem extends StatelessWidget {
                                     width: 6,
                                     height: 6,
                                     decoration: BoxDecoration(
-                                      color: statusColor,
-                                      borderRadius:
-                                          BorderRadius.circular(16),
+                                      color: statusUI.color,
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    statusName ?? '',
+                                    statusUI.text,
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w400,
-                                      color: statusColor,
+                                      color: statusUI.color,
                                     ),
                                   ),
                                 ],
@@ -179,16 +182,15 @@ class JustificationListItem extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 16),
-
                         _buildItem(
                           s.justification_reason_type,
-                          _getReasonTypeText(entity.reasonType, context), // Sửa dòng này
+                          _getReasonTypeText(
+                            entity.reasonType,
+                            context,
+                          ),
                         ),
-
                         const SizedBox(height: 12),
-
                         _buildItem(
                           s.justification_create,
                           entity.employeeName ?? '',

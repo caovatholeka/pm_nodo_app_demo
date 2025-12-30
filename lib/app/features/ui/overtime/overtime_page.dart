@@ -172,8 +172,8 @@ class _OvertimePageState extends State<OvertimePage> {
                   }
 
                   if (state.list.isEmpty) {
-                    return const Center(
-                      child: Text('CHƯA CÓ GÌ CẢ!!!'),
+                    return Center(
+                      child: Text(S.of(context).ot_emptyData),
                     );
                   }
 

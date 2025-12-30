@@ -21,7 +21,7 @@ class JustificationDetailCubit extends Cubit<JustificationDetailState> {
 
       emit(state.copyWith(loadStatus: LoadStatus.SUCCESS, detail: detail));
     } catch (e, s) {
-      logger.e("JustificationDetailCubit error: ${e}, Where: ${s}");
+      logger.e("JustificationDetailCubit error: $e, Where: $s");
 
       emit(state.copyWith(loadStatus: LoadStatus.FAILURE, error: e.toString()));
     }

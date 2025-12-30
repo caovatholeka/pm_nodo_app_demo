@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';

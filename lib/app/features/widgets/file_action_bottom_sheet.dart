@@ -12,7 +12,7 @@ class FileActionBottomSheet extends StatelessWidget {
   final VoidCallback? onImageClickListener;
   final VoidCallback? onFileClickListener;
 
-  FileActionBottomSheet({
+  const FileActionBottomSheet({super.key, 
     this.onCameraClickListener,
     this.onImageClickListener,
     this.onFileClickListener,

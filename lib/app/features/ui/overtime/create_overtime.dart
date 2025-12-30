@@ -13,6 +13,7 @@ import 'package:pm_app/app/features/widgets/dropdown_input_field.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class CreateOTPage extends StatefulWidget {
   final OvertimeEntity? initialData;
@@ -183,8 +184,8 @@ class _CreateOTPageState extends State<CreateOTPage> {
                 appBar: MyAppBar(
                   titleAppbar:
                       widget.isEdit
-                          ? 'Cập nhật yêu cầu OT'
-                          : 'Tạo yêu cầu làm thêm giờ',
+                          ? S.of(context).ot_update_title
+                          : S.of(context).ot_create_title,
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
@@ -200,7 +201,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
                     child: Column(
                       children: [
                         InputTextField(
-                          title: 'Ngày tạo',
+                          title: S.of(context).ot_input_date,
                           hintText: '',
                           isRequiredField: false,
                           controller: _createdDateCtrl,
@@ -211,7 +212,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
                           children: [
                             Expanded(
                               child: InputTextField(
-                                title: 'Từ ngày',
+                                title: S.of(context).ot_input_fromDate,
                                 hintText: '',
                                 isRequiredField: true,
                                 controller: _fromDateCtrl,
@@ -223,7 +224,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: InputTextField(
-                                title: 'Đến ngày',
+                                title: S.of(context).ot_input_toDate,
                                 hintText: '',
                                 isRequiredField: true,
                                 controller: _toDateCtrl,
@@ -241,7 +242,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
                               .entries
                               .map((e) => _otDayBlock(e.key, e.value)),
                         InputTextField(
-                          title: 'Ghi chú',
+                          title: S.of(context).ot_input_notes,
                           hintText: '',
                           isRequiredField: true,
                           controller: _noteCtrl,
@@ -290,7 +291,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
       child: Column(
         children: [
           InputTextField(
-            title: 'Ngày',
+            title: S.of(context).ot_input_Date,
             hintText: '',
             isRequiredField: false,
             controller: TextEditingController(
@@ -303,7 +304,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
             children: [
               Expanded(
                 child: InputTextField(
-                  title: 'Số giờ',
+                  title: S.of(context).ot_input_totalTime,
                   hintText: '',
                   isRequiredField: true,
                   controller: controller,
@@ -345,7 +346,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownInputField(
-                  title: 'Hình thức nhận',
+                  title: S.of(context).ot_input_recevice,
                   hint: '',
                   isRequired: true,
                   items: const ['Trả tiền', 'Quỹ nghỉ phép'],
@@ -379,4 +380,4 @@ class _CreateOTPageState extends State<CreateOTPage> {
     final m = ((hour - h) * 60).round();
     return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
   }
-}
+} 
