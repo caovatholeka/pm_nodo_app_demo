@@ -339,6 +339,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       },
     );
   }
+  
 
   get _statusWidget {
     return Row(

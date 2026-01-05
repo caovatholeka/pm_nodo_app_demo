@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
+import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/application/application_page.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
@@ -12,6 +13,7 @@ import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
+import 'package:pm_app/app/features/ui/task/task_detail_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -102,6 +104,20 @@ class _HomePageState extends State<HomePage> {
   Future<void> _onRefresh() async {
     _cubit.getListAttendanceToday();
     _cubit.getListNewTasks();
+  }
+
+  Future<void> _openDetailTask(TaskEntity entity) async {
+    final bool? result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => TaskDetailPage(taskEntity: entity, taskId: entity.id),
+      ),
+    );
+
+    if (result != null && result) {
+      _onRefresh();
+    }
   }
 
   @override
@@ -493,6 +509,9 @@ class _HomePageState extends State<HomePage> {
           children:
               tasks.map((e) {
                 return ListTaskItem(
+                  onShowDetail: () {
+                    _openDetailTask(e);
+                  },
                   entity: e,
                   isShowNote: false,
                 ).paddingOnly(bottom: context.sh(0.02));
