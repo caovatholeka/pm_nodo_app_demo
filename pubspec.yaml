@@ -99,7 +99,7 @@ dev_dependencies:
   json_serializable: 6.8.0
 
   flutter_lints: ^5.0.0
-  intl_utils: ^2.8.1
+  # intl_utils: ^2.8.1
 
 dependency_overrides:
   intl: ^0.17.0

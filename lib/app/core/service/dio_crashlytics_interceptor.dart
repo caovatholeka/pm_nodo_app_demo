@@ -6,7 +6,7 @@ class DioCrashlyticsInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     FirebaseAnalysticService.recordError(
       err,
-      err.stackTrace ?? StackTrace.current,
+      err.stackTrace,
       fatal: false,
     );
 
