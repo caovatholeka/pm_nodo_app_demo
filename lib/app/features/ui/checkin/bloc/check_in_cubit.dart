@@ -160,6 +160,7 @@ class CheckInCubit extends Cubit<CheckInState> {
     emit(state.copyWith(actionCheck: check));
   }
 
+  /*
   void onChangeAddress(Position position) async {
     emit(state.copyWith(positionParam: position));
 
@@ -194,6 +195,11 @@ class CheckInCubit extends Cubit<CheckInState> {
 
     emit(state.copyWith(position: position, address: ''));
 
+    logger.d(
+        "lat=${position.latitude}, lng=${position.longitude}, acc=${position.accuracy}m, "
+            "speed=${position.speed}, heading=${position.heading}, ts=${position.timestamp}"
+    );
+
     try {
       final placeMarks = await placemarkFromCoordinates(
         position.latitude,
@@ -220,6 +226,66 @@ class CheckInCubit extends Cubit<CheckInState> {
       logger.e(s);
     }
   }
+   */
+
+  void onChangeAddress(Position p) async {
+    emit(state.copyWith(positionParam: p));
+
+    final acc = p.accuracy;
+    final ts = p.timestamp;
+    final now = DateTime.now();
+
+    int? ageSec;
+    if (ts != null) {
+      final diff = now.difference(ts).inSeconds;
+      ageSec = diff < 0 ? 0 : diff;
+    }
+
+    logger.d("lat=${p.latitude}, lng=${p.longitude}, acc=${acc}m, age=${ageSec}s");
+
+    if (state.position == null) {
+      if (ageSec != null && ageSec > 300) {
+        logger.d("Ignore very old cached position when no state.position yet");
+      } else {
+        emit(state.copyWith(position: p, address: state.address ?? ''));
+      }
+    }
+
+    const maxAccForCheckin = 100.0;
+    final isAccOk = acc > 0 && acc <= maxAccForCheckin;
+    final isFreshOk = (ageSec == null) ? true : ageSec <= 60;
+
+    if (!isAccOk || !isFreshOk) {
+      logger.d("Skip update for checkin: accOk=$isAccOk freshOk=$isFreshOk");
+      return;
+    }
+
+    final old = state.position;
+    if (old != null) {
+      final dist = Geolocator.distanceBetween(
+        old.latitude, old.longitude,
+        p.latitude, p.longitude,
+      );
+      final accImprove = old.accuracy - acc; // >0 là tốt hơn
+
+      if (dist < 10 && accImprove < 15) return;
+    }
+
+    // accept good position
+    emit(state.copyWith(position: p, address: ''));
+
+    try {
+      final placeMarks = await placemarkFromCoordinates(p.latitude, p.longitude);
+      if (placeMarks.isNotEmpty) {
+        final pm = placeMarks.first;
+        final address = [
+          pm.street, pm.subAdministrativeArea, pm.administrativeArea,
+        ].where((e) => (e ?? '').isNotEmpty).join(", ");
+        emit(state.copyWith(address: address));
+      }
+    } catch (_) {}
+  }
+
 
   Future<CheckInInfoEntity?> findNearestCheckIn(
       List<CheckInInfoEntity> list,

@@ -56,12 +56,26 @@ class _CheckInPageState extends State<CheckInPage> {
 
   StreamSubscription? _locationSubscription;
 
+  static const LatLng _defaultLng = LatLng(21.027763, 105.834160); // Hà Nội
+  bool _movedToGpsOnce = false;
+
   void _onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
     logger.d("_onMapCreated ::: load map thanh cong!!!!");
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _moveCameraToCurrentPlace();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _moveCameraToCurrentPlace();
+    // });
+    await _mapController!.moveCamera(
+      CameraUpdate.newLatLngZoom(_defaultLng, 13),
+    );
+
+    final p = _cubit.state.position;
+    if (p != null && !_movedToGpsOnce) {
+      _movedToGpsOnce = true;
+      await _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(LatLng(p.latitude, p.longitude), 16),
+      );
+    }
   }
 
   void _initMapRenderer() {
@@ -101,14 +115,15 @@ Future<void> _requestLocationPermission() async {
   }
 
   if (permission == LocationPermission.deniedForever) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-            "Quyền vị trí bị từ chối vĩnh viễn. Vui lòng bật lại trong Cài đặt."),
-        backgroundColor: Colors.redAccent,
-      ),
-    );
-    await openAppSettings();
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(
+    //     content: Text(
+    //         "Quyền vị trí bị từ chối vĩnh viễn. Vui lòng bật lại trong Cài đặt."),
+    //     backgroundColor: Colors.redAccent,
+    //   ),
+    // );
+    // await openAppSettings();
+
     return;
   }
 
@@ -157,6 +172,7 @@ Future<void> _requestLocationPermission() async {
   Future<void> _onInit() async {
     await _requestLocationPermission();
     _initMapRenderer();
+    _movedToGpsOnce = false;
     _cubit.getListCheckInInfo();
   }
 
@@ -181,11 +197,11 @@ Future<void> _requestLocationPermission() async {
     }).toList();
 
     final circleFutures = listCheckins.map((checkin) async {
-      final r = (checkin.radius ?? 200.0).toDouble();
+      final r = (checkin.radius ?? 0.0).toDouble();
       return Circle(
         circleId: CircleId('c_${checkin.id}'),
         center: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
-        radius: r,
+        radius: Platform.isIOS ? r+30 : r,
         strokeWidth: 2,
         strokeColor: Color(0xFFCE0000).withOpacity(0.2),
         fillColor: Color(0xFFCE0000).withOpacity(0.2),
@@ -508,12 +524,22 @@ Future<void> _requestLocationPermission() async {
                     SvgPicture.asset(AppAssets.icCheckinPlace,width: 18,height: 22,
                       color: AppColors.themePrimaryDefault,),
                     const SizedBox(width: 8,),
+                    (state.currentCheckInEntity?.address ?? "").isNotEmpty ?
                     Flexible(
                       child: Text(
                         "${state.currentCheckInEntity?.name ?? ""} ,${state.currentCheckInEntity?.address ?? ""}",
                         // state.currentCheckInEntity?.name ?? "",
                         style: TextStyle(
                           fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ) : Flexible(
+                      child: Text("Không tìm thấy dữ liệu điểm chấm công hoặc app chưa cho phép quyền vị trí",
+                        style: TextStyle(
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                         maxLines: 3,
@@ -568,6 +594,86 @@ Future<void> _requestLocationPermission() async {
       ),
     );
   }
+
+  get _mapWidget {
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: BlocBuilder<CheckInCubit, CheckInState>(
+        bloc: _cubit,
+        buildWhen: (prev, cur) =>
+        prev.position != cur.position || prev.isMapExpanded != cur.isMapExpanded,
+        builder: (context, state) {
+          final isExpanded = state.isMapExpanded ?? false;
+
+          final LatLng center = state.position != null
+              ? LatLng(state.position!.latitude, state.position!.longitude)
+              : _defaultLng;
+
+          Widget mapChild = GoogleMap(
+            key: const ValueKey('checkin_map'),
+            mapType: _mapType,
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: center,
+              zoom: state.position != null ? 16.0 : 13.0,
+            ),
+            markers: _markers,
+            circles: _circles,
+            myLocationButtonEnabled: false,
+            buildingsEnabled: false,
+            zoomControlsEnabled: false,
+            myLocationEnabled: state.position != null, // optional
+            mapToolbarEnabled: false,
+            compassEnabled: false,
+          );
+
+          if (!isExpanded) {
+            mapChild = ClipRRect(
+              borderRadius: BorderRadius.circular(12.0),
+              child: mapChild,
+            );
+          }
+
+          if (state.position != null && _mapController != null && !_movedToGpsOnce) {
+            _movedToGpsOnce = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              if (!mounted || _mapController == null) return;
+              await _mapController!.animateCamera(
+                CameraUpdate.newLatLngZoom(
+                  LatLng(state.position!.latitude, state.position!.longitude),
+                  16,
+                ),
+              );
+            });
+          }
+
+          return Stack(
+            children: [
+              Positioned.fill(child: mapChild),
+              if (!isExpanded)
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: InkWell(
+                    onTap: () async {
+                      await _moveCameraToCurrentPlace();
+                      _cubit.onExpandMap();
+                    },
+                    child: SvgPicture.asset(
+                      AppAssets.icExpandOut,
+                      width: 24,
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /*
   get _mapWidget {
     return SizedBox(
       width: double.infinity,
@@ -579,7 +685,14 @@ Future<void> _requestLocationPermission() async {
             prev.isMapExpanded != cur.isMapExpanded,
         builder: (context, state) {
           if (state.position == null) {
-            return const Center(child: CircularProgressIndicator());
+            // return const Center(child: CircularProgressIndicator());
+            return GoogleMap(initialCameraPosition: CameraPosition(
+              target: LatLng(
+                21.027763,
+                105.834160,
+              ),
+              zoom: 13.0,
+            ));
           }
 
           final isExpanded = state.isMapExpanded ?? false;
@@ -638,6 +751,7 @@ Future<void> _requestLocationPermission() async {
       ),
     );
   }
+   */
 
   // checkin success
   get _checkInSuccess {
@@ -1088,47 +1202,144 @@ Future<void> _requestLocationPermission() async {
 
 
   // Functions
+  showLocationSettingPopup(){
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.all(24),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Text(
+            //   "Quyền vị trí",
+            //   textAlign: TextAlign.center,
+            //   style: TextStyle(
+            //     fontSize: 18,
+            //     fontWeight: FontWeight.w700,
+            //     fontStyle: FontStyle.normal,
+            //     color: AppColors.themeBlackDefault,
+            //   ),
+            // ),
+            const SizedBox(height: 16),
+            Text(
+              "PM Nodo App cần cấp quyền vị trí để thực hiện chức năng chấm công và hiển thị bản đồ địa điểm làm việc.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                fontStyle: FontStyle.normal,
+                color: AppColors.themeBlackDefault,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.whiteColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: Text(
+                      "Để sau",//context.loc.cancel,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        fontStyle: FontStyle.normal,
+                        color: AppColors.themeBlackDefault,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width:24,),
+                SizedBox(
+                  width: 130,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      openAppSettings();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.themePrimaryDefault,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: Text(
+                      "Cài đặt",//context.loc.check_out,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        fontStyle: FontStyle.normal,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   doCheckIn() async{
     // Validate
       bool serviceEnabled;
       LocationPermission permission;
       serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        openAppSettings();
+        // open popup
+        logger.d("service not enabled");
+        showLocationSettingPopup();
+        // openAppSettings();
       } else {
         permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
           if (permission == LocationPermission.denied) {
-            openAppSettings();
+            showLocationSettingPopup();
+            logger.d("service is denied");
+            // openAppSettings();
           }
         }
         if (permission == LocationPermission.deniedForever) {
-          openAppSettings();
-        }
-
-        // check vị trí
-         double distance = Utils().calcDistanceMetersGeolocator(
-            _cubit.state.position?.latitude ?? 0.0,
-            _cubit.state.position?.longitude ?? 0.0,
-           _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
-            _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
-        if(distance.round() +20 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
-          AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-In");
+          showLocationSettingPopup();
+          logger.d("service is deniedForever");
+          // openAppSettings();
         }else{
-          // validate khuôn mặt
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
-          );
+          // check vị trí
+          double distance = Utils().calcDistanceMetersGeolocator(
+              _cubit.state.position?.latitude ?? 0.0,
+              _cubit.state.position?.longitude ?? 0.0,
+              _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
+              _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
+          if(distance.round() + 10 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
+            AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-In");
+          }else{
+            // validate khuôn mặt
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
+            );
 
-          if (result != null && result.toString().isNotEmpty) {
-            // call api checking
-          logger.d("file Path::: ${result.toString()}" );
-          _cubit.doCheckInGps(result);
+            if (result != null && result.toString().isNotEmpty) {
+              // call api checking
+              logger.d("file Path::: ${result.toString()}" );
+              _cubit.doCheckInGps(result);
+            }
           }
         }
-
       }
   }
 
