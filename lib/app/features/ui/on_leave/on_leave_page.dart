@@ -40,6 +40,10 @@ class _OnLeavePageState extends State<OnLeavePage> {
     _cubit.onChangeDateFilter("", "");
     _cubit.getListOnLeaveTimes();
     filterController.clear();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cubit.getListOnLeaveTimes();
+    });
   }
 
   @override
@@ -237,15 +241,24 @@ class _OnLeavePageState extends State<OnLeavePage> {
               prev.listLeaveEntities != cur.listLeaveEntities,
       builder: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(
+            child: SizedBox(
+              height: 200,
+              child: Center(child: CircularProgressIndicator(color: Colors.blue,)),
+            ),
+          );
         }
+
         if ((state.listLeaveEntities ?? []).isEmpty) {
-          return Center(child: Text(S.of(context).bt_empty).paddingOnly(top: 100));
+          return Center(
+            child: Text(S.of(context).bt_empty).paddingOnly(top: 100),
+          );
         } else {
           return RefreshIndicator(
             onRefresh: _onRefresh,
             child: ListView.builder(
               padding: const EdgeInsets.only(top: 20),
+              physics: const AlwaysScrollableScrollPhysics(),
               shrinkWrap: true,
               controller: controller,
               itemCount: (state.listLeaveEntities ?? []).length,
@@ -265,4 +278,3 @@ class _OnLeavePageState extends State<OnLeavePage> {
     );
   }
 }
-
