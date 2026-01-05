@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/application/application_page.dart';
-import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -15,7 +14,6 @@ import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/generated/l10n.dart';
-import 'package:pm_app/app/features/ui/work_trip/work_trip_page.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -40,7 +38,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _cubit = GetIt.I<HomeCubit>();
   final _appCubit = GetIt.I<AppCubit>();
-  final _attendanceCubit = GetIt.I<AttendanceDataCubit>();
+  // final _attendanceCubit = GetIt.I<AttendanceDataCubit>();
 
   @override
   void initState() {

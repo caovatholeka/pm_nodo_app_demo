@@ -33,9 +33,7 @@ import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
-import '../app/config/app_config.dart';
-import '../app/core/network/api_client.dart';
-import '../app/core/network/api_client_face_id.dart';
+
 import '../app/core/network/api_util.dart';
 import '../app/data/repositories/auth_repository.dart';
 import '../app/data/repositories/face_id_repository.dart';
@@ -43,8 +41,7 @@ import '../app/features/bloc/app_cubit.dart';
 import '../app/features/ui/checkin/bloc/face_scan_cubit.dart';
 import '../app/features/ui/splash/splash_cubit.dart';
 import '../app/features/ui/account/account_cubit.dart';
-import '../app/features/ui/account/changepassword/change_password_cubit.dart';
-import 'package:pm_app/app/config/app_env.dart';
+
 
 final sl = GetIt.instance;
 

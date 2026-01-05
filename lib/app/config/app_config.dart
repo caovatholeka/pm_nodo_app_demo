@@ -1,5 +1,3 @@
-import 'package:pm_app/app/core/logger/logger.dart';
-
 import '../data/local/shared_prefs_helper.dart';
 import 'app_env.dart';
 

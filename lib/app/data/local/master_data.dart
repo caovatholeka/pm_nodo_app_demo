@@ -1,4 +1,3 @@
-import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/response/common_response.dart';

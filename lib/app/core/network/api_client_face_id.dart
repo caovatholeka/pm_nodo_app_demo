@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
-import '../../config/app_config.dart';
 import '../../data/models/entities/face_search_response_entity.dart';
 
 part 'api_client_face_id.g.dart';

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:pm_app/app/core/network/api_client_face_id.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/api_util.dart';
 import '../models/entities/face_search_response_entity.dart';
