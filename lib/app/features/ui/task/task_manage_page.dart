@@ -43,6 +43,10 @@ class _TaskManagePageState extends State<TaskManagePage> {
   void initState() {
     initData();
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cubit.getListTasks();
+    });
   }
 
   @override

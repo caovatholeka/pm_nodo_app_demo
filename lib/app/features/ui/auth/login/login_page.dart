@@ -58,20 +58,20 @@ class _LoginPageState extends State<LoginPage> {
     final username = _userCtrl.text.trim();
     final password = _passCtrl.text.trim();
     if (username.isEmpty && password.isEmpty) {
-      _showError("Vui lòng nhập tên đăng nhập và mật khẩu!");
+      _showError(S.of(context).login_emptyUsernamePassword);
       return;
     }
     if (username.isEmpty) {
-      _showError("Vui lòng nhập tên đăng nhập!");
+      _showError(S.of(context).login_emptyUsername);
       return;
     }
     if (password.isEmpty) {
-      _showError("Vui lòng nhập mật khẩu!");
+      _showError(S.of(context).login_emptyPassword);
       return;
     }
     if (!(_userKey.currentState?.validate() ?? false) ||
         !(_passKey.currentState?.validate() ?? false)) {
-      _showError("Thông tin không hợp lệ. Vui lòng kiểm tra lại!");
+      _showError(S.of(context).login_wrongUsernamePassword);
       return;
     }
     _cubit.doLogin(username, password);

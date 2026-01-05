@@ -109,7 +109,7 @@
   "day_off_title": "Quản lý nghỉ phép",
   "day_off_btn_delete": "Xóa",
   "day_off_btn_confirm": "Xác nhận",
-  "day_off_create_title": "Tao yêu cầu nghỉ phép",
+  "day_off_create_title": "Tạo yêu cầu nghỉ phép",
   "day_off_type": "Loại ngày nghỉ",
   "day_off_type_hint": "Chọn loại phép.",
   "day_off_from": "Từ ngày",
@@ -323,5 +323,14 @@
   "bt_detail_status":"Trạng thái",
   "bt_detail_sendApproval":"Gửi duyệt",
   "bt_detail_update":"Cập nhật",
-  "bt_detail_delete":"Xóa"
+  "bt_detail_delete":"Xóa",
+
+  "login_emptyUsernamePassword":"Vui lòng nhập tên đăng nhập và mật khẩu!",
+  "login_emptyUsername":"Vui lòng nhập tên đăng nhập!",
+  "login_emptyPassword":"Vui lòng nhập mật khẩu!",
+  "login_wrongUsernamePassword":"Tên đăng nhập hoặc mật khẩu không đúng!",
+
+  "otp_empty":"Mã OTP không được để trống!",
+  "otp_sendnoti":"Mã OTP mới đã được gửi!"
+
 }

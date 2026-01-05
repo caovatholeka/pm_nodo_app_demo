@@ -261,7 +261,7 @@
   "ot_detail_date":"Date",
   "ot_detail_totalHour":"Total hours",
   "ot_detail_receive":"Receive method",
-  "ot_detail_notes":"Notes",
+  "ot_detail_notes":"Notes",  
   "ot_detail_status":"Status",
   "ot_detail_creator":"Creator",
   "ot_detail_send":"Send approval",
@@ -345,5 +345,14 @@
   "bt_detail_status":"Status",
   "bt_detail_sendApproval":"Send",
   "bt_detail_update":"Update",
-  "bt_detail_delete":"Delete"
+  "bt_detail_delete":"Delete",
+
+  "login_emptyUsernamePassword":"Please enter username and password!",
+  "login_emptyUsername":"Please enter username!",
+  "login_emptyPassword":"Please enter password!",
+  "login_wrongUsernamePassword":"Username or password is incorrect!",
+
+  "otp_empty":"OTP code cannot be empty!",
+  "otp_sendnoti":"New OTP code has been sent!"
+
 }

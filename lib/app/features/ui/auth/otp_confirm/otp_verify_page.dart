@@ -81,7 +81,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   void _onSubmit() {
     if (_otpCode.length != 6) {
       Flushbar(
-        message: "Mã OTP chưa đủ 6 ký tự",
+        message: S.of(context).otp_empty,
         backgroundColor: Colors.redAccent,
         duration: const Duration(seconds: 2),
         flushbarPosition: FlushbarPosition.TOP,
