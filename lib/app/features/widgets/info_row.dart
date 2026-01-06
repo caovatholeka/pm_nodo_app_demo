@@ -35,7 +35,7 @@ class InfoRow extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: subtitleIsLink ? Color(0xFF1976D2) : Color(0xFF222222),
+            color: subtitleIsLink ? Color.fromARGB(255, 0, 128, 255) : Color(0xFF222222),
           ),
         ),
         if (showDivider) ...[
