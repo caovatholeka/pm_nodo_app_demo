@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
@@ -114,14 +115,23 @@ class _OnLeavePageState extends State<OnLeavePage> {
     final s = S.of(context);
     return Scaffold(
       backgroundColor: AppColors.bodyColor,
-      appBar: MyAppBar(
-        titleAppbar: s.day_off_title,
-        haveActionButton: true,
-        haveBackButton: (widget.isFromHome ?? false),
-        iconPathAsset: AppAssets.icNotificationBell,
-        actionCallBack: () {
-          _goNotification();
-        },
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: BlocBuilder<AppCubit, AppState>(
+          buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+          builder: (context, appState) {
+            return MyAppBar(
+              titleAppbar: s.day_off_title,
+              haveBackButton: (widget.isFromHome ?? false),
+              haveActionButton: true,
+              iconPathAsset: AppAssets.icNotificationBell,
+              badgeCount: appState.totalUnread,
+              actionCallBack: () async {
+                _goNotification();
+              },
+            );
+          },
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

@@ -66,6 +66,7 @@
   "to_do_card_deadline": "Deadline",
   "to_do_card_jobType": "Job Type: ",
   "to_do_no_data": "No to-do tasks available.",
+  "to_do_detail_title":"To-Do Detail",
   "to_searchbar":"Search To-Do...",
   "to_status":"Select Trading Stage",
   "to_create_title":"Create Task",

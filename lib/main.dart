@@ -103,7 +103,7 @@ void main() {
               create: (_) => AppCubit(
                 authRepository: getIt<AuthRepository>(),
                 userRepository: getIt<UserRepository>(),
-              ),
+              )..countUnreadNoti(),
             ),
             BlocProvider(
               create: (_) => getIt<NotiCubit>()..countUnreadNoti(),

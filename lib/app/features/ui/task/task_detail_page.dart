@@ -7,6 +7,7 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
@@ -14,6 +15,7 @@ import 'package:pm_app/app/features/ui/task/create_new_task.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -103,16 +105,23 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.bodyColor,
-          appBar: MyAppBar(
-            titleAppbar: "Chi tiết việc cần làm",
-            haveActionButton: true,
-            haveBackButton: true,
-            iconPathAsset: AppAssets.icNotificationBell,
-            isTransparent: false,
-            actionCallBack: () {
-              _goNotification();
-            },
-            backAction: () => Navigator.pop(context),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: BlocBuilder<AppCubit, AppState>(
+              buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+              builder: (context, appState) {
+                return MyAppBar(
+                  titleAppbar: S.of(context).to_do_detail_title,
+                  haveBackButton: true,
+                  haveActionButton: true,
+                  iconPathAsset: AppAssets.icNotificationBell,
+                  badgeCount: appState.totalUnread,
+                  actionCallBack: () async {
+                    _goNotification();
+                  },
+                );
+              },
+            ),
           ),
           body: SizedBox(
             width: double.infinity,

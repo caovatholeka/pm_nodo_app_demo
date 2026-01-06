@@ -67,6 +67,9 @@
   "to_do_card_jobType": "Loại công việc",
   "to_taskempl": "Người được phân công",
   "to_do_no_data": "Không có việc cần làm.",
+  "to_do_detail_title": "Chi tiết việc cần làm",
+
+  
   "employee_title": "Danh sách nhân viên",
   "employee_search_hint": "Tên nhân viên, Mã nhân viên...",
   "employee_no_data": "Không tìm thấy nhân viên nào.",

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/app.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/justification_list_item.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -91,6 +96,19 @@ class _JustificationPageState extends State<JustificationPage> {
     }
   }
 
+    void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -99,12 +117,24 @@ class _JustificationPageState extends State<JustificationPage> {
       create: (_) => _cubit,
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
-        appBar: MyAppBar(
-          titleAppbar: s.justification_title,
-          haveBackButton: widget.isFromHome ?? false,
-          haveActionButton: true,
-          iconPathAsset: AppAssets.icNotificationBell,
-        ),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: BlocBuilder<AppCubit, AppState>(
+              buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+              builder: (context, appState) {
+                return MyAppBar(
+                  titleAppbar: s.justification_title,
+                  haveBackButton: true,
+                  haveActionButton: true,
+                  iconPathAsset: AppAssets.icNotificationBell,
+                  badgeCount: appState.totalUnread,
+                  actionCallBack: () async {
+                    _goNotification();
+                  },
+                );
+              },
+            ),
+          ),
         body: Column(
           children: [
             Padding(

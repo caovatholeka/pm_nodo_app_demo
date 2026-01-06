@@ -148,17 +148,23 @@ class _TaskManagePageState extends State<TaskManagePage> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.bodyColor,
-          appBar: MyAppBar(
-            titleAppbar: s.to_do_title,
-            haveActionButton: true,
-            badgeCount: 0,
-            haveBackButton: true,
-            iconPathAsset: AppAssets.icNotificationBell,
-            isTransparent: false,
-            actionCallBack: () {
-              _goNotification();
-            },
-            backAction: () => Navigator.pop(context),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: BlocBuilder<AppCubit, AppState>(
+              buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+              builder: (context, appState) {
+                return MyAppBar(
+                  titleAppbar: s.to_do_detail_title,
+                  haveBackButton: true,
+                  haveActionButton: true,
+                  iconPathAsset: AppAssets.icNotificationBell,
+                  badgeCount: appState.totalUnread,
+                  actionCallBack: () async {
+                    _goNotification();
+                  },
+                );
+              },
+            ),
           ),
           body: Padding(
             padding: const EdgeInsets.all(16),

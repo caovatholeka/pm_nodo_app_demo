@@ -137,18 +137,23 @@ Future<void> markRead({required bool markAll, int? id}) async {
 
 
 
-  Future<void> countUnreadNoti() async{
-    try{
-      final res = await userRepository.countUnreadNoti();
-      if(res.code == 200) {
-        emit(state.copyWith(totalUnread: res.totalUnread ?? 0));
-      }
-      
-    }catch(e,s){
-      logger.e("err: $e");
-      logger.d("stack: $s");
+Future<void> countUnreadNoti() async {
+  try {
+    final res = await userRepository.countUnreadNoti();
+
+    if (res.code == 200) {
+      final data = res.data as Map<String, dynamic>;
+      final unread = data['unread_count'] ?? 0;
+
+      emit(state.copyWith(totalUnread: unread));
     }
+  } catch (e, s) {
+    logger.e("countUnreadNoti error: $e");
+    logger.d("stack: $s");
   }
+}
+
+
 
   
 }

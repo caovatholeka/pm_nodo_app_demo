@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/pages/appraisal_page.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
@@ -87,17 +88,11 @@ class _ApplicationPageState extends State<ApplicationPage> {
   }
 
   void _openBusinessTrip() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => WorkTripPage()),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => WorkTripPage()));
   }
 
   void _openAppraisalForm() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => AppraisalPage()),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => AppraisalPage()));
   }
 
   @override
@@ -127,12 +122,20 @@ class _ApplicationPageState extends State<ApplicationPage> {
     final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: MyAppBar(
-        titleAppbar: s.application_title,
-        haveBackButton: true,
-        haveActionButton: true,
-        iconPathAsset: AppAssets.icNotificationBell,
-        actionCallBack: _goNotification,
+      child: BlocBuilder<AppCubit, AppState>(
+        buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+        builder: (context, appState) {
+          return MyAppBar(
+            titleAppbar: s.application_title,
+            haveBackButton: true,
+            haveActionButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
+            badgeCount: appState.totalUnread,
+            actionCallBack: () async {
+              _goNotification();
+            },
+          );
+        },
       ),
     );
   }
@@ -165,7 +168,6 @@ class _ApplicationPageState extends State<ApplicationPage> {
       //   "title": s.utilities_tab3,
       //   "onTap": () => _openOnLeave(),
       // },
-
       {
         "icon": AppAssets.ic_paper2,
         "title": s.app_until1,
@@ -201,7 +203,7 @@ class _ApplicationPageState extends State<ApplicationPage> {
           crossAxisCount: 3,
           mainAxisSpacing: 28,
           crossAxisSpacing: 28,
-          mainAxisExtent:110
+          mainAxisExtent: 110,
         ),
         itemBuilder: (context, index) {
           final item = items[index];

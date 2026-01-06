@@ -7,6 +7,9 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/param/employee_filter_param.dart';
 import 'package:pm_app/app/data/local/master_data.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_detail_page.dart';
 import 'package:pm_app/app/features/widgets/advanced_filter_sheet.dart';
@@ -36,15 +39,11 @@ class _StaffPageState extends State<StaffPage> {
   @override
   void initState() {
     super.initState();
-
     _cubit.getListEmployees();
-
     _scrollController.addListener(_onMaxScroll);
-
     _searchController.addListener(() {
       final text = _searchController.text.trim();
       final hasText = text.isNotEmpty;
-
       if (hasText != _isSearchActive) {
         setState(() => _isSearchActive = hasText);
 
@@ -54,6 +53,8 @@ class _StaffPageState extends State<StaffPage> {
         }
       }
     });
+
+    context.read<AppCubit>().countUnreadNoti();
   }
 
   @override
@@ -110,6 +111,20 @@ class _StaffPageState extends State<StaffPage> {
     }
   }
 
+
+    void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
   void _onSearchPressed() {
     final query = _searchController.text.trim();
 
@@ -129,12 +144,23 @@ class _StaffPageState extends State<StaffPage> {
     final s = S.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: MyAppBar(
-        titleAppbar: s.employee_title,
-        haveBackButton: (widget.isFromHome ?? false),
-        haveActionButton: true,
-        iconPathAsset: AppAssets.icNotificationBell,
-        actionCallBack: () {},
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: BlocBuilder<AppCubit, AppState>(
+          buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+          builder: (context, appState) {
+            return MyAppBar(
+              titleAppbar: s.employee_title,
+              haveBackButton: (widget.isFromHome ?? false),
+              haveActionButton: true,
+              iconPathAsset: AppAssets.icNotificationBell,
+              badgeCount: appState.totalUnread,
+              actionCallBack: () async {
+                _goNotification();
+              },
+            );
+          },
+        ),
       ),
       body: Stack(
         children: [
@@ -197,10 +223,7 @@ class _StaffPageState extends State<StaffPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: const Color(0xFFEAF2FF), 
-                  width: 1,
-                ),
+                border: Border.all(color: const Color(0xFFEAF2FF), width: 1),
               ),
               child: Row(
                 children: [
