@@ -105,9 +105,6 @@ void main() {
                 userRepository: getIt<UserRepository>(),
               )..countUnreadNoti(),
             ),
-            BlocProvider(
-              create: (_) => getIt<NotiCubit>()..countUnreadNoti(),
-            ),
           ],
           child: MyApp(),
         ),

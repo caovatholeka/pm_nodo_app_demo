@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
@@ -132,6 +133,14 @@ class AppCubit extends Cubit<AppState> {
         final unread = data['unread_count'] ?? 0;
 
         emit(state.copyWith(totalUnread: unread));
+
+        if(await FlutterAppBadger.isAppBadgeSupported()) {
+          if(unread > 0) {
+            FlutterAppBadger.updateBadgeCount(unread);
+          } else {
+            FlutterAppBadger.removeBadge();
+          }
+        }
       }
     } catch (e, s) {
       logger.e("countUnreadNoti error: $e");
