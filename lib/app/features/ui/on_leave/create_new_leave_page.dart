@@ -328,7 +328,6 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
           LoadingOverlay.hide(context);
           AppSnackBar.showError(title: s.warning, message: state.errMsg);
         } else {
-          // hide progress
           LoadingOverlay.hide(context);
         }
       },
@@ -372,34 +371,88 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                             (prev, cur) =>
                                 prev.leaveDateType != cur.leaveDateType ||
                                 prev.listDateTypeLeaves !=
-                                    cur.listDateTypeLeaves,
+                                    cur.listDateTypeLeaves ||
+                                prev.getTypeStatus != cur.getTypeStatus,
                         builder: (context, state) {
-                          return InputTextField(
-                            title: s.day_off_type,
-                            hintText: s.day_off_type_hint,
-                            isRequiredField: true,
-                            controller:
-                                dateTypeController
-                                  ..text = state.leaveDateType ?? "",
-                            enable: true,
-                            readOnly: true,
-                            suffixIcon: AppAssets.icArrowDown,
-                            callback: () {
-                              _openDateTypeLeaveBottomSheet(
-                                state.listDateTypeLeaves ?? [],
+                          return RefreshIndicator(
+                            onRefresh: () async {
+                              _createCubit.getListDateTypeLeaves();
+                              await Future.delayed(
+                                const Duration(milliseconds: 600),
                               );
                             },
-                          ).paddingOnly(bottom: 20);
+                            child: SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: Stack(
+                                children: [
+                                  InputTextField(
+                                    title: s.day_off_type,
+                                    hintText: s.day_off_type_hint,
+                                    isRequiredField: true,
+                                    controller:
+                                        dateTypeController
+                                          ..text = state.leaveDateType ?? "",
+                                    enable: true,
+                                    readOnly: true,
+                                    suffixIcon: AppAssets.icArrowDown,
+                                    callback: () {
+                                      if ((state.listDateTypeLeaves ?? [])
+                                              .isEmpty &&
+                                          state.getTypeStatus ==
+                                              LoadStatus.FAILURE) {
+                                        _createCubit.getListDateTypeLeaves();
+                                        return;
+                                      }
+                                      _openDateTypeLeaveBottomSheet(
+                                        state.listDateTypeLeaves ?? [],
+                                      );
+                                    },
+                                  ).paddingOnly(bottom: 20),
+
+                                  Positioned(
+                                    right: 22,
+                                    top: 36,
+                                    child: () {
+                                      if (state.getTypeStatus ==
+                                          LoadStatus.LOADING) {
+                                        return const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        );
+                                      }
+                                      if (state.getTypeStatus ==
+                                          LoadStatus.FAILURE) {
+                                        return InkWell(
+                                          onTap: () {
+                                            _createCubit
+                                                .getListDateTypeLeaves();
+                                          },
+                                          child: const Icon(
+                                            Icons.refresh,
+                                            size: 20,
+                                            color:
+                                                AppColors.themePrimaryDefault,
+                                          ),
+                                        );
+                                      }
+                                      return const SizedBox.shrink();
+                                    }(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
                       ),
+
                       Row(
                         children: [
                           Expanded(
                             flex: 1,
-                            child: BlocBuilder<
-                              CreateOnLeaveCubit,
-                              CreateOnLeaveState
-                            >(
+                            child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
                               bloc: _createCubit,
                               buildWhen:
                                   (prev, cur) =>

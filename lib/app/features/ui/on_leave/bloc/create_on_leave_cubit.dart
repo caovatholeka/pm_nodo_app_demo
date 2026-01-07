@@ -107,6 +107,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
 
   // Loại ngày nghỉ
   void getListDateTypeLeaves() async{
+    emit(state.copyWith(getTypeStatus: LoadStatus.LOADING));
     try {
       List<MasterDataItem> list = [];
       List<LeaveTypeEntity>? leaveTypes;
@@ -117,23 +118,23 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
 
       if((leaveTypes ?? []).isNotEmpty){
         for (LeaveTypeEntity type in (leaveTypes ?? [])) {
-          MasterDataItem item = MasterDataItem(id: type.id,code:
-          type.id.toString(),text: type.name);
+          MasterDataItem item = MasterDataItem(
+            id: type.id,
+            code: type.id.toString(),
+            text: type.name,
+          );
           list.add(item);
         }
-        emit(state.copyWith(listDateTypeLeaves: list));
+        emit(state.copyWith(listDateTypeLeaves: list, getTypeStatus: LoadStatus.SUCCESS));
       }else{
-        emit(state.copyWith(listDateTypeLeaves: []));
+        emit(state.copyWith(listDateTypeLeaves: [], getTypeStatus: LoadStatus.SUCCESS));
       }
-
-
-    }catch(e){
+    } catch(e){
       logger.d(e);
-      emit(state.copyWith(listDateTypeLeaves: []));
+      emit(state.copyWith(listDateTypeLeaves: [], getTypeStatus: LoadStatus.FAILURE));
     }
-
-
   }
+
   void onChangeDateTypeLeaves(MasterDataItem item){
     emit(state.copyWith(currentDateLeaveType: item,leaveDateType: item.text));
   }

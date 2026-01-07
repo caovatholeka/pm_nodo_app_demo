@@ -19,7 +19,6 @@ class CommonBottomSheet extends StatefulWidget {
     this.title,
   });
 
-
   @override
   State<CommonBottomSheet> createState() => _CommonBottomSheetState();
 }
@@ -27,7 +26,6 @@ class CommonBottomSheet extends StatefulWidget {
 class _CommonBottomSheetState extends State<CommonBottomSheet> {
   @override
   Widget build(BuildContext context) {
-
     return Container(
       height: ScreenSize.of(context).height * 0.35,
       width: double.infinity,
@@ -44,16 +42,16 @@ class _CommonBottomSheetState extends State<CommonBottomSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(padding: const EdgeInsets.only(top: 4),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(
-                    width: 24,
-                  ),
+                  const SizedBox(width: 24),
                   Align(
                     alignment: Alignment.center,
-                    child: Text(widget.title ?? "",
+                    child: Text(
+                      widget.title ?? "",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -71,74 +69,77 @@ class _CommonBottomSheetState extends State<CommonBottomSheet> {
                         width: 24,
                         height: 24,
                         child: InkWell(
-                            onTap: (){
-                              Navigator.pop(context, widget.currentValue);
-                            },
-                            child: Center(child: Icon(Icons.close,size: 20,),)),
+                          onTap: () {
+                            Navigator.pop(context, widget.currentValue);
+                          },
+                          child: Center(child: Icon(Icons.close, size: 20)),
+                        ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 18,),
+            const SizedBox(height: 18),
             SizedBox(
+              width: double.infinity,
+              height: ScreenSize.of(context).height * 0.25,
+              child: SizedBox(
                 width: double.infinity,
                 height: ScreenSize.of(context).height * 0.25,
                 child: ListView.separated(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  shrinkWrap: true,
+                  physics:
+                      const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 12),
                   itemCount: (widget.listValues ?? []).length,
                   itemBuilder: (context, index) {
-                    MasterDataItem value = (widget.listValues ?? [])[index];
+                    final value = (widget.listValues ?? [])[index];
                     return Padding(
-                      padding: const EdgeInsets.only(left: 12.0,right: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: InkWell(
-                        onTap: (){
+                        onTap: () {
                           Navigator.pop(context, value);
                         },
                         child: Container(
                           height: 40,
-                          padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  width: 1,
-                                  color: Colors.black.withAlpha(10)
-                              )
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              width: 1,
+                              color: Colors.black.withAlpha(10),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Flexible(
-                                child: Text(value.text ?? "",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                      fontStyle: FontStyle.normal,
-                                      color: widget.currentValue?.code == value.code ?
-                                      AppColors.themePrimaryDefault :
-                                      AppColors.themeBlackDefault
-                                  ),
+                                child: Text(
+                                  value.text ?? "",
                                   overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color:
+                                        widget.currentValue?.code == value.code
+                                            ? AppColors.themePrimaryDefault
+                                            : AppColors.themeBlackDefault,
+                                  ),
                                 ),
                               ),
-                              widget.currentValue?.code == value.code ?
-                              RadioBoxSelectedIcon() :
-                              RadioBoxIcon(),
+                              widget.currentValue?.code == value.code
+                                  ? RadioBoxSelectedIcon()
+                                  : RadioBoxIcon(),
                             ],
                           ),
                         ),
                       ),
                     );
                   },
-                  separatorBuilder: (buildContext, index) => Container(
-                    height: 10,
-                    color: Colors.white,
-                  ),
-                ))
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                ),
+              ),
+            ),
           ],
         ),
       ),
