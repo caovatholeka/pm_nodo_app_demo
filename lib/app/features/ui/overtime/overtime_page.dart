@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/overtime/create_overtime.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/overtime_cubit.dart';
 import 'package:pm_app/app/features/ui/overtime/overtime_detail.dart';
@@ -91,6 +95,19 @@ class _OvertimePageState extends State<OvertimePage> {
     }
   }
 
+    void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -98,12 +115,24 @@ class _OvertimePageState extends State<OvertimePage> {
       create: (_) => _cubit,
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
-        appBar: MyAppBar(
-          titleAppbar: s.ot_pageTitle,
-          haveBackButton: widget.isFromHome ?? false,
-          haveActionButton: true,
-          iconPathAsset: AppAssets.icNotificationBell,
-        ),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: BlocBuilder<AppCubit, AppState>(
+              buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+              builder: (context, appState) {
+                return MyAppBar(
+                  titleAppbar: s.ot_pageTitle,
+                  haveBackButton: true,
+                  haveActionButton: true,
+                  iconPathAsset: AppAssets.icNotificationBell,
+                  badgeCount: appState.totalUnread,
+                  actionCallBack: () async {
+                    _goNotification();
+                  },
+                );
+              },
+            ),
+          ),
         body: Column(
           children: [
             Padding(

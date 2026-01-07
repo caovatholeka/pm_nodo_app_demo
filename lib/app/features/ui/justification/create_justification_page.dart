@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/bloc/create_justification_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/multiple_choice.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -40,9 +44,10 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
     _dateCtrl = TextEditingController(text: e?.date ?? '');
     _noteCtrl = TextEditingController(text: e?.note ?? '');
     _reasonTypeCtrl = TextEditingController(
-      text: e?.reasonType == 'personal'
-          ? 'Việc cá nhân'
-          : e?.reasonType == 'work'
+      text:
+          e?.reasonType == 'personal'
+              ? 'Việc cá nhân'
+              : e?.reasonType == 'work'
               ? 'Công việc'
               : '',
     );
@@ -69,6 +74,19 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
     super.dispose();
   }
 
+    void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
   void _showDatePicker(BuildContext context, CreateJustificationCubit cubit) {
     DatePicker.showDatePicker(
       context,
@@ -93,12 +111,14 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     return BlocProvider(
-      create: (context) =>
-          CreateJustificationCubit(context.read())
-            ..initFromDetail(widget.initialData),
+      create:
+          (context) =>
+              CreateJustificationCubit(context.read())
+                ..initFromDetail(widget.initialData),
       child: BlocConsumer<CreateJustificationCubit, CreateJustificationState>(
-        listenWhen: (p, c) =>
-            p.errorMessage != c.errorMessage || p.isSuccess != c.isSuccess,
+        listenWhen:
+            (p, c) =>
+                p.errorMessage != c.errorMessage || p.isSuccess != c.isSuccess,
         listener: (context, state) async {
           if (state.errorMessage != null) {
             await Flushbar(
@@ -113,9 +133,10 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
           if (state.isSuccess == true) {
             Navigator.of(context).pop(true);
             await Flushbar(
-              message: widget.isEdit
-                  ? 'Cập nhật yêu cầu thành công'
-                  : 'Tạo yêu cầu thành công',
+              message:
+                  widget.isEdit
+                      ? 'Cập nhật yêu cầu thành công'
+                      : 'Tạo yêu cầu thành công',
               flushbarPosition: FlushbarPosition.TOP,
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
@@ -132,13 +153,26 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
               ),
               Scaffold(
                 backgroundColor: Colors.transparent,
-                appBar: MyAppBar(
-                  titleAppbar: widget.isEdit
-                      ? s.justification_update_title
-                      : s.justification_create_title,
-                  haveBackButton: true,
-                  haveActionButton: true,
-                  iconPathAsset: AppAssets.icNotificationBell,
+                appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(kToolbarHeight),
+                  child: BlocBuilder<AppCubit, AppState>(
+                    buildWhen:
+                        (prev, cur) => prev.totalUnread != cur.totalUnread,
+                    builder: (context, appState) {
+                      return MyAppBar(
+                        titleAppbar: widget.isEdit
+                            ? s.justification_update_title
+                            : s.justification_create_title,
+                        haveBackButton: true,
+                        haveActionButton: true,
+                        iconPathAsset: AppAssets.icNotificationBell,
+                        badgeCount: appState.totalUnread,
+                        actionCallBack: () async {
+                          _goNotification();
+                        },
+                      );
+                    },
+                  ),
                 ),
                 body: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 140),
@@ -176,8 +210,9 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                                         height: 4,
                                         decoration: BoxDecoration(
                                           color: Colors.black26,
-                                          borderRadius:
-                                              BorderRadius.circular(2),
+                                          borderRadius: BorderRadius.circular(
+                                            2,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(height: 12),
@@ -287,7 +322,10 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                                       onChange: (v) {
                                         final value = double.tryParse(v);
                                         if (value != null) {
-                                          cubit.changeFormHours(formType, value);
+                                          cubit.changeFormHours(
+                                            formType,
+                                            value,
+                                          );
                                         }
                                       },
                                     ),

@@ -4,10 +4,14 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_line_entity.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
@@ -127,21 +131,35 @@ class _CreateOTPageState extends State<CreateOTPage> {
     );
   }
 
+  void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
   List<DateTime> _generateDays(DateTime from, DateTime to) {
     final days = <DateTime>[];
     var current = DateTime(from.year, from.month, from.day);
     final end = DateTime(to.year, to.month, to.day);
-    
+
     while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
       days.add(current);
       current = current.add(const Duration(days: 1));
     }
-    
+
     return days;
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocProvider.value(
       value: _cubit,
       child: BlocConsumer<CreateOvertimeCubit, CreateOvertimeState>(
@@ -181,14 +199,27 @@ class _CreateOTPageState extends State<CreateOTPage> {
               ),
               Scaffold(
                 backgroundColor: Colors.transparent,
-                appBar: MyAppBar(
-                  titleAppbar:
-                      widget.isEdit
-                          ? S.of(context).ot_update_title
-                          : S.of(context).ot_create_title,
-                  haveBackButton: true,
-                  haveActionButton: true,
-                  iconPathAsset: AppAssets.icNotificationBell,
+                appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(kToolbarHeight),
+                  child: BlocBuilder<AppCubit, AppState>(
+                    buildWhen:
+                        (prev, cur) => prev.totalUnread != cur.totalUnread,
+                    builder: (context, appState) {
+                      return MyAppBar(
+                        titleAppbar: widget.isEdit?
+                            S.of(context).ot_update_title
+                            : S.of(context).ot_create_title 
+                        ,
+                        haveBackButton: true,
+                        haveActionButton: true,
+                        iconPathAsset: AppAssets.icNotificationBell,
+                        badgeCount: appState.totalUnread,
+                        actionCallBack: () async {
+                          _goNotification();
+                        },
+                      );
+                    },
+                  ),
                 ),
                 body: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 140),
@@ -380,4 +411,4 @@ class _CreateOTPageState extends State<CreateOTPage> {
     final m = ((hour - h) * 60).round();
     return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}';
   }
-} 
+}

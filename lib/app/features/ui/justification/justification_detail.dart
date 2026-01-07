@@ -6,8 +6,11 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -48,6 +51,19 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   bool _isDraft(String? name) {
     return name == 'Nháp';
+  }
+
+  void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
   }
 
   StatusUI _getStatusUI(BuildContext context, String? name) {
@@ -134,11 +150,24 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
               ),
               Scaffold(
                 backgroundColor: Colors.transparent,
-                appBar: MyAppBar(
-                  titleAppbar: s.justification_detail_title,
-                  haveBackButton: true,
-                  haveActionButton: true,
-                  iconPathAsset: AppAssets.icNotificationBell,
+                appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(kToolbarHeight),
+                  child: BlocBuilder<AppCubit, AppState>(
+                    buildWhen:
+                        (prev, cur) => prev.totalUnread != cur.totalUnread,
+                    builder: (context, appState) {
+                      return MyAppBar(
+                        titleAppbar: s.justification_detail_title,
+                        haveBackButton: true,
+                        haveActionButton: true,
+                        iconPathAsset: AppAssets.icNotificationBell,
+                        badgeCount: appState.totalUnread,
+                        actionCallBack: () async {
+                          _goNotification();
+                        },
+                      );
+                    },
+                  ),
                 ),
                 body: SafeArea(child: _buildBody(state)),
               ),
@@ -196,8 +225,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           const CustomDashView(),
           _row(s.justification_detail_date, e.date ?? ''),
           const SizedBox(height: 12),
-          if (e.exceptionLines != null)
-            ...e.exceptionLines!.map(_exceptionBox),
+          if (e.exceptionLines != null) ...e.exceptionLines!.map(_exceptionBox),
           const SizedBox(height: 12),
           _row(s.justification_detail_notes, e.note ?? ''),
           const CustomDashView(),
@@ -252,7 +280,10 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             child: Align(
               alignment: Alignment.centerRight,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: statusUI.bgColor,
                   borderRadius: BorderRadius.circular(20),
@@ -337,19 +368,20 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (_) => CustomDialog(
-                  title: 'Xác nhận gửi duyệt',
-                  content:
-                      'Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?',
-                  confirmText: 'Gửi duyệt',
-                  cancelText: 'Hủy',
-                  success: true,
-                  onConfirm: () {
-                    Navigator.pop(context);
-                    _cubit.submitApproval();
-                  },
-                  onCancel: () => Navigator.pop(context),
-                ),
+                builder:
+                    (_) => CustomDialog(
+                      title: 'Xác nhận gửi duyệt',
+                      content:
+                          'Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?',
+                      confirmText: 'Gửi duyệt',
+                      cancelText: 'Hủy',
+                      success: true,
+                      onConfirm: () {
+                        Navigator.pop(context);
+                        _cubit.submitApproval();
+                      },
+                      onCancel: () => Navigator.pop(context),
+                    ),
               );
             },
           ),
@@ -363,8 +395,8 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
               final res = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) =>
-                      CreateJustificationPage(initialData: state.detail),
+                  builder:
+                      (_) => CreateJustificationPage(initialData: state.detail),
                 ),
               );
               if (res == true) {

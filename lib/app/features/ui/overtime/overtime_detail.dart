@@ -5,8 +5,11 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/overtime/create_overtime.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/overtime_detail_cubit.dart';
@@ -36,6 +39,19 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
   }
 
   bool _isDraft(OvertimeDetailState state) {
@@ -107,11 +123,24 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
               ),
               Scaffold(
                 backgroundColor: Colors.transparent,
-                appBar: MyAppBar(
-                  titleAppbar: s.ot_detail_title,
-                  haveBackButton: true,
-                  haveActionButton: true,
-                  iconPathAsset: AppAssets.icNotificationBell,
+                appBar: PreferredSize(
+                  preferredSize: const Size.fromHeight(kToolbarHeight),
+                  child: BlocBuilder<AppCubit, AppState>(
+                    buildWhen:
+                        (prev, cur) => prev.totalUnread != cur.totalUnread,
+                    builder: (context, appState) {
+                      return MyAppBar(
+                        titleAppbar: s.ot_detail_title,
+                        haveBackButton: true,
+                        haveActionButton: true,
+                        iconPathAsset: AppAssets.icNotificationBell,
+                        badgeCount: appState.totalUnread,
+                        actionCallBack: () async {
+                          _goNotification();
+                        },
+                      );
+                    },
+                  ),
                 ),
                 body: SafeArea(child: _buildBody(state)),
               ),
