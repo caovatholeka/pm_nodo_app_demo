@@ -7,7 +7,7 @@ import '../../core/commons/app_assets.dart';
 import '../../core/commons/app_colors.dart';
 
 class InputTextField extends StatefulWidget {
-  final String title;
+  final String? title;
   final String hintText;
   final String? initialValue;
   final String? suffixIcon;
@@ -35,7 +35,7 @@ class InputTextField extends StatefulWidget {
 
   const InputTextField({
     super.key,
-    required this.title,
+    this.title,
     required this.hintText,
     required this.isRequiredField,
     this.validator,
@@ -89,7 +89,10 @@ class _InputTextFieldState extends State<InputTextField> {
 
     final baseBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide(width: 1, color: const Color.fromARGB(255, 133, 133, 133).withAlpha(25)),
+      borderSide: BorderSide(
+        width: 1,
+        color: const Color.fromARGB(255, 133, 133, 133).withAlpha(25),
+      ),
     );
 
     final errorBorder = OutlineInputBorder(
@@ -97,16 +100,21 @@ class _InputTextFieldState extends State<InputTextField> {
       borderSide: const BorderSide(width: 1, color: Colors.red),
     );
 
+    final showTitle =
+        widget.disableTitle != true &&
+        widget.title != null &&
+        widget.title!.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.disableTitle != true) ...[
+        if (showTitle) ...[
           Row(
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 4),
                 child: Text(
-                  widget.title,
+                  widget.title!,
                   style: const TextStyle(
                     fontFamily: AppConfig.fontFamily,
                     fontSize: 14,
@@ -150,7 +158,7 @@ class _InputTextFieldState extends State<InputTextField> {
                 const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
-                  color: Color.fromARGB(255, 0, 0, 0),
+                  color: Colors.black,
                 ),
             maxLines: widget.maxLine ?? 1,
             maxLength: widget.maxLength,
@@ -184,6 +192,21 @@ class _InputTextFieldState extends State<InputTextField> {
                               _obscure
                                   ? AppAssets.icEyeClose
                                   : AppAssets.icEyeVisible,
+                              width: 18,
+                              height: 18,
+                            ),
+                          ),
+                        ),
+                      )
+                      : widget.suffixIcon != null
+                      ? InkWell(
+                        onTap: widget.onSuffixAction ?? widget.callback,
+                        child: SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Center(
+                            child: SvgPicture.asset(
+                              widget.suffixIcon!,
                               width: 18,
                               height: 18,
                             ),

@@ -72,7 +72,7 @@ class AppAssets {
   static final icLogout = 'assets/images/icons/ic_logout.svg';
 
   static final icArrowDown = 'assets/images/icons/ic_arrow_down.svg';
-  static final icCalendar = 'assets/images/icons/ic_calendar.svg';
+  static final icCalendar = 'assets/images/icons/ic_calender.svg';
   static final icCamera = 'assets/images/icons/ic_camera.svg';
 
   //Activity Icons
@@ -127,4 +127,11 @@ class AppAssets {
   static final icPaperPNoti = 'assets/images/icons/ic_paperP_noti.svg';
   static final icPenPNoti = 'assets/images/icons/ic_penP_noti.svg';
   static final icPaperNoti = 'assets/images/icons/paper_notification.svg';
+
+
+  static final icFlush = 'assets/images/icons/ic_flus.svg';
+  static final icCheckBlue = 'assets/images/icons/ic_blueCheck.svg';
+  static final icProgressTip = 'assets/images/icons/ic_progressTop.svg';
+  static final icStatics = 'assets/images/icons/ic_Static.svg';
+  static final icUserRating = 'assets/images/icons/icPerson.svg';
 }
