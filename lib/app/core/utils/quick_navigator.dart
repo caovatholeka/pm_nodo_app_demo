@@ -24,13 +24,11 @@ class QuickNavigator {
     }
 
     if (type == 'action_tasks') {
-      GlobalData.instance.isFromQuickAction = true;
-
-      final nav = GlobalData.instance.navigatorKey.currentState!;
-      Future.microtask(() {
-        nav.push(MaterialPageRoute(builder: (_) => const TaskManagePage()));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        nav.push(
+          MaterialPageRoute(builder: (_) => const TaskManagePage()),
+        );
       });
-      return;
     } 
   }
 }

@@ -32,9 +32,19 @@ class LogInCubit extends Cubit<LoginState> {
         "password": password,
         "device_id": deviceId,
         "fcm_token": fcmToken,
-        "device_type": deviceType
+        "device_type": deviceType,
       };
       final result = await authRepository.authLogin(param);
+      //Bắt lỗi tk không tồn tại
+      final raw = result.data;
+
+      if (raw is Map<String, dynamic> && raw["error"] == true) {
+        final message = raw["message"] ?? "Đăng nhập thất bại";
+
+        emit(state.copyWith(loginStatus: LoadStatus.FAILURE, errMsg: message));
+        GlobalData.instance.isLoggingIn = false;
+        return;
+      }
 
       logger.d("🔁 authLogin raw response: ${result.toJson()}");
 

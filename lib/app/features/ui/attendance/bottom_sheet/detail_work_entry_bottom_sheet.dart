@@ -62,7 +62,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                     Text("Dữ liệu chấm công",
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.themeBlackDefault
                       ),
                     ),

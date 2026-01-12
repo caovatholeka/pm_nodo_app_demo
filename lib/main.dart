@@ -52,25 +52,30 @@ void main() {
       ]);
 
       const quickActions = QuickActions();
+
       quickActions.initialize((String type) async {
+        GlobalData.instance.quickActionPending = type;
+
         if (GlobalData.instance.isLoggingIn) {
-          GlobalData.instance.quickActionPending = type;
           return;
         }
 
         final token = await SharedPrefsHelper.getToken();
 
         if (token == null) {
-          GlobalData.instance.quickActionPending = type;
           GlobalData.instance.navigatorKey.currentState?.pushReplacement(
             MaterialPageRoute(builder: (_) => const LoginPage()),
           );
           return;
         }
 
-        GlobalData.instance.quickActionPending = null;
-        GlobalData.instance.isFromQuickAction = true;
-        QuickNavigator.navigate(type);
+        final nav = GlobalData.instance.navigatorKey.currentState;
+
+        if (nav == null) {
+          GlobalData.instance.quickActionPending = null;
+          GlobalData.instance.isFromQuickAction = true;
+          QuickNavigator.navigate(type);
+        }
       });
 
       quickActions.setShortcutItems(const <ShortcutItem>[
@@ -100,10 +105,11 @@ void main() {
         MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (_) => AppCubit(
-                authRepository: getIt<AuthRepository>(),
-                userRepository: getIt<UserRepository>(),
-              )..countUnreadNoti(),
+              create:
+                  (_) => AppCubit(
+                    authRepository: getIt<AuthRepository>(),
+                    userRepository: getIt<UserRepository>(),
+                  )..countUnreadNoti(),
             ),
           ],
           child: MyApp(),

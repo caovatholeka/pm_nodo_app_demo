@@ -41,10 +41,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final pending = GlobalData.instance.quickActionPending;
       if (pending != null) {
-        Future.delayed(const Duration(milliseconds: 0), () {
-          QuickNavigator.navigate(pending);
-          GlobalData.instance.quickActionPending = null;
-        });
+        GlobalData.instance.quickActionPending = null;
+        QuickNavigator.navigate(pending);
       }
     });
   }

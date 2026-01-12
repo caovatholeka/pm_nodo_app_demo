@@ -202,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${s.home_title} ${state.userProfile?.name ?? ""}👋",
+                    "${s.home_title}${state.userProfile?.name ?? ""}",
                     style: TextStyle(
                       fontSize: context.sw(0.06),
                       color: Colors.white,

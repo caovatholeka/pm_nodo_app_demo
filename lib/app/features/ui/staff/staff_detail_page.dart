@@ -41,23 +41,23 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
 
   bool _showAppBar = true;
 
-  ImageProvider _buildAvatarImage(String? base64String) {
-    if (base64String == null || base64String.trim().isEmpty) {
-      return AssetImage(AppAssets.img_df_avatar);
-    }
+  // ImageProvider _buildAvatarImage(String? base64String) {
+  //   if (base64String == null || base64String.trim().isEmpty) {
+  //     return AssetImage(AppAssets.img_df_avatar);
+  //   }
 
-    try {
-      final cleaned =
-          base64String.contains(',')
-              ? base64String.split(',').last
-              : base64String;
-      final bytes = base64Decode(cleaned);
-      if (bytes.isEmpty) return AssetImage(AppAssets.img_df_avatar);
-      return MemoryImage(bytes);
-    } catch (_) {
-      return AssetImage(AppAssets.img_df_avatar);
-    }
-  }
+  //   try {
+  //     final cleaned =
+  //         base64String.contains(',')
+  //             ? base64String.split(',').last
+  //             : base64String;
+  //     final bytes = base64Decode(cleaned);
+  //     if (bytes.isEmpty) return AssetImage(AppAssets.img_df_avatar);
+  //     return MemoryImage(bytes);
+  //   } catch (_) {
+  //     return AssetImage(AppAssets.img_df_avatar);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -226,6 +226,11 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                         isClickable: true,
                         type: "email",
                       ),
+                      // InfoRow(
+                      //   title: "DOB",
+                      //   subtitle: employee.birthday ?? "-",
+                      //   showDivider: false,
+                      //   ),
                       InfoRow(
                         title: S.of(context).employee_per3,
                         subtitle: employee.currentAddress ?? "-",
