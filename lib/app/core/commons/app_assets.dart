@@ -134,4 +134,6 @@ class AppAssets {
   static final icProgressTip = 'assets/images/icons/ic_progressTop.svg';
   static final icStatics = 'assets/images/icons/ic_Static.svg';
   static final icUserRating = 'assets/images/icons/icPerson.svg';
+
+  static final icQuestion = 'assets/images/icons/icQuestion.svg';
 }

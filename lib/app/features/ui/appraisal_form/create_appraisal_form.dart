@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/apprasisal_progress_page.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
@@ -83,6 +84,15 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
               create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
               child: const NotificationPage(),
             ),
+      ),
+    );
+  }
+
+  void _progressNext() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ApprasisalProgressPage(),
       ),
     );
   }
@@ -237,7 +247,9 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                         mainText: 'Gửi yêu cầu',
                         enable: state.isFormValid,
                         isLoading: state.isSubmitting,
-                        callback: _cubit.submit,
+                        callback: () {
+                          _progressNext();
+                        },
                       ),
                     ),
                   ),

@@ -125,7 +125,7 @@ class _InputTextFieldState extends State<InputTextField> {
               ),
               const SizedBox(width: 4),
               if (widget.isRequiredField)
-                SvgPicture.asset(AppAssets.starRating),
+                SvgPicture.asset(AppAssets.starRating, color: Colors.red,),
             ],
           ),
           const SizedBox(height: 4),

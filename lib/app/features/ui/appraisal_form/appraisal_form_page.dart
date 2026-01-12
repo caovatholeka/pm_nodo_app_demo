@@ -9,7 +9,6 @@ import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'widgets/summary_rating_card.dart';
 import 'widgets/progress_list_card.dart';
 import 'widgets/project_bar_chart_card.dart';
-import 'widgets/comment_card.dart';
 
 class AppraisalFormPage extends StatefulWidget {
   const AppraisalFormPage({super.key});
