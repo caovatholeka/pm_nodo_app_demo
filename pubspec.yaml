@@ -89,7 +89,7 @@ dependencies:
   google_maps_flutter_android: ^2.18.3
   firebase_crashlytics: ^3.5.7
   flutter_app_badger: ^1.5.0
-  syncfusion_flutter_charts: ^31.2.18
+  syncfusion_flutter_charts: ^31.1.19
   timelines: ^0.1.0
 #  camerawesome: ^2.5.0
 
