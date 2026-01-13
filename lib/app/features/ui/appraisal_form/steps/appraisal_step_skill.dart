@@ -237,7 +237,7 @@ class AppraisalStepSkill extends StatelessWidget {
 }
 
 class _DashedDivider extends StatelessWidget {
-  const _DashedDivider({super.key});
+  const _DashedDivider();
 
   @override
   Widget build(BuildContext context) {

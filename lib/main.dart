@@ -10,7 +10,6 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
-import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/repositories/auth_repository.dart';
@@ -71,10 +70,13 @@ void main() {
 
         final nav = GlobalData.instance.navigatorKey.currentState;
 
-        if (nav == null) {
-          GlobalData.instance.quickActionPending = null;
+        if (nav != null) {
           GlobalData.instance.isFromQuickAction = true;
           QuickNavigator.navigate(type);
+          GlobalData.instance.quickActionPending = null;
+        } else {
+          GlobalData.instance.quickActionPending = type;
+          GlobalData.instance.isFromQuickAction = true;
         }
       });
 

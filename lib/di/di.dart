@@ -41,8 +41,6 @@ import '../app/features/bloc/app_cubit.dart';
 import '../app/features/ui/checkin/bloc/face_scan_cubit.dart';
 import '../app/features/ui/splash/splash_cubit.dart';
 import '../app/features/ui/account/account_cubit.dart';
-import '../app/features/ui/account/changepassword/change_password_cubit.dart';
-import 'package:pm_app/app/config/app_env.dart';
 
 final sl = GetIt.instance;
 

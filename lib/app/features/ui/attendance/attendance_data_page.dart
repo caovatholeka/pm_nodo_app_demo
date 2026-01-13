@@ -9,7 +9,6 @@ import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanatio
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
-import 'package:pm_app/app/features/widgets/development_alert_dialog.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_colors.dart';

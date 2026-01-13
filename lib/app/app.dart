@@ -77,6 +77,14 @@ class _MyAppState extends State<MyApp> {
       _updateConnectionStatus,
     );
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pending = GlobalData.instance.quickActionPending;
+      if (pending != null &&
+          GlobalData.instance.navigatorKey.currentState != null) {
+        QuickNavigator.navigate(pending);
+        GlobalData.instance.quickActionPending = null;
+      }
+    });
   }
 
   Future<void> _loadSavedLanguage() async {

@@ -16,11 +16,9 @@ import '../../../core/logger/logger.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../data/local/attach_file.dart';
 import '../../../data/models/entities/file_entity.dart';
-import '../../../data/models/entities/leave_day_entity.dart';
 import '../../../data/models/entities/user_entity.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../../data/repositories/upload_repository.dart';
-import '../../widgets/snack_bar_message.dart';
 
 part 'work_trip_state.dart';
 

@@ -128,9 +128,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
           width: 24,
           height: 24,
           colorFilter:
-              isSelected
-                  ? null
-                  : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              isSelected ? null
+          : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
       ),
     );

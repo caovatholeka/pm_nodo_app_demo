@@ -173,13 +173,13 @@ class _FileAttachCellState extends State<FileAttachCell> {
                     imageUrl: imgUrl,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Center(
-                      child: Container(
+                      child: SizedBox(
                         width: loadingSize,
                         height: loadingSize,
                         child: CircularProgressIndicator(
                           strokeWidth: 5,
                           valueColor:
-                          new AlwaysStoppedAnimation<Color>(Color(0xff0088CB)),
+                          AlwaysStoppedAnimation<Color>(Color(0xff0088CB)),
                         ),
                       ),
                     ),

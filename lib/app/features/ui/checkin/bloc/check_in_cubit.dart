@@ -236,11 +236,9 @@ class CheckInCubit extends Cubit<CheckInState> {
     final now = DateTime.now();
 
     int? ageSec;
-    if (ts != null) {
-      final diff = now.difference(ts).inSeconds;
-      ageSec = diff < 0 ? 0 : diff;
-    }
-
+    final diff = now.difference(ts).inSeconds;
+    ageSec = diff < 0 ? 0 : diff;
+  
     logger.d("lat=${p.latitude}, lng=${p.longitude}, acc=${acc}m, age=${ageSec}s");
 
     if (state.position == null) {
