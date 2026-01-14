@@ -18,8 +18,6 @@ class _CalendarWeekSheetState extends State<CalendarWeekSheet> {
   late DateTime _rangeStart;
   late DateTime _rangeEnd;
 
-  final _today = DateTime.now();
-
   final _appCubit = GetIt.I.get<AppCubit>();
 
   @override

@@ -164,12 +164,11 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
               const SizedBox(width: 5),
               const Expanded(
                 child: Text(
-                  'Kết quả công việc',
+                  'Chất lượng công việc',
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
 
-              // MONTH PICKER
               InkWell(
                 borderRadius: BorderRadius.circular(20),
                 onTap: _pickMonth,
@@ -198,7 +197,7 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            height: 220,
+            height: 300,
             child: SfCartesianChart(
               plotAreaBorderWidth: 0,
               primaryXAxis: CategoryAxis(
@@ -252,7 +251,9 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                
+              },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF2E87FF)),
                 shape: RoundedRectangleBorder(

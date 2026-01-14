@@ -5,7 +5,6 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
-
 class ProjectBarChartCard extends StatefulWidget {
   const ProjectBarChartCard({super.key});
 
@@ -16,107 +15,109 @@ class ProjectBarChartCard extends StatefulWidget {
 class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
   DateTime _selectedDate = DateTime.now();
 
-void _pickMonth() {
-  int tempYear = _selectedDate.year;
-  int tempMonth = _selectedDate.month;
+  void _pickMonth() {
+    int tempYear = _selectedDate.year;
+    int tempMonth = _selectedDate.month;
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    builder: (_) {
-      return SizedBox(
-        height: 300,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Text(
-                      'Hủy bỏ',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedDate = DateTime(tempYear, tempMonth);
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Xong',
-                      style: TextStyle(
-                        color: Color(0xFF2E87FF),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SizedBox(
+          height: 300,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Text(
+                        'Hủy bỏ',
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                        initialItem: tempYear - 2020,
-                      ),
-                      itemExtent: 40,
-                      onSelectedItemChanged: (index) {
-                        tempYear = 2020 + index;
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedDate = DateTime(tempYear, tempMonth);
+                        });
+                        Navigator.pop(context);
                       },
-                      children: List.generate(
-                        20,
-                        (i) => Center(
-                          child: Text(
-                            (2020 + i).toString(),
-                            style: const TextStyle(fontSize: 18),
+                      child: const Text(
+                        'Xong',
+                        style: TextStyle(
+                          color: Color(0xFF2E87FF),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: CupertinoPicker(
+                        scrollController: FixedExtentScrollController(
+                          initialItem: tempYear - 2020,
+                        ),
+                        itemExtent: 40,
+                        onSelectedItemChanged: (index) {
+                          tempYear = 2020 + index;
+                        },
+                        children: List.generate(
+                          20,
+                          (i) => Center(
+                            child: Text(
+                              (2020 + i).toString(),
+                              style: const TextStyle(fontSize: 18),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // MONTH
-                  Expanded(
-                    child: CupertinoPicker(
-                      scrollController: FixedExtentScrollController(
-                        initialItem: tempMonth - 1,
-                      ),
-                      itemExtent: 40,
-                      onSelectedItemChanged: (index) {
-                        tempMonth = index + 1;
-                      },
-                      children: List.generate(
-                        12,
-                        (i) => Center(
-                          child: Text(
-                            'Tháng ${i + 1}',
-                            style: const TextStyle(fontSize: 18),
+                    // MONTH
+                    Expanded(
+                      child: CupertinoPicker(
+                        scrollController: FixedExtentScrollController(
+                          initialItem: tempMonth - 1,
+                        ),
+                        itemExtent: 40,
+                        onSelectedItemChanged: (index) {
+                          tempMonth = index + 1;
+                        },
+                        children: List.generate(
+                          12,
+                          (i) => Center(
+                            child: Text(
+                              'Tháng ${i + 1}',
+                              style: const TextStyle(fontSize: 18),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   String get _monthLabel =>
       DateFormat("'Tháng' MM/yyyy", 'vi').format(_selectedDate);
@@ -141,7 +142,8 @@ void _pickMonth() {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 200,
+            height: 230,
+            width: double.infinity,
             child: SfCartesianChart(
               plotAreaBorderWidth: 0,
               primaryXAxis: CategoryAxis(

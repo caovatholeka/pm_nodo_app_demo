@@ -136,4 +136,6 @@ class AppAssets {
   static final icUserRating = 'assets/images/icons/icPerson.svg';
 
   static final icQuestion = 'assets/images/icons/icQuestion.svg';
+
+  static final icFileKeeper = 'assets/images/icons/ic_pathAttach.svg';
 }

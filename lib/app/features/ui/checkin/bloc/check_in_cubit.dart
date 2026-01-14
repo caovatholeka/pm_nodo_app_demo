@@ -242,7 +242,7 @@ class CheckInCubit extends Cubit<CheckInState> {
     logger.d("lat=${p.latitude}, lng=${p.longitude}, acc=${acc}m, age=${ageSec}s");
 
     if (state.position == null) {
-      if (ageSec != null && ageSec > 300) {
+      if (ageSec > 300) {
         logger.d("Ignore very old cached position when no state.position yet");
       } else {
         emit(state.copyWith(position: p, address: state.address ?? ''));
