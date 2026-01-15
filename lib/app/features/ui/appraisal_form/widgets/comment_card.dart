@@ -74,10 +74,9 @@ class _CommentCardState extends State<CommentCard> {
             onTap: _toggleExpand,
             child: Container(
               margin: const EdgeInsets.all(12),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
                 children: [
@@ -85,9 +84,9 @@ class _CommentCardState extends State<CommentCard> {
                     child: Text(
                       widget.projectTitle,
                       style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F172A),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.grey,
                       ),
                     ),
                   ),
