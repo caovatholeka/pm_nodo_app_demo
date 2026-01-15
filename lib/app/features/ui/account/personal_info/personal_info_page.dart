@@ -107,18 +107,18 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                                       user.avatarUrl,
                                       96,
                                     ),
-                                    Container(
-                                      width: 28,
-                                      height: 28,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        size: 16,
-                                      ),
-                                    ),
+                                    // Container(
+                                    //   width: 28,
+                                    //   height: 28,
+                                    //   decoration: const BoxDecoration(
+                                    //     color: Colors.white,
+                                    //     shape: BoxShape.circle,
+                                    //   ),
+                                    //   child: const Icon(
+                                    //     Icons.camera_alt,
+                                    //     size: 16,
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                                 const SizedBox(height: 10),

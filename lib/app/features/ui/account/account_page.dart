@@ -291,18 +291,18 @@ class _AccountPageState extends State<AccountPage> {
                               profile.avatarUrl,
                               avatarSize,
                             ),
-                            Container(
-                              width: cameraSize,
-                              height: cameraSize,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.camera_alt,
-                                size: cameraSize * 0.55,
-                              ),
-                            ),
+                            // Container(
+                            //   width: cameraSize,
+                            //   height: cameraSize,
+                            //   decoration: const BoxDecoration(
+                            //     color: Colors.white,
+                            //     shape: BoxShape.circle,
+                            //   ),
+                            //   child: Icon(
+                            //     Icons.camera_alt,
+                            //     size: cameraSize * 0.55,
+                            //   ),
+                            // ),
                           ],
                         ),
                         const SizedBox(height: 12),

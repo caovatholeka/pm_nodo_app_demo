@@ -23,17 +23,15 @@ class QuickNavigator {
       return;
     }
 
-if (type == 'action_tasks') {
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    try {
-      nav.push(
-        MaterialPageRoute(builder: (_) => const TaskManagePage()),
-      );
-    } catch (e) {
-      nav.pushNamed('/tasks');
-    }
-  });
-}
+    if (type == 'action_tasks') {
+      GlobalData.instance.quickActionPending = null;
 
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        nav.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const TaskManagePage()),
+          (route) => false,
+        );
+      });
+    }
   }
 }
