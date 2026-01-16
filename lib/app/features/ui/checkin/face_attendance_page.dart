@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:face_anti_spoofing_detector/face_anti_spoofing_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,6 +55,59 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
   final Rect _guideRect = Rect.zero;
 
+
+  // ===== Anti-spoofing =====
+  bool _livenessReady = false;
+  static const double _livenessThreshold = 0.80;
+  DateTime? _lastSpoofWarnAt;
+
+  Future<void> _initLiveness() async {
+    try {
+      _livenessReady = await FaceAntiSpoofingDetector.initialize();
+    } catch (_) {
+      _livenessReady = false;
+    }
+  }
+
+  int _antiSpoofOrientation() {
+    return 7;
+  }
+
+  void _showSpoofWarningThrottled() {
+    final now = DateTime.now();
+    if (_lastSpoofWarnAt != null &&
+        now.difference(_lastSpoofWarnAt!) < const Duration(seconds: 2)) return;
+    _lastSpoofWarnAt = now;
+
+    AppSnackBar.showError(
+      title: "Cảnh báo",
+      message: "Phát hiện giả mạo (ảnh/video). Vui lòng đưa khuôn mặt thật vào camera.",
+    );
+  }
+
+  Future<bool> _checkLivenessFromFrame(CameraImage image, Rect faceBox) async {
+    if (!_livenessReady) return false;
+
+    try {
+      final Uint8List bytes = Platform.isAndroid
+          ? _yuv420ToNv21(image)
+          : image.planes.first.bytes;
+
+      final score = await FaceAntiSpoofingDetector.detect(
+        yuvBytes: bytes,
+        previewWidth: image.width,
+        previewHeight: image.height,
+        orientation: _antiSpoofOrientation(),
+        faceContour: faceBox,
+      );
+
+      return (score ?? 0) >= _livenessThreshold;
+    } catch (_) {
+      return false;
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +123,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     );
     _detector = FaceDetector(options: options);
 
+    _initLiveness();
+
     if (widget.stillImage != null) {
       _processStill(widget.stillImage!); // xử lý ảnh tĩnh : mở rộng
     } else {
@@ -82,6 +138,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     _stopCamera();
     _cubit.onResetStatus();
     _detector.close();
+    unawaited(FaceAntiSpoofingDetector.destroy());
     super.dispose();
   }
 
@@ -152,35 +209,82 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     }
   }
 
+  // Future<void> _processFrame(CameraImage image) async {
+  //   if (_isBusy || _isCapturing) return;
+  //   _isBusy = true;
+  //
+  //   try {
+  //     // final bytes = _concatenatePlanes(image.planes);
+  //     // final input = InputImage.fromBytes(
+  //     //   bytes: bytes,
+  //     //   metadata: InputImageMetadata(
+  //     //     size: Size(image.width.toDouble(), image.height.toDouble()),
+  //     //     rotation: _rotationFromSensor(_cam!.description.sensorOrientation),
+  //     //     format: Platform.isAndroid
+  //     //         ? InputImageFormat.nv21
+  //     //         : InputImageFormat.bgra8888,
+  //     //     bytesPerRow: image.planes.first.bytesPerRow,
+  //     //   ),
+  //     // );
+  //     //
+  //     // final faces = await _detector.processImage(input);
+  //     final input = _cameraImageToInputImage(image);
+  //     if (input == null) return;
+  //
+  //     final faces = await _detector.processImage(input);
+  //
+  //     bool validNow = false;
+  //
+  //     if (faces.length == 1) {
+  //       final f = faces.first;
+  //       validNow = _checkFaceOk(f, image.width, image.height);
+  //     } else {
+  //       validNow = false;
+  //     }
+  //
+  //     _cubit.updateFaceValid(validNow);
+  //
+  //     if (validNow) {
+  //       _stableCount++;
+  //     } else {
+  //       _stableCount = 0;
+  //     }
+  //
+  //     _canManualCapture = _stableCount >= _stableNeeded;
+  //
+  //     if (_stableCount >= _stableNeeded && !_isCapturing) {
+  //       _isCapturing = true;
+  //       _stableCount = 0;
+  //
+  //       await _captureOnceAndReturn();
+  //       return;
+  //     }
+  //
+  //     if (mounted) setState(() {});
+  //   } catch (e) {
+  //     _stableCount = 0;
+  //     _canManualCapture = false;
+  //   } finally {
+  //     _isBusy = false;
+  //   }
+  // }
+
   Future<void> _processFrame(CameraImage image) async {
     if (_isBusy || _isCapturing) return;
     _isBusy = true;
 
     try {
-      // final bytes = _concatenatePlanes(image.planes);
-      // final input = InputImage.fromBytes(
-      //   bytes: bytes,
-      //   metadata: InputImageMetadata(
-      //     size: Size(image.width.toDouble(), image.height.toDouble()),
-      //     rotation: _rotationFromSensor(_cam!.description.sensorOrientation),
-      //     format: Platform.isAndroid
-      //         ? InputImageFormat.nv21
-      //         : InputImageFormat.bgra8888,
-      //     bytesPerRow: image.planes.first.bytesPerRow,
-      //   ),
-      // );
-      //
-      // final faces = await _detector.processImage(input);
       final input = _cameraImageToInputImage(image);
       if (input == null) return;
 
       final faces = await _detector.processImage(input);
 
       bool validNow = false;
+      Face? face;
 
       if (faces.length == 1) {
-        final f = faces.first;
-        validNow = _checkFaceOk(f, image.width, image.height);
+        face = faces.first;
+        validNow = _checkFaceOk(face, image.width, image.height);
       } else {
         validNow = false;
       }
@@ -199,6 +303,19 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         _isCapturing = true;
         _stableCount = 0;
 
+        final isLive = (face != null)
+            ? await _checkLivenessFromFrame(image, face.boundingBox)
+            : false;
+
+        if (!isLive) {
+          _isCapturing = false;
+          _canManualCapture = false;
+          _cubit.updateFaceValid(false);
+          _showSpoofWarningThrottled();
+          if (mounted) setState(() {});
+          return;
+        }
+
         await _captureOnceAndReturn();
         return;
       }
@@ -211,6 +328,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       _isBusy = false;
     }
   }
+
 
   Future<void> _captureOnceAndReturn() async {
     try {
