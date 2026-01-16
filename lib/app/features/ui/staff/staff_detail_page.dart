@@ -106,9 +106,9 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                 }
 
                 if (state.loadStatus == LoadStatus.FAILURE) {
-                  return const Center(
+                  return  Center(
                     child: Text(
-                      "Không thể tải thông tin nhân viên",
+                      S.of(context).employee_nofound,
                       style: TextStyle(
                         color: Colors.redAccent,
                         fontSize: 15,
@@ -119,8 +119,8 @@ class _StaffDetailPageState extends State<StaffDetailPage> {
                 }
 
                 if (employee == null) {
-                  return const Center(
-                    child: Text("Không có dữ liệu nhân viên"),
+                  return Center(
+                    child: Text(S.of(context).employee_no_data),
                   );
                 }
 

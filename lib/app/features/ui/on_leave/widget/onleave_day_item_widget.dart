@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../../../core/commons/app_assets.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../data/models/entities/master_data_item.dart';
@@ -77,6 +78,7 @@ class _OnleaveDayItemWidgetState extends State<OnleaveDayItemWidget> {
   }
 
   Future<void> _pickType() async {
+    final s = S.of(context);
     final currentCode = (widget.type.isNotEmpty ? widget.type : 'full').toLowerCase();
 
     final options = const [
@@ -96,7 +98,7 @@ class _OnleaveDayItemWidgetState extends State<OnleaveDayItemWidget> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => CommonBottomSheet(
-        title: 'Loại nghỉ',
+        title: s.day_off_card_type,
         listValues: options,
         currentValue: currentItem,
       ),
@@ -113,12 +115,13 @@ class _OnleaveDayItemWidgetState extends State<OnleaveDayItemWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Row(
       children: [
         Expanded(
           flex: 1,
           child: InputTextField(
-            title: "Ngày",
+            title: s.justification_detail_date,
             hintText: "",
             isRequiredField: true,
             readOnly: true,
@@ -132,7 +135,7 @@ class _OnleaveDayItemWidgetState extends State<OnleaveDayItemWidget> {
             onTap: _pickType,
             child: IgnorePointer(
               child: InputTextField(
-                title: "Loại nghỉ",
+                title: s.day_off_card_type,
                 hintText: "",
                 isRequiredField: true,
                 controller: _typeCtl,

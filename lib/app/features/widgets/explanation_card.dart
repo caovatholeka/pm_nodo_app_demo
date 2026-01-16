@@ -3,6 +3,7 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
 import 'package:pm_app/app/core/utils/utils.dart';
 import 'package:pm_app/app/data/models/entities/work_entry_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../core/utils/date_utils.dart';
 
@@ -19,7 +20,7 @@ class ExplanationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
+    final s = S.of(context);
     return GestureDetector(
       onTap: onExplain,
       child: Container(
@@ -74,14 +75,14 @@ class ExplanationItem extends StatelessWidget {
                     const SizedBox(height: 10),
 
                     Row(children: [
-                      Text("Giờ đến:",
+                      Text("${s.explain_cardCome}:",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                           color: AppColors.textGray600
                         ),
                       ),
-                      const SizedBox(width: 16,),
+                      const SizedBox(width: 10,),
                       Text(Utils().floatToTimeString(workEntryEntity.dateStartCommit ?? 0.0) ?? "",
                         style: TextStyle(
                             fontSize: 14,
@@ -90,14 +91,14 @@ class ExplanationItem extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16,),
-                      Text("Giờ về:",
+                      Text("${s.explain_cardLeave}:",
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             color: AppColors.textGray600
                         ),
                       ),
-                      const SizedBox(width: 16,),
+                      const SizedBox(width: 10,),
                       Text(Utils().floatToTimeString(workEntryEntity.dateStopCommit ?? 0.0) ?? "" ,
                         style: TextStyle(
                             fontSize: 14,
@@ -110,11 +111,12 @@ class ExplanationItem extends StatelessWidget {
 
                     Text.rich(
                       TextSpan(
-                        text: "Thời gian: ",
+                        text: "${s.explain_cardTime}: ",
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 13.5,
                         ),
+                       
                         children: [
                           TextSpan(
                             text:AppDateUtils.changeIso8601StringToDateTimeString(workEntryEntity.date) ,

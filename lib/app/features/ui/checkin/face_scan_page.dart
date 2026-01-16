@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class FaceScanPage extends StatefulWidget {
   const FaceScanPage({super.key});
@@ -129,8 +130,8 @@ class _FaceScanPageState extends State<FaceScanPage>
       builder: (context) => WillPopScope(
         onWillPop: () async => false,
         child: AlertDialog(
-          title: const Text("✅ Thành công"),
-          content: const Text("Nhận diện khuôn mặt thành công!"),
+          title: Text(S.of(context).success),
+          content: Text(S.of(context).check_in_scanSuscess),
           actions: [
             TextButton(
               onPressed: () {
@@ -207,14 +208,14 @@ class _FaceScanPageState extends State<FaceScanPage>
             Positioned(
               bottom: 100,
               child: Column(
-                children: const [
+                children:[
                   CircularProgressIndicator(
                     color: Colors.white,
                     strokeWidth: 3,
                   ),
                   SizedBox(height: 12),
                   Text(
-                    "Đang nhận diện khuôn mặt...",
+                    S.of(context).check_in_scanInprogess,
                     style: TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ],

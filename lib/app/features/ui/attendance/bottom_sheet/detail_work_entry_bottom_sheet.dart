@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../core/utils/date_utils.dart';
 
@@ -38,6 +39,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Container(
       height: ScreenSize.of(context).height*0.9,
       width: double.infinity,
@@ -59,7 +61,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Dữ liệu chấm công",
+                    Text(s.work_data_dtitle,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -87,7 +89,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       InputTextField(
-                          title: "Tên",
+                          title: s.work_data_dName,
                           hintText: "",
                           isRequiredField: false,
                           enable: true,
@@ -99,7 +101,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                           Expanded(
                             flex: 1,
                             child: InputTextField(
-                              title: "Check In",
+                              title: s.work_data_dcheckIn,
                               hintText: "",
                               isRequiredField: false,
                               enable: true,
@@ -111,7 +113,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                           Expanded(
                             flex: 1,
                             child: InputTextField(
-                              title: "Check Out",
+                              title: s.work_data_dcheckOut,
                               hintText: "",
                               isRequiredField: false,
                               enable: true,
@@ -127,7 +129,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                       ).paddingOnly(bottom: 12),
 
                       InputTextField(
-                        title: "Ca làm việc",
+                        title: s.work_data_dShift,
                         hintText: "",
                         isRequiredField: false,
                         enable: true,
@@ -140,7 +142,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                           Expanded(
                             flex: 1,
                             child: InputTextField(
-                              title: "Giờ đến trễ",
+                              title: s.work_data_dLate,
                               hintText: "",
                               isRequiredField: false,
                               enable: true,
@@ -152,7 +154,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                           Expanded(
                             flex: 1,
                             child: InputTextField(
-                              title: "Thời gian đến sớm",
+                              title: s.work_data_dSoon,
                               hintText: "",
                               isRequiredField: false,
                               enable: true,
@@ -168,7 +170,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                           Expanded(
                             flex: 1,
                             child: InputTextField(
-                              title: "Thời gian làm việc",
+                              title: s.work_data_dTimeWork,
                               hintText: "",
                               isRequiredField: false,
                               enable: true,
@@ -180,7 +182,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                           Expanded(
                             flex: 1,
                             child: InputTextField(
-                              title: "Thời gian không hợp lệ",
+                              title: s.work_data_dInvalidTime,
                               hintText: "",
                               isRequiredField: false,
                               enable: true,
@@ -196,7 +198,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                       ).paddingOnly(bottom: 12),
 
                       InputTextField(
-                        title: "Thời gian nghỉ",
+                        title: s.work_data_dBreakTime,
                         hintText: "",
                         isRequiredField: false,
                         enable: true,
@@ -204,7 +206,7 @@ class _DetailWorkEntryBottomSheetState extends State<DetailWorkEntryBottomSheet>
                         controller: TextEditingController(text: "0.0"),
                       ).paddingOnly(bottom: 16),
 
-                      PrimaryButton(mainText: "Xong",
+                      PrimaryButton(mainText: s.day_off_donebtn,
                         callback: (){
                           Navigator.of(context).pop();
                         },

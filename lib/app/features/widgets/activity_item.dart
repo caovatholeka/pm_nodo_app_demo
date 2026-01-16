@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/core/commons/app_shadow.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../core/commons/app_colors.dart';
 
 class ActivityItem extends StatelessWidget {
@@ -61,7 +62,7 @@ class ActivityItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Địa điểm: ${place ?? ""}",
+                  "${S.of(context).work_data_location}: ${place ?? ""}",
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.subtitle,

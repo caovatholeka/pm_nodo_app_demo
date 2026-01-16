@@ -47,6 +47,7 @@ class _CheckInPageState extends State<CheckInPage> {
   final _cubit = GetIt.I.get<CheckInCubit>();
   final _appCubit = GetIt.I.get<AppCubit>();
 
+
   String actionCheckIn = "";
 
   GoogleMapController? _mapController;
@@ -88,11 +89,12 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
 Future<void> _requestLocationPermission() async {
+  final s = S.of(context);
   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Vui lòng bật dịch vụ định vị (GPS)."),
+       SnackBar(
+        content: Text(s.check_in_condition),
         backgroundColor: Colors.orange,
       ),
     );
@@ -106,8 +108,8 @@ Future<void> _requestLocationPermission() async {
     permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Quyền vị trí bị từ chối. Không thể xác định vị trí."),
+        SnackBar(
+          content: Text(s.check_in_permissionWarning),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -131,10 +133,9 @@ Future<void> _requestLocationPermission() async {
   final accuracyStatus = await Geolocator.getLocationAccuracy();
   if (accuracyStatus == LocationAccuracyStatus.reduced) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text(
-          "Vị trí hiện tại đang ở chế độ xấp xỉ (Approximate). "
-              "Vui lòng bật 'Vị trí chính xác'(Precise Location) trong Cài đặt để chấm công chính xác hơn.",
+              "${s.check_in_notification1}\n ${s.check_in_notification2}",
         ),
         backgroundColor: Colors.orange,
       ),
@@ -311,7 +312,7 @@ Future<void> _requestLocationPermission() async {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(
-            title: "Chấm công thành công",
+            title: s.check_in_success,
             message:
             "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())} - ${state.currentCheckInEntity?.name}",
           );
@@ -334,8 +335,8 @@ Future<void> _requestLocationPermission() async {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Giải trình công thành công",
+            title: s.success,
+            message: s.check_in_justificationSuccess,
           );
 
           _cubit.onResetState();
@@ -350,13 +351,13 @@ Future<void> _requestLocationPermission() async {
 
           if ((state.errStatus ?? "").contains("ERROR.")) {
             AppSnackBar.showError(
-              title: "Chấm công thất bại",
+              title: s.check_in_failed,
               message: state.errMsg,
             );
           } else {
             AppSnackBar.showError(
-              title: "Chấm công thất bại",
-              message: "Máy chủ đang bận, vui lòng thử lại sau",
+              title: s.check_in_failed,
+              message: s.check_in_timeout,
             );
           }
         }
@@ -435,7 +436,7 @@ Future<void> _requestLocationPermission() async {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Vị trí đã chọn",
+                          Text(S.of(context).check_in_currentLocation,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600
@@ -460,7 +461,7 @@ Future<void> _requestLocationPermission() async {
                       callback: (){
                         _cubit.onExpandMap();
                       },
-                        mainText: "Xong").paddingOnly(bottom: 20)
+                        mainText: S.of(context).day_off_donebtn).paddingOnly(bottom: 20)
                   ],
                 ),
               ),
@@ -538,7 +539,7 @@ Future<void> _requestLocationPermission() async {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ) : Flexible(
-                      child: Text("Không tìm thấy dữ liệu điểm chấm công hoặc app chưa cho phép quyền vị trí",
+                      child: Text(s.check_in_timekeeping,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -768,7 +769,7 @@ Future<void> _requestLocationPermission() async {
             children: [
               const SizedBox(height: 12,),
               SvgPicture.asset(AppAssets.icCheckinSuccess,width: 76,height: 76,),
-              Text("Chấm công thành công",
+              Text(S.of(context).check_in_success,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
@@ -832,8 +833,7 @@ Future<void> _requestLocationPermission() async {
                 ),
               ),
               const SizedBox(height: 10,),
-              Text("Tuyệt vời!Điểm danh của bạn đã được ghi nhận\n thành công "
-                  ".Chúc bạn một ngày tốt !",
+              Text("${S.of(context).check_in_sucesssub1} ${S.of(context).check_in_sucesssub2}!",
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
@@ -861,7 +861,7 @@ Future<void> _requestLocationPermission() async {
             children: [
               const SizedBox(height: 12,),
               SvgPicture.asset(AppAssets.icCheckinFailed,width: 76,height: 76,),
-              Text("Chấm công thất bại",
+              Text(S.of(context).check_in_failed,
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
@@ -925,7 +925,7 @@ Future<void> _requestLocationPermission() async {
                 ),
               ),
               const SizedBox(height: 10,),
-              Text("Bạn không ở gần vị trí chấm công.Vui lòng đến gần hơn và thử lại",
+              Text(S.of(context).check_in_codition_failed,
                 style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -1110,8 +1110,8 @@ Future<void> _requestLocationPermission() async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 12),
-                    const Text(
-                      'Chấm công muộn/sớm',
+                    Text(
+                      S.of(context).check_in_late_early,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -1119,8 +1119,8 @@ Future<void> _requestLocationPermission() async {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Bạn đã chấm công sớm/muộn, bạn có muốn giải trình ngay không?',
+                    Text(
+                      S.of(context).check_in_lateReason,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.black54,
@@ -1136,7 +1136,7 @@ Future<void> _requestLocationPermission() async {
                       child: InputTextField(
                         title: "",
                         disableTitle: true,
-                        hintText: "Nhập lý do...",
+                        hintText: S.of(context).check_in_enterReason,
                         isRequiredField: true,
                         enable: true,
                         maxLine: 3,
@@ -1169,8 +1169,8 @@ Future<void> _requestLocationPermission() async {
                         backgroundColor: AppColors.themePrimaryDefault,
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text(
-                        'Giải trình',
+                      child: Text(
+                        S.of(context).check_in_sendExplantation,
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
@@ -1224,7 +1224,7 @@ Future<void> _requestLocationPermission() async {
             // ),
             const SizedBox(height: 16),
             Text(
-              "PM Nodo App cần cấp quyền vị trí để thực hiện chức năng chấm công và hiển thị bản đồ địa điểm làm việc.",
+              S.of(context).check_in_requirement,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -1251,7 +1251,7 @@ Future<void> _requestLocationPermission() async {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                     child: Text(
-                      "Để sau",//context.loc.cancel,
+                      S.of(context).check_in_later,//context.loc.cancel,
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
@@ -1277,7 +1277,7 @@ Future<void> _requestLocationPermission() async {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                     child: Text(
-                      "Cài đặt",//context.loc.check_out,
+                      S.of(context).check_in_goSetting,//context.loc.check_out,
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
@@ -1326,7 +1326,7 @@ Future<void> _requestLocationPermission() async {
               _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
               _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
           if(distance.round() + 10 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
-            AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-In");
+            AppSnackBar.showError(title: S.of(context).warning,message: S.of(context).check_in_warning2);
           }else{
             // validate khuôn mặt
             final result = await Navigator.push(
@@ -1352,7 +1352,7 @@ Future<void> _requestLocationPermission() async {
         _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
         _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
     if(distance.round() + 5 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
-      AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-Out");
+      AppSnackBar.showError(title: S.of(context).warning ,message: S.of(context).check_in_warning3);
     }else{
       // validate khuôn mặt
       final result = await Navigator.push(

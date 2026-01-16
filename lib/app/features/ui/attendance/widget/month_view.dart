@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/data/models/entities/work_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import 'day_cell.dart';
 import 'week_cell.dart';
@@ -13,7 +14,8 @@ class MonthView extends StatelessWidget {
   final ValueChanged<DateTime>? onTapDay;
   final DateTime? selectedDate;
 
-  const MonthView({super.key, 
+  const MonthView({
+    super.key,
     required this.month,
     required this.dayDisplay,
     required this.entriesByDate,
@@ -25,6 +27,7 @@ class MonthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final first = DateTime(month.year, month.month, 1);
     final int offset = first.weekday - 1;
 
@@ -38,17 +41,18 @@ class MonthView extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
           child: Row(
-            children: const [
-              WeekCell('T2'),
-              WeekCell('T3'),
-              WeekCell('T4'),
-              WeekCell('T5'),
-              WeekCell('T6'),
-              WeekCell('T7'),
-              WeekCell('CN'),
+            children: [
+              WeekCell(s.weekday_mon),
+              WeekCell(s.weekday_tue),
+              WeekCell(s.weekday_wed),
+              WeekCell(s.weekday_thu),
+              WeekCell(s.weekday_fri),
+              WeekCell(s.weekday_sat),
+              WeekCell(s.weekday_sun),
             ],
           ),
         ),
+
         if (loading) const LinearProgressIndicator(minHeight: 2),
         if (error != null)
           Padding(
@@ -68,13 +72,18 @@ class MonthView extends StatelessWidget {
             itemBuilder: (ctx, i) {
               final date = firstOfGrid.add(Duration(days: i));
               final isCurrentMonth =
-              (date.year == month.year && date.month == month.month);
-              final code = dayDisplay[DateTime(date.year, date.month, date.day)] ?? '';
-              final isSelected = selectedDate != null &&
+                  (date.year == month.year && date.month == month.month);
+              final code =
+                  dayDisplay[DateTime(date.year, date.month, date.day)] ?? '';
+              final isSelected =
+                  selectedDate != null &&
                   date.year == selectedDate!.year &&
                   date.month == selectedDate!.month &&
                   date.day == selectedDate!.day;
-              return DayCell(date: date, code: code, dimmed: !isCurrentMonth,
+              return DayCell(
+                date: date,
+                code: code,
+                dimmed: !isCurrentMonth,
                 isSelected: isSelected,
                 onTap: () => onTapDay?.call(date),
               );

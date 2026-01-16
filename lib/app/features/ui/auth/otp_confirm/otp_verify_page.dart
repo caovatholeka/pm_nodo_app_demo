@@ -190,7 +190,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
         if (state.resendStatus == LoadStatus.SUCCESS &&
             state.verifyStatus != LoadStatus.LOADING) {
           Flushbar(
-            message: "Mã OTP mới đã được gửi",
+            message: s.otp_sendnoti,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
             flushbarPosition: FlushbarPosition.TOP,
