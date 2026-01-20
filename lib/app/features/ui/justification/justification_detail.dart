@@ -343,13 +343,14 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   }
 
   String _mapFormType(String? type) {
+    final s = S.of(context);
     switch (type) {
       case 'late':
-        return 'Đi muộn';
+        return s.justification_status1;
       case 'early':
-        return 'Về sớm';
+        return s.justification_status2;
       case 'absence':
-        return 'Vắng mặt';
+        return s.justification_status3;
       default:
         return type ?? '';
     }

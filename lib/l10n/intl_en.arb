@@ -4,6 +4,7 @@
   "warning": "Warning",
   "error": "Error",
   "success": "Success",
+  "attention":"Attention",
   "confirm": "Confirm",
   "confirm_delete": "Confirm Deletion",
   "cancel": "Cancel",
@@ -16,6 +17,7 @@
   "send_approval_success":"Approval sent successfully",
   "send_aprroval_failed":"Failed to send approval",
   "delete_approval_failed":"Cannot delete non-draft record!",
+  "send_approval_btn":"Gửi yêu cầu",
 
   "login_title": "Login",
   "username": "Username",
@@ -316,6 +318,10 @@
   "justification_sendApproval2":"Are you sure you want to submit this request for approval?",
   "justtification_sendApproval":"Send approval",
   "justification_sendApproval":"Successfully submitted for approval.",
+  "justification_status1":"Late",
+  "justification_status2":"Early",
+  "justification_status3":"Absense",
+  
 
   "ot_pageTitle":"Overtime request",
   "ot_cardNote":"Notes",
@@ -446,6 +452,22 @@
   "login_Failed":"Failed to login into your account",
 
   "otp_empty":"OTP code cannot be empty!",
-  "otp_sendnoti":"New OTP code has been sent!"
+  "otp_sendnoti":"New OTP code has been sent!",
 
+  "attendance_title":"Attendance Justification",
+  "attendance_employee":"Employee",
+  "attendance_department":"Department",
+  "attendance_timeCome":"Time come",
+  "attendance_timeLeave":"Time leave",
+  "attendance_time":"Time",
+  "attendance_reason":"Reason",
+
+  "attendance_sendSuccess":"Your explanation has been submitted successfully",
+  "morning":"Morning",
+  "afternoon":"Afternoon",
+  "allday":"All day",
+
+  "delete_confirm":"Confirm Delete",
+  "delete_subtile":"Are you sure you wanted to delete this request?",
+  "delete_subtitle1":"This task can't be rewind!"
 }

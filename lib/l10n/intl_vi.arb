@@ -5,6 +5,7 @@
   "success": "Thành công",
   "failed":"Thất bại",
   "save": "Lưu",
+  "attention":"Thông báo",
   "confirm": "Xác nhận",
   "confirm_delete": "Xác nhận xóa",
   "inProgress":"Đang xử lý",
@@ -15,6 +16,7 @@
   "send_approval_success":"Đã gửi duyệt thành công",
   "send_aprroval_failed":"Gửi duyệt không thành công",
   "delete_approval_failed":"Không xóa được bản ghi khác nháp!",
+  "send_approval_btn":"Gửi yêu cầu",
 
   "login_title": "Đăng nhập",
   "username": "Tên đăng nhập",
@@ -305,6 +307,9 @@
   "justification_sendApproval1":"Xác nhận gửi duyệt",
   "justification_sendApproval2":"Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?",
   "justtification_sendApproval":"Gửi duyệt",
+  "justification_status1":"Đi muộn",
+  "justification_status2":"Về sớm",
+  "justification_status3":"Vắng mặt",
   
 
   "ot_pageTitle":"Tạo yêu cầu làm thêm giờ",
@@ -436,7 +441,22 @@
   "login_Failed":"Đăng nhâp thất bại",
 
   "otp_empty":"Mã OTP không được để trống!",
-  "otp_sendnoti":"Mã OTP mới đã được gửi!"
+  "otp_sendnoti":"Mã OTP mới đã được gửi!",
 
+  "attendance_title":"Giải trình công",
+  "attendance_employee":"Nhân viên",
+  "attendance_department":"Phòng ban",
+  "attendance_timeCome":"Giờ đến",
+  "attendance_timeLeave":"Giờ về",
+  "attendance_time":"Thời gian",
+  "attendance_reason":"Lý do",
 
+  "attendance_sendSuccess":"Đơn giải trình của bạn đã được gửi đi thành công",
+  "morning":"Sáng",
+  "afternoon":"Chiều",
+  "allday":"Cả ngày",
+  
+  "delete_confirm":"Xoá yêu cầu",
+  "delete_subtile":"Bạn có chắc muốn xoá yêu cầu này không?",
+  "delete_subtitle1":"Thao tác này không thể hoàn tác"
 }

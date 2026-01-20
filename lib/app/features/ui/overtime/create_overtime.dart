@@ -182,8 +182,8 @@ class _CreateOTPageState extends State<CreateOTPage> {
             await Flushbar(
               message:
                   widget.isEdit
-                      ? 'Cập nhật yêu cầu OT thành công'
-                      : 'Tạo yêu cầu OT thành công',
+                      ? s.justification_updateSuscess
+                      : s.justification_createSuscess,
               flushbarPosition: FlushbarPosition.TOP,
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
@@ -290,7 +290,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
                     child: SizedBox(
                       height: 48,
                       child: PrimaryButton(
-                        mainText: widget.isEdit ? 'Cập nhật' : 'Gửi yêu cầu',
+                        mainText: widget.isEdit ? s.justification_detail_updatebtn : s.send_approval_btn,
                         enable: state.isFormValid,
                         isLoading: state.isSubmitting,
                         callback: _cubit.submit,
