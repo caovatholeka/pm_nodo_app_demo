@@ -76,7 +76,9 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   void _showSpoofWarningThrottled() {
     final now = DateTime.now();
     if (_lastSpoofWarnAt != null &&
-        now.difference(_lastSpoofWarnAt!) < const Duration(seconds: 2)) return;
+        now.difference(_lastSpoofWarnAt!) < const Duration(seconds: 2)) {
+      return;
+    }
     _lastSpoofWarnAt = now;
 
     AppSnackBar.showError(
