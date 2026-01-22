@@ -47,6 +47,7 @@ class _NotificationPageState extends State<NotificationPage> {
     final cubit = context.read<NotiCubit>();
     final unread = cubit.state.totalUnread;
     final state = cubit.state;
+    final s = S.of(context);
 
     if(state.notifications.isEmpty) {
       Flushbar(
@@ -83,7 +84,7 @@ class _NotificationPageState extends State<NotificationPage> {
             content:
                 "Bạn có chắc chắn muốn đánh dấu tất cả thông báo là đã đọc không?",
             confirmText: "Đồng ý",
-            cancelText: "Hủy",
+            cancelText: s.cancel,
             onConfirm: () {
               Navigator.pop(context);
               cubit.markRead(markAll: true);

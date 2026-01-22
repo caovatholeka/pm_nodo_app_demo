@@ -269,6 +269,12 @@
   "notifications_time4":" days ago",
   "notifications_time5":"Yesterday",
   "notifications_time6":"Previous days",
+  "notifications_empty":"Nothing new",
+  "notifications_readAll":"Your notification have been read out",
+  "notifications_readAlltitle":"Đọc tất cả thông báo",
+  "notifications_readAllSub":"Bạn có chắc chắn muốn đánh dấu tất cả thông báo là đã đọc không?",
+  "notifications_agree":"Đồng ý",
+  "notifications_readAllSuscess":"Đã đọc hết thông báo",
 
   "language_title":"Select Language",
   "language_option1":"Vietnamese",

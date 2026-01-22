@@ -7,6 +7,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/service/local_notification_service.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import '../../../firebase_options.dart';
@@ -32,10 +33,11 @@ class FirebaseMessagingService {
 
     navigator.push(
       MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
-          child: const NotificationPage(),
-        ),
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
       ),
     );
   }
@@ -45,7 +47,7 @@ class FirebaseMessagingService {
   }
 
   static String? _encodeBase64(String? input) {
-    if(input == null || input.isEmpty) return null;
+    if (input == null || input.isEmpty) return null;
     final bytes = utf8.encode(input);
     return base64Encode(bytes);
   }
@@ -55,7 +57,7 @@ class FirebaseMessagingService {
 
     String? rawId;
 
-    if (Platform.isAndroid) { 
+    if (Platform.isAndroid) {
       final android = await deviceInfo.androidInfo;
       rawId = android.id;
     }
@@ -73,7 +75,7 @@ class FirebaseMessagingService {
       type = "android";
     }
     if (Platform.isIOS) {
-     type = "ios";
+      type = "ios";
     }
     return type;
   }
@@ -106,7 +108,6 @@ class FirebaseMessagingService {
         }
 
         if (apnsToken == null) {
-
           _setupForegroundHandlers();
           return;
         }
@@ -128,11 +129,13 @@ class FirebaseMessagingService {
     } on FirebaseException catch (e, s) {
       if (e.plugin == 'firebase_messaging') {
         logger.d(
-            "FCM FirebaseException: ${e.code} - ${e.message} (retry = $retry)");
+          "FCM FirebaseException: ${e.code} - ${e.message} (retry = $retry)",
+        );
         logger.d('$s');
 
         final msg = (e.message ?? '').toLowerCase();
-        final isNetworkLost = msg.contains('network connection was lost') ||
+        final isNetworkLost =
+            msg.contains('network connection was lost') ||
             msg.contains('network') ||
             msg.contains('connection');
 
@@ -142,9 +145,7 @@ class FirebaseMessagingService {
         }
 
         if (e.code == 'apns-token-not-set') {
-          logger.d(
-            "⚠apns-token-not-set .",
-          );
+          logger.d("⚠apns-token-not-set .");
         }
       } else {
         logger.d("Firebase other error: $e");
@@ -159,6 +160,9 @@ class FirebaseMessagingService {
   static void _setupForegroundHandlers() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       logger.d("Foreground FCM: ${message.notification?.title}");
+      LocalNotificationService.showNotification(message);
+      final data = message.data;
+      logger.d("📦 FCM DATA: $data");
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {

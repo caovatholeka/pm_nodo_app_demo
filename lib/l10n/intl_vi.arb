@@ -260,6 +260,13 @@
   "notifications_time4": " ngày trước",
   "notifications_time5": "Hôm qua",
   "notifications_time6": "Các ngày trước",
+  "notifications_empty":"Không có thông báo nào để đọc",
+  "notifications_readAll":"Các thông báo đã được đọc hết",
+  "notifications_readAlltitle":"Đọc tất cả thông báo",
+  "notifications_readAllSub":"Bạn có chắc chắn muốn đánh dấu tất cả thông báo là đã đọc không?",
+  "notifications_agree":"Đồng ý",
+  "notifications_readAllSuscess":"Đã đọc hết thông báo",
+   
   "language_title": "Chọn ngôn ngữ",
   "language_option1": "Tiếng Việt",
   "language_option2": "Tiếng Anh",
