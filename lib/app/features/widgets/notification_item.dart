@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-// import 'package:pm_app/app/core/values/app_assets.dart'; // Import file AppAssets của bạn
 import 'package:pm_app/app/data/models/entities/notification_entity.dart';
-import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
-import 'notification_detail_dialog.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 
 class NotificationItem extends StatelessWidget {
   final NotificationEntity item;
+  final VoidCallback? onTap;
 
-  const NotificationItem({super.key, required this.item});
+  const NotificationItem({
+    super.key,
+    required this.item,
+    this.onTap,
+  });
 
   bool get _isUnread => !(item.isSeen ?? false);
 
@@ -38,7 +39,6 @@ class NotificationItem extends StatelessWidget {
       };
     }
 
-    // Mặc định là chuông thông báo
     return {
       'icon': AppAssets.icBellNoti,
       'color': const Color(0xFFFDECEA),
@@ -49,14 +49,8 @@ class NotificationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (_) => NotificationDetailDialog(item: item),
-        );
-
-        context.read<NotiCubit>().markRead(markAll: false, id: item.id);
-      },
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
@@ -94,7 +88,7 @@ class NotificationItem extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 2,right: 5),
+                        padding: const EdgeInsets.only(top: 2, right: 5),
                         child: _buildAvatarIcon(),
                       ),
                     ),
@@ -115,10 +109,9 @@ class NotificationItem extends StatelessWidget {
                           item.title ?? "",
                           style: TextStyle(
                             fontSize: 16,
-                            color:
-                                _isUnread
-                                    ? const Color(0xFF2196F3)
-                                    : Colors.black,
+                            color: _isUnread
+                                ? const Color(0xFF2196F3)
+                                : Colors.black,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -159,9 +152,15 @@ class NotificationItem extends StatelessWidget {
     return Container(
       width: 44,
       height: 44,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: data['color']),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: data['color'],
+      ),
       padding: const EdgeInsets.all(10),
-      child: SvgPicture.asset(data['icon'], color: data['iconColor']),
+      child: SvgPicture.asset(
+        data['icon'],
+        color: data['iconColor'],
+      ),
     );
   }
 }

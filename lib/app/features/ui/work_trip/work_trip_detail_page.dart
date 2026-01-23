@@ -487,7 +487,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                     ),
                   ),
                   child: Text(
-                    S.of(context).bt_detail_sendApproval,
+                    S.of(context).bt_detail_sendApproval, 
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,

@@ -4,7 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/justification/justification_page.dart';
+import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
+import 'package:pm_app/app/features/ui/overtime/overtime_page.dart';
+import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
+import 'package:pm_app/app/features/ui/work_trip/work_trip_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -49,12 +55,12 @@ class _NotificationPageState extends State<NotificationPage> {
     final state = cubit.state;
     final s = S.of(context);
 
-    if(state.notifications.isEmpty) {
+    if (state.notifications.isEmpty) {
       Flushbar(
         message: s.notifications_empty,
         backgroundColor: const Color(0xFFFFC107),
         flushbarPosition: FlushbarPosition.TOP,
-        margin:  const EdgeInsets.all(16),
+        margin: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(12),
         duration: const Duration(seconds: 2),
         icon: const Icon(Icons.info_outline, color: Colors.white),
@@ -81,8 +87,7 @@ class _NotificationPageState extends State<NotificationPage> {
       builder:
           (_) => CustomDialog(
             title: s.notifications_readAlltitle,
-            content:
-                s.notifications_readAllSub,
+            content: s.notifications_readAllSub,
             confirmText: s.notifications_agree,
             cancelText: s.cancel,
             onConfirm: () {
@@ -100,6 +105,36 @@ class _NotificationPageState extends State<NotificationPage> {
             },
           ),
     );
+  }
+
+  void _handleNotificationTap(BuildContext context, NotificationEntity noti) {
+    final title = noti.title ?? "";
+    final cubit = context.read<NotiCubit>();
+
+    if (noti.id != null && noti.isSeen != true) {
+      cubit.markRead(markAll: false, id: noti.id);
+    }
+
+    switch (title) {
+      case "Đơn nghỉ phép":
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const OnLeavePage(isFromHome: true,)));
+        break;
+      case "Phân công công việc":
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const TaskManagePage(isFromHome: true,)));
+        break;
+      case "Đơn tăng ca":
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const OvertimePage(isFromHome: true,)));
+        break;
+      case "Đơn muộn sớm":
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const JustificationPage(isFromHome: true,)));
+        break;
+      case "Đơn công tác":
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkTripPage(isFromHome: true,)));
+        break;
+      
+      default:
+
+    }
   }
 
   @override
@@ -147,7 +182,6 @@ class _NotificationPageState extends State<NotificationPage> {
 
                   child: BlocBuilder<NotiCubit, NotiState>(
                     builder: (context, state) {
-                      
                       if (state.status == LoadStatus.LOADING) {
                         return const Center(
                           child: Padding(
@@ -155,7 +189,7 @@ class _NotificationPageState extends State<NotificationPage> {
                             child: CircularProgressIndicator(
                               strokeWidth: 3,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                Color(0xFF1E88FF), 
+                                Color(0xFF1E88FF),
                               ),
                             ),
                           ),
@@ -201,7 +235,10 @@ class _NotificationPageState extends State<NotificationPage> {
                             _sectionTitle(s.notification_time),
                             const SizedBox(height: 14),
                             ...grouped["today"]!.map(
-                              (e) => NotificationItem(item: e),
+                              (e) => NotificationItem(
+                                item: e,
+                                onTap: () => _handleNotificationTap(context, e),
+                                ),
                             ),
                             const SizedBox(height: 26),
                           ],
@@ -210,7 +247,9 @@ class _NotificationPageState extends State<NotificationPage> {
                             _sectionTitle(s.notifications_time5),
                             const SizedBox(height: 14),
                             ...grouped["yesterday"]!.map(
-                              (e) => NotificationItem(item: e),
+                              (e) => NotificationItem(item: e,
+                               onTap: () => _handleNotificationTap(context, e)
+                              ),
                             ),
                             const SizedBox(height: 26),
                           ],
@@ -219,7 +258,9 @@ class _NotificationPageState extends State<NotificationPage> {
                             _sectionTitle(s.notifications_time6),
                             const SizedBox(height: 14),
                             ...grouped["others"]!.map(
-                              (e) => NotificationItem(item: e),
+                              (e) => NotificationItem(item: e,
+                               onTap: () => _handleNotificationTap(context, e)
+                              ),
                             ),
                           ],
                         ],
@@ -380,4 +421,3 @@ String timeAgo(String? rawDate, BuildContext context) {
     return "${diff.inDays}${s.notifications_time4}";
   }
 }
-  
