@@ -51,7 +51,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
     if(state.notifications.isEmpty) {
       Flushbar(
-        message: "Không có thông báo nào để đọc",
+        message: s.notifications_empty,
         backgroundColor: const Color(0xFFFFC107),
         flushbarPosition: FlushbarPosition.TOP,
         margin:  const EdgeInsets.all(16),
@@ -64,7 +64,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
     if (unread == 0) {
       Flushbar(
-        message: "Các thông báo đã được đọc hết",
+        message: s.notifications_readAll,
         backgroundColor: const Color(0xFFFFC107),
         flushbarPosition: FlushbarPosition.TOP,
         margin: const EdgeInsets.all(16),
@@ -80,16 +80,16 @@ class _NotificationPageState extends State<NotificationPage> {
       barrierDismissible: false,
       builder:
           (_) => CustomDialog(
-            title: "Đọc tất cả thông báo",
+            title: s.notifications_readAlltitle,
             content:
-                "Bạn có chắc chắn muốn đánh dấu tất cả thông báo là đã đọc không?",
-            confirmText: "Đồng ý",
+                s.notifications_readAllSub,
+            confirmText: s.notifications_agree,
             cancelText: s.cancel,
             onConfirm: () {
               Navigator.pop(context);
               cubit.markRead(markAll: true);
               Flushbar(
-                message: "Đã đọc hết thông báo!!!!",
+                message: s.notifications_readAllSuscess,
                 backgroundColor: const Color.fromARGB(255, 0, 255, 85),
                 flushbarPosition: FlushbarPosition.TOP,
                 margin: const EdgeInsets.all(16),
@@ -380,3 +380,4 @@ String timeAgo(String? rawDate, BuildContext context) {
     return "${diff.inDays}${s.notifications_time4}";
   }
 }
+  
