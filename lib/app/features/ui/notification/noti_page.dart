@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
@@ -133,6 +132,7 @@ class _NotificationPageState extends State<NotificationPage> {
         break;
       
       default:
+       debugPrint("⚠️ Chưa map notification title: $title");
 
     }
   }

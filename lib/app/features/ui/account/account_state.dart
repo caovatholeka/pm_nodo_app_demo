@@ -6,6 +6,7 @@ class AccountState extends Equatable {
   final LoadStatus loadStatus;
   final LoadStatus logoutStatus;
   final ProfileEntity? profile;
+  
 
   const AccountState({
     this.loadStatus = LoadStatus.INITIAL,
@@ -15,17 +16,16 @@ class AccountState extends Equatable {
 
   AccountState copyWith({
     LoadStatus? loadStatus,
+    LoadStatus? logoutStatus,
     ProfileEntity? profile,
-    LoadStatus? logoutStatus
   }) {
     return AccountState(
       loadStatus: loadStatus ?? this.loadStatus,
+      logoutStatus: logoutStatus ?? this.logoutStatus,
       profile: profile ?? this.profile,
-      logoutStatus: loadStatus ?? this.logoutStatus
     );
   }
 
   @override
-  List<Object?> get props => [loadStatus, profile,logoutStatus];
+  List<Object?> get props => [loadStatus, logoutStatus, profile];
 }
-

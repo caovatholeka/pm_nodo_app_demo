@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_badge/flutter_app_badge.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
@@ -24,6 +25,7 @@ import 'package:pm_app/app/features/ui/on_leave/bloc/on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/bottom_sheet/employee_filter_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
@@ -169,8 +171,45 @@ class _MyAppState extends State<MyApp> {
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),
         child: BlocConsumer<AppCubit, AppState>(
-          listener: (context, state) {},
+          listenWhen:
+              (prev, curr) =>
+                  prev.tokenExpired != curr.tokenExpired &&
+                  curr.tokenExpired == true,
+
+          listener: (context, state) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              useRootNavigator: true,
+              builder:
+                  (_) => CustomDialog(
+                    title: "Phiên đăng nhập đã hết hạn",
+                    content:
+                        "Phiên làm việc của bạn đã hết hạn. Vui lòng đăng nhập lại để tiếp tục sử dụng.",
+                    success: false,
+                    confirmText: "Đăng nhập lại",
+                    cancelText: "Thoát",
+                    onConfirm: () async {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      context.read<AppCubit>().resetTokenExpired();
+                      await SharedPrefsHelper.saveToken(null);
+                      GlobalData.instance.navigatorKey.currentState
+                          ?.pushNamedAndRemoveUntil(
+                            Routes.login,
+                            (route) => false,
+                          );
+                    },
+
+                    onCancel: () {
+                      Navigator.of(context, rootNavigator: true).pop();
+                      context.read<AppCubit>().resetTokenExpired();
+                    },
+                  ),
+            );
+          },
+
           buildWhen: (pre, cur) => pre.locale != cur.locale,
+
           builder: (context, state) {
             return OverlaySupport(child: materialApp(state.locale ?? _locale));
           },
