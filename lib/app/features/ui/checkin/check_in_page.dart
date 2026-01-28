@@ -1340,7 +1340,7 @@ Future<void> _requestLocationPermission() async {
               _cubit.state.position?.longitude ?? 0.0,
               _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
               _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
-          if(distance.round() + 10 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
+          if(distance.round() > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round() + 100){
             AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-In");
           }else{
             // validate khuôn mặt
