@@ -74,7 +74,7 @@ class _CheckInPageState extends State<CheckInPage> {
     if (p != null && !_movedToGpsOnce) {
       _movedToGpsOnce = true;
       await _mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(LatLng(p.latitude, p.longitude), 16),
+        CameraUpdate.newLatLngZoom(LatLng(p.latitude, p.longitude), 15),
       );
     }
   }
@@ -128,32 +128,16 @@ Future<void> _requestLocationPermission() async {
     return;
   }
 
-  final accuracyStatus = await Geolocator.getLocationAccuracy();
-  if (accuracyStatus == LocationAccuracyStatus.reduced) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          "Vị trí hiện tại đang ở chế độ xấp xỉ (Approximate). "
-              "Vui lòng bật 'Vị trí chính xác'(Precise Location) trong Cài đặt để chấm công chính xác hơn.",
-        ),
-        backgroundColor: Colors.orange,
-      ),
-    );
+  if (Platform.isIOS) {
+    final accuracyStatus = await Geolocator.getLocationAccuracy();
+    if (accuracyStatus == LocationAccuracyStatus.reduced) {
+      // Hiện popup yêu cầu bật vị trí chính xác
+      await Geolocator.requestTemporaryFullAccuracy(purposeKey: "PreciseLocation");
+    }
   }
+  _listenLocation();
 
 
-  _locationSubscription?.cancel();
-
-  const locationSettings = LocationSettings(
-    accuracy: LocationAccuracy.best,
-    distanceFilter: 5,
-  );
-
-  _locationSubscription = Geolocator.getPositionStream(
-    locationSettings: locationSettings,
-  ).listen((Position position) {
-    _cubit.onChangeAddress(position);
-  });
 }
 
 
@@ -221,6 +205,32 @@ Future<void> _requestLocationPermission() async {
     }
   }
 
+  void _listenLocation() {
+    LocationSettings locationSettings;
+
+    if (Platform.isIOS) {
+      locationSettings = AppleSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        activityType: ActivityType.automotiveNavigation,
+        distanceFilter: 5, //0,
+        pauseLocationUpdatesAutomatically: false,
+        showBackgroundLocationIndicator: true,
+      );
+    } else {
+      // Giữ nguyên cho Android như cũ
+      locationSettings =  AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10,
+      );
+    }
+
+    _locationSubscription = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((Position position) {
+      _cubit.onChangeAddress(position);
+    });
+  }
+
   // Helpers
   String todayFormatted({Locale? locale, DateTime? now}) {
     final DateTime d = now ?? DateTime.now();
@@ -259,7 +269,7 @@ Future<void> _requestLocationPermission() async {
     }
 
     final target = LatLng(e.latitude ?? 0.0, e.longitude ?? 0.0);
-    final radius = (e.radius ?? 200.0);
+    final radius = (e.radius ?? 100.0);
 
     final zoom = _zoomForRadius(radius);
 
@@ -561,7 +571,12 @@ Future<void> _requestLocationPermission() async {
                 return InkWell(
                   onTap: isLoading ? () {} :
                   (){
-                    doCheckIn();
+                    if((_cubit.state.position?.latitude ?? 0) != 0){
+                      doCheckIn();
+                    }else{
+                      AppSnackBar.showError(title: "Cảnh báo",message: "Tín hiệu GPS kém");
+                    }
+
                   },
                   child: Container(
                     width: double.infinity,
@@ -1336,7 +1351,6 @@ Future<void> _requestLocationPermission() async {
 
             if (result != null && result.toString().isNotEmpty) {
               // call api checking
-              logger.d("file Path::: ${result.toString()}" );
               _cubit.doCheckInGps(result);
             }
           }
@@ -1344,28 +1358,26 @@ Future<void> _requestLocationPermission() async {
       }
   }
 
-  doCheckOut() async{
-    // check vị trí
-    double distance = Utils().calcDistanceMetersGeolocator(
-        _cubit.state.position?.latitude ?? 0.0,
-        _cubit.state.position?.longitude ?? 0.0,
-        _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
-        _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
-    if(distance.round() + 5 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
-      AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-Out");
-    }else{
-      // validate khuôn mặt
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
-      );
-
-      if (result != null && result.toString().isNotEmpty) {
-        // call api checking
-        logger.d("file Path::: ${result.toString()}" );
-        _cubit.doCheckOutGps(result);
-      }
-    }
-  }
+  // doCheckOut() async{
+  //   // check vị trí
+  //   double distance = Utils().calcDistanceMetersGeolocator(
+  //       _cubit.state.position?.latitude ?? 0.0,
+  //       _cubit.state.position?.longitude ?? 0.0,
+  //       _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
+  //       _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
+  //   if(distance.round() + 5 > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round()){
+  //     AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-Out");
+  //   }else{
+  //     // validate khuôn mặt
+  //     final result = await Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
+  //     );
+  //
+  //     if (result != null && result.toString().isNotEmpty) {
+  //       _cubit.doCheckOutGps(result);
+  //     }
+  //   }
+  // }
 
 }
