@@ -56,35 +56,37 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   }
 
   String? _validateNewPassword(String newPass) {
+    final s = S.of(context);
     final regex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$');
 
     if (newPass.isEmpty) {
-      return "Mật khẩu mới không được để trống";
+      return s.change_password_Empty;
     }
 
     if (!regex.hasMatch(newPass)) {
-      return "Mật khẩu mới phải có tối thiểu 8 ký tự, gồm chữ IN HOA, chữ thường, số và ký tự đặc biệt";
+      return s.change_password_condistion;
     }
 
     return null;
   }
 
   String? _validateFields() {
+    final s = S.of(context);
     final current = currentController.text.trim();
     final newPass = newController.text.trim();
     final confirm = confirmController.text.trim();
     if (current.isEmpty) {
-      return "Mật khẩu hiện tại không được để trống";
+      return s.change_password_Empty;
     }
 
     final newPassError = _validateNewPassword(newPass);
     if (newPassError != null) return newPassError;
 
     if (confirm.isEmpty) {
-      return "Vui lòng nhập lại mật khẩu để xác nhận";
+      return s.change_confirm_Empty;
     }
     if (confirm != newPass) {
-      return "Xác nhận mật khẩu không khớp";
+      return s.change_password_NotMatch;
     }
 
     return null;
@@ -93,7 +95,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   void _submit() {
     final error = _validateFields();
     if (error != null) {
-      _showMessage("Thất bại", error);
+      _showMessage(S.of(context).failed, error);
       return;
     }
 
@@ -117,8 +119,8 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
       listener: (context, state) {
         if (state.status == LoadStatus.SUCCESS) {
           _showMessage(
-            "Thành công",
-            state.message ?? "Đổi mật khẩu thành công!",
+            s.success,
+            state.message ?? s.change_password_success,
             success: true,
           );
           _clearFields();
@@ -126,10 +128,10 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
 
         if (state.status == LoadStatus.FAILURE) {
           _showMessage(
-            "Thất bại",
+            s.failed,
             (state.message != null && state.message!.trim().isNotEmpty)
                 ? state.message!
-                : "Không thể đổi mật khẩu",
+                : s.cannot_change_password,
           );
         }
       },
@@ -142,7 +144,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
           backAction: () {
             final state = context.read<ChangePasswordCubit>().state;
             if (state.status == LoadStatus.LOADING) {
-              _showMessage("Đang xử lý", "Vui lòng đợi hoàn tất");
+              _showMessage(s.inProgress, s.inProgressSub);
               return;
             }
             Navigator.pop(context);

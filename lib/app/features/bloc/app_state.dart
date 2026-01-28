@@ -5,6 +5,8 @@ class AppState extends Equatable {
   final LoadStatus? signOutStatus;
   final Locale? locale;
   final int? totalUnread;
+  final bool isLoggedIn;
+  final bool tokenExpired;
   ProfileEntity? userProfile;
   List<WorkEntryTypeEntity>? listWorkEntryTypes;
   List<WorkFlowStageEntity>? listWorkFlowStages;
@@ -21,6 +23,8 @@ class AppState extends Equatable {
     this.listWorkFlowStages,
     this.listTaskStages,
     this.totalUnread = 0,
+    this.isLoggedIn = true,
+    this.tokenExpired = false,
   });
 
   factory AppState.initial() => AppState(locale: Locale('vi'));
@@ -35,6 +39,8 @@ class AppState extends Equatable {
     List<WorkFlowStageEntity>? listWorkFlowStages,
     List<TaskStageEntity>? listTaskStages,
     int? totalUnread,
+    bool? isLoggedIn,
+    bool? tokenExpired,
   }) {
     return AppState(
       token: token ?? this.token,
@@ -45,6 +51,8 @@ class AppState extends Equatable {
       listWorkFlowStages: listWorkFlowStages ?? this.listWorkFlowStages,
       listTaskStages: listTaskStages ?? this.listTaskStages,
       totalUnread: totalUnread ?? this.totalUnread,
+      isLoggedIn: isLoggedIn ?? this.isLoggedIn,
+      tokenExpired: tokenExpired ?? this.tokenExpired,
     );
   }
 
@@ -58,5 +66,7 @@ class AppState extends Equatable {
     listWorkFlowStages,
     listTaskStages,
     totalUnread,
+    isLoggedIn,
+    tokenExpired,
   ];
 }

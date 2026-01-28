@@ -9,6 +9,7 @@ import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/service/notification_service.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
@@ -38,9 +39,9 @@ void main() {
       );
 
       await FirebaseAnalysticService.initialize();
-
+      await LocalNotificationService.initialize();
       try {
-        FirebaseMessagingService.initializeFCM();
+        await FirebaseMessagingService.initializeFCM();
       } catch (_) {
         logger.d("initilize fcm");
       }

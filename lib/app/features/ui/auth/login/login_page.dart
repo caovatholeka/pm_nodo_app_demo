@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
         }
 
         if (state.loginStatus == LoadStatus.FAILURE) {
-          _showError(state.errMsg ?? "Đăng nhâp thất bại");
+          _showError(state.errMsg ?? s.login_Failed);
         }
       },
       builder: (context, state) {

@@ -16,6 +16,7 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/activity_item.dart';
 import 'package:pm_app/app/features/widgets/leave_balance_card.dart' as leave;
 import 'package:pm_app/app/features/widgets/legend_item.dart' as legend;
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../widget/month_view.dart';
 
@@ -183,6 +184,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
         });
   }
   Widget _buildYearMonthDropdown() {
+    final s = S.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -210,7 +212,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                   prev.focusedMonth != cur.focusedMonth,
               builder: (context,state){
                 return Text(
-                  "Tháng ${state.selectedMonth}, ${state.selectedYear}",
+                  "${s.work_data_monthYear} ${state.selectedMonth}, ${state.selectedYear}",
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -252,6 +254,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
 
   // Widgets
   Widget _buildLegend() {
+    final s = S.of(context);
     return BlocBuilder<AttendanceDataCubit,AttendanceDataState>(
         bloc: widget.cubit,
         buildWhen: (prev,cur) => prev.isLegendExpand != cur.isLegendExpand,
@@ -275,7 +278,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Trạng thái chấm công",
+                        Text(s.work_data_checkInStatus,
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -302,25 +305,25 @@ class _AttendanceTabState extends State<AttendanceTab> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              legend.LegendItem(color: Color(0xFF41B100), label: "Công đi làm"),
+                              legend.LegendItem(color: Color(0xFF41B100), label: s.work_data_status1),
                               const SizedBox(height: 8,),
-                              legend.LegendItem(color: Color(0xFFDA3535), label: "Chưa chấm công"),
+                              legend.LegendItem(color: Color(0xFFDA3535), label: s.work_data_status2),
                               const SizedBox(height: 8,),
-                              legend.LegendItem(color: Color(0xFf2C00CC), label: "Thiếu giờ ra"),
+                              legend.LegendItem(color: Color(0xFf2C00CC), label: s.work_data_status3),
                               const SizedBox(height: 8,),
-                              legend.LegendItem(color: Color(0xFFDC00C6), label: "Nghỉ không lương"),
+                              legend.LegendItem(color: Color(0xFFDC00C6), label: s.work_data_status4),
                             ],
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              legend.LegendItem(color: Color(0xFFD9A8CC), label: "Đi muộn / Về sớm"),
+                              legend.LegendItem(color: Color(0xFFD9A8CC), label: s.work_data_status5),
                               const SizedBox(height: 8,),
-                              legend.LegendItem(color: Color(0xFFA5A5A9), label: "Nghỉ cuối tuần"),
+                              legend.LegendItem(color: Color(0xFFA5A5A9), label: s.work_data_stauts6),
                               const SizedBox(height: 8,),
-                              legend.LegendItem(color: Color(0xFF9F5D00), label: "Thiếu giờ vào"),
+                              legend.LegendItem(color: Color(0xFF9F5D00), label: s.work_data_status7),
                               const SizedBox(height: 8,),
-                              legend.LegendItem(color: Color(0xFF00D3D6), label: "Nửa ngày công"),
+                              legend.LegendItem(color: Color(0xFF00D3D6), label: s.work_data_status8),
                             ],
                           )
                         ],
@@ -335,8 +338,8 @@ class _AttendanceTabState extends State<AttendanceTab> {
   Widget _buildActivityHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Text("Hoạt động",
+      children: [
+        Text(S.of(context).work_data_title,
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
@@ -372,7 +375,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                 status: status,
               );
             }).toList(),
-          ) : Center(child: Text("Chưa có dữ liệu"),);
+          ) : Center(child: Text(S.of(context).justification_emptyData),);
       }
     );
 

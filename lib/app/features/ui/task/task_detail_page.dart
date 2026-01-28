@@ -76,6 +76,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<TaskCubit, TaskState>(
       bloc: _cubit,
       listener: (context, state) {
@@ -86,8 +87,8 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Xoá công việc thành công!!",
+            title: s.success,
+            message: s.todo_delete_success,
           );
           Navigator.pop(context, true);
         }
@@ -95,8 +96,8 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: "Có lỗi xảy ra , vui lòng thử lại sau!!",
+            title: s.warning,
+            message: s.to_do_failed,
           );
         } else {
           LoadingOverlay.hide(context);
@@ -172,23 +173,23 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                                 CustomDashView(),
                                 const SizedBox(height: 8),
                                 _buildItem(
-                                  "Loại Công việc",
+                                  s.to_jobtype,
                                   (state.detailTask?.taskType ?? "") == "normal"
-                                      ? "Thông thường"
-                                      : "Tuyển dụng",
+                                      ? s.todo_detail_status1
+                                      : s.todo_detail_status2,
                                 ).paddingOnly(bottom: 8),
                                 CustomDashView(),
 
                                 const SizedBox(height: 8),
                                 _buildItem(
-                                  "Người giao việc",
+                                  s.to_do_card_taskmaster,
                                   state.detailTask?.assigner?.name ?? "",
                                 ).paddingOnly(bottom: 8),
                                 CustomDashView(),
 
                                 const SizedBox(height: 8),
                                 _buildItem(
-                                  "Người được phân công",
+                                  s.to_taskempl,
                                   state.detailTask?.userIds
                                           ?.map((sc) => sc.name)
                                           .toList()
@@ -199,7 +200,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
                                 const SizedBox(height: 8),
                                 _buildItem(
-                                  "Hạn chót",
+                                  s.to_do_card_deadline,
                                   AppDateUtils.changeIso8601StringToDateTimeString(
                                     state.detailTask?.deadline ?? "",
                                   ),
@@ -213,7 +214,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
 
                                 const SizedBox(height: 8),
                                 _buildItem(
-                                  "Mô tả",
+                                  s.to_description,
                                   state.detailTask?.description ?? "",
                                 ).paddingOnly(bottom: 16),
                               ],
@@ -239,13 +240,14 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   }
 
   get _getPriority {
+    final s = S.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
           flex: 5,
           child: Text(
-            "Mức độ ưu tiên",
+            s.to_priority_level,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -274,6 +276,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   }
 
   get _bottomSheet {
+    final s = S.of(context);
     return BlocBuilder<TaskCubit, TaskState>(
       bloc: _cubit,
       buildWhen: (prev, cur) => prev.detailTask != cur.detailTask,
@@ -300,7 +303,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     ),
                   ),
                   child: Text(
-                    "Xoá",
+                    s.day_off_btn_delete,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -332,7 +335,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                     ),
                   ),
                   child: Text(
-                    "Cập nhật",
+                    s.day_off_btn_edit,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -351,11 +354,12 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   
 
   get _statusWidget {
+    final s = S.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Trạng thái",
+          s.day_off_card_status,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w400,
@@ -455,6 +459,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   }
 
   void showDeleteConfirmDialog() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -462,13 +467,13 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       builder:
           (_) => CustomDialog(
             iconPath: AppAssets.ic_delete,
-            title: "Xoá yêu cầu",
+            title: s.todo_confirm_delete,
             content:
-                "Bạn có chắc muốn xoá yêu cầu này không? \n"
-                "Thao tác này không thể hoàn tác",
+                "${s.todo_subtitle1} \n"
+                "${s.todo_subtitle2}",
             success: false,
-            confirmText: "Xoá",
-            cancelText: "Huỷ bỏ",
+            confirmText: s.day_off_btn_delete,
+            cancelText: s.cancel,
             onConfirm: () {
               Navigator.pop(context);
               _cubit.deleteTask(_cubit.state.detailTask?.id ?? 0);

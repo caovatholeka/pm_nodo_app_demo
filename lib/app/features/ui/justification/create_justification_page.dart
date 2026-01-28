@@ -135,8 +135,8 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
             await Flushbar(
               message:
                   widget.isEdit
-                      ? 'Cập nhật yêu cầu thành công'
-                      : 'Tạo yêu cầu thành công',
+                      ? s.justification_updateSuscess
+                      : s.justification_createSuscess,
               flushbarPosition: FlushbarPosition.TOP,
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
@@ -230,7 +230,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                                         color: Colors.black12,
                                       ),
                                       ListTile(
-                                        title: const Text('Việc cá nhân'),
+                                        title: Text(s.justification_personal),
                                         onTap: () {
                                           _reasonTypeCtrl.text = 'Việc cá nhân';
                                           cubit.changeReason('personal');
@@ -243,7 +243,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                                         color: Colors.black12,
                                       ),
                                       ListTile(
-                                        title: const Text('Công việc'),
+                                        title: Text(s.justification_work),
                                         onTap: () {
                                           _reasonTypeCtrl.text = 'Công việc';
                                           cubit.changeReason('work');
@@ -297,7 +297,7 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                                 children: [
                                   Expanded(
                                     child: InputTextField(
-                                      title: 'Hình thức',
+                                      title: s.justification_method,
                                       hintText: '',
                                       isRequiredField: true,
                                       readOnly: true,

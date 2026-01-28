@@ -160,8 +160,8 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Xoá bản ghi thành công!",
+            title: s.success,
+            message: s.delete_success,
           );
 
           // _showDialog(
@@ -175,8 +175,8 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Đã gửi duyệt thành công!",
+            title: s.success,
+            message: s.send_approval_success,
           );
           // _showDialog(
           //   title: "Thành công",
@@ -188,16 +188,16 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: "Gửi duyệt không thành công!",
+            title: s.warning,
+            message: s.send_aprroval_failed,
           );
           // _showDialog(title: "Lỗi", message: "Gửi duyệt lỗi!", success: false);
         } else if (state.deleteStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: "Không xóa được bản ghi khác nháp!",
+            title: s.warning,
+            message: s.delete_approval_failed,
           );
           // _showDialog(
           //   title: "Lỗi",
@@ -370,10 +370,10 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           (_) => CustomDialog(
             iconPath: AppAssets.ic_delete,
             title: S.of(context).confirm_delete,
-            content: "Bạn có chắc muốn xoá bản ghi này không?",
+            content: S.of(context).day_off_confirm_dialog_delete,
             success: false,
-            confirmText: "Xoá",
-            cancelText: "Huỷ",
+            confirmText: S.of(context).day_off_btn_delete,
+            cancelText: S.of(context).cancel,
             onConfirm: () {
               Navigator.pop(context);
               _cubit.deleteOnLeave(_cubit.state.detailEntity?.id ?? 0);

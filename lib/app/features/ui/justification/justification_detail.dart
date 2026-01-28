@@ -118,7 +118,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       listener: (context, state) async {
         if (state.submitSuccess) {
           await Flushbar(
-            message: 'Gửi duyệt thành công',
+            message: s.justification_sendApproval,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
@@ -184,7 +184,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     }
 
     if (state.loadStatus == LoadStatus.FAILURE) {
-      return Center(child: Text(state.error ?? 'Đã xảy ra lỗi'));
+      return Center(child: Text(state.error ?? S.of(context).justification_errorHappern));
     }
 
     return SingleChildScrollView(
@@ -343,13 +343,14 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   }
 
   String _mapFormType(String? type) {
+    final s = S.of(context);
     switch (type) {
       case 'late':
-        return 'Đi muộn';
+        return s.justification_status1;
       case 'early':
-        return 'Về sớm';
+        return s.justification_status2;
       case 'absence':
-        return 'Vắng mặt';
+        return s.justification_status3;
       default:
         return type ?? '';
     }
@@ -370,11 +371,11 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                 barrierDismissible: false,
                 builder:
                     (_) => CustomDialog(
-                      title: 'Xác nhận gửi duyệt',
+                      title: s.justification_sendApproval1,
                       content:
-                          'Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?',
-                      confirmText: 'Gửi duyệt',
-                      cancelText: 'Hủy',
+                          s.justification_sendApproval2,
+                      confirmText: s.justtification_sendApproval,
+                      cancelText: s.cancel,
                       success: true,
                       onConfirm: () {
                         Navigator.pop(context);

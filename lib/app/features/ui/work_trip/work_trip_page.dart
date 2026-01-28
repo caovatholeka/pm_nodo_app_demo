@@ -18,7 +18,8 @@ import '../../widgets/custom_calendar_range_sheet.dart';
 import '../../widgets/input_text_field.dart';
 
 class WorkTripPage extends StatefulWidget {
-  const WorkTripPage({super.key});
+  final bool? isFromHome;
+  const WorkTripPage({super.key, this.isFromHome});
 
   @override
   State<WorkTripPage> createState() => _WorkTripPageState();
@@ -104,7 +105,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
             appBar: MyAppBar(titleAppbar: s.bt_title,
-              haveBackButton: true,
+              haveBackButton: widget.isFromHome ?? false,
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.only(left: 16,right: 16),

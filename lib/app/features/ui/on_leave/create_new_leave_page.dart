@@ -311,8 +311,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             title: s.success,
             message:
                 widget.isEdit ?? false
-                    ? "Cập nhật đơn xin nghỉ thành công"
-                    : "Tạo mới đơn nghỉ thành công!",
+                    ? s.day_off_update_success
+                    : s.day_off_create_success,
           );
 
           if (widget.isEdit ?? false) {
@@ -484,7 +484,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             AppSnackBar.showError(
                                               title: s.warning,
                                               message:
-                                                  "Từ ngày không được lớn hơn đến ngày",
+                                                  s.day_off_warning_greater,
                                             );
                                           } else {
                                             // _createCubit.onChangeLeaveDays(_createCubit.state.toDateTime!.difference(selectedDate).inDays);
@@ -526,7 +526,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             AppSnackBar.showError(
                                               title: s.warning,
                                               message:
-                                                  "Từ ngày không được nhỏ hơn hôm nay",
+                                                  s.day_off_warning_smaller,
                                             );
                                           } else {
                                             _createCubit.setFromDate(
@@ -588,7 +588,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             AppSnackBar.showError(
                                               title: s.warning,
                                               message:
-                                                  "Từ ngày không được lớn hơn đến ngày",
+                                                  s.day_off_warning_greater,
                                             );
 
                                             // AppSnackBar.showError(title: S.current.warning, message: S.current.from_time_to_time_validate);
@@ -631,7 +631,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             AppSnackBar.showError(
                                               title: s.warning,
                                               message:
-                                                  "Đến ngày không được nhỏ hơn hôm nay",
+                                                  s.day_off_notToday,
                                             );
                                           } else {
                                             _createCubit.setToDate(
@@ -825,7 +825,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
               double.parse(totalDaysController.text)) {
         AppSnackBar.showWarning(
           title: S.of(context).warning,
-          message: "Quỹ phép của nhân viên không còn đủ!",
+          message: S.of(context).day_off_notEnough,
         );
       } else {
         _showUpdate();
@@ -839,8 +839,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     _showDialog(
       title: S.of(context).confirm,
       message:
-          "Thông tin sẽ được thay đổi. Bạn chắc chắn "
-          "muốn thay đổi thông tin này?",
+          "${S.of(context).day_off_confirm_update_sub1} ${S.of(context).day_off_confirm_update_sub2}",
       success: true,
       onConfirm: () {
         _createCubit.updateLeaveDay(widget.detailEntity?.id ?? 0);
@@ -856,7 +855,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
               double.parse(totalDaysController.text)) {
         AppSnackBar.showWarning(
           title: S.of(context).warning,
-          message: "Quỹ phép của nhân viên không còn đủ!",
+          message: S.of(context).day_off_notEnough,
         );
       } else {
         _createCubit.createLeaveDay();

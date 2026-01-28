@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDcuHssTy1sDZN5hVZI0VFO1Tp8k6i_yGY',
     appId: '1:488615218728:android:e605a65995fee98d226f1d',
-    messagingSenderId: '679869279950',
+    messagingSenderId: '488615218728',
     projectId: 'pm-nodo-notification',
     storageBucket: 'pm-nodo-notification.firebasestorage.app',
   );

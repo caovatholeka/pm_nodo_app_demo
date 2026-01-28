@@ -24,7 +24,8 @@ import '../../bloc/app_cubit.dart';
 import '../../widgets/input_text_field.dart';
 
 class TaskManagePage extends StatefulWidget {
-  const TaskManagePage({super.key});
+  final bool? isFromHome;
+  const TaskManagePage({super.key, this.isFromHome});
 
   @override
   State<TaskManagePage> createState() => _TaskManagePageState();
@@ -155,7 +156,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
               builder: (context, appState) {
                 return MyAppBar(
                   titleAppbar: s.to_do_detail_title,
-                  haveBackButton: true,
+                  haveBackButton: widget.isFromHome ?? false,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
                   badgeCount: appState.totalUnread,

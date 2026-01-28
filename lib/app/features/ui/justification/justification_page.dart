@@ -197,7 +197,7 @@ class _JustificationPageState extends State<JustificationPage> {
 
                   if (state.loadStatus == LoadStatus.FAILURE) {
                     return Center(
-                      child: Text(state.error ?? 'Có lỗi xảy ra'),
+                      child: Text(state.error ?? S.of(context).to_do_failed),
                     );
                   }
 

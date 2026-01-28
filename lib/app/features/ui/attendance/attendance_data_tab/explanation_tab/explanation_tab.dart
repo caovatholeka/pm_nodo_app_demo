@@ -8,6 +8,7 @@ import 'package:pm_app/app/data/models/entities/work_entry_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/send_invalid_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../../core/commons/app_colors.dart';
 import '../../../../widgets/explanation_card.dart';
@@ -64,6 +65,7 @@ class _ExplanationTabState extends State<ExplanationTab> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<ExplanationCubit, ExplanationState>(
       bloc: _cubit,
       listener: (context, state) {
@@ -77,8 +79,8 @@ class _ExplanationTabState extends State<ExplanationTab> {
                   context: context,
                   builder: (_) => CustomDialog(
                     iconPath: AppAssets.ic_done,
-                    title: "Thành công",
-                    content: "Đã gửi giải trình thành công!",
+                    title: s.success,
+                    content: s.explan_sendSussces,
                     onCancel: () {
                       Navigator.of(context).pop();
                     },
@@ -197,7 +199,7 @@ class _ExplanationTabState extends State<ExplanationTab> {
                     },
                   );
                 }),
-          ):Center(child: Text("Không có dữ liệu")).paddingOnly(top: 30)
+          ):Center(child: Text(S.of(context).bt_empty)).paddingOnly(top: 30)
           );
           /*
           return ;
@@ -207,6 +209,7 @@ class _ExplanationTabState extends State<ExplanationTab> {
   }
   // chon time
   Widget _buildYearMonthDropdown() {
+    final s = S.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -228,21 +231,21 @@ class _ExplanationTabState extends State<ExplanationTab> {
                 color: AppColors.themePrimaryDefault,
                 borderRadius: BorderRadius.all(Radius.circular(100))
             ),
-            child: BlocBuilder<ExplanationCubit,ExplanationState>(
-                bloc: _cubit,
-                buildWhen: (prev,cur) => prev.selectedMonth != cur.selectedMonth ||
-                    prev.selectedYear != cur.selectedYear,
-                builder: (context,state){
-                  return Text(
-                    "Tháng ${state.selectedMonth}, ${state.selectedYear}",
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white
-                    ),
-                  );
-                }
-            ),
+              child: BlocBuilder<ExplanationCubit,ExplanationState>(
+                  bloc: _cubit,
+                  buildWhen: (prev,cur) => prev.selectedMonth != cur.selectedMonth ||
+                      prev.selectedYear != cur.selectedYear,
+                  builder: (context,state){
+                    return Text(
+                      "${s.work_data_monthYear} ${state.selectedMonth}, ${state.selectedYear}",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white
+                      ),
+                    );
+                  }
+              ),
 
           ),
         ),

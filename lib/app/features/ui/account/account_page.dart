@@ -49,15 +49,16 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   void _logout() async {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) {
         return CustomDialog(
-          title: "Xác nhận đăng xuất",
-          content: "Bạn có chắc muốn đăng xuất không?",
-          confirmText: "Đăng xuất",
-          cancelText: "Hủy",
+          title: s.dialog_logout_title,
+          content: s.dialog_logout_subtitle,
+          confirmText: s.dialog_logout_btn1,
+          cancelText: s.dialog_logout_btn2,
           onConfirm: () async {
             Navigator.pop(context);
 

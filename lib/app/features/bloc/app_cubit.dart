@@ -1,6 +1,7 @@
 import 'dart:ui';
 
-// import 'package:flutter_app_badger/flutter_app_badger.dart';
+import 'package:flutter_app_badge/flutter_app_badge.dart';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
@@ -124,28 +125,31 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> countUnreadNoti() async {
-    try {
-      final res = await userRepository.countUnreadNoti();
+Future<void> countUnreadNoti() async {
+  try {
+    final res = await userRepository.countUnreadNoti();
 
-      if(res.code == 200) {
-        final data = res.data as Map<String, dynamic>;
-        final unread = data['unread_count'] ?? 0;
+    if (res.code == 200) {
+      final data = res.data as Map<String, dynamic>;
+      final unread = data['unread_count'] ?? 0;
 
-        emit(state.copyWith(totalUnread: unread));
-
-        // if(await FlutterAppBadger.isAppBadgeSupported()) {
-        //   if(unread > 0) {
-        //     FlutterAppBadger.updateBadgeCount(unread);
-        //   } else {
-        //     FlutterAppBadger.removeBadge();
-        //   }
-        // }
-      }
-    } catch (e, s) {
-      logger.e("countUnreadNoti error: $e");
-      logger.d("stack: $s");
+      emit(state.copyWith(totalUnread: unread));
+      FlutterAppBadge.count(unread);
     }
+  } catch (e, s) {
+    logger.e("countUnreadNoti error: $e");
+    logger.d("stack: $s");
+  }
+}
+
+
+
+  void onTokenExpired() {
+    emit(state.copyWith(tokenExpired: true));
+  }
+
+  void resetTokenExpired() {
+    emit(state.copyWith(tokenExpired: false)); 
   }
 
 }

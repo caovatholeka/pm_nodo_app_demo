@@ -77,7 +77,9 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   void _showSpoofWarningThrottled() {
     final now = DateTime.now();
     if (_lastSpoofWarnAt != null &&
-        now.difference(_lastSpoofWarnAt!) < const Duration(seconds: 2)) return;
+        now.difference(_lastSpoofWarnAt!) < const Duration(seconds: 2)) {
+      return;
+    }
     _lastSpoofWarnAt = now;
 
     AppSnackBar.showError(
@@ -184,7 +186,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể mở camera: $e')),
+          SnackBar(content: Text('${S.of(context).check_in_cannotOpenCamera}: $e')),
         );
       }
     }
@@ -208,7 +210,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể bắt đầu quét khuôn mặt: $e')),
+        SnackBar(content: Text('${S.of(context).check_in_faceScanFailed}: $e')),
       );
       setState(() => _scanStarted = false);
     }
@@ -300,7 +302,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Không thể chụp ảnh: $e')),
+          SnackBar(content: Text('${S.of(context).check_in_cameraFailed}: $e')),
         );
         try {
           await _cam?.startImageStream(_processFrame);
@@ -320,7 +322,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       if (faces.isEmpty) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Không phát hiện khuôn mặt trong ảnh')),
+          SnackBar(content: Text(S.of(context).check_in_cannotSeeFace)),
         );
         return;
       }
@@ -330,7 +332,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi xử lý ảnh: $e')),
+          SnackBar(content: Text('${S.of(context).check_inFailed}: $e')),
         );
       }
     }
@@ -633,8 +635,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         } else if (state.scanStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
-              title: "Thất bại",
-              message: state.scanMsg ?? "Không tìm thấy thông tin người dùng!");
+              title: S.of(context).failed,
+              message: state.scanMsg ?? S.of(context).check_inFailed2);
         } else {
           LoadingOverlay.hide(context);
         }

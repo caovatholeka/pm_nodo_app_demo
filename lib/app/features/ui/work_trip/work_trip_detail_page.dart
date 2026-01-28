@@ -139,12 +139,13 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   }
 
   String mapScheduleDateType(String type) {
+    final s = S.of(context);
     if (type == "before") {
-      return "Sáng";
+      return s.morning;
     } else if (type == "after") {
-      return "Chiều";
+      return s.afternoon;
     } else {
-      return "Cả ngày";
+      return s.allday;
     }
   }
 
@@ -165,6 +166,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   }
 
   void showDeleteConfirmDialog() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -172,13 +174,13 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
       builder:
           (_) => CustomDialog(
             iconPath: AppAssets.ic_delete,
-            title: "Xoá yêu cầu",
+            title: s.delete_confirm,
             content:
-                "Bạn có chắc muốn xoá yêu cầu này không? \n"
-                "Thao tác này không thể hoàn tác",
+                "${s.delete_subtile} \n"
+                "${s.delete_subtitle1}!",
             success: false,
-            confirmText: "Xoá",
-            cancelText: "Huỷ bỏ",
+            confirmText: s.day_off_btn_delete,
+            cancelText: s.day_off_btn_delete,
             onConfirm: () {
               Navigator.pop(context);
               _cubit.onDeleteWorkTrip(_cubit.state.detailWorkTrip?.id ?? 0);
@@ -485,7 +487,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                     ),
                   ),
                   child: Text(
-                    S.of(context).bt_detail_sendApproval,
+                    S.of(context).bt_detail_sendApproval, 
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
