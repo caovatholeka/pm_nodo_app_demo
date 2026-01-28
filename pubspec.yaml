@@ -4,7 +4,7 @@ description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 
-version: 1.0.1+8
+version: 1.0.0+7
 
 environment:
   sdk: ^3.7.0
@@ -88,17 +88,13 @@ dependencies:
   google_maps_flutter_platform_interface: ^2.14.0
   google_maps_flutter_android: ^2.18.3
   firebase_crashlytics: ^3.5.7
-#  face_anti_spoofing_detector: ^0.0.3 : # hien tai chi cho tro android
-#  face_anti_spoofing_detector:
-#    git:
-#      url: https://github.com/horlengg/face_anti_spoofing_detector
-#      ref: dev
   # flutter_app_badger: ^1.5.0
   syncfusion_flutter_charts: ^31.1.19
   timelines: ^0.1.0
   face_anti_spoofing_detector: ^0.0.3
   flutter_app_badge: ^2.0.2
 #  camerawesome: ^2.5.0
+  # checkbox_grouped: ^2.0.0
 
 dev_dependencies:
   flutter_test:

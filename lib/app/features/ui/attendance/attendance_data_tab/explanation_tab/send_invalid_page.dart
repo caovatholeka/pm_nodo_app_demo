@@ -118,7 +118,7 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
               buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
               builder: (context, appState) {
                 return MyAppBar(
-                  titleAppbar: s.employee_title,
+                  titleAppbar: s.attendance_title,
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,

@@ -21,6 +21,8 @@ import 'bloc/on_leave_cubit.dart';
 import 'on_leave_detail_page.dart';
 import 'widget/on_leave_list_item.dart';
 
+const int kManagerApproveStatusId = 14;
+
 class OnLeavePage extends StatefulWidget {
   final bool? isFromHome;
   const OnLeavePage({super.key, this.isFromHome});
@@ -31,9 +33,13 @@ class OnLeavePage extends StatefulWidget {
 
 class _OnLeavePageState extends State<OnLeavePage> {
   final _cubit = GetIt.I.get<OnLeaveCubit>();
-  ScrollController controller = ScrollController();
+  final Set<int> selectedIds = {};
+  final ScrollController controller = ScrollController();
 
-  TextEditingController filterController = TextEditingController();
+  final TextEditingController filterController = TextEditingController();
+
+  DateTimeRange selectedWeek = _weekOf(DateTime.now());
+  final _df = DateFormat('dd/MM/yyyy');
 
   @override
   void initState() {
@@ -41,15 +47,33 @@ class _OnLeavePageState extends State<OnLeavePage> {
     _cubit.onChangeDateFilter("", "");
     _cubit.getListOnLeaveTimes();
     filterController.clear();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _cubit.getListOnLeaveTimes();
-    });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  bool get isDirector {
+    final jobTitle = context.read<AppCubit>().state.userProfile?.jobTitle ?? "";
+    return jobTitle.toLowerCase().contains("giám đốc");
+  }
+
+  static DateTime _mondayOf(DateTime d) {
+    final x = DateTime(d.year, d.month, d.day);
+    return x.subtract(Duration(days: x.weekday - 1));
+  }
+
+  static DateTimeRange _weekOf(DateTime d) {
+    final start = _mondayOf(d);
+    return DateTimeRange(start: start, end: start.add(const Duration(days: 6)));
+  }
+
+  Future<void> _onRefresh() async {
+    _cubit.getListOnLeaveTimes();
+  }
+
+  void _approveSelected() {
+    logger.d("Approve leave ids: $selectedIds");
+    // TODO: call approve API
+    setState(() {
+      selectedIds.clear();
+    });
   }
 
   void _goNotification() {
@@ -65,36 +89,18 @@ class _OnLeavePageState extends State<OnLeavePage> {
     );
   }
 
-  static DateTime _mondayOf(DateTime d) {
-    final x = DateTime(d.year, d.month, d.day);
-    final delta = x.weekday - 1;
-    return x.subtract(Duration(days: delta));
-  }
-
-  static DateTimeRange _weekOf(DateTime d) {
-    final start = _mondayOf(d);
-    final end = start.add(const Duration(days: 6));
-    return DateTimeRange(start: start, end: end);
-  }
-
-  DateTimeRange selectedWeek = _weekOf(DateTime.now());
-  final _df = DateFormat('dd/MM/yyyy');
-
-  Future _onRefresh() async {
-    _cubit.getListOnLeaveTimes();
-  }
-
   Future<void> _openDetail(OnLeaveEntity entity) async {
+    if (selectedIds.isNotEmpty) return;
+
     final bool? result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder:
-            (context) =>
-                OnLeaveDetailPage(detailEntity: entity, detailId: entity.id),
+            (_) => OnLeaveDetailPage(detailEntity: entity, detailId: entity.id),
       ),
     );
-    logger.d("result :: $result");
-    if (result != null && result) {
+
+    if (result == true) {
       _onRefresh();
     }
   }
@@ -102,10 +108,10 @@ class _OnLeavePageState extends State<OnLeavePage> {
   Future<void> _createNewLeave() async {
     final bool? result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CreateNewLeavePage()),
+      MaterialPageRoute(builder: (_) => CreateNewLeavePage()),
     );
 
-    if (result != null && result) {
+    if (result == true) {
       _onRefresh();
     }
   }
@@ -113,73 +119,68 @@ class _OnLeavePageState extends State<OnLeavePage> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.bodyColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: BlocBuilder<AppCubit, AppState>(
-          buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
+          buildWhen: (p, c) => p.totalUnread != c.totalUnread,
           builder: (context, appState) {
             return MyAppBar(
               titleAppbar: s.day_off_title,
-              haveBackButton: (widget.isFromHome ?? false),
+              haveBackButton: widget.isFromHome ?? false,
               haveActionButton: true,
               iconPathAsset: AppAssets.icNotificationBell,
               badgeCount: appState.totalUnread,
-              actionCallBack: () async {
-                _goNotification();
-              },
+              actionCallBack: _goNotification,
             );
           },
         ),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
             child: _filterWidget,
           ),
-
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: _bulkActionWidget,
+          ),
+          const SizedBox(height: 5,),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [_listWidget, const SizedBox(height: 32)],
-              ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _listWidget,
             ),
           ),
-          const SizedBox(height: 48),
         ],
       ),
     );
   }
 
-  get _filterWidget {
+  Widget get _filterWidget {
     return BlocBuilder<OnLeaveCubit, OnLeaveState>(
       bloc: _cubit,
       buildWhen:
-          (prev, cur) =>
-              prev.startDateFilter != cur.startDateFilter ||
-              prev.endDateFilter != cur.endDateFilter,
+          (p, c) =>
+              p.startDateFilter != c.startDateFilter ||
+              p.endDateFilter != c.endDateFilter,
       builder: (context, state) {
-        String week = "";
-        if ((state.startDateFilter ?? "").isNotEmpty) {
-          week = "${state.startDateFilter} - ${state.endDateFilter}";
-        }
+        final week =
+            (state.startDateFilter ?? "").isNotEmpty
+                ? "${state.startDateFilter} - ${state.endDateFilter}"
+                : "";
+
         return Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               flex: 8,
               child: InputTextField(
-                title: "",
+                disableTitle: true,
                 hintText: "",
                 isRequiredField: false,
-                disableTitle: true,
-                enable: true,
                 readOnly: true,
                 controller: filterController..text = week,
                 suffixIcon: AppAssets.icCalendar,
@@ -188,7 +189,6 @@ class _OnLeavePageState extends State<OnLeavePage> {
                     context: context,
                     isScrollControlled: true,
                     showDragHandle: true,
-                    backgroundColor: Colors.white,
                     builder:
                         (_) => CalendarRangeSheet(
                           initial: selectedWeek,
@@ -199,15 +199,14 @@ class _OnLeavePageState extends State<OnLeavePage> {
                   if (res == null) {
                     filterController.clear();
                     _cubit.onChangeDateFilter("", "");
-                    _cubit.getListOnLeaveTimes();
-                    return;
+                  } else {
+                    selectedWeek = res;
+                    _cubit.onChangeDateFilter(
+                      _df.format(res.start),
+                      _df.format(res.end),
+                    );
                   }
 
-                  selectedWeek = res;
-                  String start = _df.format(selectedWeek.start);
-                  String end = _df.format(selectedWeek.end);
-
-                  _cubit.onChangeDateFilter(start, end);
                   _cubit.getListOnLeaveTimes();
                 },
               ),
@@ -216,22 +215,106 @@ class _OnLeavePageState extends State<OnLeavePage> {
             Expanded(
               flex: 1,
               child: InkWell(
-                onTap: () {
-                  _createNewLeave();
-                },
+                onTap: _createNewLeave,
                 child: Container(
                   height: 44,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderRadius: BorderRadius.circular(10),
                     color: AppColors.mainPrimaryColor6,
                   ),
-                  padding: const EdgeInsets.all(12),
-                  child: Center(
-                    child: Icon(
-                      Icons.add,
-                      color: AppColors.whiteColor,
-                      size: 16,
+                  child: const Icon(Icons.add, color: Colors.white, size: 16),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget get _bulkActionWidget {
+    if(!isDirector) {
+      return const SizedBox.shrink();
+    }
+
+    return BlocBuilder<OnLeaveCubit, OnLeaveState>(
+      bloc: _cubit,
+      builder: (context, state) {
+        final list = state.listLeaveEntities ?? [];
+
+        final approvableIds =
+            list
+                .where((e) => e.leaveStage?.id == kManagerApproveStatusId)
+                .map((e) => e.id)
+                .whereType<int>()
+                .toSet();
+
+        if (approvableIds.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        final isAllChecked =
+            selectedIds.isNotEmpty && selectedIds.containsAll(approvableIds);
+
+        return Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      checkboxTheme: CheckboxThemeData(
+                        fillColor: WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return AppColors.mainPrimaryColor6; 
+                          }
+                          return Colors.transparent;
+                        }),
+                        checkColor: WidgetStateProperty.all(Colors.white),
+                        side: const BorderSide(color: Colors.grey, width: 1.2),
+                      ),
                     ),
+                    child: Checkbox(
+                      value: isAllChecked,
+                      onChanged: (value) {
+                        setState(() {
+                          if (value == true) {
+                            selectedIds
+                              ..clear()
+                              ..addAll(approvableIds);
+                          } else {
+                            selectedIds.clear();
+                          }
+                        });
+                      },
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text("Chọn tất cả"),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 40,
+              child: ElevatedButton(
+                onPressed: selectedIds.isEmpty ? null : _approveSelected,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.mainPrimaryColor6,
+                  disabledBackgroundColor: AppColors.mainPrimaryColor6
+                      .withOpacity(0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                child: Text(
+                  "Duyệt (${selectedIds.length})",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -242,48 +325,50 @@ class _OnLeavePageState extends State<OnLeavePage> {
     );
   }
 
-  get _listWidget {
+  Widget get _listWidget {
     return BlocBuilder<OnLeaveCubit, OnLeaveState>(
       bloc: _cubit,
       buildWhen:
-          (prev, cur) =>
-              prev.loadStatus != cur.loadStatus ||
-              prev.listLeaveEntities != cur.listLeaveEntities,
+          (p, c) =>
+              p.loadStatus != c.loadStatus ||
+              p.listLeaveEntities != c.listLeaveEntities,
       builder: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING) {
-          return const Center(
-            child: SizedBox(
-              height: 200,
-              child: Center(child: CircularProgressIndicator(color: Colors.blue,)),
-            ),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
-        if ((state.listLeaveEntities ?? []).isEmpty) {
-          return Center(
-            child: Text(S.of(context).bt_empty).paddingOnly(top: 100),
-          );
-        } else {
-          return RefreshIndicator(
-            onRefresh: _onRefresh,
-            child: ListView.builder(
-              padding: const EdgeInsets.only(top: 20),
-              physics: const AlwaysScrollableScrollPhysics(),
-              shrinkWrap: true,
-              controller: controller,
-              itemCount: (state.listLeaveEntities ?? []).length,
-              itemBuilder: (context, index) {
-                OnLeaveEntity entity = (state.listLeaveEntities ?? [])[index];
-                return OnLeaveListItem(
-                  entity: entity,
-                  onShowDetail: () {
-                    _openDetail(entity);
-                  },
-                ).paddingOnly(bottom: 12);
-              },
-            ),
-          );
+        final list = state.listLeaveEntities ?? [];
+        if (list.isEmpty) {
+          return Center(child: Text(S.of(context).bt_empty));
         }
+
+        return RefreshIndicator(
+          onRefresh: _onRefresh,
+          child: ListView.builder(
+            controller: controller,
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 20),
+            itemCount: list.length,
+            itemBuilder: (_, i) {
+              final e = list[i];
+              return OnLeaveListItem(
+                entity: e,
+                isChecked: selectedIds.contains(e.id),
+                showCheckbox: false,
+                onCheckedChanged: (v) {
+                  setState(() {
+                    if (v == true) {
+                      selectedIds.add(e.id!);
+                    } else {
+                      selectedIds.remove(e.id);
+                    }
+                  });
+                },
+                onShowDetail: () => _openDetail(e),
+              ).paddingOnly(bottom: 12);
+            },
+          ),
+        );
       },
     );
   }

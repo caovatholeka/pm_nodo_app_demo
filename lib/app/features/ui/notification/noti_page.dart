@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/overtime/overtime_page.dart';
@@ -130,7 +131,9 @@ class _NotificationPageState extends State<NotificationPage> {
       case "Đơn công tác":
         Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkTripPage(isFromHome: true,)));
         break;
-      
+      case "Giải trình công không hợp lệ":
+         Navigator.push(context, MaterialPageRoute(builder: (_) => const AttendanceDataPage()));
+        break;
       default:
        debugPrint("⚠️ Chưa map notification title: $title");
 

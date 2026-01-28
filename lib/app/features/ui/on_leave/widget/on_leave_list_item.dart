@@ -4,15 +4,26 @@ import '../../../../core/commons/app_colors.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../data/models/entities/on_leave_entity.dart';
 
+const int kManagerApproveStatusId = 14;
+
 class OnLeaveListItem extends StatelessWidget {
   final OnLeaveEntity entity;
+  final bool isChecked;
+  final ValueChanged<bool?>? onCheckedChanged;
   final VoidCallback? onShowDetail;
+  final bool showCheckbox;
 
   const OnLeaveListItem({
     super.key,
     required this.entity,
+    required this.isChecked,
+    required this.showCheckbox,
+    this.onCheckedChanged,
     this.onShowDetail,
   });
+
+  int get statusId => entity.leaveStage?.id ?? 0;
+  bool get isManagerApprove => statusId == kManagerApproveStatusId;
 
   Color getStatusColor(int id) {
     switch (id) {
@@ -36,8 +47,8 @@ class OnLeaveListItem extends StatelessWidget {
     }
   }
 
-  Color getBgColor(int status) {
-    switch (status) {
+  Color getBgColor(int id) {
+    switch (id) {
       case 1:
       case 6:
       case 13:
@@ -58,8 +69,22 @@ class OnLeaveListItem extends StatelessWidget {
     }
   }
 
-  String getStatusTitle(int status, BuildContext context) {
-    switch (status) {
+  String get approveOrReason {
+    if (entity.userApprove != null &&
+        (entity.userApprove?.name?.isNotEmpty ?? false)) {
+      return entity.userApprove!.name!;
+    }
+    return entity.description ?? "-";
+  }
+
+  String approveOrReasonTitle(BuildContext context) {
+    return entity.userApprove != null
+        ? "${S.of(context).day_off_approver}:"
+        : "${S.of(context).attendance_reason}:";
+  }
+
+  String getStatusTitle(int id, BuildContext context) {
+    switch (id) {
       case 1:
       case 6:
       case 13:
@@ -82,65 +107,90 @@ class OnLeaveListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusId = entity.leaveStage?.id ?? 0;
-
-    return InkWell(
-      onTap: onShowDetail,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.black.withAlpha(25),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                offset: const Offset(0, 0),
-                blurRadius: 10,
-              ),
-            ],
-          ),
-          // Dùng IntrinsicHeight để thanh màu có chiều cao bằng nội dung
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  width: 4,
-                  decoration: BoxDecoration(
-                    color: getStatusColor(statusId),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                    ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.black.withAlpha(25)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withAlpha(25), blurRadius: 10),
+          ],
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: getStatusColor(statusId),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
                   ),
                 ),
+              ),
 
-                // Nội dung
-                Expanded(
+              Expanded(
+                child: InkWell(
+                  onTap: onShowDetail,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "${AppDateUtils.changeIso8601StringToDateTimeString(entity.dateFrom)} - "
-                              "${AppDateUtils.changeIso8601StringToDateTimeString(entity.dateTo)}",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.themeBlackDefault,
+                            if (isManagerApprove && showCheckbox)
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  checkboxTheme: CheckboxThemeData(
+                                    fillColor: WidgetStateProperty.resolveWith((
+                                      states,
+                                    ) {
+                                      if (states.contains(
+                                        WidgetState.selected,
+                                      )) {
+                                        return AppColors.mainPrimaryColor6;
+                                      }
+                                      return Colors.transparent;
+                                    }),
+                                    checkColor: WidgetStateProperty.all(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                child: Checkbox(
+                                  value: isChecked,
+                                  onChanged: onCheckedChanged,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ),
+
+                            Expanded(
+                              child: Text(
+                                "${AppDateUtils.changeIso8601StringToDateTimeString(entity.dateFrom)} - "
+                                "${AppDateUtils.changeIso8601StringToDateTimeString(entity.dateTo)}",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.themeBlackDefault,
+                                ),
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: getBgColor(statusId),
                                 borderRadius: BorderRadius.circular(99),
@@ -157,7 +207,7 @@ class OnLeaveListItem extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    getStatusTitle(statusId,context),
+                                    getStatusTitle(statusId, context),
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w400,
@@ -170,27 +220,39 @@ class OnLeaveListItem extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                         _buildItem("${S.of(context).day_off_card_employee}:", entity.employeeName ?? ""),
+                        _buildItem(
+                          "${S.of(context).day_off_card_employee}:",
+                          entity.employeeName ?? "",
+                        ),
                         const SizedBox(height: 12),
-                        _buildItem("${S.of(context).day_off_card_type}:", entity.holidayStatus ?? ""),
+                        _buildItem(
+                          "${S.of(context).day_off_card_type}:",
+                          entity.holidayStatus ?? "",
+                        ),
                         const SizedBox(height: 12),
-                        _buildItem("${S.of(context).day_off_approver}:", entity.userApprove?.name ?? ""),
+                        _buildItem(
+                          approveOrReasonTitle(context),
+                          approveOrReason,
+                          isReason: entity.userApprove == null,
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildItem(String title, String value) {
+  Widget _buildItem(String title, String value, {bool isReason = false}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
+          flex: 4,
           child: Text(
             title,
             style: TextStyle(
@@ -201,8 +263,11 @@ class OnLeaveListItem extends StatelessWidget {
           ),
         ),
         Expanded(
+          flex: 6,
           child: Text(
             value,
+            maxLines: isReason ? 2 : 1,
+            overflow: isReason ? TextOverflow.ellipsis : TextOverflow.visible,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
