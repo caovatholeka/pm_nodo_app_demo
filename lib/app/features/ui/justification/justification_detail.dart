@@ -88,6 +88,12 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           color: AppColors.colorFinished,
           bgColor: AppColors.colorFinished.withValues(alpha: 0.15),
         );
+      case 'Hủy':
+       return StatusUI(
+        text: s.cancel,
+        color: AppColors.colorCancel,
+        bgColor: AppColors.colorCancel.withValues(alpha: 0.15),
+      );
       default:
         return StatusUI(
           text: name ?? '',
@@ -180,7 +186,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   Widget _buildBody(JustificationDetailState state) {
     if (state.loadStatus == LoadStatus.LOADING) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: AppColors.colorApproved,));
     }
 
     if (state.loadStatus == LoadStatus.FAILURE) {

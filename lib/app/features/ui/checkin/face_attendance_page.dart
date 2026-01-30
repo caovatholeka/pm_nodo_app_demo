@@ -57,7 +57,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
 
   // ===== Anti-spoofing =====
-  bool _livenessReady = false;
+  final bool _livenessReady = false;
   static const double _livenessThreshold = 0.80;
   DateTime? _lastSpoofWarnAt;
 

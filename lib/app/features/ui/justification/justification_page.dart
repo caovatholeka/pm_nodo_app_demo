@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
@@ -27,8 +28,14 @@ class JustificationPage extends StatefulWidget {
 class _JustificationPageState extends State<JustificationPage> {
   final _cubit = JustificationCubit();
   final TextEditingController _filterCtrl = TextEditingController();
+  final Set<int> _selectedIds = {};
   final _df = DateFormat('dd/MM/yyyy');
   DateTimeRange? _selectedRange;
+
+  bool get _isDirector {
+    final jobTitle = context.read<AppCubit>().state.userProfile?.jobTitle ?? "";
+    return jobTitle.toLowerCase().contains("giám đốc");
+  }
 
   @override
   void initState() {
@@ -45,7 +52,6 @@ class _JustificationPageState extends State<JustificationPage> {
 
   Future<void> _openCalendar() async {
     final now = DateTime.now();
-
     final defaultRange = DateTimeRange(
       start: DateTime(now.year, now.month, 1),
       end: DateTime(now.year, now.month + 1, 0),
@@ -56,10 +62,11 @@ class _JustificationPageState extends State<JustificationPage> {
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: Colors.white,
-      builder: (_) => CalendarRangeSheet(
-        initial: _selectedRange ?? defaultRange,
-        locale: "vi",
-      ),
+      builder:
+          (_) => CalendarRangeSheet(
+            initial: _selectedRange ?? defaultRange,
+            locale: "vi",
+          ),
     );
 
     if (res == null) {
@@ -67,15 +74,13 @@ class _JustificationPageState extends State<JustificationPage> {
         _selectedRange = null;
         _filterCtrl.clear();
       });
-
       _cubit.loadList();
       return;
     }
 
     setState(() {
       _selectedRange = res;
-      _filterCtrl.text =
-          "${_df.format(res.start)} - ${_df.format(res.end)}";
+      _filterCtrl.text = "${_df.format(res.start)} - ${_df.format(res.end)}";
     });
 
     _cubit.loadList(
@@ -95,7 +100,12 @@ class _JustificationPageState extends State<JustificationPage> {
     }
   }
 
-    void _goNotification() {
+  void _approveSelected() {
+    _selectedIds.clear();
+    setState(() {});
+  }
+
+  void _goNotification() {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -116,28 +126,26 @@ class _JustificationPageState extends State<JustificationPage> {
       create: (_) => _cubit,
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F6FA),
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: BlocBuilder<AppCubit, AppState>(
-              buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
-              builder: (context, appState) {
-                return MyAppBar(
-                  titleAppbar: s.justification_title,
-                  haveBackButton: true,
-                  haveActionButton: true,
-                  iconPathAsset: AppAssets.icNotificationBell,
-                  badgeCount: appState.totalUnread,
-                  actionCallBack: () async {
-                    _goNotification();
-                  },
-                );
-              },
-            ),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: BlocBuilder<AppCubit, AppState>(
+            buildWhen: (p, c) => p.totalUnread != c.totalUnread,
+            builder: (context, appState) {
+              return MyAppBar(
+                titleAppbar: s.justification_title,
+                haveBackButton: true,
+                haveActionButton: true,
+                iconPathAsset: AppAssets.icNotificationBell,
+                badgeCount: appState.totalUnread,
+                actionCallBack: _goNotification,
+              );
+            },
           ),
+        ),
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
               child: Row(
                 children: [
                   Expanded(
@@ -177,7 +185,7 @@ class _JustificationPageState extends State<JustificationPage> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        color: AppColors.mainPrimaryColor6,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(Icons.add, color: Colors.white),
@@ -185,6 +193,97 @@ class _JustificationPageState extends State<JustificationPage> {
                   ),
                 ],
               ),
+            ),
+            BlocBuilder<JustificationCubit, JustificationState>(
+              builder: (context, state) {
+                if (!_isDirector) {
+                  return const SizedBox.shrink();
+                }
+
+                final approvableIds =
+                    state.list
+                        .where((e) => e.stage?.name == 'Trưởng phòng duyệt')
+                        .map((e) => e.id)
+                        .whereType<int>()
+                        .toSet();
+
+                if (approvableIds.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                final isAllChecked =
+                    _selectedIds.isNotEmpty &&
+                    _selectedIds.containsAll(approvableIds);
+
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Theme(
+                              data: Theme.of(context).copyWith(
+                                checkboxTheme: CheckboxThemeData(
+                                  fillColor: WidgetStateProperty.resolveWith((
+                                    states,
+                                  ) {
+                                    if (states.contains(WidgetState.selected)) {
+                                      return AppColors.mainPrimaryColor6;
+                                    }
+                                    return Colors.transparent;
+                                  }),
+                                  checkColor: WidgetStateProperty.all(
+                                    Colors.white,
+                                  ),
+                                ),
+                              ),
+                              child: Checkbox(
+                                value: isAllChecked,
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value == true) {
+                                      _selectedIds
+                                        ..clear()
+                                        ..addAll(approvableIds);
+                                    } else {
+                                      _selectedIds.clear();
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Text("Chọn tất"),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed:
+                              _selectedIds.isEmpty ? null : _approveSelected,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.mainPrimaryColor6,
+                            disabledBackgroundColor: AppColors.mainPrimaryColor6
+                                .withOpacity(0.4),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            "Duyệt (${_selectedIds.length})",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
             Expanded(
               child: BlocBuilder<JustificationCubit, JustificationState>(
@@ -214,12 +313,28 @@ class _JustificationPageState extends State<JustificationPage> {
                       final item = state.list[index];
                       return JustificationListItem(
                         entity: item,
+                        isChecked: _selectedIds.contains(item.id),
+                        canApprove: _isDirector,
+                        onCheckedChange:
+                            _isDirector
+                                ? (v) {
+                                  setState(() {
+                                    if (v == true) {
+                                      _selectedIds.add(item.id!);
+                                    } else {
+                                      _selectedIds.remove(item.id);
+                                    }
+                                  });
+                                }
+                                : null,
                         onTap: () async {
+                          if (_selectedIds.isNotEmpty) return;
+
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  JustificationDetailPage(id: item.id),
+                              builder:
+                                  (_) => JustificationDetailPage(id: item.id),
                             ),
                           );
                           _refreshList();

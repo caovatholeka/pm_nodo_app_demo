@@ -456,7 +456,7 @@
   "attendance_timeCome":"Giờ đến",
   "attendance_timeLeave":"Giờ về",
   "attendance_time":"Thời gian",
-  "attendance_reason":"Lý do",
+  "attendance_reason":"Lý do:",
 
   "attendance_sendSuccess":"Đơn giải trình của bạn đã được gửi đi thành công",
   "morning":"Sáng",

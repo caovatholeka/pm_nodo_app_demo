@@ -19,12 +19,21 @@ class StatusUI {
 class JustificationListItem extends StatelessWidget {
   final JustificationEntity entity;
   final VoidCallback? onTap;
+  final bool isChecked;
+  final bool canApprove;
+  final ValueChanged<bool?>? onCheckedChange;
 
   const JustificationListItem({
     super.key,
     required this.entity,
+    required this.isChecked,
+    required this.canApprove,
+    this.onCheckedChange,
     this.onTap,
   });
+
+  bool get isManagerApprove =>
+      entity.stage?.name == 'Trưởng phòng duyệt';
 
   StatusUI _getStatusUI(BuildContext context, String? statusName) {
     final s = S.of(context);
@@ -36,21 +45,24 @@ class JustificationListItem extends StatelessWidget {
           color: AppColors.colorDraft,
           bgColor: AppColors.colorDraft.withValues(alpha: 0.1),
         );
-
       case 'Trưởng phòng duyệt':
         return StatusUI(
           text: s.bt_status2,
           color: AppColors.colorApproved,
           bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
         );
-
       case 'Hoàn thành':
         return StatusUI(
           text: s.bt_status3,
           color: AppColors.colorFinished,
           bgColor: AppColors.colorFinished.withValues(alpha: 0.1),
         );
-
+      case 'Hủy':
+        return StatusUI(
+          text: s.cancel,
+          color: AppColors.colorCancel,
+          bgColor: AppColors.colorCancel.withValues(alpha: 0.1),
+        );
       default:
         return StatusUI(
           text: statusName ?? '',
@@ -63,6 +75,7 @@ class JustificationListItem extends StatelessWidget {
   String _getReasonTypeText(String? type, BuildContext context) {
     if (type == null || type.isEmpty) return '';
     final s = S.of(context);
+
     switch (type.toLowerCase()) {
       case 'personal':
         return s.justification_reason_type1;
@@ -77,47 +90,42 @@ class JustificationListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final statusUI = _getStatusUI(context, entity.stage?.name);
-
     final df = DateFormat('dd/MM/yyyy');
-    final dateText = entity.date != null
-        ? df.format(DateTime.parse(entity.date!))
-        : '';
+    final dateText =
+        entity.date != null ? df.format(DateTime.parse(entity.date!)) : '';
 
-    return InkWell(
-      onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.black.withAlpha(25)),
+          boxShadow: [
+            BoxShadow(
               color: Colors.black.withAlpha(25),
-              width: 1,
+              blurRadius: 10,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                blurRadius: 10,
-              ),
-            ],
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  width: 4,
-                  decoration: BoxDecoration(
-                    color: statusUI.color,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                    ),
+          ],
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: statusUI.color,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
                   ),
                 ),
-                Expanded(
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: onTap,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -127,27 +135,59 @@ class JustificationListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  entity.name ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
+                            if (isManagerApprove && canApprove)
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  checkboxTheme: CheckboxThemeData(
+                                    fillColor:
+                                        WidgetStateProperty.resolveWith(
+                                      (states) {
+                                        if (states.contains(
+                                            WidgetState.selected)) {
+                                          return AppColors.mainPrimaryColor6;
+                                        }
+                                        return Colors.transparent;
+                                      },
+                                    ),
+                                    checkColor:
+                                        WidgetStateProperty.all(Colors.white),
+                                    side: const BorderSide(
+                                      color: Colors.grey,
+                                      width: 1.2,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  dateText,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey,
-                                  ),
+                                child: Checkbox(
+                                  value: isChecked,
+                                  onChanged: onCheckedChange,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
                                 ),
-                              ],
+                              ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    entity.name ?? '',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    dateText,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -195,20 +235,27 @@ class JustificationListItem extends StatelessWidget {
                           s.justification_create,
                           entity.employeeName ?? '',
                         ),
+                        const SizedBox(height: 12),
+                        _buildItem(
+                          s.attendance_reason,
+                          entity.note ?? "",
+                          maxLines: 2,
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildItem(String title, String value) {
+  Widget _buildItem(String title, String value, {int? maxLines}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Text(
@@ -223,6 +270,8 @@ class JustificationListItem extends StatelessWidget {
         Expanded(
           child: Text(
             value,
+            maxLines: maxLines,
+            overflow: maxLines != null ? TextOverflow.ellipsis : null,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
