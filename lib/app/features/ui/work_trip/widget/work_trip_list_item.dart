@@ -7,12 +7,21 @@ import '../../../../core/commons/app_colors.dart';
 class WorkTripListItem extends StatelessWidget {
   final WorkTripEntity entity;
   final VoidCallback? onShowDetail;
+  final bool isChecked;
+  final ValueChanged<bool?>? onCheckedChange;
+  final bool canApprove;
 
   const WorkTripListItem({
     super.key,
     required this.entity,
+    required this.isChecked,
+    required this.canApprove,
+    this.onCheckedChange,
     this.onShowDetail,
   });
+
+  bool get isManagerApprove =>
+      entity.stage?.name == 'Trưởng phòng duyệt';
 
   Color getStatusColor(int id) {
     switch (id) {
@@ -112,63 +121,100 @@ class WorkTripListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusId =  entity.stage?.id ?? 0;
-    return InkWell(
-      onTap: onShowDetail,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.black.withAlpha(25),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(25),
-                offset: const Offset(0, 0),
-                blurRadius: 10,
-              ),
-            ],
+    final statusId = entity.stage?.id ?? 0;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.black.withAlpha(25),
+            width: 1,
           ),
-          // Dùng IntrinsicHeight để thanh màu có chiều cao bằng nội dung
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  width: 4,
-                  decoration: BoxDecoration(
-                    color: getStatusColor(statusId),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                    ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(25),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: getStatusColor(statusId),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
                   ),
                 ),
+              ),
 
-                // Nội dung
-                Expanded(
+              Expanded(
+                child: InkWell(
+                  onTap: onShowDetail,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                             entity.name ?? '',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.themeBlackDefault,
+                            if (canApprove && isManagerApprove)
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  checkboxTheme: CheckboxThemeData(
+                                    fillColor:
+                                        WidgetStateProperty.resolveWith(
+                                      (states) {
+                                        if (states.contains(
+                                            WidgetState.selected)) {
+                                          return AppColors.mainPrimaryColor6;
+                                        }
+                                        return Colors.transparent;
+                                      },
+                                    ),
+                                    checkColor: WidgetStateProperty.all(
+                                      Colors.white,
+                                    ),
+                                    side: const BorderSide(
+                                      color: Colors.grey,
+                                      width: 1.2,
+                                    ),
+                                  ),
+                                ),
+                                child: Checkbox(
+                                  value: isChecked,
+                                  onChanged: onCheckedChange,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ),
+
+                            Expanded(
+                              child: Text(
+                                entity.name ?? '',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.themeBlackDefault,
+                                ),
                               ),
                             ),
+
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: getBgColor(statusId),
                                 borderRadius: BorderRadius.circular(99),
@@ -197,18 +243,28 @@ class WorkTripListItem extends StatelessWidget {
                             ),
                           ],
                         ),
+
                         const SizedBox(height: 16),
-                        _buildItem(S.of(context).bt_card_total,  "${entity.employeeCount ?? 0}"),
+                        _buildItem(
+                          S.of(context).bt_card_total,
+                          "${entity.employeeCount ?? 0}",
+                        ),
                         const SizedBox(height: 12),
-                        _buildItem(S.of(context).bt_card_notes, entity.note ?? ""),
+                        _buildItem(
+                          S.of(context).bt_card_notes,
+                          entity.note ?? "",
+                        ),
                         const SizedBox(height: 12),
-                        _buildItem(S.of(context).bt_card_createby, entity.employeeName ?? ""),
+                        _buildItem(
+                          S.of(context).bt_card_createby,
+                          entity.employeeName ?? "",
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
