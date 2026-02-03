@@ -126,16 +126,27 @@ Future<void> _requestLocationPermission() async {
     //   ),
     // );
     // await openAppSettings();
-
+    showLocationSettingPopup();
     return;
   }
 
   if (Platform.isIOS) {
     final accuracyStatus = await Geolocator.getLocationAccuracy();
     if (accuracyStatus == LocationAccuracyStatus.reduced) {
-      // Hiện popup yêu cầu bật vị trí chính xác
-      await Geolocator.requestTemporaryFullAccuracy(purposeKey: "PreciseLocation");
+      await Geolocator.requestTemporaryFullAccuracy(
+        purposeKey: "PreciseLocation",
+      );
     }
+  }
+
+  try {
+    final pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+      timeLimit: const Duration(seconds: 10),
+    );
+    _cubit.onChangeAddress(pos);
+  } catch (_) {
+    // nếu timeout thì vẫn nghe stream
   }
   _listenLocation();
 
@@ -145,8 +156,10 @@ Future<void> _requestLocationPermission() async {
 
   @override
   void initState() {
-    _onInit();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onInit();
+    });
   }
 
   @override
@@ -208,6 +221,7 @@ Future<void> _requestLocationPermission() async {
   }
 
   void _listenLocation() {
+    _locationSubscription?.cancel();
     LocationSettings locationSettings;
 
     if (Platform.isIOS) {
