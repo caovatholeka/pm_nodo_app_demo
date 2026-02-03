@@ -40,18 +40,18 @@ android {
         jvmTarget = "17"
     }
 
-     signingConfigs {
-         create("release") {
-             keyAlias = keystoreProperties.getProperty("keyAlias")
-             keyPassword = keystoreProperties.getProperty("keyPassword")
-             storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
-             storePassword = keystoreProperties.getProperty("storePassword")
-         }
-     }
+    //  signingConfigs {
+    //      create("release") {
+    //          keyAlias = keystoreProperties.getProperty("keyAlias")
+    //          keyPassword = keystoreProperties.getProperty("keyPassword")
+    //          storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+    //          storePassword = keystoreProperties.getProperty("storePassword")
+    //      }
+    //  }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release") // debug
+            signingConfig = signingConfigs.getByName("debug") // release
         }
     }
 }

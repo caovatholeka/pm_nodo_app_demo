@@ -354,7 +354,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
               return OnLeaveListItem(
                 entity: e,
                 isChecked: selectedIds.contains(e.id),
-                showCheckbox: false,
+                showCheckbox: true,
                 onCheckedChanged: (v) {
                   setState(() {
                     if (v == true) {
