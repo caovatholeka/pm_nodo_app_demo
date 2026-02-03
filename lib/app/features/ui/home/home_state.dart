@@ -1,5 +1,13 @@
 part of 'home_cubit.dart';
 
+enum AttendanceAction {
+  checkIn,
+  checkOut,
+  none,
+}
+
+
+
 class HomeState extends Equatable {
   final LoadStatus loadDataStatus;
   final LoadStatus loadProfile;
@@ -11,6 +19,8 @@ class HomeState extends Equatable {
   final String? checkOutToday;
 
   List<TaskEntity>? listNewTasks;
+  final AttendanceAction attendanceAction;
+  final LoadStatus attendanceActionStatus;
 
   HomeState({
     this.listAttendanceToday,
@@ -19,6 +29,8 @@ class HomeState extends Equatable {
     this.listNewTasks,
     this.checkInToday,
     this.checkOutToday,
+    this.attendanceAction = AttendanceAction.checkIn,
+    this.attendanceActionStatus = LoadStatus.INITIAL
   });
 
   HomeState copyWith({
@@ -28,6 +40,8 @@ class HomeState extends Equatable {
     List<TaskEntity>? listNewTasks,
     String? checkInToday,
     String? checkOutToday,
+    AttendanceAction? attendanceAction,
+    LoadStatus? attendanceActionStatus,
   }) {
     return HomeState(
       listAttendanceToday: listAttendanceToday ?? this.listAttendanceToday,
@@ -35,7 +49,9 @@ class HomeState extends Equatable {
       loadProfile: loadProfile ?? this.loadProfile,
       listNewTasks: listNewTasks ?? this.listNewTasks,
       checkInToday: checkInToday ?? this.checkInToday,
-      checkOutToday: checkOutToday ?? this.checkOutToday
+      checkOutToday: checkOutToday ?? this.checkOutToday,
+      attendanceAction: attendanceAction ?? this.attendanceAction,
+      attendanceActionStatus: attendanceActionStatus ?? this.attendanceActionStatus,
     );
   }
 
@@ -46,6 +62,10 @@ class HomeState extends Equatable {
     loadProfile,
     listNewTasks,
     checkInToday,
-    checkOutToday
+    checkOutToday,
+    attendanceAction,
+    attendanceActionStatus,
   ];
 }
+
+

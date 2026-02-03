@@ -20,64 +20,86 @@ class HomeCubit extends Cubit<HomeState> {
   UserRepository userRepository;
   TaskRepository taskRepository;
 
-  HomeCubit({
-    required this.userRepository,
-    required this.taskRepository
-  }) : super(HomeState());
+  HomeCubit({required this.userRepository, required this.taskRepository}) : super(HomeState());
 
-getListAttendanceToday() async {
-  final todayStr = DateFormat("yyyy-MM-dd").format(DateTime.now());
+  Future<void> getListAttendanceToday() async {
+    final todayStr = DateFormat("yyyy-MM-dd").format(DateTime.now());
 
-  try {
-    final res = await userRepository.getListAttendanceToday(todayStr, todayStr);
+    try {
+      final res = await userRepository.getListAttendanceToday(
+        todayStr,
+        todayStr,
+      );
 
-    List<ExplanationEntity>? list;
-    if (res.data != null) {
-      list = mapList(res.data, ExplanationEntity.fromJson);
-    }
+      List<ExplanationEntity> list = [];
 
-    if ((list ?? []).isEmpty) {
-      emit(state.copyWith(
-        listAttendanceToday: [],
-        checkInToday: null,
-        checkOutToday: null,
-      ));
-      return;
-    }
-
-    final todayList = list!
-        .where((e) => e.date == todayStr)
-        .toList();
-
-    todayList.sort((a, b) =>
-        DateTime.parse(a.datetime!).compareTo(DateTime.parse(b.datetime!)));
-
-    String? checkIn;
-    String? checkOut;
-
-    for (var e in todayList) {
-      if (e.action == "check_in") {
-        checkIn = e.datetime;
-      } else if (e.action == "check_out") {
-        checkOut = e.datetime;
+      if (res.data != null) {
+        list = mapList(res.data, ExplanationEntity.fromJson);
       }
-    }
 
-    emit(state.copyWith(
-      listAttendanceToday: todayList,
-      checkInToday: checkIn,
-      checkOutToday: checkOut,
-    ));
-  } catch (e, s) {
-    logger.d(e);
-    logger.d(s);
-    emit(state.copyWith(
-      listAttendanceToday: [],
-      checkInToday: null,
-      checkOutToday: null,
-    ));
+      // Lọc đúng ngày hôm nay
+      final todayList = list.where((e) => e.date == todayStr).toList();
+
+      if (todayList.isEmpty) {
+        emit(
+          state.copyWith(
+            listAttendanceToday: [],
+            checkInToday: null,
+            checkOutToday: null,
+            attendanceAction: AttendanceAction.checkIn,
+          ),
+        );
+        return;
+      }
+
+      todayList.sort(
+        (a, b) =>
+            DateTime.parse(a.datetime!).compareTo(DateTime.parse(b.datetime!)),
+      );
+
+      String? checkIn;
+      String? checkOut;
+
+      for (final e in todayList) {
+        if (e.action == 'check_in') {
+          checkIn = e.datetime;
+        } else if (e.action == 'check_out') {
+          checkOut = e.datetime;
+        }
+      }
+
+      AttendanceAction action;
+      if (checkIn == null) {
+        action = AttendanceAction.checkIn;
+      } else if (checkOut == null) {
+        action = AttendanceAction.checkOut;
+      } else {
+        action = AttendanceAction.none;
+      }
+
+      emit(
+        state.copyWith(
+          listAttendanceToday: todayList,
+          checkInToday: checkIn,
+          checkOutToday: checkOut,
+          attendanceAction: action,
+        ),
+      );
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+
+      // Lỗi → coi như chưa chấm gì
+      emit(
+        state.copyWith(
+          listAttendanceToday: [],
+          checkInToday: null,
+          checkOutToday: null,
+          attendanceAction: AttendanceAction.checkIn,
+        ),
+      );
+    }
   }
-}
 
   Future<void> getProfile() async {
     emit(state.copyWith(loadProfile: LoadStatus.LOADING));
@@ -91,9 +113,7 @@ getListAttendanceToday() async {
       return;
     }
 
-    final param = {
-      "user_id": GlobalData.instance.userId,
-    };
+    final param = {"user_id": GlobalData.instance.userId};
 
     try {
       final user = await userRepository.getUserProfile(param);
@@ -117,22 +137,33 @@ getListAttendanceToday() async {
     int page = 1;
     int limit = 5;
     try {
-      final res = await taskRepository.getListTask(name,stagId,page,limit);
+      final res = await taskRepository.getListTask(name, stagId, page, limit);
       TaskDataEntity? taskData;
-      if(res.data != null){
+      if (res.data != null) {
         taskData = mapObject(res.data, TaskDataEntity.fromJson);
       }
 
-      if((taskData?.items ?? []).isNotEmpty){
-        emit(state.copyWith(loadDataStatus: LoadStatus.SUCCESS,listNewTasks: taskData?.items ?? []));
-      }else{
-        emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE,listNewTasks: []));
+      if ((taskData?.items ?? []).isNotEmpty) {
+        emit(
+          state.copyWith(
+            loadDataStatus: LoadStatus.SUCCESS,
+            listNewTasks: taskData?.items ?? [],
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(loadDataStatus: LoadStatus.FAILURE, listNewTasks: []),
+        );
       }
-    }catch(e,s){
+    } catch (e, s) {
       logger.d(e);
       logger.d(s);
-      emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE,listNewTasks: []));
+      emit(
+        state.copyWith(loadDataStatus: LoadStatus.FAILURE, listNewTasks: []),
+      );
     }
   }
+  
 
+  
 }
