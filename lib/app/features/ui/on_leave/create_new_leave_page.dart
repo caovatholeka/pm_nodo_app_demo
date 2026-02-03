@@ -653,6 +653,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                           ),
                         ],
                       ),
+
                       // list danh sach ngay nghi
                       BlocBuilder<CreateOnLeaveCubit, CreateOnLeaveState>(
                         bloc: _createCubit,
@@ -702,7 +703,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                         },
                                       );
                                     }).toList(),
-                              ),
+                              ).paddingOnly(top: 12),
                             ),
                           );
                         },

@@ -8,6 +8,7 @@ import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
@@ -35,17 +36,26 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   final _cubit = GetIt.I<AccountCubit>();
+  String appVersion = "";
 
   @override
   void initState() {
     super.initState();
     _cubit.fetchUserProfile();
+    _initPackageInfo();
   }
 
   @override
   void dispose() {
     _cubit.onResetStatus();
     super.dispose();
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      appVersion = info.version;
+    });
   }
 
   void _logout() async {
@@ -240,7 +250,10 @@ class _AccountPageState extends State<AccountPage> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
+                          Center(child: Text("App Version : $appVersion",
+                            textAlign: TextAlign.center,
+                          ),)
                         ],
                       ),
                     ),

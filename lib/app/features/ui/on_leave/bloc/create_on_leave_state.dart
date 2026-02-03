@@ -20,7 +20,7 @@ class CreateOnLeaveState extends Equatable {
   MasterDataItem? currentDateLeaveType;
 
   // số ngày nghỉ
-  List<LeaveDayEntity>? listLeaveDays;
+  List<LeaveDayEntity> listLeaveDays;
 
   // loại nghỉ
   List<MasterDataItem>? listTypeLeaves;
@@ -44,7 +44,7 @@ class CreateOnLeaveState extends Equatable {
     this.currentDateLeaveType,
     this.listTypeLeaves,
     this.currentLeaveType,
-    this.listLeaveDays
+    this.listLeaveDays = const [],
   });
 
   CreateOnLeaveState copyWith({
