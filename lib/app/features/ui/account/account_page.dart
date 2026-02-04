@@ -251,7 +251,7 @@ class _AccountPageState extends State<AccountPage> {
                             ],
                           ),
                           const SizedBox(height: 24),
-                          Center(child: Text("App Version : $appVersion",
+                          Center(child: Text("App Version: $appVersion",
                             textAlign: TextAlign.center,
                           ),)
                         ],

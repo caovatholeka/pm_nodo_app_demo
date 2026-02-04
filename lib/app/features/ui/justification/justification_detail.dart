@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
@@ -42,6 +43,62 @@ class JustificationDetailPage extends StatefulWidget {
 
 class _JustificationDetailPageState extends State<JustificationDetailPage> {
   final _cubit = GetIt.I<JustificationDetailCubit>();
+
+  bool get isDirector {
+    final jobTitle =
+        GlobalData.instance.userProfile?.jobTitle?.toLowerCase() ?? '';
+    return jobTitle.contains('giám đốc');
+  }
+
+  void _onDirectorApprove() {
+    _showDialog(
+      title: "Duyệt đơn xin phép",
+      message: "Bạn có chắc muốn duyệt đơn xin phép này?",
+      success: true,
+      onConfirm: () {
+        //ToDo: Viết hàm tương tác API sau khi đã có API
+      },
+    );
+  }
+
+  void _onDirectorReject() {
+    _showDialog(
+      title: "Từ chối đơn xin phép",
+      message: "Bạn có chắc muốn từ chối đơn xin phép này?",
+      success: false,
+      onConfirm: () {
+        //ToDo: Viết hàm tương tác API sau khi đã có API
+      },
+    );
+  }
+
+  void _showDialog({
+    required String title,
+    required String message,
+    required bool success,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => CustomDialog(
+        title: title,
+        content: message,
+        confirmText: S.of(context).confirm,
+        cancelText: S.of(context).cancel,
+        success: success,
+        onConfirm: () {
+          Navigator.pop(context);
+          onConfirm();
+        },
+        onCancel: () => Navigator.pop(context),
+      ),
+    );
+  }
+
+  bool _isManagerApprove(String? name) {
+    return name == 'Trưởng phòng duyệt';
+  }
 
   @override
   void initState() {
@@ -89,11 +146,11 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           bgColor: AppColors.colorFinished.withValues(alpha: 0.15),
         );
       case 'Hủy':
-       return StatusUI(
-        text: s.cancel,
-        color: AppColors.colorCancel,
-        bgColor: AppColors.colorCancel.withValues(alpha: 0.15),
-      );
+        return StatusUI(
+          text: s.cancel,
+          color: AppColors.colorCancel,
+          bgColor: AppColors.colorCancel.withValues(alpha: 0.15),
+        );
       default:
         return StatusUI(
           text: name ?? '',
@@ -186,11 +243,15 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   Widget _buildBody(JustificationDetailState state) {
     if (state.loadStatus == LoadStatus.LOADING) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.colorApproved,));
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.colorApproved),
+      );
     }
 
     if (state.loadStatus == LoadStatus.FAILURE) {
-      return Center(child: Text(state.error ?? S.of(context).justification_errorHappern));
+      return Center(
+        child: Text(state.error ?? S.of(context).justification_errorHappern),
+      );
     }
 
     return SingleChildScrollView(
@@ -201,6 +262,12 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           if (_isDraft(state.detail?.stage?.name)) ...[
             const SizedBox(height: 20),
             _actionButtons(state),
+            const SizedBox(height: 24),
+          ],
+
+          if (_isManagerApprove(state.detail?.stage?.name) && isDirector) ...[
+            const SizedBox(height: 20),
+            _directorActionButtons(state),
             const SizedBox(height: 24),
           ],
         ],
@@ -242,6 +309,33 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       ),
     );
   }
+
+
+
+Widget _directorActionButtons(JustificationDetailState state) {
+  final s = S.of(context);
+
+  return Row(
+    children: [
+      Expanded(
+        child: PrimaryButton(
+          mainText: "Từ chối",
+          type: PrimaryButtonType.secondary,
+          callback: _onDirectorReject,
+        ),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: PrimaryButton(
+          mainText: "Duyệt",
+          type: PrimaryButtonType.primary,
+          callback: _onDirectorApprove,
+        ),
+      ),
+    ],
+  );
+}
+
 
   Widget _row(String title, String value) {
     return Padding(
@@ -378,8 +472,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                 builder:
                     (_) => CustomDialog(
                       title: s.justification_sendApproval1,
-                      content:
-                          s.justification_sendApproval2,
+                      content: s.justification_sendApproval2,
                       confirmText: s.justtification_sendApproval,
                       cancelText: s.cancel,
                       success: true,

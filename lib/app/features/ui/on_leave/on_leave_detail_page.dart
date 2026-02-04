@@ -32,6 +32,11 @@ class OnLeaveDetailPage extends StatefulWidget {
 class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   final _cubit = GetIt.I.get<DetailOnLeaveCubit>();
 
+  bool get isDirector {
+    final jobTitle = GlobalData.instance.userProfile?.jobTitle?.toLowerCase() ?? "";
+    return jobTitle.contains("giám đốc");
+  }
+
   @override
   void initState() {
     _cubit.getDetailOnLeave(widget.detailId ?? 0);
@@ -322,44 +327,100 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
     );
   }
 
-  get _bottomSheet {
-    return (_cubit.state.detailEntity?.leaveStage?.id == 13)
-        ? Container(
-          margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
-          width: double.infinity,
-          height: 46,
-          child: Row(
-            children: [
-              Expanded(
-                child: PrimaryButton(
-                  mainText: S.of(context).day_off_btn_delete,
-                  type: PrimaryButtonType.secondary,
-                  callback: () => showDeleteConfirmDialog(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: PrimaryButton(
-                  mainText: S.of(context).day_off_btn_send_approval,
-                  type: PrimaryButtonType.primary,
-                  callback: () {
-                    _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: PrimaryButton(
-                  mainText: S.of(context).day_off_btn_edit,
-                  type: PrimaryButtonType.primary,
-                  callback: () => doUpdate(context),
-                ),
-              ),
-            ],
-          ),
-        )
-        : const SizedBox.shrink();
+  void _onDirectorApprove() {
+    _showDialog(
+      title: "Duyệt đơn nghỉ",
+       message: "Bạn có chắc muốn duyệt đơn nghỉ này?",
+      success: true,
+      onConfirm: () {
+        //ToDo: Viết hàm tương tác API sau khi đã có API
+      }
+    );
   }
+
+  void _onDirectorReject() {
+    _showDialog(
+      title: "Từ chối dơn nghỉ",
+      message: "Bạn có muốn từ chối đơn nghỉ này?",
+      success: false,
+      onConfirm: () {
+        //ToDo: Viết hàm tương tác API sau khi đã có API
+      }
+    );
+  }
+
+Widget get _bottomSheet {
+  final stageId = _cubit.state.detailEntity?.leaveStage?.id;
+
+  if (stageId == 13) {
+    return Container(
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
+      width: double.infinity,
+      height: 46,
+      child: Row(
+        children: [
+          Expanded(
+            child: PrimaryButton(
+              mainText: S.of(context).day_off_btn_delete,
+              type: PrimaryButtonType.secondary,
+              callback: showDeleteConfirmDialog,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: PrimaryButton(
+              mainText: S.of(context).day_off_btn_send_approval,
+              type: PrimaryButtonType.primary,
+              callback: () {
+                _cubit.confirmHrLeave(
+                  _cubit.state.detailEntity?.id ?? 0,
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: PrimaryButton(
+              mainText: S.of(context).day_off_btn_edit,
+              type: PrimaryButtonType.primary,
+              callback: () => doUpdate(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  if (stageId == 14 && isDirector) {
+    return Container(
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
+      width: double.infinity,
+      height: 46,
+      child: Row(
+        children: [
+          Expanded(
+            child: PrimaryButton(
+              mainText: "Từ chối",
+              type: PrimaryButtonType.secondary,
+              callback: _onDirectorReject,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: PrimaryButton(
+              mainText: "Duyệt",
+              type: PrimaryButtonType.primary,
+              callback: _onDirectorApprove,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  return const SizedBox.shrink();
+}
+
 
   void showDeleteConfirmDialog() {
     showDialog(

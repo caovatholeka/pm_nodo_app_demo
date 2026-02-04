@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
@@ -27,6 +28,52 @@ class OvertimeDetail extends StatefulWidget {
 
 class _OvertimeDetailPageState extends State<OvertimeDetail> {
   final _cubit = GetIt.I<OvertimeDetailCubit>();
+
+  bool get isDirector {
+    final jobTitle =
+        GlobalData.instance.userProfile?.jobTitle?.toLowerCase() ?? '';
+    return jobTitle.contains('giám đốc');
+  }
+
+  bool _isManagerApprove(OvertimeDetailState state) {
+    return state.detail?.stage?.name == 'Trưởng phòng duyệt';
+  }
+
+  void _onDirectorReject() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder:
+        (_) => CustomDialog(
+          title: "Xác nhận",
+          content: "Bạn có chắc chắn muốn huỷ yêu cầu tăng ca này?",
+          confirmText: "Huỷ",
+          cancelText: "Đóng",
+          success: false,
+          onConfirm: () {},
+          onCancel: () => Navigator.pop(context),
+        ),
+  );
+}
+
+void _onDirectorApprove() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder:
+        (_) => CustomDialog(
+          title: "Xác nhận",
+          content: "Bạn có chắc chắn muốn duyệt yêu cầu tăng ca này?",
+          confirmText: "Duyệt",
+          cancelText: "Huỷ",
+          success: true,
+          onConfirm: () {},
+          onCancel: () => Navigator.pop(context),
+        ),
+  );
+}
+
+
 
   @override
   void initState() {
@@ -169,10 +216,42 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
             _actionButtons(state),
             const SizedBox(height: 24),
           ],
+
+          if (_isManagerApprove(state) && isDirector) ...[
+            const SizedBox(height: 20),
+            _directorActionButtons(state),
+            const SizedBox(height: 24),
+          ],
         ],
       ),
     );
   }
+
+
+Widget _directorActionButtons(OvertimeDetailState state) {
+  final s = S.of(context);
+
+  return Row(
+    children: [
+      Expanded(
+        child: PrimaryButton(
+          mainText: "Từ chối",
+          type: PrimaryButtonType.secondary,
+          callback: _onDirectorReject,
+        ),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: PrimaryButton(
+          mainText: "Duyệt",
+          type: PrimaryButtonType.primary,
+          callback: _onDirectorApprove,
+        ),
+      ),
+    ],
+  );
+}
+
 
   Widget _contentCard(OvertimeDetailState state) {
     final e = state.detail;
