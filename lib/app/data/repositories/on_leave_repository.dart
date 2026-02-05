@@ -1,5 +1,6 @@
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/param/create_leave_param.dart';
+import 'package:pm_app/app/data/models/param/leave_approve_param.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/api_util.dart';
@@ -13,6 +14,7 @@ abstract class OnLeaveRepository {
   Future<OnLeaveResponse> saveOrUpdateHrLeave(UpdateOnLeaveParam param);
   Future<dynamic> confirmHrLeave(Map<String,dynamic> body);
   Future<CommonResponse> getListLeavesType();
+  Future<CommonResponse> approveLeave(LeaveApproveParam param);
 }
 
 class OnLeaveRepositoryImpl extends OnLeaveRepository {
@@ -51,5 +53,10 @@ class OnLeaveRepositoryImpl extends OnLeaveRepository {
   @override
   Future<CommonResponse> getListLeavesType() async {
     return await _apiClient.getListLeavesType();
+  }
+
+  @override
+  Future<CommonResponse> approveLeave(LeaveApproveParam param) async {
+    return await _apiClient.approveLeave(param);
   }
 }

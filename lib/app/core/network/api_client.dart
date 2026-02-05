@@ -8,6 +8,7 @@ import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
 
 import 'package:pm_app/app/data/models/param/create_work_trip_param.dart';
+import 'package:pm_app/app/data/models/param/leave_approve_param.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/entities/face_search_response_entity.dart';
@@ -282,5 +283,6 @@ abstract class ApiClient {
     @Path("id") int id,
   );
 
-  
+  @POST("/leave/hr_leave/approve")
+  Future<CommonResponse> approveLeave(@Body() LeaveApproveParam body);
 }

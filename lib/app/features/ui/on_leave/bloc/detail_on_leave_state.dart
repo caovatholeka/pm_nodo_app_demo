@@ -4,26 +4,30 @@ class DetailOnLeaveState extends Equatable {
   final LoadStatus loadStatus;
   final LoadStatus deleteStatus;
   final LoadStatus confirmStatus;
+  final LoadStatus approveStatus;
   OnLeaveEntity? detailEntity;
 
   DetailOnLeaveState({
     this.loadStatus = LoadStatus.INITIAL,
     this.deleteStatus = LoadStatus.INITIAL,
     this.confirmStatus = LoadStatus.INITIAL,
-    this.detailEntity
+    this.approveStatus = LoadStatus.INITIAL,
+    this.detailEntity,
   });
 
   DetailOnLeaveState copyWith({
     LoadStatus? loadStatus,
     LoadStatus? deleteStatus,
     LoadStatus? confirmStatus,
-    OnLeaveEntity? detailEntity
+    LoadStatus? approveStatus,
+    OnLeaveEntity? detailEntity,
   }) {
     return DetailOnLeaveState(
       loadStatus: loadStatus ?? this.loadStatus,
       confirmStatus: confirmStatus ?? this.confirmStatus,
       deleteStatus: deleteStatus ?? this.deleteStatus,
-      detailEntity: detailEntity ?? this.detailEntity
+      detailEntity: detailEntity ?? this.detailEntity,
+      approveStatus: approveStatus ?? this.approveStatus,
     );
   }
 
@@ -33,5 +37,6 @@ class DetailOnLeaveState extends Equatable {
     confirmStatus,
     deleteStatus,
     detailEntity,
+    approveStatus,
   ];
 }

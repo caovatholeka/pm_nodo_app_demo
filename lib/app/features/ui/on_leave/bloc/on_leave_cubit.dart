@@ -7,6 +7,8 @@ import '../../../../core/logger/logger.dart';
 import '../../../../data/models/entities/on_leave_entity.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../data/repositories/on_leave_repository.dart';
+import '../../../../data/models/param/leave_approve_param.dart';
+
 
 part 'on_leave_state.dart';
 
@@ -93,4 +95,23 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
       emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
     }
   }
-}
+
+  void approveBulkLeaves(List<int> leaveIds) async {
+    if(leaveIds.isEmpty) return;
+
+    emit(state.copyWith(approveStatus: LoadStatus.LOADING));
+
+    try{
+      final param = LeaveApproveParam(leaveIds: leaveIds);
+      await repository.approveLeave(param);
+    }catch(e,s) {
+      logger.e("err: $e");
+      logger.d("where: $s");
+      emit(state.copyWith(approveStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void resetApproveStatus() {
+    emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
+  }
+} 

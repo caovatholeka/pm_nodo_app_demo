@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -158,7 +159,9 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
       listener: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING ||
             state.deleteStatus == LoadStatus.LOADING ||
-            state.confirmStatus == LoadStatus.LOADING) {
+            state.confirmStatus == LoadStatus.LOADING ||
+            state.approveStatus == LoadStatus.LOADING
+            ) {
           LoadingOverlay.show(context);
         } else if (state.deleteStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
@@ -175,7 +178,37 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           //   success: true,
           //   onConfirm: () => Navigator.pop(context, true),
           // );
-        } else if (state.confirmStatus == LoadStatus.SUCCESS) {
+        } else if(state.approveStatus == LoadStatus.SUCCESS){
+          _cubit.resetStatus();
+          LoadingOverlay.hide(context);
+          Navigator.pop(context, true);
+
+          Flushbar(
+            message: "Duyệt đơn nghỉ thành công",
+            backgroundColor: Colors.green,
+            flushbarPosition: FlushbarPosition.TOP,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+        } else if(state.approveStatus == LoadStatus.FAILURE) {
+          _cubit.resetStatus();
+          LoadingOverlay.hide(context);
+
+          Flushbar(
+            message: "Duyệt đơn nghỉ thất bại",
+            backgroundColor: Colors.red,
+            flushbarPosition: FlushbarPosition.TOP,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+        }
+
+         else if (state.confirmStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
@@ -329,12 +362,15 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
 
   void _onDirectorApprove() {
     _showDialog(
-      title: "Duyệt đơn nghỉ",
-       message: "Bạn có chắc muốn duyệt đơn nghỉ này?",
-      success: true,
-      onConfirm: () {
-        //ToDo: Viết hàm tương tác API sau khi đã có API
-      }
+      title: "Duyệt đơn xin nghỉ?",
+       message: "Bạn có chắc muốn duyệt đơn này?",
+       success: true,
+       onConfirm: () {
+         final id = _cubit.state.detailEntity?.id ?? 0;
+         if(id != 0) {
+          _cubit.approveLeave(id);
+         }
+       },
     );
   }
 

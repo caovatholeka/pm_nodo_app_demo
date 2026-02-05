@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,7 @@ import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -49,6 +51,26 @@ class _OnLeavePageState extends State<OnLeavePage> {
     filterController.clear();
   }
 
+  void _showApproveBuikDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder:
+          (_) => CustomDialog(
+            title: "Duyệt đơn nghỉ",
+            content: "Bạn có chắc muốn duyệt ${selectedIds.length} đơn nghỉ",
+            cancelText: "Hủy",
+            confirmText: "Đồng ý",
+            onCancel: () => Navigator.pop(context),
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.approveBulkLeaves(selectedIds.toList());
+            },
+          ),
+    );
+  }
+
   bool get isDirector {
     final jobTitle = context.read<AppCubit>().state.userProfile?.jobTitle ?? "";
     return jobTitle.toLowerCase().contains("giám đốc");
@@ -69,11 +91,18 @@ class _OnLeavePageState extends State<OnLeavePage> {
   }
 
   void _approveSelected() {
-    logger.d("Approve leave ids: $selectedIds");
-    // TODO: call approve API
-    setState(() {
-      selectedIds.clear();
-    });
+    if (selectedIds.isEmpty) {
+      Flushbar(
+        message: "Không có đơn nào cần duyệt!!",
+        backgroundColor: AppColors.colorDraft,
+        flushbarPosition: FlushbarPosition.TOP,
+        duration: const Duration(seconds: 2),
+        margin: EdgeInsets.all(8),
+        borderRadius: BorderRadius.circular(8),
+      ).show(context);
+      return;
+    }
+    _showApproveBuikDialog();
   }
 
   void _goNotification() {
@@ -120,42 +149,79 @@ class _OnLeavePageState extends State<OnLeavePage> {
   Widget build(BuildContext context) {
     final s = S.of(context);
 
-    return Scaffold(
-      backgroundColor: AppColors.bodyColor,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: BlocBuilder<AppCubit, AppState>(
-          buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-          builder: (context, appState) {
-            return MyAppBar(
-              titleAppbar: s.day_off_title,
-              haveBackButton: widget.isFromHome ?? false,
-              haveActionButton: true,
-              iconPathAsset: AppAssets.icNotificationBell,
-              badgeCount: appState.totalUnread,
-              actionCallBack: _goNotification,
-            );
-          },
+    return BlocListener<OnLeaveCubit, OnLeaveState>(
+      bloc: _cubit,
+      listenWhen: (p, c) => p.approveStatus != c.approveStatus,
+      listener: (context, state) {
+        if (state.approveStatus == LoadStatus.SUCCESS) {
+          Flushbar(
+            message: "Duyệt đơn nghỉ thành công",
+            backgroundColor: Colors.green,
+            flushbarPosition: FlushbarPosition.TOP,
+            duration: const Duration(seconds: 2),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          setState(() {
+            selectedIds.clear();
+          });
+          
+          _cubit.resetApproveStatus();
+          _cubit.getListOnLeaveTimes();
+        }
+
+        if (state.approveStatus == LoadStatus.FAILURE) {
+          Flushbar(
+            message: "Duyệt đơn nghỉ thất bại",
+            backgroundColor: Colors.red,
+            flushbarPosition: FlushbarPosition.TOP,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetApproveStatus();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.bodyColor,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: BlocBuilder<AppCubit, AppState>(
+            buildWhen: (p, c) => p.totalUnread != c.totalUnread,
+            builder: (context, appState) {
+              return MyAppBar(
+                titleAppbar: s.day_off_title,
+                haveBackButton: widget.isFromHome ?? false,
+                haveActionButton: true,
+                iconPathAsset: AppAssets.icNotificationBell,
+                badgeCount: appState.totalUnread,
+                actionCallBack: _goNotification,
+              );
+            },
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-            child: _filterWidget,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-            child: _bulkActionWidget,
-          ),
-          const SizedBox(height: 5,),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _listWidget,
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+              child: _filterWidget,
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: _bulkActionWidget,
+            ),
+            const SizedBox(height: 5),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _listWidget,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -233,7 +299,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
   }
 
   Widget get _bulkActionWidget {
-    if(!isDirector) {
+    if (!isDirector) {
       return const SizedBox.shrink();
     }
 
@@ -241,7 +307,6 @@ class _OnLeavePageState extends State<OnLeavePage> {
       bloc: _cubit,
       builder: (context, state) {
         final list = state.listLeaveEntities ?? [];
-
         final approvableIds =
             list
                 .where((e) => e.leaveStage?.id == kManagerApproveStatusId)
@@ -266,7 +331,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
                       checkboxTheme: CheckboxThemeData(
                         fillColor: WidgetStateProperty.resolveWith((states) {
                           if (states.contains(WidgetState.selected)) {
-                            return AppColors.mainPrimaryColor6; 
+                            return AppColors.mainPrimaryColor6;
                           }
                           return Colors.transparent;
                         }),
