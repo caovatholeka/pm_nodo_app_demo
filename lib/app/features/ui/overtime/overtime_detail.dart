@@ -262,13 +262,13 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   Widget _directorActionButtons() {
     return Row(
       children: [
-        Expanded(
-          child: PrimaryButton(
-            mainText: "Từ chối",
-            type: PrimaryButtonType.secondary,
-            callback: _onDirectorReject,
-          ),
-        ),
+        // Expanded(
+        //   child: PrimaryButton(
+        //     mainText: "Từ chối",
+        //     type: PrimaryButtonType.secondary,
+        //     callback: _onDirectorReject,
+        //   ),
+        // ),
         const SizedBox(width: 12),
         Expanded(
           child: PrimaryButton(
