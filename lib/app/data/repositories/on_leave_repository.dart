@@ -1,6 +1,7 @@
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/param/create_leave_param.dart';
 import 'package:pm_app/app/data/models/param/leave_approve_param.dart';
+import 'package:pm_app/app/data/models/param/leave_reject_param.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/api_util.dart';
@@ -15,6 +16,7 @@ abstract class OnLeaveRepository {
   Future<dynamic> confirmHrLeave(Map<String,dynamic> body);
   Future<CommonResponse> getListLeavesType();
   Future<CommonResponse> approveLeave(LeaveApproveParam param);
+  Future<CommonResponse> rejectLeave(int id, LeaveRejectParam param);
 }
 
 class OnLeaveRepositoryImpl extends OnLeaveRepository {
@@ -58,5 +60,10 @@ class OnLeaveRepositoryImpl extends OnLeaveRepository {
   @override
   Future<CommonResponse> approveLeave(LeaveApproveParam param) async {
     return await _apiClient.approveLeave(param);
+  }
+  
+  @override
+  Future<CommonResponse> rejectLeave(int id, LeaveRejectParam param) async {
+    return await _apiClient.cancelLeave(id, param);
   }
 }

@@ -1,4 +1,7 @@
 
+import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
+import 'package:pm_app/app/data/models/param/cancel_ob_param.dart';
+
 import '../../core/network/api_client.dart';
 import '../../core/network/api_util.dart';
 import '../models/entities/work_trip_entity.dart';
@@ -31,6 +34,10 @@ abstract class WorkTripRepository {
   Future<CommonResponse> deleteWorkTrip(int id);
 
   Future<WorkTripResponse> updateWorkTrip(CreateWorkTripParam body, int id);
+
+  Future<CommonResponse> approveWorkTrip(ApproveObParam body);
+
+  Future<CommonResponse> cancelWorkTrip(CancelObParam body, int id);
 
 }
 
@@ -90,5 +97,15 @@ class WorkTripRepositoryImpl extends WorkTripRepository {
   @override
   Future<WorkTripResponse> updateWorkTrip(CreateWorkTripParam body, int id) async{
     return _apiClient.updateWorkTrip(body, id);
+  }
+
+  @override
+  Future<CommonResponse> approveWorkTrip(ApproveObParam body) async {
+    return _apiClient.approveOB(body);
+  }
+
+  @override
+  Future<CommonResponse> cancelWorkTrip(CancelObParam body, int id) async {
+    return _apiClient.cancelOB(id,body);
   }
 }

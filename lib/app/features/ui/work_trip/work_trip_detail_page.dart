@@ -1,14 +1,20 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
+import 'package:pm_app/app/data/models/param/cancel_ob_param.dart';
+import 'package:pm_app/app/features/ui/on_leave/widget/reject_reason_dialog.dart';
 import 'package:pm_app/app/features/ui/work_trip/request_new_trip_page.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
@@ -39,6 +45,16 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  bool get _isDirector {
+    final jobTitle = GlobalData.instance.userProfile?.jobTitle ?? "";
+    return jobTitle.toLowerCase().contains('giám đốc');
+  }
+
+  bool get _isManagerApproveStage {
+    final stageId = _cubit.state.detailWorkTrip?.stage?.id ?? 0;
+    return stageId == 14 || stageId == 22 || stageId == 26 || stageId == 30;
   }
 
   // helper funcs
@@ -193,6 +209,58 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
     _cubit.onSubmitWorkTrip(_cubit.state.detailWorkTrip?.id ?? 0);
   }
 
+  void _showApproveDialog() {
+    final s = S.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => CustomDialog(
+            title: s.confirm,
+            content: "Bạn có chắc muốn duyệt đơn công tác này?",
+            success: true,
+            confirmText: s.confirm,
+            cancelText: s.cancel,
+            onConfirm: () {
+              Navigator.pop(context);
+              final id = _cubit.state.detailWorkTrip?.id ?? 0;
+
+              final param = ApproveObParam(businessIds: [id]);
+              _cubit.onApproveWorkTrip(param);
+            },
+            onCancel: () {
+              Navigator.pop(context);
+            },
+          ),
+    );
+  }
+
+  void showRejectDialog(BuildContext context) {
+    final s = S.of(context);
+
+    final id = _cubit.state.detailWorkTrip?.id;
+    if (id == null) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => RejectReasonDialog(
+            title: "Hủy duyệt đơn công tác",
+            description: "Vui lòng nhập lý do huỷ duyệt đơn công tác",
+            hintText: "Nhập lý do huỷ duyệt",
+            onConfirm: (reason) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!context.mounted) return;
+
+                final param = CancelObParam(note: reason);
+                _cubit.onRejectWorkTrip(id, param);
+              });
+            },
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<WorkTripCubit, WorkTripState>(
@@ -201,7 +269,9 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
           (prev, cur) =>
               prev.detailStatus != cur.detailStatus ||
               prev.deleteStatus != cur.deleteStatus ||
-              prev.submitStatus != cur.submitStatus,
+              prev.submitStatus != cur.submitStatus ||
+              prev.approveStatus != cur.approveStatus ||
+              prev.cancelStatus != cur.cancelStatus,
       listener: (context, state) {
         if (state.deleteStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
@@ -244,10 +314,42 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
           return;
         }
 
+        if (state.approveStatus == LoadStatus.SUCCESS) {
+          Flushbar(
+            message: "Duyệt đơn thành công",
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.onResetStatus();
+          _cubit.getWorkTripDetail(widget.workId ?? 0);
+        }
+
+        if (state.cancelStatus == LoadStatus.SUCCESS) {
+          Flushbar(
+            message: "Hủy đơn công tác thành công",
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: const Color.fromARGB(255, 255, 0, 0),
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.onResetStatus();
+          _cubit.getWorkTripDetail(widget.workId ?? 0);
+        }
+
         final isLoading =
             state.submitStatus == LoadStatus.LOADING ||
             state.deleteStatus == LoadStatus.LOADING ||
-            state.detailStatus == LoadStatus.LOADING;
+            state.detailStatus == LoadStatus.LOADING ||
+            state.approveStatus == LoadStatus.LOADING ||
+            state.cancelStatus == LoadStatus.LOADING;
 
         if (isLoading) {
           LoadingOverlay.show(context);
@@ -355,14 +457,18 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                             ).paddingOnly(bottom: 6),
                             CustomDashView().paddingOnly(bottom: 10),
                             _statusLine,
-                            CustomDashView().paddingOnly(bottom: 30),
+                            CustomDashView().paddingOnly(bottom: 20),
 
                             // (((state.detailWorkTrip?.createUid ?? 0) == GlobalData.instance.userProfile?.employeeId)
                             //   && isDraft) ? // trạng thái nháp
-                            isDraft
-                                ? _bottomSheetWidget
-                                : const SizedBox.shrink(),
-                            const SizedBox(height: 30),
+                            if (isDraft) ...[
+                              _bottomSheetWidget,
+                              const SizedBox(height: 30),
+                            ] else if (_isDirector &&
+                                _isManagerApproveStage) ...[
+                              _directorApproveActions(state),
+                              const SizedBox(height: 30),
+                            ],
                           ],
                         );
                       },
@@ -487,7 +593,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                     ),
                   ),
                   child: Text(
-                    S.of(context).bt_detail_sendApproval, 
+                    S.of(context).bt_detail_sendApproval,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -565,6 +671,40 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _directorApproveActions(WorkTripState state) {
+    final isLoading =
+        state.submitStatus == LoadStatus.LOADING ||
+        state.deleteStatus == LoadStatus.LOADING;
+
+    return Row(
+      children: [
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Hủy duyệt",
+            type: PrimaryButtonType.secondary,
+            enable: !isLoading,
+            isLoading: false,
+            callback: () {
+              showRejectDialog(context);
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Duyệt",
+            type: PrimaryButtonType.primary,
+            enable: !isLoading,
+            isLoading: false,
+            callback: () {
+              _showApproveDialog();
+            },
+          ),
+        ),
+      ],
     );
   }
 

@@ -101,9 +101,6 @@ class FirebaseMessagingService {
         while (apnsToken == null && apnsRetry < maxApnsRetry) {
           apnsToken = await _messaging.getAPNSToken();
           logger.d("APNs token (try $apnsRetry): $apnsToken");
-          if (apnsToken == null) {
-            await Future.delayed(const Duration(seconds: 1));
-          }
           apnsRetry++;
         }
 

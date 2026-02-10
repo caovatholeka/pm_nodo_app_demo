@@ -5,10 +5,16 @@ import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
+import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
+import 'package:pm_app/app/data/models/param/cancel_ob_param.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
 
 import 'package:pm_app/app/data/models/param/create_work_trip_param.dart';
+import 'package:pm_app/app/data/models/param/justification_approve_param.dart';
+import 'package:pm_app/app/data/models/param/justification_cancel_param.dart';
 import 'package:pm_app/app/data/models/param/leave_approve_param.dart';
+import 'package:pm_app/app/data/models/param/leave_reject_param.dart';
+import 'package:pm_app/app/data/models/param/ot_approve_param.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/entities/face_search_response_entity.dart';
@@ -283,6 +289,43 @@ abstract class ApiClient {
     @Path("id") int id,
   );
 
+  //Phê duyệt đơn nghỉ
   @POST("/leave/hr_leave/approve")
   Future<CommonResponse> approveLeave(@Body() LeaveApproveParam body);
+
+  //Hủy đơn nghỉ
+  @POST("/leave/hr_leave/{id}/cancel")
+  Future<CommonResponse> cancelLeave(
+    @Path("id") int id,
+    @Body() LeaveRejectParam body,
+  );
+
+
+  //Duyệt đơn OT
+  @POST("/overtime/overtime/approve")
+  Future<CommonResponse> approveOT(@Body() OtApproveParam body);
+
+
+  //Duyệt đơn công tác
+  @POST('/going_on_business/going_on_business/approve')
+  Future<CommonResponse> approveOB(@Body() ApproveObParam body);
+
+  //Hủy đơn công tác
+  @POST('/going_on_business/going_on_business/{id}/cancel')
+  Future<CommonResponse> cancelOB(
+    @Path("id") int id,
+    @Body() CancelObParam body
+  );
+
+  //Duyệt đơn M/S
+  @POST('/attendance_exception/attendance_exception/approve')
+  Future<CommonResponse> approveJustification(@Body() JustificationApproveParam body);
+
+  //Hủy đơn M/S
+  @POST('/attendance_exception/attendance_exception/{id}/cancel')
+  Future<CommonResponse> cancelJustification(
+    @Path("id") int id,
+    @Body() JustificationCancelParam body
+  );
+  
 }

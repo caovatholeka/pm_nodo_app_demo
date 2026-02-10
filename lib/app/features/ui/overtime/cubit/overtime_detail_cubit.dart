@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/data/models/param/ot_approve_param.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 
 part 'overtime_detail_state.dart';
@@ -42,7 +43,7 @@ class OvertimeDetailCubit extends Cubit<OvertimeDetailState> {
         state.copyWith(
           isSubmitting: false,
           submitSuccess: true,
-          detail: updatedDetail, 
+          detail: updatedDetail,
         ),
       );
     } catch (e, s) {
@@ -51,5 +52,31 @@ class OvertimeDetailCubit extends Cubit<OvertimeDetailState> {
     }
   }
 
+Future<void> approveOT() async {
+  final id = state.detail?.id;
+  if (id == null) return;
 
+  emit(state.copyWith(approveStatus: LoadStatus.LOADING));
+
+  try {
+    final param = OtApproveParam(overtimeIds: [id]);
+    await _repo.approveOT(param);
+
+    final updatedDetail = await _repo.getOTDetail(id);
+
+    emit(
+      state.copyWith(
+        approveStatus: LoadStatus.SUCCESS,
+        detail: updatedDetail,
+      ),
+    );
+  } catch (e, s) {
+    logger.e("Approve OT error: $e, where: $s");
+    emit(state.copyWith(approveStatus: LoadStatus.FAILURE));
+  }
+}
+
+void resetApproveStatus() {
+  emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
+}
 }

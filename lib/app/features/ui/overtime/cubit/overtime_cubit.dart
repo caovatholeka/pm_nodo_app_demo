@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/data/models/param/ot_approve_param.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 import 'package:rename/platform_file_editors/abs_platform_file_editor.dart';
 
@@ -51,6 +52,34 @@ class OvertimeCubit extends Cubit<OvertimeState> {
       emit(
         state.copyWith(
           loadStatus: LoadStatus.FAILURE,
+          error: e.toString(),
+        ),
+      );
+    }
+  }
+
+  void approveBulkOvertimes(List<int> overtimeIds) async {
+    if (overtimeIds.isEmpty) return;
+
+    emit(state.copyWith(approveStatus: LoadStatus.LOADING));
+
+    try {
+      final res = await _repo.approveOT(
+        OtApproveParam(overtimeIds: overtimeIds),
+      );
+
+      emit(
+        state.copyWith(
+          approveStatus: LoadStatus.SUCCESS,
+        ),
+      );
+    } catch (e, s) {
+      logger.e("err: $e");
+      logger.d("where: $s");
+
+      emit(
+        state.copyWith(
+          approveStatus: LoadStatus.FAILURE,
           error: e.toString(),
         ),
       );

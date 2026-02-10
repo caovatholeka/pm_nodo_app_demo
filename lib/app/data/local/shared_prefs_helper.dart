@@ -11,7 +11,6 @@ class SharedPrefsHelper {
 
   static const String _isLoginApp = "_isLoginApp";
   static const String isLoginFirstApp = "isLoginFirstApp";
-  static const String _languageSetPrefs = "_language_set_prefs";
   static const String _appLanguagePrefs = '_app_language_prefs';
   static const String _appFcmToken = '_app_fcm_token';
   static const String _appDeviceToken = '_app_device_token';
@@ -29,10 +28,7 @@ class SharedPrefsHelper {
 
   static Future<bool> getIsLoginApp() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? value = prefs.getBool(_isLoginApp);
-    if (value == null) {
-      return true;
-    }
+    bool value = prefs.getBool(_isLoginApp) ?? false;
     return value;
   }
 
@@ -58,16 +54,14 @@ static Future<void> saveToken(TokenEntity? token) async {
   static Future<TokenEntity?> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString(_tokenPrefs);
-    if (token == null) {
-      return null;
-    } else {
-      try {
+    try {
+      if (token != null) {
         return TokenEntity.fromJson(json.decode(token));
-      } catch (e) {
-        logger.d(e);
       }
+    } catch (e) {
+      logger.d(e);
     }
-    return null;
+      return null;
   }
   
 

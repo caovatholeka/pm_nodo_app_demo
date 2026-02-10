@@ -3,6 +3,7 @@ part of 'on_leave_cubit.dart';
 class OnLeaveState extends Equatable {
   final LoadStatus loadStatus;
   final LoadStatus approveStatus;
+  final LoadStatus rejectStatus;
   String? errMsg;
   String? errStatus;
 
@@ -15,6 +16,7 @@ class OnLeaveState extends Equatable {
   OnLeaveState({
     this.loadStatus = LoadStatus.INITIAL,
     this.approveStatus = LoadStatus.INITIAL,
+    this.rejectStatus = LoadStatus.INITIAL,
     this.errMsg,
     this.errStatus,
     this.listLeaveEntities,
@@ -27,6 +29,7 @@ class OnLeaveState extends Equatable {
     bool resetDateTime = false,
     LoadStatus? loadStatus,
     LoadStatus? approveStatus,
+    LoadStatus? rejectStatus,
     String? errMsg,
     String? errStatus,
     List<OnLeaveEntity>? listLeaveEntities,
@@ -43,6 +46,7 @@ class OnLeaveState extends Equatable {
       startDateFilter: startDateFilter ?? this.startDateFilter,
       endDateFilter: endDateFilter ?? this.endDateFilter,
       approveStatus: approveStatus ?? this.approveStatus,
+      rejectStatus: rejectStatus ?? this.rejectStatus,
     );
   }
 
@@ -56,5 +60,6 @@ class OnLeaveState extends Equatable {
     startDateFilter,
     endDateFilter,
     approveStatus,
+    rejectStatus,
   ];
 }

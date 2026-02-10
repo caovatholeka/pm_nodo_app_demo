@@ -12,9 +12,9 @@ import 'package:pm_app/app/features/ui/justification/widgets/justification_list_
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
-
 import 'bloc/justification_cubit.dart';
 
 class JustificationPage extends StatefulWidget {
@@ -33,8 +33,8 @@ class _JustificationPageState extends State<JustificationPage> {
   DateTimeRange? _selectedRange;
 
   bool get _isDirector {
-    final jobTitle = context.read<AppCubit>().state.userProfile?.jobTitle ?? "";
-    return jobTitle.toLowerCase().contains("giám đốc");
+    final jobTitle = context.read<AppCubit>().state.userProfile?.jobTitle ?? '';
+    return jobTitle.toLowerCase().contains('giám đốc');
   }
 
   @override
@@ -101,8 +101,25 @@ class _JustificationPageState extends State<JustificationPage> {
   }
 
   void _approveSelected() {
-    _selectedIds.clear();
-    setState(() {});
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => CustomDialog(
+            title: 'Xác nhận',
+            content:
+                'Bạn có chắc chắn muốn duyệt ${_selectedIds.length} yêu cầu này không?',
+            confirmText: 'Duyệt',
+            cancelText: 'Hủy',
+            success: true,
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.approveByIds(_selectedIds.toList());
+            },
+
+            onCancel: () => Navigator.pop(context),
+          ),
+    );
   }
 
   void _goNotification() {
@@ -124,228 +141,261 @@ class _JustificationPageState extends State<JustificationPage> {
 
     return BlocProvider(
       create: (_) => _cubit,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6FA),
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: BlocBuilder<AppCubit, AppState>(
-            buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-            builder: (context, appState) {
-              return MyAppBar(
-                titleAppbar: s.justification_title,
-                haveBackButton: true,
-                haveActionButton: true,
-                iconPathAsset: AppAssets.icNotificationBell,
-                badgeCount: appState.totalUnread,
-                actionCallBack: _goNotification,
-              );
-            },
-          ),
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: _openCalendar,
-                      child: AbsorbPointer(
-                        child: TextField(
-                          controller: _filterCtrl,
-                          decoration: InputDecoration(
-                            suffixIcon: const Icon(
-                              Icons.calendar_today,
-                              size: 18,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CreateJustificationPage(),
-                        ),
-                      );
-                      _refreshList();
-                    },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.mainPrimaryColor6,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.add, color: Colors.white),
-                    ),
-                  ),
-                ],
+      child: BlocListener<JustificationCubit, JustificationState>(
+        listenWhen: (p, c) => p.approveStatus != c.approveStatus,
+        listener: (context, state) {
+          if (state.approveStatus == LoadStatus.SUCCESS) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Duyệt thành công'),
+                backgroundColor: Colors.green,
               ),
-            ),
-            BlocBuilder<JustificationCubit, JustificationState>(
-              builder: (context, state) {
-                if (!_isDirector) {
-                  return const SizedBox.shrink();
-                }
+            );
+            _selectedIds.clear();
+            setState(() {});
+            context.read<JustificationCubit>().resetApproveStatus();
+          }
 
-                final approvableIds =
-                    state.list
-                        .where((e) => e.stage?.name == 'Trưởng phòng duyệt')
-                        .map((e) => e.id)
-                        .whereType<int>()
-                        .toSet();
-
-                if (approvableIds.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-
-                final isAllChecked =
-                    _selectedIds.isNotEmpty &&
-                    _selectedIds.containsAll(approvableIds);
-
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Theme(
-                              data: Theme.of(context).copyWith(
-                                checkboxTheme: CheckboxThemeData(
-                                  fillColor: WidgetStateProperty.resolveWith((
-                                    states,
-                                  ) {
-                                    if (states.contains(WidgetState.selected)) {
-                                      return AppColors.mainPrimaryColor6;
-                                    }
-                                    return Colors.transparent;
-                                  }),
-                                  checkColor: WidgetStateProperty.all(
-                                    Colors.white,
-                                  ),
-                                ),
-                              ),
-                              child: Checkbox(
-                                value: isAllChecked,
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value == true) {
-                                      _selectedIds
-                                        ..clear()
-                                        ..addAll(approvableIds);
-                                    } else {
-                                      _selectedIds.clear();
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Text("Chọn tất"),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed:
-                              _selectedIds.isEmpty ? null : _approveSelected,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.mainPrimaryColor6,
-                            disabledBackgroundColor: AppColors.mainPrimaryColor6
-                                .withOpacity(0.4),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(
-                            "Duyệt (${_selectedIds.length})",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+          if (state.approveStatus == LoadStatus.FAILURE) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error ?? 'Duyệt thất bại'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            context.read<JustificationCubit>().resetApproveStatus();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF5F6FA),
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: BlocBuilder<AppCubit, AppState>(
+              buildWhen: (p, c) => p.totalUnread != c.totalUnread,
+              builder: (context, appState) {
+                return MyAppBar(
+                  titleAppbar: s.justification_title,
+                  haveBackButton: true,
+                  haveActionButton: true,
+                  iconPathAsset: AppAssets.icNotificationBell,
+                  badgeCount: appState.totalUnread,
+                  actionCallBack: _goNotification,
                 );
               },
             ),
-            Expanded(
-              child: BlocBuilder<JustificationCubit, JustificationState>(
-                builder: (context, state) {
-                  if (state.loadStatus == LoadStatus.LOADING) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: Colors.blue),
-                    );
-                  }
-
-                  if (state.loadStatus == LoadStatus.FAILURE) {
-                    return Center(
-                      child: Text(state.error ?? S.of(context).to_do_failed),
-                    );
-                  }
-
-                  if (state.list.isEmpty) {
-                    return Center(
-                      child: Text(S.of(context).justification_emptyData),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-                    itemCount: state.list.length,
-                    itemBuilder: (context, index) {
-                      final item = state.list[index];
-                      return JustificationListItem(
-                        entity: item,
-                        isChecked: _selectedIds.contains(item.id),
-                        canApprove: _isDirector,
-                        onCheckedChange:
-                            _isDirector
-                                ? (v) {
-                                  setState(() {
-                                    if (v == true) {
-                                      _selectedIds.add(item.id!);
-                                    } else {
-                                      _selectedIds.remove(item.id);
-                                    }
-                                  });
-                                }
-                                : null,
-                        onTap: () async {
-                          if (_selectedIds.isNotEmpty) return;
-
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (_) => JustificationDetailPage(id: item.id),
+          ),
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _openCalendar,
+                        child: AbsorbPointer(
+                          child: TextField(
+                            controller: _filterCtrl,
+                            decoration: InputDecoration(
+                              suffixIcon: const Icon(
+                                Icons.calendar_today,
+                                size: 18,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
-                          );
-                          _refreshList();
-                        },
-                      );
-                    },
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CreateJustificationPage(),
+                          ),
+                        );
+                        _refreshList();
+                      },
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.mainPrimaryColor6,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              BlocBuilder<JustificationCubit, JustificationState>(
+                builder: (context, state) {
+                  if (!_isDirector) return const SizedBox.shrink();
+
+                  final approvableIds =
+                      state.list
+                          .where((e) => e.stage?.name == 'Trưởng phòng duyệt')
+                          .map((e) => e.id)
+                          .whereType<int>()
+                          .toSet();
+
+                  if (approvableIds.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final isAllChecked =
+                      _selectedIds.isNotEmpty &&
+                      _selectedIds.containsAll(approvableIds);
+
+                  final isLoading = state.approveStatus == LoadStatus.LOADING;
+
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  checkboxTheme: CheckboxThemeData(
+                                    fillColor: WidgetStateProperty.resolveWith((
+                                      states,
+                                    ) {
+                                      if (states.contains(
+                                        WidgetState.selected,
+                                      )) {
+                                        return AppColors.mainPrimaryColor6;
+                                      }
+                                      return Colors.transparent;
+                                    }),
+                                    checkColor: WidgetStateProperty.all(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                child: Checkbox(
+                                  value: isAllChecked,
+                                  onChanged:
+                                      isLoading
+                                          ? null
+                                          : (value) {
+                                            setState(() {
+                                              if (value == true) {
+                                                _selectedIds
+                                                  ..clear()
+                                                  ..addAll(approvableIds);
+                                              } else {
+                                                _selectedIds.clear();
+                                              }
+                                            });
+                                          },
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Text('Chọn tất'),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed:
+                                _selectedIds.isEmpty || isLoading
+                                    ? null
+                                    : _approveSelected,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.mainPrimaryColor6,
+                              disabledBackgroundColor: AppColors
+                                  .mainPrimaryColor6
+                                  .withOpacity(0.4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Text(
+                              'Duyệt (${_selectedIds.length})',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
-            ),
-          ],
+              Expanded(
+                child: BlocBuilder<JustificationCubit, JustificationState>(
+                  builder: (context, state) {
+                    if (state.loadStatus == LoadStatus.LOADING) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.blue),
+                      );
+                    }
+
+                    if (state.loadStatus == LoadStatus.FAILURE) {
+                      return Center(
+                        child: Text(state.error ?? S.of(context).to_do_failed),
+                      );
+                    }
+
+                    if (state.list.isEmpty) {
+                      return Center(
+                        child: Text(S.of(context).justification_emptyData),
+                      );
+                    }
+
+                    return ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                      itemCount: state.list.length,
+                      itemBuilder: (context, index) {
+                        final item = state.list[index];
+                        return JustificationListItem(
+                          entity: item,
+                          isChecked: _selectedIds.contains(item.id),
+                          canApprove: _isDirector,
+                          onCheckedChange:
+                              _isDirector
+                                  ? (v) {
+                                    setState(() {
+                                      if (v == true) {
+                                        _selectedIds.add(item.id!);
+                                      } else {
+                                        _selectedIds.remove(item.id);
+                                      }
+                                    });
+                                  }
+                                  : null,
+                          onTap: () async {
+                            if (_selectedIds.isNotEmpty) return;
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => JustificationDetailPage(id: item.id),
+                              ),
+                            );
+                            _refreshList();
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

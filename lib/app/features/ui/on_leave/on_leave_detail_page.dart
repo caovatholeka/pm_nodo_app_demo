@@ -8,6 +8,7 @@ import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
+import 'package:pm_app/app/features/ui/on_leave/widget/reject_reason_dialog.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
@@ -21,10 +22,10 @@ import '../../widgets/my_app_bar.dart';
 import '../../widgets/primary_button.dart';
 
 class OnLeaveDetailPage extends StatefulWidget {
-  int? detailId;
-  OnLeaveEntity? detailEntity;
+  final int? detailId;
+  final OnLeaveEntity? detailEntity;
 
-  OnLeaveDetailPage({super.key, this.detailId, this.detailEntity});
+  const OnLeaveDetailPage({super.key, this.detailId, this.detailEntity});
 
   @override
   State<OnLeaveDetailPage> createState() => _OnLeaveDetailPageState();
@@ -34,7 +35,8 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   final _cubit = GetIt.I.get<DetailOnLeaveCubit>();
 
   bool get isDirector {
-    final jobTitle = GlobalData.instance.userProfile?.jobTitle?.toLowerCase() ?? "";
+    final jobTitle =
+        GlobalData.instance.userProfile?.jobTitle?.toLowerCase() ?? "";
     return jobTitle.contains("giám đốc");
   }
 
@@ -66,6 +68,28 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             },
             onCancel: () => Navigator.pop(context),
           ),
+    );
+  }
+
+  void _showRejectReasonDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.3),
+      builder: (_) {
+        return RejectReasonDialog(
+          title: "Từ chối đơn xin nghỉ",
+          description:
+              "Vui lòng nhập lý do từ chối để người gửi biết và điều chỉnh",
+          hintText: "Nhập lý do từ chối...",
+          onConfirm: (reason) {
+            final id = _cubit.state.detailEntity?.id ?? 0;
+            if (id != 0) {
+              _cubit.rejectLeave(id, reason);
+            }
+          },
+        );
+      },
     );
   }
 
@@ -160,17 +184,14 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
         if (state.loadStatus == LoadStatus.LOADING ||
             state.deleteStatus == LoadStatus.LOADING ||
             state.confirmStatus == LoadStatus.LOADING ||
-            state.approveStatus == LoadStatus.LOADING
-            ) {
+            state.approveStatus == LoadStatus.LOADING ||
+            state.rejectStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
         } else if (state.deleteStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
-          AppSnackBar.showInfo(
-            title: s.success,
-            message: s.delete_success,
-          );
+          AppSnackBar.showInfo(title: s.success, message: s.delete_success);
 
           // _showDialog(
           //   title: "Thành công",
@@ -178,7 +199,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           //   success: true,
           //   onConfirm: () => Navigator.pop(context, true),
           // );
-        } else if(state.approveStatus == LoadStatus.SUCCESS){
+        } else if (state.approveStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
@@ -192,8 +213,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
-
-        } else if(state.approveStatus == LoadStatus.FAILURE) {
+        } else if (state.approveStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
 
@@ -206,9 +226,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
-        }
-
-         else if (state.confirmStatus == LoadStatus.SUCCESS) {
+        } else if (state.confirmStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           Navigator.pop(context, true);
@@ -242,7 +260,35 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           //   message: "Không xóa được bản ghi khác nháp!",
           //   success: false,
           // );
-        } else {
+        } else if (state.rejectStatus == LoadStatus.SUCCESS) {
+          _cubit.resetStatus();
+          LoadingOverlay.hide(context);
+          Navigator.pop(context, true);
+
+          Flushbar(
+            message: "Từ chối đơn nghỉ thành công",
+            backgroundColor: Colors.green,
+            flushbarPosition: FlushbarPosition.TOP,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+        } else if(state.rejectStatus == LoadStatus.FAILURE) {
+          _cubit.resetStatus();
+          LoadingOverlay.hide(context);
+
+          Flushbar(
+            message: "Từ chối đơn nghỉ thất bại",
+            backgroundColor: Colors.red,
+            flushbarPosition: FlushbarPosition.TOP,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.warning, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+        }
+         else {
           LoadingOverlay.hide(context);
         }
       },
@@ -363,100 +409,90 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   void _onDirectorApprove() {
     _showDialog(
       title: "Duyệt đơn xin nghỉ?",
-       message: "Bạn có chắc muốn duyệt đơn này?",
-       success: true,
-       onConfirm: () {
-         final id = _cubit.state.detailEntity?.id ?? 0;
-         if(id != 0) {
+      message: "Bạn có chắc muốn duyệt đơn này?",
+      success: true,
+      onConfirm: () {
+        final id = _cubit.state.detailEntity?.id ?? 0;
+        if (id != 0) {
           _cubit.approveLeave(id);
-         }
-       },
+        }
+      },
     );
   }
 
   void _onDirectorReject() {
-    _showDialog(
-      title: "Từ chối dơn nghỉ",
-      message: "Bạn có muốn từ chối đơn nghỉ này?",
-      success: false,
-      onConfirm: () {
-        //ToDo: Viết hàm tương tác API sau khi đã có API
-      }
-    );
+    _showRejectReasonDialog();
   }
 
-Widget get _bottomSheet {
-  final stageId = _cubit.state.detailEntity?.leaveStage?.id;
+  Widget get _bottomSheet {
+    final stageId = _cubit.state.detailEntity?.leaveStage?.id;
 
-  if (stageId == 13) {
-    return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
-      width: double.infinity,
-      height: 46,
-      child: Row(
-        children: [
-          Expanded(
-            child: PrimaryButton(
-              mainText: S.of(context).day_off_btn_delete,
-              type: PrimaryButtonType.secondary,
-              callback: showDeleteConfirmDialog,
+    if (stageId == 13) {
+      return Container(
+        margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
+        width: double.infinity,
+        height: 46,
+        child: Row(
+          children: [
+            Expanded(
+              child: PrimaryButton(
+                mainText: S.of(context).day_off_btn_delete,
+                type: PrimaryButtonType.secondary,
+                callback: showDeleteConfirmDialog,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: PrimaryButton(
-              mainText: S.of(context).day_off_btn_send_approval,
-              type: PrimaryButtonType.primary,
-              callback: () {
-                _cubit.confirmHrLeave(
-                  _cubit.state.detailEntity?.id ?? 0,
-                );
-              },
+            const SizedBox(width: 12),
+            Expanded(
+              child: PrimaryButton(
+                mainText: S.of(context).day_off_btn_send_approval,
+                type: PrimaryButtonType.primary,
+                callback: () {
+                  _cubit.confirmHrLeave(_cubit.state.detailEntity?.id ?? 0);
+                },
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: PrimaryButton(
-              mainText: S.of(context).day_off_btn_edit,
-              type: PrimaryButtonType.primary,
-              callback: () => doUpdate(context),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PrimaryButton(
+                mainText: S.of(context).day_off_btn_edit,
+                type: PrimaryButtonType.primary,
+                callback: () => doUpdate(context),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
+
+    if (stageId == 14 && isDirector) {
+      return Container(
+        margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
+        width: double.infinity,
+        height: 46,
+        child: Row(
+          children: [
+            Expanded(
+              child: PrimaryButton(
+                mainText: "Từ chối",
+                type: PrimaryButtonType.secondary,
+                callback: _onDirectorReject,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: PrimaryButton(
+                mainText: "Duyệt",
+                type: PrimaryButtonType.primary,
+                callback: _onDirectorApprove,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
-
-  if (stageId == 14 && isDirector) {
-    return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 36),
-      width: double.infinity,
-      height: 46,
-      child: Row(
-        children: [
-          Expanded(
-            child: PrimaryButton(
-              mainText: "Từ chối",
-              type: PrimaryButtonType.secondary,
-              callback: _onDirectorReject,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: PrimaryButton(
-              mainText: "Duyệt",
-              type: PrimaryButtonType.primary,
-              callback: _onDirectorApprove,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  return const SizedBox.shrink();
-}
-
 
   void showDeleteConfirmDialog() {
     showDialog(

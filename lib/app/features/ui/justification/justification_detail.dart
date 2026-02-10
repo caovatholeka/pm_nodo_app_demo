@@ -7,11 +7,14 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/data/models/param/justification_approve_param.dart';
+import 'package:pm_app/app/data/models/param/justification_cancel_param.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui/on_leave/widget/reject_reason_dialog.dart';
 import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -52,23 +55,39 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
   void _onDirectorApprove() {
     _showDialog(
-      title: "Duyệt đơn xin phép",
-      message: "Bạn có chắc muốn duyệt đơn xin phép này?",
+      title: "Duyệt đơn nghỉ phép",
+      message: "Bạn có chắc chắn muốn duyệt đơn nghỉ phép này không?",
       success: true,
-      onConfirm: () {
-        //ToDo: Viết hàm tương tác API sau khi đã có API
+      onConfirm: () async {
+        final id = widget.id;
+        if (id == null) return;
+
+        await _cubit.approveJustification(
+          JustificationApproveParam(exceptionIds: [id]),
+        );
       },
     );
   }
 
   void _onDirectorReject() {
-    _showDialog(
-      title: "Từ chối đơn xin phép",
-      message: "Bạn có chắc muốn từ chối đơn xin phép này?",
-      success: false,
-      onConfirm: () {
-        //ToDo: Viết hàm tương tác API sau khi đã có API
-      },
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => RejectReasonDialog(
+            title: "Từ chối đơn xin phép",
+            description: "Vui lòng nhập lý do từ chối để nhân viên biết.",
+            hintText: "Nhập lý do từ chối",
+            onConfirm: (reason) async {
+              final id = widget.id;
+              if (id == null) return;
+
+              await _cubit.cancelJustification(
+                id,
+                JustificationCancelParam(note: reason),
+              );
+            },
+          ),
     );
   }
 
@@ -81,18 +100,19 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => CustomDialog(
-        title: title,
-        content: message,
-        confirmText: S.of(context).confirm,
-        cancelText: S.of(context).cancel,
-        success: success,
-        onConfirm: () {
-          Navigator.pop(context);
-          onConfirm();
-        },
-        onCancel: () => Navigator.pop(context),
-      ),
+      builder:
+          (_) => CustomDialog(
+            title: title,
+            content: message,
+            confirmText: S.of(context).confirm,
+            cancelText: S.of(context).cancel,
+            success: success,
+            onConfirm: () {
+              Navigator.pop(context);
+              onConfirm();
+            },
+            onCancel: () => Navigator.pop(context),
+          ),
     );
   }
 
@@ -176,9 +196,17 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+
     return BlocListener<JustificationDetailCubit, JustificationDetailState>(
       bloc: _cubit,
+      listenWhen:
+          (prev, cur) =>
+              prev.submitSuccess != cur.submitSuccess ||
+              prev.approveStatus != cur.approveStatus ||
+              prev.cancelStatus != cur.cancelStatus ||
+              prev.error != cur.error,
       listener: (context, state) async {
+
         if (state.submitSuccess) {
           await Flushbar(
             message: s.justification_sendApproval,
@@ -189,8 +217,39 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
-          _cubit.resetSubmitState();
-          Navigator.pop(context);
+
+          _cubit.resetApproveCancelStatus();
+          _cubit.getDetail(widget.id!);
+        }
+
+        if (state.approveStatus == LoadStatus.SUCCESS) {
+          await Flushbar(
+            message: "Duyệt đơn thành công",
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetApproveCancelStatus();
+          _cubit.getDetail(widget.id!);
+        }
+
+        if (state.cancelStatus == LoadStatus.SUCCESS) {
+          await Flushbar(
+            message: "Đã từ chối đơn xin phép",
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.cancel, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetApproveCancelStatus();
+          _cubit.getDetail(widget.id!);
         }
 
         if (state.error != null) {
@@ -199,8 +258,12 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
           ).show(context);
+
           _cubit.resetSubmitState();
+          _cubit.resetApproveCancelStatus();
         }
       },
       child: BlocBuilder<JustificationDetailCubit, JustificationDetailState>(
@@ -216,8 +279,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
                   child: BlocBuilder<AppCubit, AppState>(
-                    buildWhen:
-                        (prev, cur) => prev.totalUnread != cur.totalUnread,
+                    buildWhen: (p, c) => p.totalUnread != c.totalUnread,
                     builder: (context, appState) {
                       return MyAppBar(
                         titleAppbar: s.justification_detail_title,
@@ -225,9 +287,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                         haveActionButton: true,
                         iconPathAsset: AppAssets.icNotificationBell,
                         badgeCount: appState.totalUnread,
-                        actionCallBack: () async {
-                          _goNotification();
-                        },
+                        actionCallBack: _goNotification,
                       );
                     },
                   ),
@@ -310,32 +370,29 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
     );
   }
 
+  Widget _directorActionButtons(JustificationDetailState state) {
+    final s = S.of(context);
 
-
-Widget _directorActionButtons(JustificationDetailState state) {
-  final s = S.of(context);
-
-  return Row(
-    children: [
-      Expanded(
-        child: PrimaryButton(
-          mainText: "Từ chối",
-          type: PrimaryButtonType.secondary,
-          callback: _onDirectorReject,
+    return Row(
+      children: [
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Từ chối",
+            type: PrimaryButtonType.secondary,
+            callback: _onDirectorReject,
+          ),
         ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: PrimaryButton(
-          mainText: "Duyệt",
-          type: PrimaryButtonType.primary,
-          callback: _onDirectorApprove,
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Duyệt",
+            type: PrimaryButtonType.primary,
+            callback: _onDirectorApprove,
+          ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 
   Widget _row(String title, String value) {
     return Padding(

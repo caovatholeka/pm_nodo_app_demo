@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/param/leave_approve_param.dart';
+import 'package:pm_app/app/data/models/param/leave_reject_param.dart';
 
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../data/repositories/on_leave_repository.dart';
@@ -22,6 +23,7 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
         deleteStatus: LoadStatus.INITIAL,
         confirmStatus: LoadStatus.INITIAL,
         approveStatus: LoadStatus.INITIAL,
+        rejectStatus: LoadStatus.INITIAL,
       ),
     );
   }
@@ -81,17 +83,23 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
     }
   }
 
-  // void rejectLeave(int leaveId) async {
-  //   emit(state.copyWith(approveStatus: LoadStatus.LOADING));
+void rejectLeave(int id, String reason) async {
+  emit(state.copyWith(rejectStatus: LoadStatus.LOADING));
 
-  //   try{
-  //     //TODO: thay bằng EP reject khi BE có
-  //     final param = LeaveApproveParam(leaveIds: [leaveId]);
-  //     await repository.approveLeave(param);
-  //     emit(state.copyWith(approveStatus: LoadStatus.SUCCESS));
-  //   }catch(e) {
-  //     logger.e("err: $e");
-  //     emit(state.copyWith(approveStatus: LoadStatus.FAILURE));
-  //   }
-  // }
+  try {
+    final param = LeaveRejectParam(note: reason);
+
+    await repository.rejectLeave(id, param);
+
+    emit(state.copyWith(rejectStatus: LoadStatus.SUCCESS));
+  } catch (e, s) {
+    logger.e("RejectLeave error: $e");
+    logger.d("Where: $s");
+
+    emit(state.copyWith(
+      rejectStatus: LoadStatus.FAILURE,
+    ));
+  }
+}
+
 }

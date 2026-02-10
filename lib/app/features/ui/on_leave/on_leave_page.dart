@@ -6,7 +6,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
@@ -397,6 +396,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
           (p, c) =>
               p.loadStatus != c.loadStatus ||
               p.listLeaveEntities != c.listLeaveEntities,
+              
       builder: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING) {
           return const Center(child: CircularProgressIndicator());
@@ -418,6 +418,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
               final e = list[i];
               return OnLeaveListItem(
                 entity: e,
+                isDirector: isDirector,
                 isChecked: selectedIds.contains(e.id),
                 showCheckbox: true,
                 onCheckedChanged: (v) {

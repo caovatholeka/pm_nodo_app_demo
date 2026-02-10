@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/data/models/param/justification_approve_param.dart';
+import 'package:pm_app/app/data/models/param/justification_cancel_param.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 
 part 'justification_detail_state.dart';
@@ -68,4 +70,35 @@ class JustificationDetailCubit extends Cubit<JustificationDetailState> {
   }
 }
 
+Future<void> approveJustification(JustificationApproveParam body) async {
+    emit(state.copyWith(approveStatus: LoadStatus.LOADING));
+
+    try {
+      await _repo.approveJustification(body);
+      emit(state.copyWith(approveStatus: LoadStatus.SUCCESS));
+    } catch (e, s) {
+      logger.e("ApproveJustification error: $e, Where: $s");
+      emit(state.copyWith(approveStatus: LoadStatus.FAILURE, error: e.toString()));
+    }
+  }
+
+Future<void> cancelJustification(int id, JustificationCancelParam body) async {
+    emit(state.copyWith(cancelStatus: LoadStatus.LOADING));
+
+    try {
+      await _repo.cancelJustification(id, body);
+      emit(state.copyWith(cancelStatus: LoadStatus.SUCCESS));
+    } catch (e, s) {
+      logger.e("CancelJustification error: $e, Where: $s");
+      emit(state.copyWith(cancelStatus: LoadStatus.FAILURE, error: e.toString()));
+    }
+  }
+
+void resetApproveCancelStatus() {
+    emit(state.copyWith(
+      approveStatus: LoadStatus.INITIAL,
+      cancelStatus: LoadStatus.INITIAL,
+      error: null,
+    ));
+  }
 }

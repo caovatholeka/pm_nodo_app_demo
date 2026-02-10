@@ -9,15 +9,18 @@ const int kManagerApproveStatusId = 14;
 class OnLeaveListItem extends StatelessWidget {
   final OnLeaveEntity entity;
   final bool isChecked;
+  final bool showCheckbox;
+  final bool isDirector; // 👈 quyền truyền từ Page
+
   final ValueChanged<bool?>? onCheckedChanged;
   final VoidCallback? onShowDetail;
-  final bool showCheckbox;
 
   const OnLeaveListItem({
     super.key,
     required this.entity,
     required this.isChecked,
     required this.showCheckbox,
+    required this.isDirector,
     this.onCheckedChanged,
     this.onShowDetail,
   });
@@ -122,6 +125,7 @@ class OnLeaveListItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // status color bar
               Container(
                 width: 4,
                 decoration: BoxDecoration(
@@ -147,23 +151,26 @@ class OnLeaveListItem extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (isManagerApprove && showCheckbox)
+                            // ✅ CHECKBOX: chỉ giám đốc + đúng trạng thái
+                            if (isDirector &&
+                                isManagerApprove &&
+                                showCheckbox)
                               Theme(
                                 data: Theme.of(context).copyWith(
                                   checkboxTheme: CheckboxThemeData(
-                                    fillColor: WidgetStateProperty.resolveWith((
-                                      states,
-                                    ) {
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return AppColors.mainPrimaryColor6;
-                                      }
-                                      return Colors.transparent;
-                                    }),
-                                    checkColor: WidgetStateProperty.all(
-                                      Colors.white,
+                                    fillColor:
+                                        WidgetStateProperty.resolveWith(
+                                      (states) {
+                                        if (states.contains(
+                                            WidgetState.selected)) {
+                                          return AppColors
+                                              .mainPrimaryColor6;
+                                        }
+                                        return Colors.transparent;
+                                      },
                                     ),
+                                    checkColor:
+                                        WidgetStateProperty.all(Colors.white),
                                   ),
                                 ),
                                 child: Checkbox(
@@ -186,6 +193,8 @@ class OnLeaveListItem extends StatelessWidget {
                                 ),
                               ),
                             ),
+
+                            // status badge
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
@@ -220,16 +229,19 @@ class OnLeaveListItem extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
+
                         _buildItem(
                           "${S.of(context).day_off_card_employee}:",
                           entity.employeeName ?? "",
                         ),
                         const SizedBox(height: 12),
+
                         _buildItem(
                           "${S.of(context).day_off_card_type}:",
                           entity.holidayStatus ?? "",
                         ),
                         const SizedBox(height: 12),
+
                         _buildItem(
                           approveOrReasonTitle(context),
                           approveOrReason,
@@ -247,7 +259,11 @@ class OnLeaveListItem extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(String title, String value, {bool isReason = false}) {
+  Widget _buildItem(
+    String title,
+    String value, {
+    bool isReason = false,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -267,7 +283,9 @@ class OnLeaveListItem extends StatelessWidget {
           child: Text(
             value,
             maxLines: isReason ? 2 : 1,
-            overflow: isReason ? TextOverflow.ellipsis : TextOverflow.visible,
+            overflow: isReason
+                ? TextOverflow.ellipsis
+                : TextOverflow.visible,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,

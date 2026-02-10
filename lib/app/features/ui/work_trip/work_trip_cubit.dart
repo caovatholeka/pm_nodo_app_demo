@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/helper/response_mapper.dart';
 import 'package:pm_app/app/data/models/entities/schedule_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
+import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
+import 'package:pm_app/app/data/models/param/cancel_ob_param.dart';
 import 'package:pm_app/app/data/models/param/create_work_trip_param.dart';
 import 'package:pm_app/app/data/repositories/work_trip_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -36,7 +38,9 @@ class WorkTripCubit extends Cubit<WorkTripState> {
       loadDataStatus: LoadStatus.INITIAL,
       createStatus: LoadStatus.INITIAL,
       submitStatus: LoadStatus.INITIAL,
-      deleteStatus: LoadStatus.INITIAL
+      deleteStatus: LoadStatus.INITIAL,
+      approveStatus: LoadStatus.INITIAL,
+      cancelStatus: LoadStatus.INITIAL,
     ));
   }
 
@@ -368,6 +372,32 @@ class WorkTripCubit extends Cubit<WorkTripState> {
     } catch (e) {
       logger.e(e);
       emit(state.copyWith(editFileStatus: LoadStatus.FAILURE));
+    }
+  }
+
+
+  void onApproveWorkTrip(ApproveObParam param) async {
+    emit(state.copyWith(approveStatus: LoadStatus.LOADING));
+    try{
+      await tripRepository.approveWorkTrip(param);
+      emit(state.copyWith(approveStatus: LoadStatus.SUCCESS));
+    }catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(approveStatus: LoadStatus.FAILURE));
+    }
+  }
+
+
+  void onRejectWorkTrip(int id, CancelObParam param) async {
+    emit(state.copyWith(cancelStatus: LoadStatus.LOADING));
+    try{
+      await tripRepository.cancelWorkTrip(param, id);
+      emit(state.copyWith(cancelStatus: LoadStatus.SUCCESS));
+    }catch(e,s){
+      logger.d(e);
+      logger.d(s);
+      emit(state.copyWith(cancelStatus: LoadStatus.FAILURE));
     }
   }
 

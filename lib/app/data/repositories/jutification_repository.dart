@@ -1,4 +1,6 @@
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
+import 'package:pm_app/app/data/models/param/justification_approve_param.dart';
+import 'package:pm_app/app/data/models/param/justification_cancel_param.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/api_util.dart';
@@ -12,6 +14,8 @@ abstract class JutificationRepository {
   Future<JustificationEntity> submitJustification(int id);
   Future<JustificationEntity> getDetailAttendance(int id);
   Future<dynamic> deleteJustification(int id);
+  Future<CommonResponse> approveJustification(JustificationApproveParam body);
+  Future<CommonResponse> cancelJustification(int id, JustificationCancelParam body);
 }
 
 class JutificationRepositoryImpl extends JutificationRepository {
@@ -47,5 +51,15 @@ class JutificationRepositoryImpl extends JutificationRepository {
   @override
   Future<dynamic> deleteJustification(int id) async {
     return await _apiClient.deleteAttendance(id);
+  }
+
+  @override
+  Future<CommonResponse> approveJustification(JustificationApproveParam body) async {
+    return await _apiClient.approveJustification(body);
+  }
+
+  @override
+  Future<CommonResponse> cancelJustification(int id, JustificationCancelParam body) async {
+    return await _apiClient.cancelJustification(id, body);
   }
 }

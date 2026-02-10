@@ -14,6 +14,7 @@ import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart
 import 'package:pm_app/app/features/ui/overtime/cubit/overtime_detail_cubit.dart';
 import 'package:pm_app/app/features/widgets/custom_dash_view.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -40,50 +41,48 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   void _onDirectorReject() {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder:
-        (_) => CustomDialog(
-          title: "Xác nhận",
-          content: "Bạn có chắc chắn muốn huỷ yêu cầu tăng ca này?",
-          confirmText: "Huỷ",
-          cancelText: "Đóng",
-          success: false,
-          onConfirm: () {},
-          onCancel: () => Navigator.pop(context),
-        ),
-  );
-}
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => CustomDialog(
+            title: "Xác nhận",
+            content: "Bạn có chắc chắn muốn huỷ yêu cầu tăng ca này?",
+            confirmText: "Huỷ",
+            cancelText: "Đóng",
+            success: false,
+            onConfirm: () => Navigator.pop(context),
+            onCancel: () => Navigator.pop(context),
+          ),
+    );
+  }
 
-void _onDirectorApprove() {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder:
-        (_) => CustomDialog(
-          title: "Xác nhận",
-          content: "Bạn có chắc chắn muốn duyệt yêu cầu tăng ca này?",
-          confirmText: "Duyệt",
-          cancelText: "Huỷ",
-          success: true,
-          onConfirm: () {},
-          onCancel: () => Navigator.pop(context),
-        ),
-  );
-}
-
-
+  void _onDirectorApprove() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => CustomDialog(
+            title: "Xác nhận",
+            content: "Bạn có chắc chắn muốn duyệt yêu cầu tăng ca này?",
+            confirmText: "Duyệt",
+            cancelText: "Huỷ",
+            success: true,
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.approveOT();
+            },
+            onCancel: () => Navigator.pop(context),
+          ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    _cubit.resetApproveStatus(); 
+    _cubit.resetSubmitState(); 
     _cubit.getDetailOT(widget.id ?? 0);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   void _goNotification() {
@@ -132,7 +131,7 @@ void _onDirectorApprove() {
     return BlocListener<OvertimeDetailCubit, OvertimeDetailState>(
       bloc: _cubit,
       listener: (context, state) async {
-        if (state.submitSuccess) {
+        if (state.approveStatus == LoadStatus.SUCCESS) {
           await Flushbar(
             message: 'Gửi duyệt thành công',
             flushbarPosition: FlushbarPosition.TOP,
@@ -145,6 +144,43 @@ void _onDirectorApprove() {
 
           _cubit.resetSubmitState();
           Navigator.pop(context);
+          return;
+        }
+
+        if (state.approveStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+          return;
+        }
+
+        if (state.approveStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          await Flushbar(
+            message: 'Duyệt tăng ca thành công',
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ).show(context);
+
+          _cubit.resetApproveStatus();
+          _cubit.getDetailOT(widget.id!);
+        }
+
+        if (state.approveStatus == LoadStatus.FAILURE) {
+          LoadingOverlay.hide(context);
+
+          await Flushbar(
+            message: 'Duyệt tăng ca thất bại',
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.error, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetApproveStatus();
+          return;
         }
 
         if (state.error != null) {
@@ -180,9 +216,7 @@ void _onDirectorApprove() {
                         haveActionButton: true,
                         iconPathAsset: AppAssets.icNotificationBell,
                         badgeCount: appState.totalUnread,
-                        actionCallBack: () async {
-                          _goNotification();
-                        },
+                        actionCallBack: _goNotification,
                       );
                     },
                   ),
@@ -210,16 +244,14 @@ void _onDirectorApprove() {
       child: Column(
         children: [
           _contentCard(state),
-
           if (_isDraft(state)) ...[
             const SizedBox(height: 20),
             _actionButtons(state),
             const SizedBox(height: 24),
           ],
-
           if (_isManagerApprove(state) && isDirector) ...[
             const SizedBox(height: 20),
-            _directorActionButtons(state),
+            _directorActionButtons(),
             const SizedBox(height: 24),
           ],
         ],
@@ -227,31 +259,27 @@ void _onDirectorApprove() {
     );
   }
 
-
-Widget _directorActionButtons(OvertimeDetailState state) {
-  final s = S.of(context);
-
-  return Row(
-    children: [
-      Expanded(
-        child: PrimaryButton(
-          mainText: "Từ chối",
-          type: PrimaryButtonType.secondary,
-          callback: _onDirectorReject,
+  Widget _directorActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Từ chối",
+            type: PrimaryButtonType.secondary,
+            callback: _onDirectorReject,
+          ),
         ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: PrimaryButton(
-          mainText: "Duyệt",
-          type: PrimaryButtonType.primary,
-          callback: _onDirectorApprove,
+        const SizedBox(width: 12),
+        Expanded(
+          child: PrimaryButton(
+            mainText: "Duyệt",
+            type: PrimaryButtonType.primary,
+            callback: _onDirectorApprove,
+          ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 
   Widget _contentCard(OvertimeDetailState state) {
     final e = state.detail;
@@ -285,10 +313,8 @@ Widget _directorActionButtons(OvertimeDetailState state) {
           const CustomDashView(),
           _row(s.ot_detail_toDate, e.toDate ?? ""),
           const SizedBox(height: 16),
-
           if (e.overtimeDetail != null)
             ...e.overtimeDetail!.map(_overtimeDetailBox),
-
           const SizedBox(height: 16),
           _row(
             s.ot_detail_receive,
@@ -346,7 +372,7 @@ Widget _directorActionButtons(OvertimeDetailState state) {
             flex: 4,
             child: Text(
               s.ot_detail_status,
-              style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+              style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
             ),
           ),
           Expanded(
@@ -429,13 +455,6 @@ Widget _directorActionButtons(OvertimeDetailState state) {
     }
   }
 
-  String _formatHour(num? hour) {
-    if (hour == null) return "";
-    final h = hour.floor();
-    final m = ((hour - h) * 60).round();
-    return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
-  }
-
   Widget _actionButtons(OvertimeDetailState state) {
     final s = S.of(context);
     return Row(
@@ -483,7 +502,6 @@ Widget _directorActionButtons(OvertimeDetailState state) {
                       ),
                 ),
               );
-
               if (res == true) {
                 _cubit.getDetailOT(widget.id!);
               }

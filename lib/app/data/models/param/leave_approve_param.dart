@@ -7,8 +7,12 @@ class LeaveApproveParam {
   @JsonKey(name: 'leave_ids')
   final List<int> leaveIds;
 
+  @JsonKey()
+  final String? reason;
+
   LeaveApproveParam({
     required this.leaveIds,
+    this.reason,
   });
 
   factory LeaveApproveParam.fromJson(Map<String, dynamic> json) =>

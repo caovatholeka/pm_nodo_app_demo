@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
+import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/work_trip/request_new_trip_page.dart';
 import 'package:pm_app/app/features/ui/work_trip/widget/work_trip_list_item.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_detail_page.dart';
+import 'package:pm_app/app/features/widgets/app_snackbar.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -96,8 +101,33 @@ class _WorkTripPageState extends State<WorkTripPage> {
   }
 
   void _approveSelected() {
-    _selectedIds.clear();
-    setState(() {});
+    if (_selectedIds.isEmpty) return;
+
+    final ids = _selectedIds.toList();
+    logger.d("Bulk approve IDs: $ids");
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => CustomDialog(
+            title: "Xác nhận duyệt",
+            content: "Bạn có chắc muốn duyệt ${ids.length} đơn công tác?",
+            success: true,
+            confirmText: "Duyệt",
+            cancelText: "Huỷ",
+            onConfirm: () {
+              Navigator.pop(context);
+
+              final param = ApproveObParam(businessIds: ids);
+
+              _cubit.onApproveWorkTrip(param);
+            },
+            onCancel: () {
+              Navigator.pop(context);
+            },
+          ),
+    );
   }
 
   @override
@@ -106,12 +136,107 @@ class _WorkTripPageState extends State<WorkTripPage> {
 
     return BlocConsumer<WorkTripCubit, WorkTripState>(
       bloc: _cubit,
+      listenWhen:
+          (prev, cur) =>
+              prev.loadDataStatus != cur.loadDataStatus ||
+              prev.submitStatus != cur.submitStatus ||
+              prev.deleteStatus != cur.deleteStatus ||
+              prev.approveStatus != cur.approveStatus ||
+              prev.cancelStatus != cur.cancelStatus,
+      listener: (context, state) {
+        if (state.deleteStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Xoá công tác thành công",
+          );
+
+          _selectedIds.clear();
+          _cubit.onResetStatus();
+          _cubit.getListWorkTrips();
+          setState(() {});
+          return;
+        }
+
+        if (state.submitStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Gửi duyệt thành công",
+          );
+
+          _selectedIds.clear();
+          _cubit.onResetStatus();
+          _cubit.getListWorkTrips();
+          setState(() {});
+          return;
+        }
+
+        if (state.approveStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Duyệt công tác thành công",
+          );
+
+          _selectedIds.clear();
+          _cubit.onResetStatus();
+          _cubit.getListWorkTrips();
+          setState(() {});
+          return;
+        }
+
+        if (state.cancelStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: "Huỷ duyệt công tác thành công",
+          );
+
+          _selectedIds.clear();
+          _cubit.onResetStatus();
+          _cubit.getListWorkTrips();
+          setState(() {});
+          return;
+        }
+        if (state.submitStatus == LoadStatus.FAILURE ||
+            state.deleteStatus == LoadStatus.FAILURE ||
+            state.approveStatus == LoadStatus.FAILURE ||
+            state.cancelStatus == LoadStatus.FAILURE) {
+          LoadingOverlay.hide(context);
+
+          AppSnackBar.showError(
+            title: "Cảnh báo",
+            message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại",
+          );
+
+          _cubit.onResetStatus();
+          return;
+        }
+
+        final isLoading =
+            state.loadDataStatus == LoadStatus.LOADING ||
+            state.submitStatus == LoadStatus.LOADING ||
+            state.deleteStatus == LoadStatus.LOADING ||
+            state.approveStatus == LoadStatus.LOADING ||
+            state.cancelStatus == LoadStatus.LOADING;
+
+        if (isLoading) {
+          LoadingOverlay.show(context);
+        } else {
+          LoadingOverlay.hide(context);
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.bodyColor,
           appBar: MyAppBar(
             titleAppbar: s.bt_title,
-            haveBackButton: widget.isFromHome ?? false,
+            haveBackButton: widget.isFromHome ?? true,
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -127,7 +252,6 @@ class _WorkTripPageState extends State<WorkTripPage> {
           ),
         );
       },
-      listener: (_, __) {},
     );
   }
 
@@ -224,24 +348,57 @@ class _WorkTripPageState extends State<WorkTripPage> {
       child: Row(
         children: [
           Expanded(
-            child: Row(
-              children: [
-                Checkbox(
-                  value: isAllChecked,
-                  onChanged: (v) {
-                    setState(() {
-                      if (v == true) {
-                        _selectedIds
-                          ..clear()
-                          ..addAll(approvableIds);
-                      } else {
-                        _selectedIds.clear();
-                      }
-                    });
-                  },
-                ),
-                const Text('Chọn tất'),
-              ],
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                setState(() {
+                  if (!isAllChecked) {
+                    _selectedIds
+                      ..clear()
+                      ..addAll(approvableIds);
+                  } else {
+                    _selectedIds.clear();
+                  }
+                });
+              },
+              child: Row(
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      checkboxTheme: CheckboxThemeData(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        side: BorderSide(
+                          color: AppColors.mainPrimaryColor6,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    child: Checkbox(
+                      value: isAllChecked,
+                      activeColor: AppColors.mainPrimaryColor6,
+                      checkColor: Colors.white,
+                      onChanged: (v) {
+                        setState(() {
+                          if (v == true) {
+                            _selectedIds
+                              ..clear()
+                              ..addAll(approvableIds);
+                          } else {
+                            _selectedIds.clear();
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text(
+                    'Chọn tất cả',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
             ),
           ),
           SizedBox(
@@ -252,10 +409,17 @@ class _WorkTripPageState extends State<WorkTripPage> {
                 backgroundColor: AppColors.mainPrimaryColor6,
                 disabledBackgroundColor: AppColors.mainPrimaryColor6
                     .withOpacity(0.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
               ),
               child: Text(
                 'Duyệt (${_selectedIds.length})',
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -306,12 +470,19 @@ class _WorkTripPageState extends State<WorkTripPage> {
                             setState(() {
                               if (v == true) {
                                 _selectedIds.add(entity.id!);
+                                logger.d("Checked ID: ${entity.id}");
                               } else {
                                 _selectedIds.remove(entity.id);
+                                logger.d("Unchecked ID: ${entity.id}");
                               }
+
+                              logger.d(
+                                "Current selected IDs: ${_selectedIds.toList()}",
+                              );
                             });
                           }
                           : null,
+
                   onShowDetail: () => _openDetail(entity),
                 ),
               );

@@ -7,6 +7,8 @@ class WorkTripState extends Equatable {
   final LoadStatus submitStatus;
   final LoadStatus deleteStatus;
   final LoadStatus updateStatus;
+  final LoadStatus approveStatus;
+  final LoadStatus cancelStatus;
 
   final String? errMsg;
 
@@ -60,6 +62,9 @@ class WorkTripState extends Equatable {
     this.submitStatus = LoadStatus.INITIAL,
     this.updateStatus = LoadStatus.INITIAL,
     this.deleteStatus = LoadStatus.INITIAL,
+    this.approveStatus = LoadStatus.INITIAL,
+    this.cancelStatus = LoadStatus.INITIAL,
+
 
     this.errMsg,
     this.listWorkTrips,
@@ -93,6 +98,8 @@ class WorkTripState extends Equatable {
     LoadStatus? submitStatus,
     LoadStatus? updateStatus,
     LoadStatus? deleteStatus,
+    LoadStatus? approveStatus,
+    LoadStatus? cancelStatus,
     String? errMsg,
     List<WorkTripEntity>? listWorkTrips,
     WorkTripEntity? detailWorkTrip,
@@ -144,7 +151,9 @@ class WorkTripState extends Equatable {
       listScheduleDays: listScheduleDays ?? this.listScheduleDays,
       needRoom: needRoom ?? this.needRoom,
       isOvernight: isOvernight ?? this.isOvernight,
-      needTicket: needTicket ?? this.needTicket
+      needTicket: needTicket ?? this.needTicket,
+      approveStatus: approveStatus ?? this.approveStatus,
+      cancelStatus: cancelStatus ?? this.cancelStatus,
     );
   }
 
@@ -178,5 +187,7 @@ class WorkTripState extends Equatable {
     editFileStatus,
     deleteFileStatus,
     listScheduleDays,
+    approveStatus,
+    cancelStatus,
   ];
 }
