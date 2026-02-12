@@ -265,7 +265,9 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                                           LoadStatus.LOADING,
                                   callback: () {
                                     if (state.status ==
-                                        LoadStatus.LOADING) return;
+                                        LoadStatus.LOADING) {
+                                      return;
+                                    }
                                     _submit();
                                   },
                                 ),
@@ -288,7 +290,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
             ],
           ),
         );
-      },
+      },  
     );
   }
 }
