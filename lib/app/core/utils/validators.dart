@@ -1,10 +1,9 @@
 import '../logger/logger.dart';
 
 class Validator {
-  static bool isValidEmail(String email) =>
-      RegExp(
-          r"^(([^<>()[\]\\.,;:\s@\']+(\.[^<>()[\]\\.,;:\s@\']+)*)|(\'.+\'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$")
-          .hasMatch(email);
+  static bool isValidEmail(String email) => RegExp(
+    r"^(([^<>()[\]\\.,;:\s@\']+(\.[^<>()[\]\\.,;:\s@\']+)*)|(\'.+\'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$",
+  ).hasMatch(email);
 
   static bool validatePhone(String phone) =>
       RegExp(r"^(03|05|07|08|09|01)+([0-9]{8})$").hasMatch(phone);
@@ -38,7 +37,6 @@ class Validator {
       // return '${S.current.user_name} ${S.current.is_not_empty}';
       return "";
     }
-
 
     if (containDiacritics(userNameValue)) {
       // return '${S.current.user_name} ${S.current.username_not_diacritic}';
@@ -87,7 +85,7 @@ class Validator {
       return "";
     }
 
-    if(hasDot(value)) {
+    if (hasDot(value)) {
       // return '$text ${S.current.valid_password}';
       return "";
     }
@@ -96,7 +94,9 @@ class Validator {
   }
 
   bool isStrongPassword(String pwd) {
-    final re = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,16}$');
+    final re = RegExp(
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,16}$',
+    );
     return re.hasMatch(pwd);
   }
 
@@ -110,22 +110,20 @@ class Validator {
 
   bool containDiacritics(String text) {
     final vietnameseDiacritics = RegExp(
-        r'[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ]'
+      r'[àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđÀÁẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÈÉẺẼẸÊẾỀỂỄỆÌÍỈĨỊÒÓỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÙÚỦŨỤƯỨỪỬỮỰỲÝỶỸỴĐ]',
     );
     return vietnameseDiacritics.hasMatch(text);
   }
 
-
   String? validateConfirmPassword(String? password, String? confirmPassword) {
-    if(confirmPassword == null || confirmPassword.isEmpty) {
+    if (confirmPassword == null || confirmPassword.isEmpty) {
       return "Vui lòng nhập lại mật khẩu";
     }
-    
-    if(password != confirmPassword){
+
+    if (password != confirmPassword) {
       return "Mật khẩu không khớp";
     }
 
     return null;
-
   }
 }

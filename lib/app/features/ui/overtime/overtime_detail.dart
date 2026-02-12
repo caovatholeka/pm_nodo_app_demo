@@ -270,13 +270,13 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
         //   ),
         // ),
         const SizedBox(width: 12),
-        Expanded(
-          child: PrimaryButton(
-            mainText: "Duyệt",
-            type: PrimaryButtonType.primary,
-            callback: _onDirectorApprove,
-          ),
-        ),
+        // Expanded(
+        //   child: PrimaryButton(
+        //     mainText: "Duyệt",
+        //     type: PrimaryButtonType.primary,
+        //     callback: _onDirectorApprove,
+        //   ),
+        // ),
       ],
     );
   }

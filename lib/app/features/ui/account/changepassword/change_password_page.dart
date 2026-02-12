@@ -38,7 +38,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
 
   final _formKey = GlobalKey<FormState>();
 
-  // Hiển thị thông báo popup
   void _showMessage(String title, String message, {bool success = false}) {
     Flushbar(
       title: title,
@@ -57,7 +56,8 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
 
   String? _validateNewPassword(String newPass) {
     final s = S.of(context);
-    final regex = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$');
+    final regex =
+        RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$');
 
     if (newPass.isEmpty) {
       return s.change_password_Empty;
@@ -75,6 +75,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     final current = currentController.text.trim();
     final newPass = newController.text.trim();
     final confirm = confirmController.text.trim();
+
     if (current.isEmpty) {
       return s.change_password_Empty;
     }
@@ -85,6 +86,7 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     if (confirm.isEmpty) {
       return s.change_confirm_Empty;
     }
+
     if (confirm != newPass) {
       return s.change_password_NotMatch;
     }
@@ -100,10 +102,10 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     }
 
     context.read<ChangePasswordCubit>().changePassword(
-      currentPassword: currentController.text.trim(),
-      newPassword: newController.text.trim(),
-      confirmPassword: confirmController.text.trim(),
-    );
+          currentPassword: currentController.text.trim(),
+          newPassword: newController.text.trim(),
+          confirmPassword: confirmController.text.trim(),
+        );
   }
 
   void _clearFields() {
@@ -115,7 +117,8 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    return BlocListener<ChangePasswordCubit, ChangePasswordState>(
+
+    return BlocConsumer<ChangePasswordCubit, ChangePasswordState>(
       listener: (context, state) {
         if (state.status == LoadStatus.SUCCESS) {
           _showMessage(
@@ -135,142 +138,157 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
           );
         }
       },
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: MyAppBar(
-          titleAppbar: s.change_password_title,
-          haveBackButton: true,
-          isTransparent: true,
-          backAction: () {
-            final state = context.read<ChangePasswordCubit>().state;
-            if (state.status == LoadStatus.LOADING) {
-              _showMessage(s.inProgress, s.inProgressSub);
-              return;
-            }
-            Navigator.pop(context);
-          },
-        ),
-
-        body: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(AppAssets.appBg),
-              fit: BoxFit.cover,
-            ),
+      builder: (context, state) {
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: MyAppBar(
+            titleAppbar: s.change_password_title,
+            haveBackButton: true,
+            isTransparent: true,
+            backAction: () {
+              if (state.status == LoadStatus.LOADING) {
+                _showMessage(s.inProgress, s.inProgressSub);
+                return;
+              }
+              Navigator.pop(context);
+            },
           ),
-          child: Column(
+          body: Stack(
             children: [
-              const SizedBox(height: 120),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 24,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.whiteColor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
-                    ),
-                    boxShadow: AppShadow.pageBoxShadow,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: RichText(
-                                      text: TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "* ",
-                                            style: TextStyle(
-                                              color:
-                                                  Colors.red,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text:
-                                               s.change_password_condistion,
-                                            style: TextStyle(
-                                              color:
-                                                  AppColors.subtitle, 
-                                              fontSize: 13,
-                                              height: 1.3,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(height: 10,),
-
-                                InputTextField(
-                                  controller: currentController,
-                                  hintText: s.change_password_current,
-                                  title: s.change_password_current_hint,
-                                  isRequiredField: true,
-                                  isPasswordField: true,
-                                  bgrColor: true,
-                                ),
-                                const SizedBox(height: 10),
-
-                                InputTextField(
-                                  controller: newController,
-                                  hintText: s.change_password_new,
-                                  title: s.change_password_new_hint,
-                                  isRequiredField: true,
-                                  isPasswordField: true,
-                                  bgrColor: true,
-                                ),
-                                const SizedBox(height: 10),
-
-                                InputTextField(
-                                  controller: confirmController,
-                                  hintText: s.change_password_confirm,
-                                  title: s.change_password_confirm_hint,
-                                  isRequiredField: true,
-                                  isPasswordField: true,
-                                  bgrColor: true,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: PrimaryButton(
-                            mainText: s.change_password_button,
-                            callback: () {
-                              _submit();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(AppAssets.appBg),
+                    fit: BoxFit.cover,
                   ),
                 ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 120),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 24,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(24),
+                            topRight: Radius.circular(24),
+                          ),
+                          boxShadow: AppShadow.pageBoxShadow,
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 8),
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                const TextSpan(
+                                                  text: "* ",
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: s
+                                                      .change_password_condistion,
+                                                  style: TextStyle(
+                                                    color: AppColors.subtitle,
+                                                    fontSize: 13,
+                                                    height: 1.3,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      InputTextField(
+                                        controller: currentController,
+                                        hintText:
+                                            s.change_password_current,
+                                        title: s
+                                            .change_password_current_hint,
+                                        isRequiredField: true,
+                                        isPasswordField: true,
+                                        bgrColor: true,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      InputTextField(
+                                        controller: newController,
+                                        hintText: s.change_password_new,
+                                        title:
+                                            s.change_password_new_hint,
+                                        isRequiredField: true,
+                                        isPasswordField: true,
+                                        bgrColor: true,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      InputTextField(
+                                        controller: confirmController,
+                                        hintText:
+                                            s.change_password_confirm,
+                                        title: s
+                                            .change_password_confirm_hint,
+                                        isRequiredField: true,
+                                        isPasswordField: true,
+                                        bgrColor: true,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 48,
+                                child: PrimaryButton(
+                                  mainText:
+                                      s.change_password_button,
+                                  isLoading:
+                                      state.status ==
+                                          LoadStatus.LOADING,
+                                  callback: () {
+                                    if (state.status ==
+                                        LoadStatus.LOADING) return;
+                                    _submit();
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              if (state.status == LoadStatus.LOADING)
+                Container(
+                  color: Colors.black.withOpacity(0.2),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

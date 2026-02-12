@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -206,7 +205,6 @@ class _OvertimePageState extends State<OvertimePage> {
           ),
           body: Column(
             children: [
-              // ===== FILTER =====
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
                 child: Row(
@@ -286,64 +284,64 @@ class _OvertimePageState extends State<OvertimePage> {
                         Expanded(
                           child: Row(
                             children: [
-                              Theme(
-                                data: Theme.of(context).copyWith(
-                                  checkboxTheme: CheckboxThemeData(
-                                    fillColor: WidgetStateProperty.resolveWith((
-                                      states,
-                                    ) {
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return AppColors.mainPrimaryColor6;
-                                      }
-                                      return Colors.transparent;
-                                    }),
-                                  ),
-                                ),
-                                child: Checkbox(
-                                  value: isAllChecked,
-                                  onChanged: (v) {
-                                    setState(() {
-                                      if (v == true) {
-                                        _selectedIds
-                                          ..clear()
-                                          ..addAll(approvableIds);
-                                      } else {
-                                        _selectedIds.clear();
-                                      }
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Text("Chọn tất"),
+                              // Theme(
+                              //   data: Theme.of(context).copyWith(
+                              //     checkboxTheme: CheckboxThemeData(
+                              //       fillColor: WidgetStateProperty.resolveWith((
+                              //         states,
+                              //       ) {
+                              //         if (states.contains(
+                              //           WidgetState.selected,
+                              //         )) {
+                              //           return AppColors.mainPrimaryColor6;
+                              //         }
+                              //         return Colors.transparent;
+                              //       }),
+                              //     ),
+                              //   ),
+                              //   child: Checkbox(
+                              //     value: isAllChecked,
+                              //     onChanged: (v) {
+                              //       setState(() {
+                              //         if (v == true) {
+                              //           _selectedIds
+                              //             ..clear()
+                              //             ..addAll(approvableIds);
+                              //         } else {
+                              //           _selectedIds.clear();
+                              //         }
+                              //       });
+                              //     },
+                              //   ),
+                              // ),
+                              // const SizedBox(width: 4),
+                              // const Text("Chọn tất"),
                             ],
                           ),
                         ),
-                        SizedBox(
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed:
-                                _selectedIds.isEmpty ? null : _approveSelected,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.mainPrimaryColor6,
-                              disabledBackgroundColor: AppColors
-                                  .mainPrimaryColor6
-                                  .withOpacity(0.4),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              "Duyệt (${_selectedIds.length})",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
+                        // SizedBox(
+                        //   height: 40,
+                        //   child: ElevatedButton(
+                        //     onPressed:
+                        //         _selectedIds.isEmpty ? null : _approveSelected,
+                        //     style: ElevatedButton.styleFrom(
+                        //       backgroundColor: AppColors.mainPrimaryColor6,
+                        //       disabledBackgroundColor: AppColors
+                        //           .mainPrimaryColor6
+                        //           .withOpacity(0.4),
+                        //       shape: RoundedRectangleBorder(
+                        //         borderRadius: BorderRadius.circular(8),
+                        //       ),
+                        //     ),
+                        //     child: Text(
+                        //       "Duyệt (${_selectedIds.length})",
+                        //       style: const TextStyle(
+                        //         color: Colors.white,
+                        //         fontWeight: FontWeight.w600,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   );
