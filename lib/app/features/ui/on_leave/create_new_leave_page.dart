@@ -298,39 +298,31 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
               prev.updateStatus != cur.updateStatus,
       listener: (context, state) {
         if (state.createStatus == LoadStatus.LOADING ||
-            state.getTypeStatus == LoadStatus.LOADING ||
             state.updateStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
-        } else if (state.getTypeStatus == LoadStatus.SUCCESS) {
-          LoadingOverlay.hide(context);
         } else if (state.createStatus == LoadStatus.SUCCESS ||
             state.updateStatus == LoadStatus.SUCCESS) {
-          _createCubit.resetStatus();
           LoadingOverlay.hide(context);
+
           AppSnackBar.showInfo(
             title: s.success,
             message:
-                widget.isEdit ?? false
+                widget.isEdit == true
                     ? s.day_off_update_success
                     : s.day_off_create_success,
           );
 
-          if (widget.isEdit ?? false) {
-            // Navigator.of(context)..pop()..pop();
-            Navigator.pop(context);
+          Future.delayed(const Duration(milliseconds: 300), () {
             Navigator.pop(context, true);
-          } else {
-            Navigator.pop(context, true);
-          }
+          });
         } else if (state.createStatus == LoadStatus.FAILURE ||
             state.updateStatus == LoadStatus.FAILURE) {
-          _createCubit.resetStatus();
           LoadingOverlay.hide(context);
+
           AppSnackBar.showError(title: s.warning, message: state.errMsg);
-        } else {
-          LoadingOverlay.hide(context);
         }
       },
+
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.bodyColor,
@@ -452,7 +444,10 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                         children: [
                           Expanded(
                             flex: 1,
-                            child: BlocBuilder<CreateOnLeaveCubit,CreateOnLeaveState>(
+                            child: BlocBuilder<
+                              CreateOnLeaveCubit,
+                              CreateOnLeaveState
+                            >(
                               bloc: _createCubit,
                               buildWhen:
                                   (prev, cur) =>
@@ -630,8 +625,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                               0) {
                                             AppSnackBar.showError(
                                               title: s.warning,
-                                              message:
-                                                  s.day_off_notToday,
+                                              message: s.day_off_notToday,
                                             );
                                           } else {
                                             _createCubit.setToDate(

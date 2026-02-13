@@ -104,6 +104,8 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
     try{
       final param = LeaveApproveParam(leaveIds: leaveIds);
       await repository.approveLeave(param);
+
+      emit(state.copyWith(approveStatus: LoadStatus.SUCCESS));
     }catch(e,s) {
       logger.e("err: $e");
       logger.d("where: $s");

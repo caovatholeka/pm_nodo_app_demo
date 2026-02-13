@@ -274,7 +274,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
-        } else if(state.rejectStatus == LoadStatus.FAILURE) {
+        } else if (state.rejectStatus == LoadStatus.FAILURE) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
 
@@ -287,8 +287,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
-        }
-         else {
+        } else {
           LoadingOverlay.hide(context);
         }
       },
