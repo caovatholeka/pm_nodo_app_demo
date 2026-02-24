@@ -54,9 +54,10 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   }
 
   void _onDirectorApprove() {
+    final s = S.of(context);
     _showDialog(
-      title: "Duyệt đơn nghỉ phép",
-      message: "Bạn có chắc chắn muốn duyệt đơn nghỉ phép này không?",
+      title: s.justification_detail_submit_title,
+      message: s.justification_detail_submit_sub,
       success: true,
       onConfirm: () async {
         final id = widget.id;
@@ -70,14 +71,15 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
   }
 
   void _onDirectorReject() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (_) => RejectReasonDialog(
-            title: "Từ chối đơn xin phép",
-            description: "Vui lòng nhập lý do từ chối để nhân viên biết.",
-            hintText: "Nhập lý do từ chối",
+            title: s.justification_detail_deny_title,
+            description: s.justification_detail_deny_sub,
+            hintText: s.justification_detail_deny_reason_type,
             onConfirm: (reason) async {
               final id = widget.id;
               if (id == null) return;
@@ -224,7 +226,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
         if (state.approveStatus == LoadStatus.SUCCESS) {
           await Flushbar(
-            message: "Duyệt đơn thành công",
+            message: s.justification_submit_success,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
@@ -239,7 +241,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
 
         if (state.cancelStatus == LoadStatus.SUCCESS) {
           await Flushbar(
-            message: "Đã từ chối đơn xin phép",
+            message: s.justification_detail_deny_success,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),
@@ -377,7 +379,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
       children: [
         Expanded(
           child: PrimaryButton(
-            mainText: "Từ chối",
+            mainText: s.deny,
             type: PrimaryButtonType.secondary,
             callback: _onDirectorReject,
           ),
@@ -385,7 +387,7 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
         const SizedBox(width: 12),
         Expanded(
           child: PrimaryButton(
-            mainText: "Duyệt",
+            mainText: s.authorize,
             type: PrimaryButtonType.primary,
             callback: _onDirectorApprove,
           ),

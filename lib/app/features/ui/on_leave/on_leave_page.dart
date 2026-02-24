@@ -51,16 +51,17 @@ class _OnLeavePageState extends State<OnLeavePage> {
   }
 
   void _showApproveBuikDialog() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
       builder:
           (_) => CustomDialog(
-            title: "Duyệt đơn nghỉ",
-            content: "Bạn có chắc muốn duyệt ${selectedIds.length} đơn nghỉ",
-            cancelText: "Hủy",
-            confirmText: "Đồng ý",
+            title: s.confirm_authorize,
+            content: s.on_leave_sub_confirm_authorize("{count}").replaceFirst("{count}", selectedIds.length.toString()),
+            cancelText: s.cancel,
+            confirmText: s.confirm,
             onCancel: () => Navigator.pop(context),
             onConfirm: () {
               Navigator.pop(context);
@@ -90,9 +91,10 @@ class _OnLeavePageState extends State<OnLeavePage> {
   }
 
   void _approveSelected() {
+    final s = S.of(context);
     if (selectedIds.isEmpty) {
       Flushbar(
-        message: "Không có đơn nào cần duyệt!!",
+        message: s.on_leave_no_data_approve,
         backgroundColor: AppColors.colorDraft,
         flushbarPosition: FlushbarPosition.TOP,
         duration: const Duration(seconds: 2),
@@ -154,7 +156,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
       listener: (context, state) {
         if (state.approveStatus == LoadStatus.SUCCESS) {
           Flushbar(
-            message: "Duyệt đơn nghỉ thành công",
+            message: s.on_leave_success,
             backgroundColor: Colors.green,
             flushbarPosition: FlushbarPosition.TOP,
             duration: const Duration(seconds: 2),
@@ -172,7 +174,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
 
         if (state.approveStatus == LoadStatus.FAILURE) {
           Flushbar(
-            message: "Duyệt đơn nghỉ thất bại",
+            message: s.on_leave_failed,
             backgroundColor: Colors.red,
             flushbarPosition: FlushbarPosition.TOP,
             duration: const Duration(seconds: 2),
@@ -257,7 +259,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
                     builder:
                         (_) => CalendarRangeSheet(
                           initial: selectedWeek,
-                          locale: "en",
+                          locale: Localizations.localeOf(context).languageCode,
                         ),
                   );
 
@@ -298,6 +300,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
   }
 
   Widget get _bulkActionWidget {
+    final s = S.of(context);
     if (!isDirector) {
       return const SizedBox.shrink();
     }
@@ -356,7 +359,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Text("Chọn tất cả"),
+                  Text(s.choose_all),
                 ],
               ),
             ),
@@ -374,7 +377,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 child: Text(
-                  "Duyệt (${selectedIds.length})",
+                  "${s.authorize} ${selectedIds.length}",
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.white,
@@ -399,7 +402,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
               
       builder: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: AppColors.mainPrimaryColor6,));
         }
 
         final list = state.listLeaveEntities ?? [];

@@ -28,5 +28,5 @@ class OvertimeState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [loadStatus, list, error];
+  List<Object?> get props => [loadStatus, list, error, approveStatus];
 }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -58,6 +59,8 @@ class _OvertimePageState extends State<OvertimePage> {
       end: DateTime(now.year, now.month + 1, 0),
     );
 
+    final currentLocal = Localizations.localeOf(context).toLanguageTag();
+
     final res = await showModalBottomSheet<DateTimeRange?>(
       context: context,
       isScrollControlled: true,
@@ -66,7 +69,7 @@ class _OvertimePageState extends State<OvertimePage> {
       builder:
           (_) => CalendarRangeSheet(
             initial: _selectedRange ?? defaultRange,
-            locale: "vi",
+            locale: currentLocal,
           ),
     );
 
@@ -102,6 +105,7 @@ class _OvertimePageState extends State<OvertimePage> {
   }
 
   void _approveSelected() {
+    final s = S.of(context);
     if (_selectedIds.isEmpty) return;
 
     final ids = _selectedIds.toList();
@@ -110,10 +114,10 @@ class _OvertimePageState extends State<OvertimePage> {
       barrierDismissible: false,
       builder:
           (_) => CustomDialog(
-            title: "Xác nhận duyệt",
-            content: "Bạn có chắc muốn duyệt ${ids.length} đơn tăng ca",
-            confirmText: "Duyệt",
-            cancelText: "Hủy",
+            title: s.confirm_authorize,
+            content: s.sub_confirm_authorize("{count}").replaceFirst("{count}", ids.length.toString()),
+            confirmText: s.authorize,
+            cancelText: s.cancel,
             success: true,
             onConfirm: () {
               Navigator.pop(context);
@@ -156,8 +160,8 @@ class _OvertimePageState extends State<OvertimePage> {
             LoadingOverlay.hide(context);
 
             AppSnackBar.showInfo(
-              title: "Thành công",
-              message: "Duyệt tăng ca thành công",
+              title: s.success,
+              message: s.ot_approve_success,
             );
 
             _selectedIds.clear();
@@ -180,8 +184,8 @@ class _OvertimePageState extends State<OvertimePage> {
             LoadingOverlay.hide(context);
 
             AppSnackBar.showError(
-              title: "Cảnh báo",
-              message: state.error ?? "Duyệt tăng ca thất bại",
+              title: s.warning,
+              message: state.error ?? s.ot_approve_failed,
             );
           }
         },
@@ -256,7 +260,6 @@ class _OvertimePageState extends State<OvertimePage> {
                 ),
               ),
 
-              // ===== BULK APPROVE BAR =====
               BlocBuilder<OvertimeCubit, OvertimeState>(
                 builder: (context, state) {
                   if (!_isDirector) return const SizedBox.shrink();
@@ -284,71 +287,70 @@ class _OvertimePageState extends State<OvertimePage> {
                         Expanded(
                           child: Row(
                             children: [
-                              // Theme(
-                              //   data: Theme.of(context).copyWith(
-                              //     checkboxTheme: CheckboxThemeData(
-                              //       fillColor: WidgetStateProperty.resolveWith((
-                              //         states,
-                              //       ) {
-                              //         if (states.contains(
-                              //           WidgetState.selected,
-                              //         )) {
-                              //           return AppColors.mainPrimaryColor6;
-                              //         }
-                              //         return Colors.transparent;
-                              //       }),
-                              //     ),
-                              //   ),
-                              //   child: Checkbox(
-                              //     value: isAllChecked,
-                              //     onChanged: (v) {
-                              //       setState(() {
-                              //         if (v == true) {
-                              //           _selectedIds
-                              //             ..clear()
-                              //             ..addAll(approvableIds);
-                              //         } else {
-                              //           _selectedIds.clear();
-                              //         }
-                              //       });
-                              //     },
-                              //   ),
-                              // ),
-                              // const SizedBox(width: 4),
-                              // const Text("Chọn tất"),
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  checkboxTheme: CheckboxThemeData(
+                                    fillColor: WidgetStateProperty.resolveWith((
+                                      states,
+                                    ) {
+                                      if (states.contains(
+                                        WidgetState.selected,
+                                      )) {
+                                        return AppColors.mainPrimaryColor6;
+                                      }
+                                      return Colors.transparent;
+                                    }),
+                                  ),
+                                ),
+                                child: Checkbox(
+                                  value: isAllChecked,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      if (v == true) {
+                                        _selectedIds
+                                          ..clear()
+                                          ..addAll(approvableIds);
+                                      } else {
+                                        _selectedIds.clear();
+                                      }
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(s.choose_all),
                             ],
                           ),
                         ),
-                        // SizedBox(
-                        //   height: 40,
-                        //   child: ElevatedButton(
-                        //     onPressed:
-                        //         _selectedIds.isEmpty ? null : _approveSelected,
-                        //     style: ElevatedButton.styleFrom(
-                        //       backgroundColor: AppColors.mainPrimaryColor6,
-                        //       disabledBackgroundColor: AppColors
-                        //           .mainPrimaryColor6
-                        //           .withOpacity(0.4),
-                        //       shape: RoundedRectangleBorder(
-                        //         borderRadius: BorderRadius.circular(8),
-                        //       ),
-                        //     ),
-                        //     child: Text(
-                        //       "Duyệt (${_selectedIds.length})",
-                        //       style: const TextStyle(
-                        //         color: Colors.white,
-                        //         fontWeight: FontWeight.w600,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
+                        SizedBox(
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed:
+                                _selectedIds.isEmpty ? null : _approveSelected,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.mainPrimaryColor6,
+                              disabledBackgroundColor: AppColors
+                                  .mainPrimaryColor6
+                                  .withOpacity(0.4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Text(
+                              "${s.authorize} ${_selectedIds.length}",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   );
                 },
               ),
 
-              // ===== LIST =====
               Expanded(
                 child: BlocBuilder<OvertimeCubit, OvertimeState>(
                   builder: (context, state) {
@@ -360,7 +362,7 @@ class _OvertimePageState extends State<OvertimePage> {
 
                     if (state.loadStatus == LoadStatus.FAILURE) {
                       return Center(
-                        child: Text(state.error ?? 'Có lỗi xảy ra'),
+                        child: Text(state.error ?? s.to_do_failed),
                       );
                     }
 

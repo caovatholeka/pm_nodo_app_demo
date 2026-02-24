@@ -72,16 +72,16 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   }
 
   void _showRejectReasonDialog() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black.withOpacity(0.3),
       builder: (_) {
         return RejectReasonDialog(
-          title: "Từ chối đơn xin nghỉ",
-          description:
-              "Vui lòng nhập lý do từ chối để người gửi biết và điều chỉnh",
-          hintText: "Nhập lý do từ chối...",
+          title: s.on_leave_deny_reason,
+          description: s.on_leave_deny_sub,
+          hintText: s.on_leave_deny_reason_type,
           onConfirm: (reason) {
             final id = _cubit.state.detailEntity?.id ?? 0;
             if (id != 0) {
@@ -138,22 +138,23 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   }
 
   String getStatusTitle(int status) {
+    final s = S.of(context);
     switch (status) {
       case 1:
       case 6:
       case 13:
       case 17:
-        return "Nháp";
+        return s.bt_status1;
       case 14:
-        return "Trưởng phòng duyệt";
+        return s.bt_status2;
       case 11:
       case 15:
       case 9:
-        return "Hoàn thành";
+        return s.bt_status3;
       case 20:
       case 16:
       case 12:
-        return "Huỷ";
+        return s.cancel;
       default:
         return "";
     }
@@ -205,7 +206,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           Navigator.pop(context, true);
 
           Flushbar(
-            message: "Duyệt đơn nghỉ thành công",
+            message: s.on_leave_success,
             backgroundColor: Colors.green,
             flushbarPosition: FlushbarPosition.TOP,
             duration: const Duration(seconds: 2),
@@ -218,7 +219,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           LoadingOverlay.hide(context);
 
           Flushbar(
-            message: "Duyệt đơn nghỉ thất bại",
+            message: s.on_leave_failed,
             backgroundColor: Colors.red,
             flushbarPosition: FlushbarPosition.TOP,
             duration: const Duration(seconds: 2),
@@ -266,7 +267,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           Navigator.pop(context, true);
 
           Flushbar(
-            message: "Từ chối đơn nghỉ thành công",
+            message: s.on_leave_deny_success,
             backgroundColor: Colors.green,
             flushbarPosition: FlushbarPosition.TOP,
             duration: const Duration(seconds: 2),
@@ -279,7 +280,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           LoadingOverlay.hide(context);
 
           Flushbar(
-            message: "Từ chối đơn nghỉ thất bại",
+            message: s.on_leave_deny_failed,
             backgroundColor: Colors.red,
             flushbarPosition: FlushbarPosition.TOP,
             duration: const Duration(seconds: 2),
@@ -406,9 +407,10 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   }
 
   void _onDirectorApprove() {
+    final s = S.of(context);
     _showDialog(
-      title: "Duyệt đơn xin nghỉ?",
-      message: "Bạn có chắc muốn duyệt đơn này?",
+      title: s.on_leave_confirm_approveLeave,
+      message: s.on_leave_sub_confirm_approveLeave,
       success: true,
       onConfirm: () {
         final id = _cubit.state.detailEntity?.id ?? 0;
@@ -424,6 +426,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   }
 
   Widget get _bottomSheet {
+    final s = S.of(context);
     final stageId = _cubit.state.detailEntity?.leaveStage?.id;
 
     if (stageId == 13) {
@@ -472,7 +475,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
           children: [
             Expanded(
               child: PrimaryButton(
-                mainText: "Từ chối",
+                mainText: s.deny,
                 type: PrimaryButtonType.secondary,
                 callback: _onDirectorReject,
               ),
@@ -480,7 +483,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
             const SizedBox(width: 12),
             Expanded(
               child: PrimaryButton(
-                mainText: "Duyệt",
+                mainText: s.authorize,
                 type: PrimaryButtonType.primary,
                 callback: _onDirectorApprove,
               ),

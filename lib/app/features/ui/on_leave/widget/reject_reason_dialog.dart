@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class RejectReasonDialog extends StatefulWidget {
   final String title;
@@ -23,13 +24,14 @@ class RejectReasonDialog extends StatefulWidget {
 class _RejectReasonDialogState extends State<RejectReasonDialog> {
   final TextEditingController _controller = TextEditingController();
   String? _errorText;
+  
 
   void _submit() {
     final text = _controller.text.trim();
-
+  final s = S.of(context);
     if (text.isEmpty) {
       setState(() {
-        _errorText = "Vui lòng nhập lý do";
+        _errorText = s.error_occurred_type;
       });
       return;
     }
@@ -83,7 +85,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog> {
                 const SizedBox(height: 16),
 
                 InputTextField(
-                  title: "Lý do",
+                  title: S.of(context).reason,
                   hintText: widget.hintText,
                   isRequiredField: true,
                   controller: _controller,
@@ -96,7 +98,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog> {
                   children: [
                     Expanded(
                       child: PrimaryButton(
-                        mainText: "Huỷ",
+                        mainText: S.of(context).cancel,
                         type: PrimaryButtonType.secondary,
                         callback: () => Navigator.pop(context),
                       ),
@@ -104,7 +106,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: PrimaryButton(
-                        mainText: "Từ chối",
+                        mainText: S.of(context).deny,
                         type: PrimaryButtonType.primary,
                         callback: _submit,
                       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../core/commons/app_colors.dart';
@@ -64,10 +65,11 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final df = DateFormat('dd/MM/yyyy');
     final label = (_rangeStart != null && _rangeEnd != null)
         ? '${df.format(_rangeStart!)} - ${df.format(_rangeEnd!)}'
-        : 'Chọn khoảng ngày';
+        : s.calendar_title;
 
     final monthLabel = DateFormat('MMMM yyyy', widget.locale).format(_focusedDay);
 
@@ -175,7 +177,7 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
                       ),
                     ),
                     child: Text(
-                      "Xoá",
+                      s.day_off_btn_delete,
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
@@ -198,8 +200,8 @@ class _CalendarRangeSheetState extends State<CalendarRangeSheet> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text(
-                      "Xác nhận",
+                    child: Text(
+                      s.confirm,
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),

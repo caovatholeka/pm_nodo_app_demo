@@ -36,22 +36,25 @@ class OvertimeListItem extends StatelessWidget {
     switch (name) {
       case 'Nháp':
         return AppColors.colorDraft;
-      case 'Chờ xác nhận':
       case 'Trưởng phòng duyệt':
         return AppColors.colorApproved;
       case 'Hoàn thành':
-      case 'Hợp lệ':
         return AppColors.colorFinished;
       case 'Hủy':
-      case 'Không hợp lệ':
         return AppColors.colorCancel;
-      case 'Đã khóa':
-      case 'Khóa kì công':
-        return Colors.grey;
-      case 'Tính toán công':
-        return Colors.purple;
       default:
         return Colors.grey;
+    }
+  }
+
+  String _getLocalizedStatusName(BuildContext context, String? name) {
+    final s = S.of(context);
+
+    switch(name) {
+      case 'Nháp': return s.bt_status1;
+      case 'Trưởng phòng duyệt': return s.bt_status2;
+      case 'Hoàn thành': return s.bt_status3;
+      default: return name ?? '';
     }
   }
 
@@ -62,9 +65,12 @@ class OvertimeListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stage = entity.stage;
-    final statusName = stage?.name;
+    final rawStatusName = stage?.name;
 
-    final statusColor = _getStatusColorByName(statusName);
+    final statusColor = _getStatusColorByName(rawStatusName);
+    final statusName = stage?.name;
+    final displayStatusName = _getLocalizedStatusName(context, rawStatusName);
+    
     final bgColor = _getBgColorByName(statusName);
 
     final dateRangeText =
@@ -199,7 +205,7 @@ class OvertimeListItem extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    statusName ?? '',
+                                    displayStatusName,
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight:

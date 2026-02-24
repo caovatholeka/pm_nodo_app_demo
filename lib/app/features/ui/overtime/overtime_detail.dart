@@ -41,15 +41,16 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   void _onDirectorReject() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (_) => CustomDialog(
-            title: "Xác nhận",
-            content: "Bạn có chắc chắn muốn huỷ yêu cầu tăng ca này?",
-            confirmText: "Huỷ",
-            cancelText: "Đóng",
+            title: s.confirm,
+            content: s.ot_sub_deny_submit,
+            confirmText: s.cancel,
+            cancelText: s.close,
             success: false,
             onConfirm: () => Navigator.pop(context),
             onCancel: () => Navigator.pop(context),
@@ -58,15 +59,16 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   void _onDirectorApprove() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (_) => CustomDialog(
-            title: "Xác nhận",
-            content: "Bạn có chắc chắn muốn duyệt yêu cầu tăng ca này?",
-            confirmText: "Duyệt",
-            cancelText: "Huỷ",
+            title: s.confirm,
+            content: s.ot_sub_confirm_submit,
+            confirmText: s.authorize,
+            cancelText: s.cancel,
             success: true,
             onConfirm: () {
               Navigator.pop(context);
@@ -80,8 +82,8 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   @override
   void initState() {
     super.initState();
-    _cubit.resetApproveStatus(); 
-    _cubit.resetSubmitState(); 
+    _cubit.resetApproveStatus();
+    _cubit.resetSubmitState();
     _cubit.getDetailOT(widget.id ?? 0);
   }
 
@@ -106,22 +108,30 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
     switch (name) {
       case 'Nháp':
         return Colors.orange;
-      case 'Chờ xác nhận':
       case 'Trưởng phòng duyệt':
         return Colors.blue;
       case 'Hoàn thành':
-      case 'Hợp lệ':
         return Colors.green;
       case 'Hủy':
-      case 'Không hợp lệ':
         return Colors.red;
-      case 'Đã khóa':
-      case 'Khóa kì công':
-        return Colors.grey;
-      case 'Tính toán công':
-        return Colors.purple;
       default:
         return Colors.grey;
+    }
+  }
+
+  String _getLocalizedStatusName(String? name) {
+    final s = S.of(context);
+    switch (name) {
+      case 'Nháp':
+        return s.bt_status1;
+      case 'Trưởng phòng duyệt':
+        return s.bt_status2;
+      case 'Hoàn thành':
+        return s.bt_status3;
+      case 'Hủy':
+        return s.cancel;
+      default:
+        return name ?? '';
     }
   }
 
@@ -133,7 +143,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
       listener: (context, state) async {
         if (state.approveStatus == LoadStatus.SUCCESS) {
           await Flushbar(
-            message: 'Gửi duyệt thành công',
+            message: s.send_approval_success,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
@@ -156,7 +166,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
           LoadingOverlay.hide(context);
 
           await Flushbar(
-            message: 'Duyệt tăng ca thành công',
+            message: s.ot_approve_success,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
@@ -170,7 +180,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
           LoadingOverlay.hide(context);
 
           await Flushbar(
-            message: 'Duyệt tăng ca thất bại',
+            message: s.ot_approve_failed,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),
@@ -231,12 +241,13 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   Widget _buildBody(OvertimeDetailState state) {
+    final s = S.of(context);
     if (state.loadStatus == LoadStatus.LOADING) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (state.loadStatus == LoadStatus.FAILURE) {
-      return Center(child: Text(state.error ?? "Đã xảy ra lỗi"));
+      return Center(child: Text(state.error ?? s.to_do_failed));
     }
 
     return SingleChildScrollView(
@@ -260,23 +271,24 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   Widget _directorActionButtons() {
+    final s = S.of(context);
     return Row(
       children: [
-        // Expanded(
-        //   child: PrimaryButton(
-        //     mainText: "Từ chối",
-        //     type: PrimaryButtonType.secondary,
-        //     callback: _onDirectorReject,
-        //   ),
-        // ),
+        Expanded(
+          child: PrimaryButton(
+            mainText: s.deny,
+            type: PrimaryButtonType.secondary,
+            callback: _onDirectorReject,
+          ),
+        ),
         const SizedBox(width: 12),
-        // Expanded(
-        //   child: PrimaryButton(
-        //     mainText: "Duyệt",
-        //     type: PrimaryButtonType.primary,
-        //     callback: _onDirectorApprove,
-        //   ),
-        // ),
+        Expanded(
+          child: PrimaryButton(
+            mainText: s.authorize,
+            type: PrimaryButtonType.primary,
+            callback: _onDirectorApprove,
+          ),
+        ),
       ],
     );
   }
@@ -363,7 +375,9 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
 
   Widget _statusRow(String name) {
     final color = _getStatusColorByName(name);
+    final translatedName = _getLocalizedStatusName(name);
     final s = S.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -401,7 +415,7 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      name,
+                      translatedName,
                       style: TextStyle(
                         fontSize: 12,
                         color: color,
@@ -445,11 +459,12 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
   }
 
   String _mapOTFormType(String? type) {
+    final s = S.of(context);
     switch (type) {
       case 'pay':
-        return 'Trả tiền';
+        return s.ot_paid;
       case 'leave':
-        return 'Nghỉ Phép';
+        return s.ot_timeOff;
       default:
         return '';
     }
@@ -470,11 +485,10 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
                 barrierDismissible: false,
                 builder:
                     (_) => CustomDialog(
-                      title: "Xác nhận gửi duyệt",
-                      content:
-                          "Bạn có chắc chắn muốn gửi duyệt yêu cầu này không?",
-                      confirmText: "Gửi duyệt",
-                      cancelText: "Hủy",
+                      title: s.confirm_authorize,
+                      content: s.confirm_sub_authorize,
+                      confirmText: s.authorize,
+                      cancelText: s.cancel,
                       success: true,
                       onConfirm: () {
                         Navigator.pop(context);

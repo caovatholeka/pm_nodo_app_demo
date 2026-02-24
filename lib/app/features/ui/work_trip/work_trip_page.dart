@@ -101,6 +101,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
   }
 
   void _approveSelected() {
+    final s = S.of(context);
     if (_selectedIds.isEmpty) return;
 
     final ids = _selectedIds.toList();
@@ -111,11 +112,11 @@ class _WorkTripPageState extends State<WorkTripPage> {
       barrierDismissible: false,
       builder:
           (_) => CustomDialog(
-            title: "Xác nhận duyệt",
-            content: "Bạn có chắc muốn duyệt ${ids.length} đơn công tác?",
+            title: s.bt_confirm_approve,
+            content: s.bt_confirm_sub_confirm_approve("{count}").replaceFirst('{count}', ids.length.toString()),
             success: true,
-            confirmText: "Duyệt",
-            cancelText: "Huỷ",
+            confirmText: s.authorize,
+            cancelText: s.cancel,
             onConfirm: () {
               Navigator.pop(context);
 
@@ -148,8 +149,8 @@ class _WorkTripPageState extends State<WorkTripPage> {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Xoá công tác thành công",
+            title: s.success,
+            message: s.bt_delete_success,
           );
 
           _selectedIds.clear();
@@ -163,8 +164,8 @@ class _WorkTripPageState extends State<WorkTripPage> {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Gửi duyệt thành công",
+            title: s.success,
+            message: s.justification_sendApproval,
           );
 
           _selectedIds.clear();
@@ -178,8 +179,8 @@ class _WorkTripPageState extends State<WorkTripPage> {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Duyệt công tác thành công",
+            title: s.success,
+            message: s.bt_confirm_susscess,
           );
 
           _selectedIds.clear();
@@ -193,8 +194,8 @@ class _WorkTripPageState extends State<WorkTripPage> {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Huỷ duyệt công tác thành công",
+            title: s.success,
+            message: s.bt_confirm_deny,
           );
 
           _selectedIds.clear();
@@ -210,8 +211,8 @@ class _WorkTripPageState extends State<WorkTripPage> {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại",
+            title: s.warning,
+            message: state.errMsg ?? s.to_do_failed,
           );
 
           _cubit.onResetStatus();
@@ -256,6 +257,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
   }
 
   Widget get _filterWidget {
+    final currentLocale = Localizations.localeOf(context).toLanguageTag();
     return Row(
       children: [
         Expanded(
@@ -289,7 +291,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
                     builder:
                         (_) => CalendarRangeSheet(
                           initial: selectedWeek,
-                          locale: 'en',
+                          locale: currentLocale,
                         ),
                   );
 
@@ -331,6 +333,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
   }
 
   Widget _approveBar(WorkTripState state) {
+    final s = S.of(context);
     final approvableIds =
         (state.listWorkTrips ?? [])
             .where((e) => e.stage?.name == 'Trưởng phòng duyệt')
@@ -393,8 +396,8 @@ class _WorkTripPageState extends State<WorkTripPage> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    'Chọn tất cả',
+                  Text(
+                    s.choose_all,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                   ),
                 ],
@@ -415,7 +418,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
               ),
               child: Text(
-                'Duyệt (${_selectedIds.length})',
+                '${s.authorize} ${_selectedIds.length}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,

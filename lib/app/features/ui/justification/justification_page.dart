@@ -56,7 +56,8 @@ class _JustificationPageState extends State<JustificationPage> {
       start: DateTime(now.year, now.month, 1),
       end: DateTime(now.year, now.month + 1, 0),
     );
-
+    
+    final currentLocale = Localizations.localeOf(context).toLanguageTag();
     final res = await showModalBottomSheet<DateTimeRange?>(
       context: context,
       isScrollControlled: true,
@@ -65,7 +66,7 @@ class _JustificationPageState extends State<JustificationPage> {
       builder:
           (_) => CalendarRangeSheet(
             initial: _selectedRange ?? defaultRange,
-            locale: "vi",
+            locale: currentLocale,
           ),
     );
 
@@ -101,16 +102,16 @@ class _JustificationPageState extends State<JustificationPage> {
   }
 
   void _approveSelected() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (_) => CustomDialog(
-            title: 'Xác nhận',
-            content:
-                'Bạn có chắc chắn muốn duyệt ${_selectedIds.length} yêu cầu này không?',
-            confirmText: 'Duyệt',
-            cancelText: 'Hủy',
+            title: s.confirm,
+            content: s.justification_confirm_submit("{count}").replaceFirst("{count}", _selectedIds.length.toString()),
+            confirmText: s.authorize,
+            cancelText: s.cancel,
             success: true,
             onConfirm: () {
               Navigator.pop(context);
@@ -138,7 +139,6 @@ class _JustificationPageState extends State<JustificationPage> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-
     return BlocProvider(
       create: (_) => _cubit,
       child: BlocListener<JustificationCubit, JustificationState>(
@@ -146,8 +146,8 @@ class _JustificationPageState extends State<JustificationPage> {
         listener: (context, state) {
           if (state.approveStatus == LoadStatus.SUCCESS) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Duyệt thành công'),
+              SnackBar(
+                content: Text(s.justification_submit_success),
                 backgroundColor: Colors.green,
               ),
             );
@@ -159,7 +159,7 @@ class _JustificationPageState extends State<JustificationPage> {
           if (state.approveStatus == LoadStatus.FAILURE) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.error ?? 'Duyệt thất bại'),
+                content: Text(state.error ?? s.justification_submit_failed),
                 backgroundColor: Colors.red,
               ),
             );
@@ -301,7 +301,7 @@ class _JustificationPageState extends State<JustificationPage> {
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              const Text('Chọn tất'),
+                              Text(S.of(context).choose_all),
                             ],
                           ),
                         ),
@@ -322,7 +322,7 @@ class _JustificationPageState extends State<JustificationPage> {
                               ),
                             ),
                             child: Text(
-                              'Duyệt (${_selectedIds.length})',
+                              '${S.of(context).authorize} ${_selectedIds.length}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,

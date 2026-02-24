@@ -14,10 +14,7 @@ class OvertimeCubit extends Cubit<OvertimeState> {
 
   OvertimeCubit() : super(const OvertimeState());
 
-  Future<void> loadOTList({
-    String? startDate,
-    String? endDate,
-  }) async {
+  Future<void> loadOTList({String? startDate, String? endDate}) async {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
 
     try {
@@ -35,26 +32,14 @@ class OvertimeCubit extends Cubit<OvertimeState> {
         listJson = res.data;
       }
 
-      final list = listJson
-          .map((e) => OvertimeEntity.fromJson(e))
-          .toList();
+      final list = listJson.map((e) => OvertimeEntity.fromJson(e)).toList();
 
-      emit(
-        state.copyWith(
-          loadStatus: LoadStatus.SUCCESS,
-          list: list,
-        ),
-      );
+      emit(state.copyWith(loadStatus: LoadStatus.SUCCESS, list: list));
     } catch (e, s) {
       logger.e("err: $e");
       logger.d("where: $s");
 
-      emit(
-        state.copyWith(
-          loadStatus: LoadStatus.FAILURE,
-          error: e.toString(),
-        ),
-      );
+      emit(state.copyWith(loadStatus: LoadStatus.FAILURE, error: e.toString()));
     }
   }
 
@@ -68,22 +53,18 @@ class OvertimeCubit extends Cubit<OvertimeState> {
         OtApproveParam(overtimeIds: overtimeIds),
       );
 
-      emit(
-        state.copyWith(
-          approveStatus: LoadStatus.SUCCESS,
-        ),
-      );
+      emit(state.copyWith(approveStatus: LoadStatus.SUCCESS));
     } catch (e, s) {
       logger.e("err: $e");
       logger.d("where: $s");
 
       emit(
-        state.copyWith(
-          approveStatus: LoadStatus.FAILURE,
-          error: e.toString(),
-        ),
+        state.copyWith(approveStatus: LoadStatus.FAILURE, error: e.toString()),
       );
     }
   }
-}
 
+  void resetApproveStatus() {
+    emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
+  }
+}

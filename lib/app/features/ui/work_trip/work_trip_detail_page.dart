@@ -217,7 +217,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
       builder:
           (_) => CustomDialog(
             title: s.confirm,
-            content: "Bạn có chắc muốn duyệt đơn công tác này?",
+            content: s.bt_sub_approve,
             success: true,
             confirmText: s.confirm,
             cancelText: s.cancel,
@@ -246,9 +246,9 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
       barrierDismissible: false,
       builder:
           (_) => RejectReasonDialog(
-            title: "Hủy duyệt đơn công tác",
-            description: "Vui lòng nhập lý do huỷ duyệt đơn công tác",
-            hintText: "Nhập lý do huỷ duyệt",
+            title: s.bt_deny_title,
+            description: s.bt_deny_sub,
+            hintText: s.bt_deny_reason_type,
             onConfirm: (reason) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!context.mounted) return;
@@ -263,6 +263,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return BlocConsumer<WorkTripCubit, WorkTripState>(
       bloc: _cubit,
       listenWhen:
@@ -276,8 +277,8 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
         if (state.deleteStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Xoá công tác thành công!!",
+            title: s.success,
+            message: s.delete_success,
           );
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -291,8 +292,8 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
         if (state.submitStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: "Gửi duyệt thành công!!",
+            title: s.success,
+            message: s.send_approval_success,
           );
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -307,8 +308,8 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
             state.deleteStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau!",
+            title: s.warning,
+            message: state.errMsg ?? s.to_do_failed,
           );
           _cubit.onResetStatus();
           return;
@@ -316,7 +317,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
 
         if (state.approveStatus == LoadStatus.SUCCESS) {
           Flushbar(
-            message: "Duyệt đơn thành công",
+            message: s.bt_confirm_susscess,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
@@ -331,7 +332,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
 
         if (state.cancelStatus == LoadStatus.SUCCESS) {
           Flushbar(
-            message: "Hủy đơn công tác thành công",
+            message: s.bt_cancel_success,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: const Color.fromARGB(255, 255, 0, 0),
             duration: const Duration(seconds: 2),
@@ -675,6 +676,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   }
 
   Widget _directorApproveActions(WorkTripState state) {
+    final s = S.of(context);
     final isLoading =
         state.submitStatus == LoadStatus.LOADING ||
         state.deleteStatus == LoadStatus.LOADING;
@@ -683,7 +685,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
       children: [
         Expanded(
           child: PrimaryButton(
-            mainText: "Hủy duyệt",
+            mainText: s.deny,
             type: PrimaryButtonType.secondary,
             enable: !isLoading,
             isLoading: false,
@@ -695,7 +697,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
         const SizedBox(width: 12),
         Expanded(
           child: PrimaryButton(
-            mainText: "Duyệt",
+            mainText: s.authorize,
             type: PrimaryButtonType.primary,
             enable: !isLoading,
             isLoading: false,
