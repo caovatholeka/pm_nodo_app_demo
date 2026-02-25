@@ -36,17 +36,15 @@ import '../../../core/commons/app_colors.dart';
 
 class CheckInPage extends StatefulWidget {
   final bool? isFromHome;
-  const CheckInPage({super.key,this.isFromHome});
+  const CheckInPage({super.key, this.isFromHome});
 
   @override
   State<CheckInPage> createState() => _CheckInPageState();
 }
 
 class _CheckInPageState extends State<CheckInPage> {
-
   final _cubit = GetIt.I.get<CheckInCubit>();
   final _appCubit = GetIt.I.get<AppCubit>();
-
 
   String actionCheckIn = "";
 
@@ -88,71 +86,68 @@ class _CheckInPageState extends State<CheckInPage> {
     // }
   }
 
-Future<void> _requestLocationPermission() async {
-  final s = S.of(context);
-  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(
-        content: Text(s.check_in_condition),
-        backgroundColor: Colors.orange,
-      ),
-    );
-    await Geolocator.openLocationSettings();
-    return;
-  }
-
-  LocationPermission permission = await Geolocator.checkPermission();
-
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
+  Future<void> _requestLocationPermission() async {
+    final s = S.of(context);
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(s.check_in_permissionWarning),
-          backgroundColor: Colors.redAccent,
+          content: Text(s.check_in_condition),
+          backgroundColor: Colors.orange,
         ),
       );
+      await Geolocator.openLocationSettings();
       return;
     }
-  }
 
-  if (permission == LocationPermission.deniedForever) {
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   const SnackBar(
-    //     content: Text(
-    //         "Quyền vị trí bị từ chối vĩnh viễn. Vui lòng bật lại trong Cài đặt."),
-    //     backgroundColor: Colors.redAccent,
-    //   ),
-    // );
-    // await openAppSettings();
-    showLocationSettingPopup();
-    return;
-  }
+    LocationPermission permission = await Geolocator.checkPermission();
 
-  if (Platform.isIOS) {
-    final accuracyStatus = await Geolocator.getLocationAccuracy();
-    if (accuracyStatus == LocationAccuracyStatus.reduced) {
-      await Geolocator.requestTemporaryFullAccuracy(
-        purposeKey: "PreciseLocation",
-      );
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(s.check_in_permissionWarning),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        return;
+      }
     }
+
+    if (permission == LocationPermission.deniedForever) {
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text(
+      //         "Quyền vị trí bị từ chối vĩnh viễn. Vui lòng bật lại trong Cài đặt."),
+      //     backgroundColor: Colors.redAccent,
+      //   ),
+      // );
+      // await openAppSettings();
+      showLocationSettingPopup();
+      return;
+    }
+
+    if (Platform.isIOS) {
+      final accuracyStatus = await Geolocator.getLocationAccuracy();
+      if (accuracyStatus == LocationAccuracyStatus.reduced) {
+        await Geolocator.requestTemporaryFullAccuracy(
+          purposeKey: "PreciseLocation",
+        );
+      }
+    }
+
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+      _cubit.onChangeAddress(pos);
+    } catch (_) {
+      // nếu timeout thì vẫn nghe stream
+    }
+    _listenLocation();
   }
-
-  try {
-    final pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-      timeLimit: const Duration(seconds: 10),
-    );
-    _cubit.onChangeAddress(pos);
-  } catch (_) {
-    // nếu timeout thì vẫn nghe stream
-  }
-  _listenLocation();
-
-
-}
-
 
   @override
   void initState() {
@@ -183,30 +178,33 @@ Future<void> _requestLocationPermission() async {
 
   Future _initMarkers(List<CheckInInfoEntity> listCheckins) async {
     _markers.clear();
-    final markerFutures = listCheckins.map((checkin) async {
-      final icon = await MyMapMarker(infoEntity: checkin).toBitmapDescriptor();
-      return Marker(
-        markerId: MarkerId(checkin.id.toString()),
-        position: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
-        icon: icon,
-        onTap: () {
-          // show thong tin
-          logger.d("dia chi check in ::: ${checkin.name}");
-        },
-      );
-    }).toList();
+    final markerFutures =
+        listCheckins.map((checkin) async {
+          final icon =
+              await MyMapMarker(infoEntity: checkin).toBitmapDescriptor();
+          return Marker(
+            markerId: MarkerId(checkin.id.toString()),
+            position: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
+            icon: icon,
+            onTap: () {
+              // show thong tin
+              logger.d("dia chi check in ::: ${checkin.name}");
+            },
+          );
+        }).toList();
 
-    final circleFutures = listCheckins.map((checkin) async {
-      final r = (checkin.radius ?? 0.0).toDouble();
-      return Circle(
-        circleId: CircleId('c_${checkin.id}'),
-        center: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
-        radius: Platform.isIOS ? r+30 : r,
-        strokeWidth: 2,
-        strokeColor: Color(0xFFCE0000).withOpacity(0.2),
-        fillColor: Color(0xFFCE0000).withOpacity(0.2),
-      );
-    }).toList();
+    final circleFutures =
+        listCheckins.map((checkin) async {
+          final r = (checkin.radius ?? 0.0).toDouble();
+          return Circle(
+            circleId: CircleId('c_${checkin.id}'),
+            center: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
+            radius: Platform.isIOS ? r + 30 : r,
+            strokeWidth: 2,
+            strokeColor: Color(0xFFCE0000).withOpacity(0.2),
+            fillColor: Color(0xFFCE0000).withOpacity(0.2),
+          );
+        }).toList();
 
     final newMarkers = Set<Marker>.from(await Future.wait(markerFutures));
     final newCircles = Set<Circle>.from(await Future.wait(circleFutures));
@@ -234,7 +232,7 @@ Future<void> _requestLocationPermission() async {
       );
     } else {
       // Giữ nguyên cho Android như cũ
-      locationSettings =  AndroidSettings(
+      locationSettings = AndroidSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 10,
       );
@@ -253,8 +251,10 @@ Future<void> _requestLocationPermission() async {
     final String lang = (locale?.languageCode ?? 'en').toLowerCase();
     final String prefix = (lang == 'vi') ? 'Hôm nay' : 'Today';
 
-    final String dateStr = DateFormat('d/M/yyyy', lang == 'vi' ? 'vi' : 'en')
-        .format(d);
+    final String dateStr = DateFormat(
+      'd/M/yyyy',
+      lang == 'vi' ? 'vi' : 'en',
+    ).format(d);
 
     return '$prefix, $dateStr';
   }
@@ -265,7 +265,8 @@ Future<void> _requestLocationPermission() async {
 
     final state = _cubit.state;
 
-    final e = state.currentCheckInEntity ??
+    final e =
+        state.currentCheckInEntity ??
         (state.listCheckInfos != null && state.listCheckInfos!.isNotEmpty
             ? state.listCheckInfos!.first
             : null);
@@ -275,7 +276,10 @@ Future<void> _requestLocationPermission() async {
         await _mapController!.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
-              target: LatLng(state.position!.latitude, state.position!.longitude),
+              target: LatLng(
+                state.position!.latitude,
+                state.position!.longitude,
+              ),
               zoom: 16,
             ),
           ),
@@ -292,17 +296,13 @@ Future<void> _requestLocationPermission() async {
     try {
       await _mapController!.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: target,
-            zoom: zoom,
-          ),
+          CameraPosition(target: target, zoom: zoom),
         ),
       );
     } catch (err, st) {
       logger.e("moveCamera error: $err\n$st");
     }
   }
-
 
   double _zoomForRadius(double radiusMeters) {
     if (radiusMeters <= 0) radiusMeters = 200;
@@ -313,17 +313,17 @@ Future<void> _requestLocationPermission() async {
     return zoom.clamp(12.0, 19.0).toDouble();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     return BlocConsumer<CheckInCubit, CheckInState>(
       bloc: _cubit,
-      buildWhen: (prev, cur) =>
-      prev.getCheckInfo != cur.getCheckInfo ||
-          prev.listCheckInfos != cur.listCheckInfos ||
-          prev.currentCheckInEntity != cur.currentCheckInEntity ||
-          prev.hasLateOrEarly != cur.hasLateOrEarly,
+      buildWhen:
+          (prev, cur) =>
+              prev.getCheckInfo != cur.getCheckInfo ||
+              prev.listCheckInfos != cur.listCheckInfos ||
+              prev.currentCheckInEntity != cur.currentCheckInEntity ||
+              prev.hasLateOrEarly != cur.hasLateOrEarly,
 
       listenWhen: (prev, cur) {
         return prev.getCheckInfo != cur.getCheckInfo ||
@@ -339,7 +339,7 @@ Future<void> _requestLocationPermission() async {
           AppSnackBar.showInfo(
             title: s.check_in_success,
             message:
-            "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())} - ${state.currentCheckInEntity?.name}",
+                "${DateFormat('dd/MM/yyyy H:mm').format(DateTime.now())} - ${state.currentCheckInEntity?.name}",
           );
 
           _cubit.onResetState();
@@ -353,10 +353,7 @@ Future<void> _requestLocationPermission() async {
               );
             }
           }
-        }
-
-
-        else if (state.updateExplain == LoadStatus.SUCCESS) {
+        } else if (state.updateExplain == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(
@@ -365,10 +362,7 @@ Future<void> _requestLocationPermission() async {
           );
 
           _cubit.onResetState();
-        }
-
-
-        else if (state.checkInStatus == LoadStatus.FAILURE ||
+        } else if (state.checkInStatus == LoadStatus.FAILURE ||
             state.checkOutStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
 
@@ -385,23 +379,15 @@ Future<void> _requestLocationPermission() async {
               message: s.check_in_timeout,
             );
           }
-        }
-
-        else if (state.getCheckInfo == LoadStatus.SUCCESS) {
+        } else if (state.getCheckInfo == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
 
           await _initMarkers(state.listCheckInfos ?? []);
           await _moveCameraToCurrentPlace();
-        }
-
-
-        else if (state.getCheckInfo == LoadStatus.LOADING ||
+        } else if (state.getCheckInfo == LoadStatus.LOADING ||
             state.updateExplain == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
-        }
-
-
-        else {
+        } else {
           LoadingOverlay.hide(context);
         }
       },
@@ -420,22 +406,22 @@ Future<void> _requestLocationPermission() async {
 
   get _mapNormalScreen {
     return Scaffold(
-        backgroundColor: AppColors.bodyColor,
-        appBar: MyAppBar(
-          titleAppbar: S.of(context).check_in_title,
-          haveBackButton: (widget.isFromHome ?? false) ? true : false,
-          haveActionButton: true,
-          iconPathAsset: AppAssets.icNotificationBell,
-          actionCallBack: () {
-
-          },),
-        body: SingleChildScrollView(
-            padding: const EdgeInsets.only(left: 16,right: 16),
-            child:  _bodyContent
-        )
+      backgroundColor: AppColors.bodyColor,
+      appBar: MyAppBar(
+        titleAppbar: S.of(context).check_in_title,
+        haveBackButton: (widget.isFromHome ?? false) ? true : false,
+        haveActionButton: true,
+        iconPathAsset: AppAssets.icNotificationBell,
+        actionCallBack: () {},
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(left: 16, right: 16),
+        child: _bodyContent,
+      ),
     );
   }
-  get _mapZoomFullScreen{
+
+  get _mapZoomFullScreen {
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
@@ -444,9 +430,9 @@ Future<void> _requestLocationPermission() async {
           children: [
             _mapWidget,
             Positioned(
-                bottom: 100,
-                left: 18,
-                right: 18,
+              bottom: 100,
+              left: 18,
+              right: 18,
               child: Container(
                 width: double.infinity,
                 color: Colors.transparent,
@@ -461,43 +447,52 @@ Future<void> _requestLocationPermission() async {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(S.of(context).check_in_currentLocation,
+                          Text(
+                            S.of(context).check_in_currentLocation,
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w600
-                            ),).paddingOnly(bottom: 6),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ).paddingOnly(bottom: 6),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(AppAssets.icCheckinPlace,width: 18,height: 22,
-                                color: AppColors.themePrimaryDefault,).paddingOnly(right: 8),
-                              Text(_cubit.state.currentCheckInEntity?.name ?? "",
+                              SvgPicture.asset(
+                                AppAssets.icCheckinPlace,
+                                width: 18,
+                                height: 22,
+                                color: AppColors.themePrimaryDefault,
+                              ).paddingOnly(right: 8),
+                              Text(
+                                _cubit.state.currentCheckInEntity?.name ?? "",
                                 style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w400
-                                ),),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ).paddingOnly(bottom: 16),
                     PrimaryButton(
-                      callback: (){
+                      callback: () {
                         _cubit.onExpandMap();
                       },
-                        mainText: S.of(context).day_off_donebtn).paddingOnly(bottom: 20)
+                      mainText: S.of(context).day_off_donebtn,
+                    ).paddingOnly(bottom: 20),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
-      )
+      ),
     );
   }
 
-  get _bodyContent{
+  get _bodyContent {
     final s = S.of(context);
     return RefreshIndicator(
       onRefresh: _onRefresh,
@@ -506,17 +501,16 @@ Future<void> _requestLocationPermission() async {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 12,),
-          Text(DateFormat('H:mm a','en').format(DateTime.now()),
+          const SizedBox(height: 12),
+          Text(
+            DateFormat('H:mm a', 'en').format(DateTime.now()),
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w600,
-              color: AppColors.colorSuccess500
+              color: AppColors.colorSuccess500,
             ),
             textAlign: TextAlign.center,
           ).paddingOnly(bottom: 16),
-
-
 
           // Text("Nhận dạng khuôn mặt",
           //   style: TextStyle(
@@ -526,102 +520,125 @@ Future<void> _requestLocationPermission() async {
           //   ),
           //   textAlign: TextAlign.center,
           // ).paddingOnly(bottom: 12),
-          Text("${s.check_in_subtitle} \n "
-              "${s.check_in_subtitle2}",
+          Text(
+            "${s.check_in_subtitle} \n "
+            "${s.check_in_subtitle2}",
             style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: AppColors.neutral400
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              color: AppColors.neutral400,
             ),
             textAlign: TextAlign.center,
             maxLines: 2,
           ).paddingOnly(bottom: 16),
           SizedBox(
-            height: ScreenSize.of(context).height*0.4,
-              width: double.infinity,
-              child: _mapWidget
+            height: ScreenSize.of(context).height * 0.4,
+            width: double.infinity,
+            child: _mapWidget,
           ).paddingOnly(bottom: 20),
-          BlocBuilder<CheckInCubit,CheckInState>(
-              bloc: _cubit,
-              buildWhen: (prev,cur) => prev.currentCheckInEntity != cur.currentCheckInEntity,
-              builder: (context,state){
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SvgPicture.asset(AppAssets.icCheckinPlace,width: 18,height: 22,
-                      color: AppColors.themePrimaryDefault,),
-                    const SizedBox(width: 8,),
-                    (state.currentCheckInEntity?.address ?? "").isNotEmpty ?
-                    Flexible(
-                      child: Text(
-                        "${state.currentCheckInEntity?.name ?? ""} ,${state.currentCheckInEntity?.address ?? ""}",
-                        // state.currentCheckInEntity?.name ?? "",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ) : Flexible(
-                      child: Text(s.check_in_timekeeping,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    )
-                  ],
-                );
-              }),
-
-          // button checkin
-          const SizedBox(height: 20,),
-          BlocBuilder<CheckInCubit,CheckInState>(
-              bloc: _cubit,
-              buildWhen: (prev,cur) => prev.checkInStatus != cur.checkInStatus,
-              builder: (context,state){
-                final isLoading = state.checkInStatus == LoadStatus.LOADING;
-                return InkWell(
-                  onTap: isLoading ? () {} :
-                  (){
-                    if((_cubit.state.position?.latitude ?? 0) != 0){
-                      doCheckIn();
-                    }else{
-                      AppSnackBar.showError(title: "Cảnh báo",message: "Tín hiệu GPS kém");
-                    }
-
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    decoration: BoxDecoration(
-                      color: AppColors.themePrimaryDefault,
-                      borderRadius: BorderRadius.all(Radius.circular(6))
-                    ),
-                    child:
-                    isLoading ?
-                    Center(child: CircularProgressIndicator(color: AppColors.whiteColor,),)
-                    : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(AppAssets.camScan,width: 24,height: 24,),
-                        const SizedBox(width: 4,),
-                        Text(
-                          S.of(context).check_in_button,
+          BlocBuilder<CheckInCubit, CheckInState>(
+            bloc: _cubit,
+            buildWhen:
+                (prev, cur) =>
+                    prev.currentCheckInEntity != cur.currentCheckInEntity,
+            builder: (context, state) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SvgPicture.asset(
+                    AppAssets.icCheckinPlace,
+                    width: 18,
+                    height: 22,
+                    color: AppColors.themePrimaryDefault,
+                  ),
+                  const SizedBox(width: 8),
+                  (state.currentCheckInEntity?.address ?? "").isNotEmpty
+                      ? Flexible(
+                        child: Text(
+                          "${state.currentCheckInEntity?.name ?? ""} ,${state.currentCheckInEntity?.address ?? ""}",
+                          // state.currentCheckInEntity?.name ?? "",
                           style: TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.whiteColor
+                            fontWeight: FontWeight.w500,
                           ),
-                        )
-                      ],
-                    ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      )
+                      : Flexible(
+                        child: Text(
+                          s.check_in_timekeeping,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                ],
+              );
+            },
+          ),
+
+          // button checkin
+          const SizedBox(height: 20),
+          BlocBuilder<CheckInCubit, CheckInState>(
+            bloc: _cubit,
+            buildWhen: (prev, cur) => prev.checkInStatus != cur.checkInStatus,
+            builder: (context, state) {
+              final isLoading = state.checkInStatus == LoadStatus.LOADING;
+              return InkWell(
+                onTap:
+                    isLoading
+                        ? () {}
+                        : () {
+                          if ((_cubit.state.position?.latitude ?? 0) != 0) {
+                            doCheckIn();
+                          } else {
+                            AppSnackBar.showError(
+                              title: "Cảnh báo",
+                              message: "Tín hiệu GPS kém",
+                            );
+                          }
+                        },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 7),
+                  decoration: BoxDecoration(
+                    color: AppColors.themePrimaryDefault,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
                   ),
-                ).paddingOnly(bottom: 16);
-              }),
+                  child:
+                      isLoading
+                          ? Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.whiteColor,
+                            ),
+                          )
+                          : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                AppAssets.camScan,
+                                width: 24,
+                                height: 24,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                S.of(context).check_in_button,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.whiteColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                ),
+              ).paddingOnly(bottom: 16);
+            },
+          ),
         ],
       ),
     );
@@ -633,14 +650,17 @@ Future<void> _requestLocationPermission() async {
       height: double.infinity,
       child: BlocBuilder<CheckInCubit, CheckInState>(
         bloc: _cubit,
-        buildWhen: (prev, cur) =>
-        prev.position != cur.position || prev.isMapExpanded != cur.isMapExpanded,
+        buildWhen:
+            (prev, cur) =>
+                prev.position != cur.position ||
+                prev.isMapExpanded != cur.isMapExpanded,
         builder: (context, state) {
           final isExpanded = state.isMapExpanded ?? false;
 
-          final LatLng center = state.position != null
-              ? LatLng(state.position!.latitude, state.position!.longitude)
-              : _defaultLng;
+          final LatLng center =
+              state.position != null
+                  ? LatLng(state.position!.latitude, state.position!.longitude)
+                  : _defaultLng;
 
           Widget mapChild = GoogleMap(
             key: const ValueKey('checkin_map'),
@@ -667,7 +687,9 @@ Future<void> _requestLocationPermission() async {
             );
           }
 
-          if (state.position != null && _mapController != null && !_movedToGpsOnce) {
+          if (state.position != null &&
+              _mapController != null &&
+              !_movedToGpsOnce) {
             _movedToGpsOnce = true;
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               if (!mounted || _mapController == null) return;
@@ -692,10 +714,7 @@ Future<void> _requestLocationPermission() async {
                       await _moveCameraToCurrentPlace();
                       _cubit.onExpandMap();
                     },
-                    child: SvgPicture.asset(
-                      AppAssets.icExpandOut,
-                      width: 24,
-                    ),
+                    child: SvgPicture.asset(AppAssets.icExpandOut, width: 24),
                   ),
                 ),
             ],
@@ -792,32 +811,41 @@ Future<void> _requestLocationPermission() async {
       height: double.infinity,
       child: Center(
         child: Container(
-          padding: const EdgeInsets.only(left: 16,right: 16),
+          padding: const EdgeInsets.only(left: 16, right: 16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 12,),
-              SvgPicture.asset(AppAssets.icCheckinSuccess,width: 76,height: 76,),
-              Text(S.of(context).check_in_success,
+              const SizedBox(height: 12),
+              SvgPicture.asset(
+                AppAssets.icCheckinSuccess,
+                width: 76,
+                height: 76,
+              ),
+              Text(
+                S.of(context).check_in_success,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.themeBlackDefault
+                  color: AppColors.themeBlackDefault,
                 ),
-              ).paddingOnly(bottom: 6,top: 8),
-              Text(AppDateUtils.getCurrentTimeAM(),
+              ).paddingOnly(bottom: 6, top: 8),
+              Text(
+                AppDateUtils.getCurrentTimeAM(),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.colorSuccess500
+                  color: AppColors.colorSuccess500,
                 ),
               ).paddingOnly(bottom: 10),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.whiteColor,
-                  borderRadius: BorderRadius.all(Radius.circular(16))
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -826,7 +854,10 @@ Future<void> _requestLocationPermission() async {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        AvatarSquare(imageUrl: GlobalData.instance.userProfile?.avatarUrl ?? "").paddingOnly(right: 10),
+                        AvatarSquare(
+                          imageUrl:
+                              GlobalData.instance.userProfile?.avatarUrl ?? "",
+                        ).paddingOnly(right: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -835,42 +866,44 @@ Future<void> _requestLocationPermission() async {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.themeBlackDefault
+                                color: AppColors.themeBlackDefault,
                               ),
                             ).paddingOnly(bottom: 5),
                             Text(
                               GlobalData.instance.userProfile?.jobTitle ?? "",
                               style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.neutral500
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.neutral500,
                               ),
                             ).paddingOnly(bottom: 5),
                             Text(
-                              GlobalData.instance.userProfile?.employeeCode ?? "",
+                              GlobalData.instance.userProfile?.employeeCode ??
+                                  "",
                               style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.neutral500
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.neutral500,
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ],
                     ),
-                    SvgPicture.asset(AppAssets.icSuccess)
+                    SvgPicture.asset(AppAssets.icSuccess),
                   ],
                 ),
               ),
-              const SizedBox(height: 10,),
-              Text("${S.of(context).check_in_sucesssub1} ${S.of(context).check_in_sucesssub2}!",
+              const SizedBox(height: 10),
+              Text(
+                "${S.of(context).check_in_sucesssub1} ${S.of(context).check_in_sucesssub2}!",
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
-                  color: AppColors.neutral400
+                  color: AppColors.neutral400,
                 ),
                 textAlign: TextAlign.center,
-              )
+              ),
             ],
           ),
         ),
@@ -884,32 +917,41 @@ Future<void> _requestLocationPermission() async {
       height: double.infinity,
       child: Center(
         child: Container(
-          padding: const EdgeInsets.only(left: 16,right: 16),
+          padding: const EdgeInsets.only(left: 16, right: 16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 12,),
-              SvgPicture.asset(AppAssets.icCheckinFailed,width: 76,height: 76,),
-              Text(S.of(context).check_in_failed,
+              const SizedBox(height: 12),
+              SvgPicture.asset(
+                AppAssets.icCheckinFailed,
+                width: 76,
+                height: 76,
+              ),
+              Text(
+                S.of(context).check_in_failed,
                 style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.themeBlackDefault
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.themeBlackDefault,
                 ),
-              ).paddingOnly(bottom: 6,top: 8),
-              Text(AppDateUtils.getCurrentTimeAM(),
+              ).paddingOnly(bottom: 6, top: 8),
+              Text(
+                AppDateUtils.getCurrentTimeAM(),
                 style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textRed
+                  fontSize: 28,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textRed,
                 ),
               ).paddingOnly(bottom: 10),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                    color: AppColors.whiteColor,
-                    borderRadius: BorderRadius.all(Radius.circular(16))
+                  color: AppColors.whiteColor,
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -918,58 +960,62 @@ Future<void> _requestLocationPermission() async {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        AvatarSquare(imageUrl: GlobalData.instance.userProfile?.avatarUrl ?? "").paddingOnly(right: 10),
+                        AvatarSquare(
+                          imageUrl:
+                              GlobalData.instance.userProfile?.avatarUrl ?? "",
+                        ).paddingOnly(right: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               GlobalData.instance.userProfile?.name ?? "",
                               style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.themeBlackDefault
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.themeBlackDefault,
                               ),
                             ).paddingOnly(bottom: 5),
                             Text(
                               GlobalData.instance.userProfile?.jobTitle ?? "",
                               style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.neutral500
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.neutral500,
                               ),
                             ).paddingOnly(bottom: 5),
                             Text(
-                              GlobalData.instance.userProfile?.employeeCode ?? "",
+                              GlobalData.instance.userProfile?.employeeCode ??
+                                  "",
                               style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.neutral500
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.neutral500,
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ],
                     ),
-                    SvgPicture.asset(AppAssets.icFailed)
+                    SvgPicture.asset(AppAssets.icFailed),
                   ],
                 ),
               ),
-              const SizedBox(height: 10,),
-              Text(S.of(context).check_in_codition_failed,
+              const SizedBox(height: 10),
+              Text(
+                S.of(context).check_in_codition_failed,
                 style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.neutral400
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.neutral400,
                 ),
                 textAlign: TextAlign.center,
-              )
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
 
   // get _checkInfoWidget {
   //   return BlocBuilder<CheckInCubit,CheckInState>(
@@ -1116,111 +1162,115 @@ Future<void> _requestLocationPermission() async {
       context: context,
       barrierDismissible: false,
       builder: (ctx) {
-        final viewInsets = MediaQuery.of(ctx).viewInsets;
-
         return StatefulBuilder(
           builder: (ctx, setState) {
-            return Dialog(
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 24,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  20,
-                  20,
-                  20,
-                  16 + viewInsets.bottom,
+            final viewInsets = MediaQuery.of(ctx).viewInsets;
+            final maxHeight = MediaQuery.of(ctx).size.height * 0.60;
+
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(bottom: viewInsets.bottom),
+              child: Dialog(
+                insetPadding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 12),
-                    Text(
-                      S.of(context).check_in_late_early,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: maxHeight),
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
+                          Text(
+                            S.of(context).check_in_late_early,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            S.of(context).check_in_lateReason,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                              height: 1.35,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          //TextFiled lý do
+                          Form(
+                            key: reasonKey,
+                            child: InputTextField(
+                              title: "",
+                              disableTitle: true,
+                              hintText: S.of(context).check_in_enterReason,
+                              isRequiredField: true,
+                              enable: true,
+                              maxLine: 3,
+                              controller: reasonController,
+                              onChange: (val) {
+                                reasonKey.currentState?.validate();
+                              },
+                              validator:
+                                  (val) =>
+                                      Validator.validateEmpty(val, "Lý do"),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          FilledButton(
+                            onPressed: () {
+                              final reasonValid =
+                                  reasonKey.currentState?.validate() ?? false;
+                              if (reasonValid) {
+                                final reason = reasonController.text.trim();
+                                // dùng ctx hiện tại để pop dialog
+                                Navigator.of(ctx).pop(reason);
+                              }
+                            },
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: AppColors.themePrimaryDefault,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text(
+                              S.of(context).check_in_sendExplantation,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // OutlinedButton(
+                          //   onPressed: () => Navigator.of(ctx).pop(null),
+                          //   style: OutlinedButton.styleFrom(
+                          //     minimumSize: const Size.fromHeight(48),
+                          //     backgroundColor: Colors.white,
+                          //     foregroundColor: Colors.black87,
+                          //     side: const BorderSide(color: Color(0xFFE5E7EB)),
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(10),
+                          //     ),
+                          //   ),
+                          //   child: const Text('Để sau', style: TextStyle(fontSize: 16)),
+                          // ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      S.of(context).check_in_lateReason,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                        height: 1.35,
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // TextField lý do
-                    Form(
-                      key: reasonKey,
-                      child: InputTextField(
-                        title: "",
-                        disableTitle: true,
-                        hintText: S.of(context).check_in_enterReason,
-                        isRequiredField: true,
-                        enable: true,
-                        maxLine: 3,
-                        controller: reasonController,
-                        onChange: (val) {
-                          reasonKey.currentState?.validate();
-                        },
-                        validator: (val) =>
-                            Validator.validateEmpty(val, "Lý do"),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    FilledButton(
-                      onPressed: () {
-                        final reasonValid =
-                            reasonKey.currentState?.validate() ?? false;
-                        if (reasonValid) {
-                          final reason = reasonController.text.trim();
-                          // dùng ctx hiện tại để pop dialog
-                          Navigator.of(ctx).pop(reason);
-                        }
-                      },
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        backgroundColor: AppColors.themePrimaryDefault,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text(
-                        S.of(context).check_in_sendExplantation,
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // OutlinedButton(
-                    //   onPressed: () => Navigator.of(ctx).pop(null),
-                    //   style: OutlinedButton.styleFrom(
-                    //     minimumSize: const Size.fromHeight(48),
-                    //     backgroundColor: Colors.white,
-                    //     foregroundColor: Colors.black87,
-                    //     side: const BorderSide(color: Color(0xFFE5E7EB)),
-                    //     shape: RoundedRectangleBorder(
-                    //       borderRadius: BorderRadius.circular(10),
-                    //     ),
-                    //   ),
-                    //   child: const Text('Để sau', style: TextStyle(fontSize: 16)),
-                    // ),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -1230,147 +1280,157 @@ Future<void> _requestLocationPermission() async {
     );
   }
 
-
-
   // Functions
-  showLocationSettingPopup(){
+  showLocationSettingPopup() {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        contentPadding: const EdgeInsets.all(24),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Text(
-            //   "Quyền vị trí",
-            //   textAlign: TextAlign.center,
-            //   style: TextStyle(
-            //     fontSize: 18,
-            //     fontWeight: FontWeight.w700,
-            //     fontStyle: FontStyle.normal,
-            //     color: AppColors.themeBlackDefault,
-            //   ),
-            // ),
-            const SizedBox(height: 16),
-            Text(
-              S.of(context).check_in_requirement,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w400,
-                fontStyle: FontStyle.normal,
-                color: AppColors.themeBlackDefault,
-              ),
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            contentPadding: const EdgeInsets.all(24),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  width: 100,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.whiteColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                    ),
-                    child: Text(
-                      S.of(context).check_in_later,//context.loc.cancel,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        fontStyle: FontStyle.normal,
-                        color: AppColors.themeBlackDefault,
-                      ),
-                    ),
+                // Text(
+                //   "Quyền vị trí",
+                //   textAlign: TextAlign.center,
+                //   style: TextStyle(
+                //     fontSize: 18,
+                //     fontWeight: FontWeight.w700,
+                //     fontStyle: FontStyle.normal,
+                //     color: AppColors.themeBlackDefault,
+                //   ),
+                // ),
+                const SizedBox(height: 16),
+                Text(
+                  S.of(context).check_in_requirement,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.normal,
+                    color: AppColors.themeBlackDefault,
                   ),
                 ),
-                const SizedBox(width:24,),
-                SizedBox(
-                  width: 130,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      openAppSettings();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.themePrimaryDefault,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.whiteColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        child: Text(
+                          S.of(context).check_in_later, //context.loc.cancel,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            fontStyle: FontStyle.normal,
+                            color: AppColors.themeBlackDefault,
+                          ),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
-                    child: Text(
-                      S.of(context).check_in_goSetting,//context.loc.check_out,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        fontStyle: FontStyle.normal,
-                        color: Colors.white,
+                    const SizedBox(width: 24),
+                    SizedBox(
+                      width: 130,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          openAppSettings();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.themePrimaryDefault,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        child: Text(
+                          S
+                              .of(context)
+                              .check_in_goSetting, //context.loc.check_out,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            fontStyle: FontStyle.normal,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
-  doCheckIn() async{
+
+  doCheckIn() async {
     // Validate
-      bool serviceEnabled;
-      LocationPermission permission;
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        // open popup
-        logger.d("service not enabled");
+    bool serviceEnabled;
+    LocationPermission permission;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // open popup
+      logger.d("service not enabled");
+      showLocationSettingPopup();
+      // openAppSettings();
+    } else {
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          showLocationSettingPopup();
+          logger.d("service is denied");
+          // openAppSettings();
+        }
+      }
+      if (permission == LocationPermission.deniedForever) {
         showLocationSettingPopup();
+        logger.d("service is deniedForever");
         // openAppSettings();
       } else {
-        permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-          if (permission == LocationPermission.denied) {
-            showLocationSettingPopup();
-            logger.d("service is denied");
-            // openAppSettings();
-          }
-        }
-        if (permission == LocationPermission.deniedForever) {
-          showLocationSettingPopup();
-          logger.d("service is deniedForever");
-          // openAppSettings();
-        }else{
-          // check vị trí
-          double distance = Utils().calcDistanceMetersGeolocator(
-              _cubit.state.position?.latitude ?? 0.0,
-              _cubit.state.position?.longitude ?? 0.0,
-              _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
-              _cubit.state.currentCheckInEntity?.longitude ?? 0.0);
-          if(distance.round() > (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round() + 100){
-            AppSnackBar.showError(title: "Cảnh báo",message: "Bạn đang không trong vị trí được phép Check-In");
-          }else{
-            // validate khuôn mặt
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
-            );
+        // check vị trí
+        double distance = Utils().calcDistanceMetersGeolocator(
+          _cubit.state.position?.latitude ?? 0.0,
+          _cubit.state.position?.longitude ?? 0.0,
+          _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
+          _cubit.state.currentCheckInEntity?.longitude ?? 0.0,
+        );
+        if (distance.round() >
+            (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round() +
+                100) {
+          AppSnackBar.showError(
+            title: "Cảnh báo",
+            message: "Bạn đang không trong vị trí được phép Check-In",
+          );
+        } else {
+          // validate khuôn mặt
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
+          );
 
-            if (result != null && result.toString().isNotEmpty) {
-              // call api checking
-              _cubit.doCheckInGps(result);
-            }
+          if (result != null && result.toString().isNotEmpty) {
+            // call api checking
+            _cubit.doCheckInGps(result);
           }
         }
       }
+    }
   }
 
   // doCheckOut() async{
@@ -1394,5 +1454,4 @@ Future<void> _requestLocationPermission() async {
   //     }
   //   }
   // }
-
 }

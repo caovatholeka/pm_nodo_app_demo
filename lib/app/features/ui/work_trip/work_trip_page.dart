@@ -369,11 +369,8 @@ class _WorkTripPageState extends State<WorkTripPage> {
                   Theme(
                     data: Theme.of(context).copyWith(
                       checkboxTheme: CheckboxThemeData(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
                         side: BorderSide(
-                          color: AppColors.mainPrimaryColor6,
+                          color: const Color.fromARGB(255, 0, 0, 0),
                           width: 1.5,
                         ),
                       ),
@@ -395,7 +392,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 0.5),
                   Text(
                     s.choose_all,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
