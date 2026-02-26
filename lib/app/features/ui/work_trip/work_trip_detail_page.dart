@@ -276,10 +276,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
       listener: (context, state) {
         if (state.deleteStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
-          AppSnackBar.showInfo(
-            title: s.success,
-            message: s.delete_success,
-          );
+          AppSnackBar.showInfo(title: s.success, message: s.delete_success);
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!context.mounted) return;
@@ -442,8 +439,15 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                                     S.of(context).bt_detail_totalDay,
                                     "${state.detailWorkTrip?.numberOfDays ?? 0.0}",
                                   ).paddingOnly(bottom: 8),
-                                  CustomDashView().paddingOnly(bottom: 8),
+                                  const SizedBox(height: 10),
                                   _buildListSchedules,
+                                  const SizedBox(height: 4),
+                                  _buildItem(
+                                    S.of(context).bt_detail_notes,
+                                    state.detailWorkTrip?.note ?? "",
+                                  ).paddingOnly(bottom: 8),
+                                  CustomDashView().paddingOnly(bottom: 8),
+                                  _statusLine,
                                 ],
                               ),
                             ).paddingOnly(bottom: 12),
@@ -452,13 +456,13 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                             // CustomDashView().paddingOnly(bottom: 10),
                             // _buildItem("Qua đêm", "Có").paddingOnly(bottom: 6),
                             // CustomDashView().paddingOnly(bottom: 10),
-                            _buildItem(
-                              S.of(context).bt_detail_notes,
-                              state.detailWorkTrip?.note ?? "",
-                            ).paddingOnly(bottom: 6),
-                            CustomDashView().paddingOnly(bottom: 10),
-                            _statusLine,
-                            CustomDashView().paddingOnly(bottom: 20),
+                            // _buildItem(
+                            //   S.of(context).bt_detail_notes,
+                            //   state.detailWorkTrip?.note ?? "",
+                            // ).paddingOnly(bottom: 6),
+                            // CustomDashView().paddingOnly(bottom: 10),
+                            // _statusLine,
+                            // CustomDashView().paddingOnly(bottom: 20),
 
                             // (((state.detailWorkTrip?.createUid ?? 0) == GlobalData.instance.userProfile?.employeeId)
                             //   && isDraft) ? // trạng thái nháp
@@ -503,7 +507,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
           const SizedBox(width: 4),
           Text(
             getStatusTitle(_cubit.state.detailWorkTrip?.stage?.id ?? 0),
-            style: TextStyle(
+            style: TextStyle( 
               fontSize: 9,
               fontWeight: FontWeight.w400,
               color: getStatusColor(
