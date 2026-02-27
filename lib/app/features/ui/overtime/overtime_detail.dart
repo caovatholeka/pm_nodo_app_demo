@@ -9,6 +9,7 @@ import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui/on_leave/widget/reject_reason_dialog.dart';
 import 'package:pm_app/app/features/ui/overtime/create_overtime.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/overtime_detail_cubit.dart';
@@ -42,19 +43,21 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
 
   void _onDirectorReject() {
     final s = S.of(context);
+
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (_) => CustomDialog(
-            title: s.confirm,
-            content: s.ot_sub_deny_submit,
-            confirmText: s.cancel,
-            cancelText: s.close,
-            success: false,
-            onConfirm: () => Navigator.pop(context),
-            onCancel: () => Navigator.pop(context),
-          ),
+      builder: (_) => RejectReasonDialog(
+          title: s.confirm,
+          description: s.ot_sub_confirm_submit,
+          hintText: s.reason,
+          onConfirm: (reason) {
+            final id = _cubit.state.detail?.id;
+            if(id == null) return;
+
+            _cubit.cancelOT(id, reason);
+          }
+      ),
     );
   }
 
@@ -141,6 +144,62 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
     return BlocListener<OvertimeDetailCubit, OvertimeDetailState>(
       bloc: _cubit,
       listener: (context, state) async {
+
+        if(state.cancelStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+          return;
+        }
+
+        if(state.cancelStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          await Flushbar(
+            message: "Từ chối đơn OT thành công!",
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white,),
+            margin:  const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetCancelStatus();
+          Navigator.pop(context);
+          return;
+        }
+
+        if(state.cancelStatus == LoadStatus.FAILURE) {
+          LoadingOverlay.hide(context);
+          await Flushbar(
+            message: "Từ chối đơn OT thất bại",
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.error, color: Colors.white,),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetCancelStatus();
+          return;
+        }
+
+        if (state.submitSuccess) {
+          await Flushbar(
+            message: s.send_approval_success,
+            flushbarPosition: FlushbarPosition.TOP,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
+            borderRadius: BorderRadius.circular(8),
+          ).show(context);
+
+          _cubit.resetSubmitState();
+
+          return;
+        }
+
         if (state.approveStatus == LoadStatus.SUCCESS) {
           await Flushbar(
             message: s.send_approval_success,

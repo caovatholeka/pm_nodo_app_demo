@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/data/models/param/cancel_ot_param.dart';
 import 'package:pm_app/app/data/models/param/ot_approve_param.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 
@@ -37,46 +38,58 @@ class OvertimeDetailCubit extends Cubit<OvertimeDetailState> {
     emit(state.copyWith(isSubmitting: true, error: null, submitSuccess: false));
 
     try {
-      final updatedDetail = await _repo.submitOTP(id);
+      await _repo.submitOTP(id);
+      emit(state.copyWith(isSubmitting: false, submitSuccess: true));
 
-      emit(
-        state.copyWith(
-          isSubmitting: false,
-          submitSuccess: true,
-          detail: updatedDetail,
-        ),
-      );
+      await getDetailOT(id);
     } catch (e, s) {
       logger.e('Submit OT error: $e, where: $s');
       emit(state.copyWith(isSubmitting: false, error: e.toString()));
     }
   }
 
-Future<void> approveOT() async {
-  final id = state.detail?.id;
-  if (id == null) return;
+  Future<void> approveOT() async {
+    final id = state.detail?.id;
+    if (id == null) return;
 
-  emit(state.copyWith(approveStatus: LoadStatus.LOADING));
+    emit(state.copyWith(approveStatus: LoadStatus.LOADING));
 
-  try {
-    final param = OtApproveParam(overtimeIds: [id]);
-    await _repo.approveOT(param);
+    try {
+      final param = OtApproveParam(overtimeIds: [id]);
+      await _repo.approveOT(param);
 
-    final updatedDetail = await _repo.getOTDetail(id);
+      final updatedDetail = await _repo.getOTDetail(id);
 
-    emit(
-      state.copyWith(
-        approveStatus: LoadStatus.SUCCESS,
-        detail: updatedDetail,
-      ),
-    );
-  } catch (e, s) {
-    logger.e("Approve OT error: $e, where: $s");
-    emit(state.copyWith(approveStatus: LoadStatus.FAILURE));
+      emit(
+        state.copyWith(
+          approveStatus: LoadStatus.SUCCESS,
+          detail: updatedDetail,
+        ),
+      );
+    } catch (e, s) {
+      logger.e("Approve OT error: $e, where: $s");
+      emit(state.copyWith(approveStatus: LoadStatus.FAILURE));
+    }
   }
-}
 
-void resetApproveStatus() {
-  emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
-}
+  Future<void> cancelOT(int id, String note) async {
+    emit(state.copyWith(cancelStatus: LoadStatus.LOADING));
+    try {
+      final param = CancelOtParam(note: note);
+      await _repo.cancelOT(id, param);
+      emit(state.copyWith(cancelStatus: LoadStatus.SUCCESS));
+      logger.i("Success calling api blyat");
+    } catch (e, s) {
+      logger.e("ERR: ${e}, ${s}");
+      emit(state.copyWith(cancelStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void resetApproveStatus() {
+    emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
+  }
+
+  void resetCancelStatus() {
+    emit(state.copyWith(cancelStatus: LoadStatus.INITIAL));
+  }
 }

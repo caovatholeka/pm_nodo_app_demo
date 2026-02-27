@@ -1,4 +1,5 @@
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
+import 'package:pm_app/app/data/models/param/cancel_ot_param.dart';
 import 'package:pm_app/app/data/models/param/create_overtime_param.dart';
 import 'package:pm_app/app/data/models/param/ot_approve_param.dart';
 import '../../core/network/api_client.dart';
@@ -13,6 +14,7 @@ abstract class OvertimeRepository {
   Future<OvertimeEntity> submitOTP(int id);
   Future<dynamic> deleteOTRequest(int id);
   Future<CommonResponse> approveOT(OtApproveParam body);
+  Future<CommonResponse> cancelOT(int id, CancelOtParam body);
 }
 
 class OvertimeRepositoryImpl extends OvertimeRepository {
@@ -51,6 +53,11 @@ class OvertimeRepositoryImpl extends OvertimeRepository {
   @override
   Future<CommonResponse> approveOT(OtApproveParam body) async {
     return await _apiClient.approveOT(body);
+  }
+
+  @override
+  Future<CommonResponse> cancelOT(int id, CancelOtParam body) async {
+    return await _apiClient.cancelOT(id, body);
   }
 }
 

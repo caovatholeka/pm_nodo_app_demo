@@ -3,6 +3,7 @@ part of 'overtime_detail_cubit.dart';
 class OvertimeDetailState extends Equatable {
   final LoadStatus loadStatus;
   final LoadStatus approveStatus;
+  final LoadStatus cancelStatus;
   final OvertimeEntity? detail;
   final String? error;
   final bool isSubmitting;
@@ -11,6 +12,7 @@ class OvertimeDetailState extends Equatable {
   const OvertimeDetailState({
     this.loadStatus = LoadStatus.INITIAL,
     this.approveStatus = LoadStatus.INITIAL,
+    this.cancelStatus = LoadStatus.INITIAL,
     this.detail,
     this.error,
     this.isSubmitting = false,
@@ -20,6 +22,7 @@ class OvertimeDetailState extends Equatable {
   OvertimeDetailState copyWith({
     LoadStatus? loadStatus,
     LoadStatus? approveStatus,
+    LoadStatus? cancelStatus,
     OvertimeEntity? detail,
     String? error,
     bool? isSubmitting,
@@ -27,11 +30,12 @@ class OvertimeDetailState extends Equatable {
   }) {
     return OvertimeDetailState(
       loadStatus: loadStatus ?? this.loadStatus,
+      approveStatus: approveStatus ?? this.approveStatus,
+      cancelStatus: cancelStatus ?? this.cancelStatus,
       detail: detail ?? this.detail,
-      error: error,
+      error: error ?? this.error,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       submitSuccess: submitSuccess ?? this.submitSuccess,
-      approveStatus: approveStatus ?? this.approveStatus,
     );
   }
 
@@ -43,5 +47,6 @@ class OvertimeDetailState extends Equatable {
     isSubmitting,
     submitSuccess,
     approveStatus,
+    cancelStatus,
   ];
 }

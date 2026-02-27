@@ -7,6 +7,7 @@ import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
 import 'package:pm_app/app/data/models/param/cancel_ob_param.dart';
+import 'package:pm_app/app/data/models/param/cancel_ot_param.dart';
 import 'package:pm_app/app/data/models/param/create_task_param.dart';
 
 import 'package:pm_app/app/data/models/param/create_work_trip_param.dart';
@@ -304,6 +305,13 @@ abstract class ApiClient {
   //Duyệt đơn OT
   @POST("/overtime/overtime/approve")
   Future<CommonResponse> approveOT(@Body() OtApproveParam body);
+
+
+  @POST("/overtime/overtime/{id}/cancel")
+  Future<CommonResponse> cancelOT(
+    @Path("id") int id,
+    @Body() CancelOtParam body,
+  );
 
 
   //Duyệt đơn công tác
