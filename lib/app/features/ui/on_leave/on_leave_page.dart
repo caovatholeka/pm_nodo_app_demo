@@ -1,7 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
@@ -12,6 +12,7 @@ import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -59,7 +60,9 @@ class _OnLeavePageState extends State<OnLeavePage> {
       builder:
           (_) => CustomDialog(
             title: s.confirm_authorize,
-            content: s.on_leave_sub_confirm_authorize("{count}").replaceFirst("{count}", selectedIds.length.toString()),
+            content: s
+                .on_leave_sub_confirm_authorize("{count}")
+                .replaceFirst("{count}", selectedIds.length.toString()),
             cancelText: s.cancel,
             confirmText: s.confirm,
             onCancel: () => Navigator.pop(context),
@@ -135,6 +138,46 @@ class _OnLeavePageState extends State<OnLeavePage> {
     }
   }
 
+  void _handleConfirmLeave(OnLeaveEntity entity) {
+    final s = S.of(context);
+
+    showDialog(
+      context: context,
+      builder:
+          (_) => CustomDialog(
+            title: s.confirm,
+            content: "Bạn có muốn gửi duyệt đơn này không?",
+            cancelText: s.cancel,
+            confirmText: "Ok",
+            onCancel: () => Navigator.pop(context),
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.confirmLeave(entity.id!);
+            },
+          ),
+    );
+  }
+
+  void _handleDeleteLeave(OnLeaveEntity entity) {
+    final s = S.of(context);
+
+    showDialog(
+      context: context,
+      builder:
+          (_) => CustomDialog(
+            title: s.confirm,
+            content: "Bạn có chắc muốn xóa đơn nghỉ không?",
+            cancelText: s.cancel,
+            confirmText: "Ok",
+            onCancel: () => Navigator.pop(context),
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.deleteOnLeave(entity.id!);
+            },
+          ),
+    );
+  }
+
   Future<void> _createNewLeave() async {
     final bool? result = await Navigator.push(
       context,
@@ -152,8 +195,70 @@ class _OnLeavePageState extends State<OnLeavePage> {
 
     return BlocListener<OnLeaveCubit, OnLeaveState>(
       bloc: _cubit,
-      listenWhen: (p, c) => p.approveStatus != c.approveStatus,
       listener: (context, state) {
+        if (state.confirmStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+        }
+
+        if (state.confirmStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          Flushbar(
+            message: s.send_approval_success,
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            flushbarPosition: FlushbarPosition.TOP,
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+          ).show(context);
+
+          
+          _cubit.getListOnLeaveTimes();
+          _cubit.resetConfirmStatus();
+        }
+
+        if (state.confirmStatus == LoadStatus.FAILURE) {
+          LoadingOverlay.hide(context);
+
+          Flushbar(
+            message: s.on_leave_failed,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+            flushbarPosition: FlushbarPosition.TOP,
+          ).show(context);
+
+          _cubit.resetConfirmStatus();
+        }
+
+        if (state.deleteStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+        }
+
+        if (state.deleteStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
+
+          Flushbar(
+            message: s.delete_success,
+            backgroundColor: Colors.green,
+            flushbarPosition: FlushbarPosition.TOP,
+            duration: const Duration(seconds: 2),
+          ).show(context);
+
+         
+          _cubit.getListOnLeaveTimes();
+           _cubit.resetDeleteStatus();
+        }
+
+        if (state.deleteStatus == LoadStatus.FAILURE) {
+          LoadingOverlay.hide(context);
+
+          Flushbar(
+            message: s.delete_approval_failed,
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ).show(context);
+
+          _cubit.resetDeleteStatus();
+        }
         if (state.approveStatus == LoadStatus.SUCCESS) {
           Flushbar(
             message: s.on_leave_success,
@@ -167,7 +272,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
           setState(() {
             selectedIds.clear();
           });
-          
+
           _cubit.resetApproveStatus();
           _cubit.getListOnLeaveTimes();
         }
@@ -399,10 +504,13 @@ class _OnLeavePageState extends State<OnLeavePage> {
           (p, c) =>
               p.loadStatus != c.loadStatus ||
               p.listLeaveEntities != c.listLeaveEntities,
-              
       builder: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.mainPrimaryColor6,));
+          return const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.mainPrimaryColor6,
+            ),
+          );
         }
 
         final list = state.listLeaveEntities ?? [];
@@ -419,7 +527,12 @@ class _OnLeavePageState extends State<OnLeavePage> {
             itemCount: list.length,
             itemBuilder: (_, i) {
               final e = list[i];
-              return OnLeaveListItem(
+              final statusId = e.leaveStage?.id ?? 0;
+
+              final isFinished = [11,14,15,9].contains(statusId);
+              final isCanceled = [20, 16, 12].contains(statusId);
+
+              final item = OnLeaveListItem(
                 entity: e,
                 isDirector: isDirector,
                 isChecked: selectedIds.contains(e.id),
@@ -434,7 +547,46 @@ class _OnLeavePageState extends State<OnLeavePage> {
                   });
                 },
                 onShowDetail: () => _openDetail(e),
-              ).paddingOnly(bottom: 12);
+              );
+
+              if (isFinished || isCanceled) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: item,
+                );
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Slidable(
+                  key: ValueKey(e.id),
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    extentRatio: 0.45,
+                    children: [
+                      SlidableAction(
+                        onPressed: (_) {
+                          _handleConfirmLeave(e);
+                        },
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        label: "Gửi duyệt",
+                        icon: Icons.send,
+                      ),
+                      SlidableAction(
+                        onPressed: (_) {
+                          _handleDeleteLeave(e);
+                        },
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        label: "Xóa",
+                        icon: Icons.delete,
+                      ),
+                    ],
+                  ),
+                  child: item,
+                ),
+              );
             },
           ),
         );

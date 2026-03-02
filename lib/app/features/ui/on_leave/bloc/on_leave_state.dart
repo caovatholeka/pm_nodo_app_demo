@@ -4,6 +4,8 @@ class OnLeaveState extends Equatable {
   final LoadStatus loadStatus;
   final LoadStatus approveStatus;
   final LoadStatus rejectStatus;
+  final LoadStatus deleteStatus;
+  final LoadStatus confirmStatus;
   String? errMsg;
   String? errStatus;
 
@@ -17,6 +19,8 @@ class OnLeaveState extends Equatable {
     this.loadStatus = LoadStatus.INITIAL,
     this.approveStatus = LoadStatus.INITIAL,
     this.rejectStatus = LoadStatus.INITIAL,
+    this.deleteStatus = LoadStatus.INITIAL,
+    this.confirmStatus = LoadStatus.INITIAL,
     this.errMsg,
     this.errStatus,
     this.listLeaveEntities,
@@ -30,6 +34,8 @@ class OnLeaveState extends Equatable {
     LoadStatus? loadStatus,
     LoadStatus? approveStatus,
     LoadStatus? rejectStatus,
+    LoadStatus? deleteStatus,
+    LoadStatus? confirmStatus,
     String? errMsg,
     String? errStatus,
     List<OnLeaveEntity>? listLeaveEntities,
@@ -47,6 +53,8 @@ class OnLeaveState extends Equatable {
       endDateFilter: endDateFilter ?? this.endDateFilter,
       approveStatus: approveStatus ?? this.approveStatus,
       rejectStatus: rejectStatus ?? this.rejectStatus,
+      deleteStatus: deleteStatus ?? this.deleteStatus,
+      confirmStatus: confirmStatus ?? this.confirmStatus,
     );
   }
 
@@ -61,5 +69,7 @@ class OnLeaveState extends Equatable {
     endDateFilter,
     approveStatus,
     rejectStatus,
+    deleteStatus,
+    confirmStatus,
   ];
 }

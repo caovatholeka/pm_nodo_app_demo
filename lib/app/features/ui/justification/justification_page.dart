@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
@@ -56,7 +60,7 @@ class _JustificationPageState extends State<JustificationPage> {
       start: DateTime(now.year, now.month, 1),
       end: DateTime(now.year, now.month + 1, 0),
     );
-    
+
     final currentLocale = Localizations.localeOf(context).toLanguageTag();
     final res = await showModalBottomSheet<DateTimeRange?>(
       context: context,
@@ -109,7 +113,9 @@ class _JustificationPageState extends State<JustificationPage> {
       builder:
           (_) => CustomDialog(
             title: s.confirm,
-            content: s.justification_confirm_submit("{count}").replaceFirst("{count}", _selectedIds.length.toString()),
+            content: s
+                .justification_confirm_submit("{count}")
+                .replaceFirst("{count}", _selectedIds.length.toString()),
             confirmText: s.authorize,
             cancelText: s.cancel,
             success: true,
@@ -133,6 +139,23 @@ class _JustificationPageState extends State<JustificationPage> {
               child: const NotificationPage(),
             ),
       ),
+    );
+  }
+
+  void _sendRQJustification(JustificationEntity entity) {
+    showDialog(
+      context: context,
+       builder: (_) => CustomDialog(
+        title: "Xác nhận",
+        content: "Bạn có muốn gửi đơn duyệt này không?",
+        cancelText: "Không",
+        confirmText: "Ok",
+        onCancel: () => Navigator.pop(context),
+        onConfirm: () {
+          Navigator.pop(context);
+          _cubit.onConfirmJustification(entity.id!);
+        },
+      )
     );
   }
 
@@ -164,6 +187,13 @@ class _JustificationPageState extends State<JustificationPage> {
               ),
             );
             context.read<JustificationCubit>().resetApproveStatus();
+          }
+
+          if(state.submitStatus == LoadStatus.SUCCESS) {
+            SnackBar(
+                content: Text(state.error ?? s.justification_submit_failed),
+                backgroundColor: Colors.green,
+              );
           }
         },
         child: Scaffold(
@@ -361,7 +391,14 @@ class _JustificationPageState extends State<JustificationPage> {
                       itemCount: state.list.length,
                       itemBuilder: (context, index) {
                         final item = state.list[index];
-                        return JustificationListItem(
+                        final stageName = item.stage?.name ?? '';
+
+                        final isFinished = stageName == 'Hoàn thành';
+                        final isCanceled = stageName == 'Hủy';
+
+                        final canSwipe = !isFinished && !isCanceled;
+
+                        final card = JustificationListItem(
                           entity: item,
                           isChecked: _selectedIds.contains(item.id),
                           canApprove: _isDirector,
@@ -388,6 +425,30 @@ class _JustificationPageState extends State<JustificationPage> {
                             );
                             _refreshList();
                           },
+                        );
+
+                        if (!canSwipe) {
+                          return card;
+                        }
+
+                        return Slidable(
+                          key: ValueKey(item.id),
+                          endActionPane: ActionPane(
+                            motion: const ScrollMotion(),
+                            extentRatio: 0.45,
+                            children: [
+                              SlidableAction(
+                                onPressed: (_) {
+                                  _sendRQJustification(item);
+                                },
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                icon: Icons.send,
+                                label: "Gửi duyệt",
+                              ),
+                            ],
+                          ),
+                          child: card,
                         );
                       },
                     );

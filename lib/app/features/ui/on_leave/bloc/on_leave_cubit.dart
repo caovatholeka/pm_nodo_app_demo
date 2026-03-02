@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
@@ -8,7 +9,6 @@ import '../../../../data/models/entities/on_leave_entity.dart';
 import '../../../../data/models/enums/load_status.dart';
 import '../../../../data/repositories/on_leave_repository.dart';
 import '../../../../data/models/param/leave_approve_param.dart';
-
 
 part 'on_leave_state.dart';
 
@@ -97,16 +97,16 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
   }
 
   void approveBulkLeaves(List<int> leaveIds) async {
-    if(leaveIds.isEmpty) return;
+    if (leaveIds.isEmpty) return;
 
     emit(state.copyWith(approveStatus: LoadStatus.LOADING));
 
-    try{
+    try {
       final param = LeaveApproveParam(leaveIds: leaveIds);
       await repository.approveLeave(param);
 
       emit(state.copyWith(approveStatus: LoadStatus.SUCCESS));
-    }catch(e,s) {
+    } catch (e, s) {
       logger.e("err: $e");
       logger.d("where: $s");
       emit(state.copyWith(approveStatus: LoadStatus.FAILURE));
@@ -116,4 +116,36 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
   void resetApproveStatus() {
     emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
   }
-} 
+
+  void confirmLeave(int id) async {
+    emit(state.copyWith(confirmStatus: LoadStatus.LOADING));
+
+    try {
+      final param = {"leave_id": id};
+      await repository.confirmHrLeave(param);
+      emit(state.copyWith(confirmStatus: LoadStatus.SUCCESS));
+    } catch (e, s) {
+      logger.e("err: $e , where: $s");
+      emit(state.copyWith(confirmStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void deleteOnLeave(int id) async {
+    emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
+    try {
+      await repository.deleteDetailOnLeave(id);
+      emit(state.copyWith(deleteStatus: LoadStatus.SUCCESS));
+    } on DioException catch (e) {
+      logger.d(e);
+      emit(state.copyWith(deleteStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void resetConfirmStatus() {
+    emit(state.copyWith(confirmStatus: LoadStatus.INITIAL));
+  }
+
+  void resetDeleteStatus() {
+    emit(state.copyWith(deleteStatus: LoadStatus.INITIAL));
+  }
+}

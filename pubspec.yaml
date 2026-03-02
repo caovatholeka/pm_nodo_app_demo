@@ -93,6 +93,7 @@ dependencies:
   timelines: ^0.1.0
   flutter_app_badge: ^2.0.2
   package_info_plus: ^9.0.0
+  flutter_slidable: ^4.0.3
 #  camerawesome: ^2.5.0
   # checkbox_grouped: ^2.0.0
 
