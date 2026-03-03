@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_form.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/comment_card.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/rating_line_chart.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -26,6 +28,20 @@ class _AppraisalFormPageState extends State<AppraisalFormPage> {
         builder: (context) => const CreateAppraisalForm(),
       ),
     );
+  }
+  final _cubit = GetIt.I.get<ApprasialFormCubit>();
+
+  @override
+  void initState() {
+    // get detail
+    _cubit.getEvaluationDetails(1);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -56,7 +72,7 @@ class _AppraisalFormPageState extends State<AppraisalFormPage> {
         buildWhen: (p, c) => p.totalUnread != c.totalUnread,
         builder: (context, state) {
           return MyAppBar(
-            titleAppbar: 'Đánh giá kết quả công việc',
+            titleAppbar: 'Chất lượng công việc',
             haveBackButton: true,
             haveActionButton: true,
             iconPathAsset: AppAssets.icFlush,

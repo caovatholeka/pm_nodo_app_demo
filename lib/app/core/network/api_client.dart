@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
@@ -335,5 +336,12 @@ abstract class ApiClient {
     @Path("id") int id,
     @Body() JustificationCancelParam body
   );
+
+  // danh gia cong viec
+  @GET("/evaluation/evaluation_list")
+  Future<CommonResponse> getListEvaluation();
+
+  @GET("/evaluation/evaluation_detail/{id}")
+  Future<EvaluationEntity> getDetailEvaluation(@Path("id") int id);
   
 }

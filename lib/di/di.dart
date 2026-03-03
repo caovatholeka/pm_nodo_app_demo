@@ -4,6 +4,7 @@ import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
+import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
@@ -12,6 +13,7 @@ import 'package:pm_app/app/data/repositories/upload_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/app/data/repositories/work_trip_repository.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -183,5 +185,10 @@ Future<void> init() async {
   sl.registerLazySingleton<OvertimeDetailCubit>(() => OvertimeDetailCubit());
   sl.registerLazySingleton<OvertimeRepository>(
     () => OvertimeRepositoryImpl(),
+  );
+
+  sl.registerLazySingleton<ApprasialFormCubit>(() => ApprasialFormCubit(repository: sl()));
+  sl.registerLazySingleton<EvaluationRepository>(
+        () => EvaluationRepositoryImpl(),
   );
 }
