@@ -41,14 +41,14 @@ android {
     }
 
     // comment khi develop
-      signingConfigs {
-          create("release") {
-              keyAlias = keystoreProperties.getProperty("keyAlias")
-              keyPassword = keystoreProperties.getProperty("keyPassword")
-              storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
-              storePassword = keystoreProperties.getProperty("storePassword")
-          }
-      }
+    //   signingConfigs {
+    //       create("release") {
+    //           keyAlias = keystoreProperties.getProperty("keyAlias")
+    //           keyPassword = keystoreProperties.getProperty("keyPassword")
+    //           storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+    //           storePassword = keystoreProperties.getProperty("storePassword")
+    //       }
+    //   }
 
     // debug : develop , release : build abb file
     buildTypes {

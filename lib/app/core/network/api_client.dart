@@ -335,5 +335,18 @@ abstract class ApiClient {
     @Path("id") int id,
     @Body() JustificationCancelParam body
   );
-  
+
+  //Phiếu đánh giá
+  @GET('/evaluation/evaluation_list')
+  Future<CommonResponse> getListAppraisal(
+    @Query("total") int? total,
+    @Query("limit") int? limit,
+    @Query("offset") int? offset,
+    @Query("page") int? page,
+    @Query("total_pages") int? totalPages
+  );
+
+  //Chi tiết phiếu đánh giá
+  @GET('/evaluation/evaluation_detail/{id}')
+  Future<CommonResponse> getDetailAppraisal(@Path("id") int id);
 }

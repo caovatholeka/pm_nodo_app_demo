@@ -10,12 +10,14 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_it/get_it.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
+import 'package:pm_app/app/data/repositories/appraisal_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/bloc/appraisal_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -151,6 +153,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<ExplanationListCubit>()),
       BlocProvider(create: (context) => sl<FaceScanCubit>()),
       BlocProvider(create: (context) => sl<TaskCubit>()),
+      BlocProvider(create: (context) => sl<AppraisalCubit>()),
     ];
   }
 
@@ -166,6 +169,7 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider(create: (context) => sl<TaskRepository>()),
         RepositoryProvider(create: (context) => sl<JutificationRepository>()),
         RepositoryProvider(create: (context) => sl<OvertimeRepository>()),
+        RepositoryProvider(create: (context) => sl<AppraisalRepository>()),
       ],
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),

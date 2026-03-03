@@ -4,12 +4,13 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_form.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/comment_card.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/widgets/progress_list_card.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/widgets/project_bar_chart_card.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/rating_line_chart.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/widgets/summary_rating_card.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
-import '../widgets/summary_rating_card.dart';
-import '../widgets/progress_list_card.dart';
-import '../widgets/project_bar_chart_card.dart';
+
 
 class AppraisalFormPage extends StatefulWidget {
   const AppraisalFormPage({super.key});
