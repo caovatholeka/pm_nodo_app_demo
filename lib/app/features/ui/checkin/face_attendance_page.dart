@@ -637,6 +637,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
           AppSnackBar.showError(
               title: S.of(context).failed,
               message: state.scanMsg ?? S.of(context).check_inFailed2);
+          Navigator.pop(context);
         } else {
           LoadingOverlay.hide(context);
         }

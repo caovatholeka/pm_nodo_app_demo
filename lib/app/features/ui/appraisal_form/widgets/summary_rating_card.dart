@@ -241,9 +241,9 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               LegendDot(color: Color(0xFF8FA2FF), text: 'Khối lượng CV'),
-              SizedBox(width: 16),
+              SizedBox(width: 14),
               LegendDot(color: Color(0xFFFFB25C), text: 'Tiến độ CV'),
-              SizedBox(width: 16),
+              SizedBox(width: 14),
               LegendDot(color: Color(0xFF39DDF2), text: 'Chất lượng CV'),
             ],
           ),
