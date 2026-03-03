@@ -4,7 +4,7 @@ description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 
-version: 1.0.0+7
+version: 1.0.2+9
 
 environment:
   sdk: ^3.7.0
@@ -92,7 +92,8 @@ dependencies:
   syncfusion_flutter_charts: ^31.1.19
   timelines: ^0.1.0
   flutter_app_badge: ^2.0.2
-  package_info_plus: ^9.0.0
+
+#  package_info_plus: ^9.0.0
 #  camerawesome: ^2.5.0
   # checkbox_grouped: ^2.0.0
 

@@ -26,8 +26,8 @@ android {
         applicationId = "com.nodo.pm_app"
         minSdk = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.0.1"
+        versionCode = 9
+        versionName = "1.0.2"
     }
 
     compileOptions {
@@ -40,18 +40,20 @@ android {
         jvmTarget = "17"
     }
 
-    //  signingConfigs {
-    //      create("release") {
-    //          keyAlias = keystoreProperties.getProperty("keyAlias")
-    //          keyPassword = keystoreProperties.getProperty("keyPassword")
-    //          storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
-    //          storePassword = keystoreProperties.getProperty("storePassword")
-    //      }
-    //  }
+    // comment khi develop
+      signingConfigs {
+          create("release") {
+              keyAlias = keystoreProperties.getProperty("keyAlias")
+              keyPassword = keystoreProperties.getProperty("keyPassword")
+              storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+              storePassword = keystoreProperties.getProperty("storePassword")
+          }
+      }
 
+    // debug : develop , release : build abb file
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug") // release
+            signingConfig = signingConfigs.getByName("debug") // release/debug
         }
     }
 }
