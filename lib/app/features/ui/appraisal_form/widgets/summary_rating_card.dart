@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/data/models/entities/task_line_id_entity.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 
 class SummaryRatingCard extends StatefulWidget {
-  const SummaryRatingCard({super.key});
+  List<TaskLineIdEntity> listTasks;
+  SummaryRatingCard({ super.key, required this.listTasks});
 
   @override
   State<SummaryRatingCard> createState() => _SummaryRatingCardState();
@@ -17,6 +20,41 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
 
   String get _monthLabel =>
       DateFormat("'Tháng' MM/yyyy", 'vi').format(_selectedDate);
+
+  // helpers
+  double? parseProgressToDouble(String? raw, {bool treat0to1AsPercent = true}) {
+    if (raw == null) return null;
+
+    final cleaned = raw.trim().replaceAll(',', '.');
+    final match = RegExp(r'[-+]?\d*\.?\d+').firstMatch(cleaned);
+    if (match == null) return null;
+
+    final v = double.tryParse(match.group(0)!);
+    if (v == null) return null;
+
+    if (treat0to1AsPercent && v >= 0 && v <= 1) return v * 100;
+
+    return v;
+  }
+  List<Metric> buildMetricsFromTasks(List<TaskLineIdEntity> tasks) {
+    final metrics = <Metric>[];
+
+    for (final t in tasks) {
+      final label = (t.name ?? '').trim();
+      if (label.isEmpty) continue;
+
+      final p = parseProgressToDouble(t.progress);
+      if (p == null) continue;
+
+      final safe = p.clamp(0, 100).toDouble();
+
+      metrics.add(Metric(label, safe));
+
+      if (metrics.length == 3) break; // tối đa 3 item
+    }
+
+    return metrics;
+  }
 
   void _pickMonth() {
     int tempYear = _selectedDate.year;
@@ -121,19 +159,117 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
     );
   }
 
+  List<Widget> buildLegendDots(List<Metric> data, List<Color> colors) {
+    final count = data.length.clamp(0, 3);
+
+    final dots = <Widget>[];
+    for (var i = 0; i < count; i++) {
+      dots.add(LegendDot(
+        color: colors[i],
+        text: data[i].label,
+      ));
+
+      if (i != count - 1) dots.add(const SizedBox(width: 14));
+    }
+    return dots;
+  }
+
+  double chartHeightByCount(int count) {
+    switch (count.clamp(1, 3)) {
+      case 1:
+        return 120;
+      case 2:
+        return 220;
+      default:
+        return 300;
+    }
+  }
+
+  Widget buildTaskLineWidget(List<Metric> data, List<Color> colors){
+    final count = data.length.clamp(0, 3);
+    final chartHeight = count == 0 ? 0.0 : chartHeightByCount(count);
+
+    return Column(
+      children: [
+        if (count > 0)
+          SizedBox(
+            height: chartHeight,
+            child: SfCartesianChart(
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                axisLine: const AxisLine(width: 0),
+                majorTickLines: const MajorTickLines(size: 0),
+                majorGridLines: const MajorGridLines(width: 0),
+                labelStyle: const TextStyle(fontSize: 13, color: Colors.black87),
+              ),
+              primaryYAxis: NumericAxis(
+                minimum: 0,
+                maximum: 100,
+                interval: 20,
+                opposedPosition: true,
+                axisLine: const AxisLine(width: 0),
+                majorGridLines: const MajorGridLines(
+                  dashArray: [4, 4],
+                  color: Color(0xFFE8E8E8),
+                ),
+                labelStyle: const TextStyle(fontSize: 11, color: Colors.black54),
+              ),
+              series: [
+                BarSeries<Metric, String>(
+                  dataSource: data.take(3).toList(),
+                  xValueMapper: (m, _) => m.label,
+                  yValueMapper: (m, _) => m.value,
+                  pointColorMapper: (_, index) => colors[index],
+                  spacing: 0.3,
+                  dataLabelSettings: const DataLabelSettings(
+                    isVisible: true,
+                    labelAlignment: ChartDataLabelAlignment.outer,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        if (count > 0) const SizedBox(height: 16),
+
+        if (count > 0)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: buildLegendDots(
+              data.take(3).toList(),
+              colors.take(3).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final data = [
-      Metric('Khối lượng', 56),
-      Metric('Tiến độ', 64),
-      Metric('Chất lượng', 76),
+    // lấy tối đa 3 task ở preview theo design
+    // xem full sẽ show hết
+    logger.d("widget.listtask ::: ${widget.listTasks}");
+
+    // final data = [
+    //   Metric('Khối lượng', 56),
+    //   Metric('Tiến độ', 64),
+    //   Metric('Chất lượng', 76),
+    // ];
+    //
+    // final colors = [
+    //   const Color(0xFF8FA2FF),
+    //   const Color(0xFFFFB25C),
+    //   const Color(0xFF39DDF2),
+    // ];
+    const metricColors = [
+      Color(0xFF8FA2FF),
+      Color(0xFFFFB25C),
+      Color(0xFF39DDF2),
     ];
 
-    final colors = [
-      const Color(0xFF8FA2FF),
-      const Color(0xFFFFB25C),
-      const Color(0xFF39DDF2),
-    ];
+    final data = buildMetricsFromTasks(widget.listTasks);
+    final colors = metricColors.take(data.length).toList();
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -196,57 +332,58 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
             ],
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 300,
-            child: SfCartesianChart(
-              plotAreaBorderWidth: 0,
-              primaryXAxis: CategoryAxis(
-                axisLine: const AxisLine(width: 0),
-                majorTickLines: const MajorTickLines(size: 0),
-                majorGridLines: const MajorGridLines(width: 0),
-                labelStyle:
-                    const TextStyle(fontSize: 13, color: Colors.black87),
-              ),
-              primaryYAxis: NumericAxis(
-                minimum: 0,
-                maximum: 100,
-                interval: 20,
-                opposedPosition: true,
-                axisLine: const AxisLine(width: 0),
-                majorGridLines: const MajorGridLines(
-                  dashArray: [4, 4],
-                  color: Color(0xFFE8E8E8),
-                ),
-                labelStyle:
-                    const TextStyle(fontSize: 11, color: Colors.black54),
-              ),
-              series: [
-                BarSeries<Metric, String>(
-                  dataSource: data,
-                  xValueMapper: (m, _) => m.label,
-                  yValueMapper: (m, _) => m.value,
-                  pointColorMapper: (_, index) =>
-                      colors[index % colors.length],
-                  spacing: 0.3,
-                  dataLabelSettings: const DataLabelSettings(
-                    isVisible: true,
-                    labelAlignment: ChartDataLabelAlignment.outer,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              LegendDot(color: Color(0xFF8FA2FF), text: 'Khối lượng CV'),
-              SizedBox(width: 14),
-              LegendDot(color: Color(0xFFFFB25C), text: 'Tiến độ CV'),
-              SizedBox(width: 14),
-              LegendDot(color: Color(0xFF39DDF2), text: 'Chất lượng CV'),
-            ],
-          ),
+          buildTaskLineWidget(data,colors),
+          // SizedBox(
+          //   height: 300,
+          //   child: SfCartesianChart(
+          //     plotAreaBorderWidth: 0,
+          //     primaryXAxis: CategoryAxis(
+          //       axisLine: const AxisLine(width: 0),
+          //       majorTickLines: const MajorTickLines(size: 0),
+          //       majorGridLines: const MajorGridLines(width: 0),
+          //       labelStyle:
+          //           const TextStyle(fontSize: 13, color: Colors.black87),
+          //     ),
+          //     primaryYAxis: NumericAxis(
+          //       minimum: 0,
+          //       maximum: 100,
+          //       interval: 20,
+          //       opposedPosition: true,
+          //       axisLine: const AxisLine(width: 0),
+          //       majorGridLines: const MajorGridLines(
+          //         dashArray: [4, 4],
+          //         color: Color(0xFFE8E8E8),
+          //       ),
+          //       labelStyle:
+          //           const TextStyle(fontSize: 11, color: Colors.black54),
+          //     ),
+          //     series: [
+          //       BarSeries<Metric, String>(
+          //         dataSource: data,
+          //         xValueMapper: (m, _) => m.label,
+          //         yValueMapper: (m, _) => m.value,
+          //         pointColorMapper: (_, index) =>
+          //             colors[index % colors.length],
+          //         spacing: 0.3,
+          //         dataLabelSettings: const DataLabelSettings(
+          //           isVisible: true,
+          //           labelAlignment: ChartDataLabelAlignment.outer,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // const SizedBox(height: 16),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: const [
+          //     LegendDot(color: Color(0xFF8FA2FF), text: 'Khối lượng CV'),
+          //     SizedBox(width: 14),
+          //     LegendDot(color: Color(0xFFFFB25C), text: 'Tiến độ CV'),
+          //     SizedBox(width: 14),
+          //     LegendDot(color: Color(0xFF39DDF2), text: 'Chất lượng CV'),
+          //   ],
+          // ),
           const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,

@@ -87,26 +87,32 @@ class _AppraisalFormPageState extends State<AppraisalFormPage> {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Column(
-        children:[
-          SummaryRatingCard(),
-          SizedBox(height: 12),
-          ProgressListCard(),
-          SizedBox(height: 12),
-          ProjectBarChartCard(),
-          SizedBox(height: 12),
-          RatingLineChartCard(),
-          SizedBox(height: 12),
-          CommentCard(
-            projectTitle: 'PM NODO', 
-            userName: 'Thangtn',
-            userAvatar: AppAssets.img_df_avatar,
-             commentText: 'This is a sample comment.'
-             )
-        ],
-      ),
-    );
+    return BlocBuilder<ApprasialFormCubit,ApprasialFormState>(
+        bloc: _cubit,
+        buildWhen: (prev,cur) => prev.loadDataStatus != cur.loadDataStatus
+            || prev.detailEvaluation != cur.detailEvaluation ,
+        builder: (context,state){
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              children:[
+                SummaryRatingCard(listTasks: state.detailEvaluation?.taskLineIds ?? [],),
+                SizedBox(height: 12),
+                ProgressListCard(),
+                SizedBox(height: 12),
+                ProjectBarChartCard(),
+                SizedBox(height: 12),
+                RatingLineChartCard(),
+                SizedBox(height: 12),
+                CommentCard(
+                    projectTitle: 'PM NODO',
+                    userName: 'Thangtn',
+                    userAvatar: AppAssets.img_df_avatar,
+                    commentText: 'This is a sample comment.'
+                )
+              ],
+            ),
+          );
+        });
   }
 }
