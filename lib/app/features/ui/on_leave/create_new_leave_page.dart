@@ -479,7 +479,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             AppSnackBar.showError(
                                               title: s.warning,
                                               message:
-                                                  s.day_off_warning_greater,
+                                                  s.day_off_warning_smaller,
                                             );
                                           } else {
                                             // _createCubit.onChangeLeaveDays(_createCubit.state.toDateTime!.difference(selectedDate).inDays);
@@ -493,17 +493,25 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                                       .state
                                                       .toDateTime!,
                                                 );
-                                            listDays.clear();
-                                            for (final e in allDays) {
-                                              listDays.add(
-                                                LeaveDayEntity(
-                                                  date: _formatYyyyMmDd(e),
-                                                  type: 'full',
-                                                ),
-                                              );
-                                            }
+
+                                            final newList =
+                                                allDays
+                                                    .map(
+                                                      (e) => LeaveDayEntity(
+                                                        date: _formatYyyyMmDd(
+                                                          e,
+                                                        ),
+                                                        type: 'full',
+                                                      ),
+                                                    )
+                                                    .toList();
+
+                                            listDays = List.from(newList);
+
                                             _createCubit.onChangeListLeaveDays(
-                                              listDays,
+                                              List<LeaveDayEntity>.from(
+                                                newList,
+                                              ),
                                             );
 
                                             // Tổng số ngày
@@ -521,7 +529,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             AppSnackBar.showError(
                                               title: s.warning,
                                               message:
-                                                  s.day_off_warning_smaller,
+                                                  s.day_off_warning_greater,
                                             );
                                           } else {
                                             _createCubit.setFromDate(
@@ -598,31 +606,21 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                                       .fromDateTime!,
                                                   selectedDate,
                                                 );
-                                            listDays.clear();
-                                            for (final e in allDays) {
-                                              listDays.add(
-                                                LeaveDayEntity(
-                                                  date: _formatYyyyMmDd(e),
-                                                  type: 'full',
-                                                ),
-                                              );
-                                            }
+
+                                            final newList = allDays.map(
+                                              (e) => LeaveDayEntity(date: _formatYyyyMmDd(e,),type: 'full',),).toList();
+
+                                            listDays = List.from(newList);
+
                                             _createCubit.onChangeListLeaveDays(
-                                              listDays,
-                                            );
+                                              List<LeaveDayEntity>.from(newList,));
 
                                             // Tổng số ngày
-                                            final total = _sumDaysByType(
-                                              listDays,
-                                            );
-                                            totalDaysController
-                                                .text = _fmtTotal(total);
+                                            final total = _sumDaysByType(listDays,);
+                                            totalDaysController.text = _fmtTotal(total);
                                           }
                                         } else {
-                                          if (selectedDate
-                                                  .difference(DateTime.now())
-                                                  .inDays <
-                                              0) {
+                                          if (selectedDate.difference(DateTime.now()).inDays <0) {
                                             AppSnackBar.showError(
                                               title: s.warning,
                                               message: s.day_off_notToday,
@@ -632,9 +630,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                               selectedDate,
                                             );
                                             listDays.clear();
-                                            _createCubit.onChangeListLeaveDays(
-                                              listDays,
-                                            );
+                                            _createCubit.onChangeListLeaveDays(listDays,);
                                             totalDaysController.text = '0';
                                           }
                                         }
@@ -688,11 +684,8 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                               ),
                                             );
 
-                                            final total = _sumDaysByType(
-                                              listDays,
-                                            );
-                                            totalDaysController
-                                                .text = _fmtTotal(total);
+                                            final total = _sumDaysByType(listDays,);
+                                            totalDaysController.text = _fmtTotal(total);
                                           }
                                         },
                                       );
@@ -733,8 +726,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                               ..text =
                                   GlobalData.instance.userProfile?.remainLeave
                                       .toString()
-                                      .replaceAll(".0", "") ??
-                                  "",
+                                      .replaceAll(".0", "") ?? "",
                         readOnly: true,
                       ).paddingOnly(bottom: 20),
 

@@ -80,7 +80,7 @@ class OvertimeDetailCubit extends Cubit<OvertimeDetailState> {
       emit(state.copyWith(cancelStatus: LoadStatus.SUCCESS));
       logger.i("Success calling api blyat");
     } catch (e, s) {
-      logger.e("ERR: ${e}, ${s}");
+      logger.e("ERR: $e, $s");
       emit(state.copyWith(cancelStatus: LoadStatus.FAILURE));
     }
   }

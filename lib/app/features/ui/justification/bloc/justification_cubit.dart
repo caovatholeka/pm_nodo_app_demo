@@ -70,4 +70,23 @@ class JustificationCubit extends Cubit<JustificationState> {
   void resetApproveStatus() {
     emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
   }
+
+  void resetSubmitStatus() {
+    emit(state.copyWith(submitStatus: LoadStatus.INITIAL));
+  }
+
+  void resetDeleteStatus() {
+    emit(state.copyWith(deleteStatus: LoadStatus.INITIAL));
+  }
+
+  void onConfirmJustification(int id) async {
+    emit(state.copyWith(submitStatus: LoadStatus.LOADING));
+    try{
+      await _repo.submitJustification(id);
+      emit(state.copyWith(submitStatus: LoadStatus.SUCCESS));
+    }catch(s,e) {
+      logger.e("Err: $e, Where $s");
+      emit(state.copyWith(submitStatus: LoadStatus.FAILURE));
+    }
+  }
 }

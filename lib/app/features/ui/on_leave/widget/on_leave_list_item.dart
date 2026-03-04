@@ -10,7 +10,7 @@ class OnLeaveListItem extends StatelessWidget {
   final OnLeaveEntity entity;
   final bool isChecked;
   final bool showCheckbox;
-  final bool isDirector; // 👈 quyền truyền từ Page
+  final bool isDirector; 
 
   final ValueChanged<bool?>? onCheckedChanged;
   final VoidCallback? onShowDetail;
