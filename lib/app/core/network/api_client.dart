@@ -339,7 +339,12 @@ abstract class ApiClient {
 
   // danh gia cong viec
   @GET("/evaluation/evaluation_list")
-  Future<CommonResponse> getListEvaluation();
+  Future<CommonResponse> getListEvaluation(
+  @Query("date_from") String? dateFrom,
+  @Query("date_to") String? dateTo,
+  @Query("limit") int? limit,
+  @Query("page") int? page,
+  );
 
   @GET("/evaluation/evaluation_detail/{id}")
   Future<EvaluationEntity> getDetailEvaluation(@Path("id") int id);

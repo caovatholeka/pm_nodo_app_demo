@@ -14,10 +14,10 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
 
   ApprasialFormCubit({required this.repository}) : super(ApprasialFormState());
 
-  getListEvaluation() async {
+  getListEvaluation({String? dateForm, String? dateTo, int limit = 10, int page = 1}) async {
     emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
     try{
-      final res = await repository.getListEvaluation();
+      final res = await repository.getListEvaluation(dateForm, dateTo , limit, page);
       List<EvaluationEntity>? listEvaluations;
       if (res.data != null) {
         listEvaluations = mapList<EvaluationEntity>(

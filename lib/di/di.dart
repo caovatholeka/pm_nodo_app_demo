@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-import 'package:pm_app/app/data/models/entities/appraisal_entity.dart';
-import 'package:pm_app/app/data/repositories/appraisal_repository.dart';
 import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
@@ -15,7 +13,6 @@ import 'package:pm_app/app/data/repositories/upload_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/app/data/repositories/work_trip_repository.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/bloc/appraisal_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
@@ -189,13 +186,8 @@ Future<void> init() async {
   sl.registerLazySingleton<OvertimeRepository>(
     () => OvertimeRepositoryImpl(),
   );
-  sl.registerLazySingleton<AppraisalRepository>(() => AppraisalRepositoryImpl());
-  sl.registerLazySingleton<AppraisalCubit>(
-  () => AppraisalCubit(repo: sl()),
-);
-
   sl.registerLazySingleton<ApprasialFormCubit>(() => ApprasialFormCubit(repository: sl()));
   sl.registerLazySingleton<EvaluationRepository>(
         () => EvaluationRepositoryImpl(),
-  );
+  ); 
 }

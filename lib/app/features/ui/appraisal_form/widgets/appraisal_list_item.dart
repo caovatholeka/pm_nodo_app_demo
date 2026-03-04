@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/data/models/entities/appraisal_entity.dart';
+import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 
 class StatusUI {
   final String text;
@@ -16,7 +16,7 @@ class StatusUI {
 }
 
 class AppraisalListItem extends StatelessWidget {
-  final AppraisalEntity entity;
+  final EvaluationEntity entity;
   final VoidCallback? onTap;
 
   const AppraisalListItem({super.key, required this.entity, this.onTap});
@@ -81,82 +81,94 @@ class AppraisalListItem extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(width: 6, color: statusUI.color),
-            Expanded(
-              child: InkWell(
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              entity.name ?? '',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: statusUI.bgColor,
-                              borderRadius: BorderRadius.circular(99),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: statusUI.color,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  statusUI.text,
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    color: statusUI.color,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        dateText,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildItem("Phòng ban:", entity.departmentName ?? ''),
-                      const SizedBox(height: 12),
-                      _buildItem("Nhân viên:", entity.employeeName ?? ''),
-                    ],
+        child: IntrinsicHeight( // <-- đảm bảo thanh màu kéo đầy chiều cao
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Thanh màu bên trái: thêm borderRadius 2 góc trái để không bị che bởi parent
+              Container(
+                width: 6,
+                decoration: BoxDecoration(
+                  color: statusUI.color,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
                   ),
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: InkWell(
+                  onTap: onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                entity.name ?? '',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: statusUI.bgColor,
+                                borderRadius: BorderRadius.circular(99),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: statusUI.color,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    statusUI.text,
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      color: statusUI.color,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          dateText,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildItem("Phòng ban:", entity.departmentName ?? ''),
+                        const SizedBox(height: 12),
+                        _buildItem("Nhân viên:", entity.employeeName ?? ''),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/bloc/appraisal_cubit.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_list_item.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
@@ -23,7 +23,7 @@ class AppraisalPage extends StatefulWidget {
 }
 
 class _AppraisalPageState extends State<AppraisalPage> {
-  final _cubit = GetIt.I.get<AppraisalCubit>();
+  final _cubit = GetIt.I.get<ApprasialFormCubit>();
   final ScrollController controller = ScrollController();
   final TextEditingController filterController = TextEditingController();
   final _df = DateFormat('dd/MM/yyyy');
@@ -32,11 +32,11 @@ class _AppraisalPageState extends State<AppraisalPage> {
   @override
   void initState() {
     super.initState();
-    _cubit.getListAppraisals();
+    _cubit.getListEvaluation();
   }
 
   Future<void> _onRefresh() async {
-    _cubit.getListAppraisals();
+    _cubit.getListEvaluation();
   }
 
   Future<void> _openCalendar() async {
@@ -60,7 +60,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
     if (res == null) {
       selectedRange = null;
       filterController.clear();
-      _cubit.getListAppraisals();
+      _cubit.getListEvaluation();
       return;
     }
 
@@ -68,7 +68,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
     filterController.text =
         "${_df.format(res.start)} - ${_df.format(res.end)}";
 
-    _cubit.getListAppraisals();
+    _cubit.getListEvaluation();
   }
 
   void _goNotification() {
@@ -87,7 +87,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
   Widget build(BuildContext context) {
     final s = S.of(context);
 
-    return BlocListener<AppraisalCubit, AppraisalState>(
+    return BlocListener<ApprasialFormCubit, ApprasialFormState>(
       bloc: _cubit,
       listener: (context, state) {},
       child: Scaffold(
@@ -98,7 +98,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
             buildWhen: (p, c) => p.totalUnread != c.totalUnread,
             builder: (context, appState) {
               return MyAppBar(
-                titleAppbar: s.day_off_title,
+                titleAppbar: "Danh sách đánh giá CV",
                 haveBackButton: widget.isFromHome ?? false,
                 haveActionButton: true,
                 iconPathAsset: AppAssets.icNotificationBell,
@@ -150,13 +150,13 @@ class _AppraisalPageState extends State<AppraisalPage> {
               ),
             ),
             Expanded(
-              child: BlocBuilder<AppraisalCubit, AppraisalState>(
+              child: BlocBuilder<ApprasialFormCubit, ApprasialFormState>(
                 bloc: _cubit,
                 buildWhen: (p, c) =>
-                    p.loadStatus != c.loadStatus ||
-                    p.listAppraisalEntities != c.listAppraisalEntities,
+                    p.loadDataStatus != c.loadDataStatus ||
+                    p.listEvaluations != c.listEvaluations,
                 builder: (context, state) {
-                  if (state.loadStatus == LoadStatus.LOADING) {
+                  if (state.loadDataStatus == LoadStatus.LOADING) {
                     return const Center(
                       child: CircularProgressIndicator(
                         color: AppColors.mainPrimaryColor6,
@@ -164,8 +164,8 @@ class _AppraisalPageState extends State<AppraisalPage> {
                     );
                   }
 
-                  if (state.listAppraisalEntities == null ||
-                      state.listAppraisalEntities!.isEmpty) {
+                  if (state.listEvaluations == null ||
+                      state.listEvaluations!.isEmpty) {
                     return Center(
                       child: Text(S.of(context).bt_empty),
                     );
@@ -176,9 +176,9 @@ class _AppraisalPageState extends State<AppraisalPage> {
                     child: ListView.builder(
                       controller: controller,
                       padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
-                      itemCount: state.listAppraisalEntities!.length,
+                      itemCount: state.listEvaluations!.length,
                       itemBuilder: (_, i) {
-                        final e = state.listAppraisalEntities![i];
+                        final e = state.listEvaluations![i];
                         return AppraisalListItem(entity: e);
                       },
                     ),
