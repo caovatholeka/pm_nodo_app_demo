@@ -5,22 +5,30 @@ class ApprasialFormState extends Equatable {
 
   List<EvaluationEntity>? listEvaluations; // danh sách đánh giá
   EvaluationEntity? detailEvaluation; // chi tiết đánh giá
+  String? startDateFilter;
+  String? endDateFilter;
 
   ApprasialFormState({
     this.loadDataStatus = LoadStatus.INITIAL,
     this.listEvaluations,
-    this.detailEvaluation
+    this.detailEvaluation,
+    this.endDateFilter,
+    this.startDateFilter,
   });
 
   ApprasialFormState copyWith({
     LoadStatus? loadDataStatus,
     List<EvaluationEntity>? listEvaluations,
-    EvaluationEntity? detailEvaluation
+    EvaluationEntity? detailEvaluation,
+    String? startDateFilter,
+    String? endDateFilter,
   }) {
     return ApprasialFormState(
       loadDataStatus: loadDataStatus ?? this.loadDataStatus,
       listEvaluations: listEvaluations ?? this.listEvaluations,
-      detailEvaluation: detailEvaluation ?? this.detailEvaluation
+      detailEvaluation: detailEvaluation ?? this.detailEvaluation,
+      startDateFilter: startDateFilter ?? this.startDateFilter,
+      endDateFilter: startDateFilter ?? this.endDateFilter,
     );
   }
 
@@ -29,6 +37,8 @@ class ApprasialFormState extends Equatable {
     loadDataStatus,
     listEvaluations,
     detailEvaluation,
+    startDateFilter, 
+    endDateFilter,
   ];
 
 }

@@ -67,4 +67,23 @@ class OvertimeCubit extends Cubit<OvertimeState> {
   void resetApproveStatus() {
     emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
   }
+
+  Future<void> submitApproval(int id) async {
+    emit(state.copyWith(submitStatus: LoadStatus.LOADING));
+
+    try {
+      await _repo.submitOTP(id);
+
+      emit(state.copyWith(submitStatus: LoadStatus.SUCCESS));
+
+      await loadOTList();
+    } catch (e, s) {
+      logger.e("Submit OT error: $e");
+      logger.d("Where: $s");
+
+      emit(
+        state.copyWith(submitStatus: LoadStatus.FAILURE, error: e.toString()),
+      );
+    }
+  }
 }

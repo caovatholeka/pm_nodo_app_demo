@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
@@ -14,32 +15,58 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
 
   ApprasialFormCubit({required this.repository}) : super(ApprasialFormState());
 
-  getListEvaluation({String? dateForm, String? dateTo, int limit = 10, int page = 1}) async {
-    emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
-    try{
-      final res = await repository.getListEvaluation(dateForm, dateTo , limit, page);
-      List<EvaluationEntity>? listEvaluations;
-      if (res.data != null) {
-        listEvaluations = mapList<EvaluationEntity>(
-          res.data,
-          EvaluationEntity.fromJson,
-        );
-      }
+  getListEvaluation({String? dateFrom, String? dateTo, int limit = 10, int page = 1}) async {
+  emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
 
-      emit(
-        state.copyWith(
-          loadDataStatus: LoadStatus.SUCCESS,
-          listEvaluations: listEvaluations ?? [],
-        ),
-      );
+  try {
+    String? apiStart;
+    String? apiEnd;
 
-    }catch(e,s){
-      logger.d(e);
-      logger.d(s);
-      emit(
-        state.copyWith(loadDataStatus: LoadStatus.FAILURE, listEvaluations: []),
+    if (dateFrom != null && dateFrom.isNotEmpty) {
+      final d = DateFormat('dd/MM/yyyy').parse(dateFrom);
+      apiStart = DateFormat('yyyy-MM-dd').format(d);
+    }
+
+    if (dateTo != null && dateTo.isNotEmpty) {
+      final d = DateFormat('dd/MM/yyyy').parse(dateTo);
+      apiEnd = DateFormat('yyyy-MM-dd').format(d);
+    }
+
+    final res = await repository.getListEvaluation(
+      apiStart,
+      apiEnd,
+      limit,
+      page,
+    );
+
+    List<EvaluationEntity>? listEvaluations;
+
+    if (res.data != null) {
+      listEvaluations = mapList<EvaluationEntity>(
+        res.data,
+        EvaluationEntity.fromJson,
       );
     }
+
+    emit(
+      state.copyWith(
+        loadDataStatus: LoadStatus.SUCCESS,
+        listEvaluations: listEvaluations ?? [],
+      ),
+    );
+
+  } catch (e, s) {
+
+    logger.d(e);
+    logger.d(s);
+
+    emit(
+      state.copyWith(
+        loadDataStatus: LoadStatus.FAILURE,
+        listEvaluations: [],
+      ),
+    );
+  }
   }
 
   getEvaluationDetails(int id) async{
@@ -58,5 +85,14 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
       emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE, detailEvaluation: null));
     }
   }
+
+  void onChangeDateFilter(String start, String end) {
+  emit(
+    state.copyWith(
+      startDateFilter: start,
+      endDateFilter: end,
+    ),
+  );
+}
 
 }

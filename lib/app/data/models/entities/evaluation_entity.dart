@@ -90,7 +90,7 @@ class EvaluationEntity {
   }) {
     return EvaluationEntity(
         id: id ?? this.id,
-        name: name ?? this.note,
+        name: name ?? this.name,
         employeeId: employeeId ?? this.employeeId,
         employeeName: employeeName ?? this.employeeName,
         employeeCode: employeeCode ?? this.employeeCode,

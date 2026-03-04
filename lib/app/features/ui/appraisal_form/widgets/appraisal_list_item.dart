@@ -17,7 +17,7 @@ class StatusUI {
 
 class AppraisalListItem extends StatelessWidget {
   final EvaluationEntity entity;
-  final VoidCallback? onTap;
+  final ValueChanged<EvaluationEntity>? onTap;
 
   const AppraisalListItem({super.key, required this.entity, this.onTap});
 
@@ -81,7 +81,8 @@ class AppraisalListItem extends StatelessWidget {
             ),
           ],
         ),
-        child: IntrinsicHeight( // <-- đảm bảo thanh màu kéo đầy chiều cao
+        child: IntrinsicHeight(
+          // <-- đảm bảo thanh màu kéo đầy chiều cao
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -98,7 +99,11 @@ class AppraisalListItem extends StatelessWidget {
               ),
               Expanded(
                 child: InkWell(
-                  onTap: onTap,
+                  onTap: () {
+                    if (onTap != null) {
+                      onTap!(entity);
+                    }
+                  },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,

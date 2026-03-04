@@ -263,7 +263,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
           Flushbar(
             message: s.on_leave_success,
             backgroundColor: Colors.green,
-            flushbarPosition: FlushbarPosition.TOP,
+            flushbarPosition: FlushbarPosition.TOP, 
             duration: const Duration(seconds: 2),
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),

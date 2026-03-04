@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
@@ -113,7 +114,9 @@ class _WorkTripPageState extends State<WorkTripPage> {
       builder:
           (_) => CustomDialog(
             title: s.bt_confirm_approve,
-            content: s.bt_confirm_sub_confirm_approve("{count}").replaceFirst('{count}', ids.length.toString()),
+            content: s
+                .bt_confirm_sub_confirm_approve("{count}")
+                .replaceFirst('{count}', ids.length.toString()),
             success: true,
             confirmText: s.authorize,
             cancelText: s.cancel,
@@ -148,10 +151,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
         if (state.deleteStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
 
-          AppSnackBar.showInfo(
-            title: s.success,
-            message: s.bt_delete_success,
-          );
+          AppSnackBar.showInfo(title: s.success, message: s.bt_delete_success);
 
           _selectedIds.clear();
           _cubit.onResetStatus();
@@ -193,10 +193,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
         if (state.cancelStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
 
-          AppSnackBar.showInfo(
-            title: s.success,
-            message: s.bt_confirm_deny,
-          );
+          AppSnackBar.showInfo(title: s.success, message: s.bt_confirm_deny);
 
           _selectedIds.clear();
           _cubit.onResetStatus();
@@ -458,32 +455,99 @@ class _WorkTripPageState extends State<WorkTripPage> {
             itemCount: list.length,
             itemBuilder: (context, index) {
               final entity = list[index];
+              final stageName = entity.stage?.name ?? '';
+
+              final isFinished = stageName == 'Hoàn thành';
+              final isCanceled = stageName == 'Hủy';
+
+              final canSwipe =
+                  !isFinished && !isCanceled && _selectedIds.isEmpty;
+
+              final card = WorkTripListItem(
+                entity: entity,
+                canApprove: _isDirector,
+                isChecked: _selectedIds.contains(entity.id),
+                onCheckedChange:
+                    _isDirector
+                        ? (v) {
+                          setState(() {
+                            if (v == true) {
+                              _selectedIds.add(entity.id!);
+                            } else {
+                              _selectedIds.remove(entity.id);
+                            }
+                          });
+                        }
+                        : null,
+                onShowDetail: () => _openDetail(entity),
+              );
+
+              if (!canSwipe) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: card,
+                );
+              }
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: WorkTripListItem(
-                  entity: entity,
-                  canApprove: _isDirector,
-                  isChecked: _selectedIds.contains(entity.id),
-                  onCheckedChange:
-                      _isDirector
-                          ? (v) {
-                            setState(() {
-                              if (v == true) {
-                                _selectedIds.add(entity.id!);
-                                logger.d("Checked ID: ${entity.id}");
-                              } else {
-                                _selectedIds.remove(entity.id);
-                                logger.d("Unchecked ID: ${entity.id}");
-                              }
-
-                              logger.d(
-                                "Current selected IDs: ${_selectedIds.toList()}",
-                              );
-                            });
-                          }
-                          : null,
-
-                  onShowDetail: () => _openDetail(entity),
+                child: Slidable(
+                  key: ValueKey(entity.id),
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    extentRatio: 0.45,
+                    children: [
+                      SlidableAction(
+                        onPressed: (_) {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => CustomDialog(
+                                  title: "Xác nhận",
+                                  content:
+                                      "Bạn có muốn gửi duyệt chuyến công tác này không?",
+                                  cancelText: "Không",
+                                  confirmText: "Ok",
+                                  onCancel: () => Navigator.pop(context),
+                                  onConfirm: () {
+                                    Navigator.pop(context);
+                                    _cubit.onSubmitWorkTrip(entity.id!);
+                                  },
+                                ),
+                          );
+                        },
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        icon: Icons.send,
+                        label: "Gửi duyệt",
+                      ),
+                      SlidableAction(
+                        onPressed: (_) {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (_) => CustomDialog(
+                                  title: "Xác nhận",
+                                  content:
+                                      "Bạn có chắc muốn xóa chuyến công tác này?",
+                                  cancelText: "Không",
+                                  confirmText: "Ok",
+                                  onCancel: () => Navigator.pop(context),
+                                  onConfirm: () {
+                                    Navigator.pop(context);
+                                    _cubit.onDeleteWorkTrip(entity.id!);
+                                  },
+                                ),
+                          );
+                        },
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                        label: "Xóa",
+                      ),
+                    ],
+                  ),
+                  child: card,
                 ),
               );
             },

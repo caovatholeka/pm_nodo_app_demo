@@ -1,5 +1,7 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
@@ -115,7 +117,9 @@ class _OvertimePageState extends State<OvertimePage> {
       builder:
           (_) => CustomDialog(
             title: s.confirm_authorize,
-            content: s.sub_confirm_authorize("{count}").replaceFirst("{count}", ids.length.toString()),
+            content: s
+                .sub_confirm_authorize("{count}")
+                .replaceFirst("{count}", ids.length.toString()),
             confirmText: s.authorize,
             cancelText: s.cancel,
             success: true,
@@ -178,6 +182,37 @@ class _OvertimePageState extends State<OvertimePage> {
             }
 
             setState(() {});
+          }
+
+          if (state.submitStatus == LoadStatus.LOADING) {
+            LoadingOverlay.show(context);
+          }
+          if (state.submitStatus == LoadStatus.SUCCESS) {
+            LoadingOverlay.hide(context);
+
+            Flushbar(
+              message: "Gửi duyệt thành công",
+              backgroundColor: Colors.green,
+              flushbarPosition: FlushbarPosition.TOP,
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(8),
+              borderRadius: BorderRadius.circular(8),
+            ).show(context);
+
+            _refreshList();
+          }
+
+          if (state.submitStatus == LoadStatus.FAILURE) {
+            LoadingOverlay.hide(context);
+
+            Flushbar(
+              message: state.error ?? "Gửi duyệt thất bại",
+              backgroundColor: Colors.red,
+              flushbarPosition: FlushbarPosition.TOP,
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(8),
+              borderRadius: BorderRadius.circular(8),
+            ).show(context);
           }
 
           if (state.approveStatus == LoadStatus.FAILURE) {
@@ -361,9 +396,7 @@ class _OvertimePageState extends State<OvertimePage> {
                     }
 
                     if (state.loadStatus == LoadStatus.FAILURE) {
-                      return Center(
-                        child: Text(state.error ?? s.to_do_failed),
-                      );
+                      return Center(child: Text(state.error ?? s.to_do_failed));
                     }
 
                     if (state.list.isEmpty) {
@@ -375,8 +408,15 @@ class _OvertimePageState extends State<OvertimePage> {
                       itemCount: state.list.length,
                       itemBuilder: (context, index) {
                         final item = state.list[index];
+                        final stageName = item.stage?.name ?? '';
 
-                        return OvertimeListItem(
+                        final isFinished = stageName == 'Hoàn thành';
+                        final isCanceled = stageName == 'Hủy';
+
+                        final canSwipe =
+                            !isFinished && !isCanceled && _selectedIds.isEmpty;
+
+                        final card = OvertimeListItem(
                           entity: item,
                           isChecked: _selectedIds.contains(item.id),
                           canApprove: _isDirector,
@@ -403,6 +443,46 @@ class _OvertimePageState extends State<OvertimePage> {
                             );
                             _refreshList();
                           },
+                        );
+
+                        if (!canSwipe) {
+                          return card;
+                        }
+
+                        return Slidable(
+                          key: ValueKey(item.id),
+                          endActionPane: ActionPane(
+                            motion: const ScrollMotion(),
+                            extentRatio: 0.45,
+                            children: [
+                              SlidableAction(
+                                onPressed: (_) {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (_) => CustomDialog(
+                                          title: "Xác nhận",
+                                          content:
+                                              "Bạn có muốn gửi duyệt đơn OT này không?",
+                                          cancelText: "Không",
+                                          confirmText: "Ok",
+                                          onCancel:
+                                              () => Navigator.pop(context),
+                                          onConfirm: () {
+                                            Navigator.pop(context);
+                                            _cubit.submitApproval(item.id!);
+                                          },
+                                        ),
+                                  );
+                                },
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                icon: Icons.send,
+                                label: "Gửi duyệt",
+                              ),
+                            ],
+                          ),
+                          child: card,
                         );
                       },
                     );

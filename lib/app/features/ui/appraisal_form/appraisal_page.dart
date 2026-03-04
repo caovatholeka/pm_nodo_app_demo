@@ -4,7 +4,9 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/appraisal_form_page.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_list_item.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -36,7 +38,12 @@ class _AppraisalPageState extends State<AppraisalPage> {
   }
 
   Future<void> _onRefresh() async {
-    _cubit.getListEvaluation();
+    final state = _cubit.state;
+
+    _cubit.getListEvaluation(
+      dateFrom: state.startDateFilter,
+      dateTo: state.endDateFilter,
+    );
   }
 
   Future<void> _openCalendar() async {
@@ -51,34 +58,44 @@ class _AppraisalPageState extends State<AppraisalPage> {
       isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: Colors.white,
-      builder: (_) => CalendarRangeSheet(
-        initial: selectedRange ?? defaultRange,
-        locale: Localizations.localeOf(context).toLanguageTag(),
-      ),
+      builder:
+          (_) => CalendarRangeSheet(
+            initial: selectedRange ?? defaultRange,
+            locale: Localizations.localeOf(context).toLanguageTag(),
+          ),
     );
 
     if (res == null) {
       selectedRange = null;
       filterController.clear();
-      _cubit.getListEvaluation();
+
+      _cubit.onChangeDateFilter("", "");
+
+      _cubit.getListEvaluation(dateFrom: "", dateTo: "");
+
       return;
     }
-
     selectedRange = res;
-    filterController.text =
-        "${_df.format(res.start)} - ${_df.format(res.end)}";
 
-    _cubit.getListEvaluation();
+    final start = _df.format(res.start);
+    final end = _df.format(res.end);
+
+    filterController.text = "$start - $end";
+
+    _cubit.onChangeDateFilter(start, end);
+
+    _cubit.getListEvaluation(dateFrom: start, dateTo: end);
   }
 
   void _goNotification() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
-          child: const NotificationPage(),
-        ),
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
       ),
     );
   }
@@ -99,7 +116,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
             builder: (context, appState) {
               return MyAppBar(
                 titleAppbar: "Danh sách đánh giá CV",
-                haveBackButton: widget.isFromHome ?? false,
+                haveBackButton: true,
                 haveActionButton: true,
                 iconPathAsset: AppAssets.icNotificationBell,
                 badgeCount: appState.totalUnread,
@@ -152,9 +169,10 @@ class _AppraisalPageState extends State<AppraisalPage> {
             Expanded(
               child: BlocBuilder<ApprasialFormCubit, ApprasialFormState>(
                 bloc: _cubit,
-                buildWhen: (p, c) =>
-                    p.loadDataStatus != c.loadDataStatus ||
-                    p.listEvaluations != c.listEvaluations,
+                buildWhen:
+                    (p, c) =>
+                        p.loadDataStatus != c.loadDataStatus ||
+                        p.listEvaluations != c.listEvaluations,
                 builder: (context, state) {
                   if (state.loadDataStatus == LoadStatus.LOADING) {
                     return const Center(
@@ -166,9 +184,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
 
                   if (state.listEvaluations == null ||
                       state.listEvaluations!.isEmpty) {
-                    return Center(
-                      child: Text(S.of(context).bt_empty),
-                    );
+                    return Center(child: Text(S.of(context).bt_empty));
                   }
 
                   return RefreshIndicator(
@@ -179,7 +195,20 @@ class _AppraisalPageState extends State<AppraisalPage> {
                       itemCount: state.listEvaluations!.length,
                       itemBuilder: (_, i) {
                         final e = state.listEvaluations![i];
-                        return AppraisalListItem(entity: e);
+                        return AppraisalListItem(
+                          entity: e,
+                          onTap: (entity) {
+                            if (entity.id == null) return;
+                            
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => AppraisalFormPage(id: entity.id!),
+                              ),
+                            );
+                          },
+                        );
                       },
                     ),
                   );
