@@ -348,5 +348,14 @@ abstract class ApiClient {
 
   @GET("/evaluation/evaluation_detail/{id}")
   Future<EvaluationEntity> getDetailEvaluation(@Path("id") int id);
+
+  @POST("/evaluation/evaluation_create")
+  Future<CommonResponse> createEvaluation(@Body() EvaluationEntity body);
+  
+  @PUT("/evaluation/evaluation_update/{id}")
+  Future<dynamic> updateEvaluation(
+    @Path("id") int id,
+    @Body() EvaluationEntity body,
+  );
   
 }

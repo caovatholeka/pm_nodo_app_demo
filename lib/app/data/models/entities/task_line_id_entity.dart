@@ -16,25 +16,25 @@ class TaskLineIdEntity {
   int? rate;
 
   @JsonKey()
-  String? volume;
+  dynamic volume;
 
   @JsonKey()
-  String? quality;
+  dynamic quality;
 
   @JsonKey()
-  String? progress;
+  dynamic progress;
 
   @JsonKey()
   String? note;
 
   @JsonKey(name: "parent_volume")
-  bool? parentVolume;
+  dynamic parentVolume;
 
   @JsonKey(name: "parent_quality")
-  bool? parentQuality;
+  dynamic parentQuality;
 
   @JsonKey(name: "parent_progress")
-  bool? parentProgress;
+  dynamic parentProgress;
 
   @JsonKey(name: "parent_note")
   String? parentNote;
@@ -60,18 +60,18 @@ class TaskLineIdEntity {
     String? name,
     String? jiraKey,
     int? rate,
-    String? volume,
-    String? quality,
-    String? progress,
+    dynamic volume,
+    dynamic quality,
+    dynamic progress,
     String? note,
-    bool? parentVolume,
-    bool? parentQuality,
-    bool? parentProgress,
+    dynamic parentVolume,
+    dynamic parentQuality,
+    dynamic parentProgress,
     String? parentNote
   }) {
     return TaskLineIdEntity(
         id: id ?? this.id,
-        name: name ?? this.note,
+        name: name ?? this.name,
         jiraKey: jiraKey ?? this.jiraKey,
         rate: rate ?? this.rate,
         volume: volume ?? this.volume,

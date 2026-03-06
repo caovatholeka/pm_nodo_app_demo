@@ -31,7 +31,8 @@ class SuggestIdEntity {
     return SuggestIdEntity(
       id: id ?? this.id,
       code: code ?? this.code,
-      name: name ?? this.note,
+      name: name ?? this.name,
+      note: note ?? this.note,
     );
   }
 

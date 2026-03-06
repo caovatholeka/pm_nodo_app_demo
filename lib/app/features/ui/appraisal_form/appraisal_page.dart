@@ -4,9 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/appraisal_form_page.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_form.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_list_item.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -154,14 +153,25 @@ class _AppraisalPageState extends State<AppraisalPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.mainPrimaryColor6,
-                      borderRadius: BorderRadius.circular(10),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CreateAppraisalForm(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.mainPrimaryColor6,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.add, color: Colors.white),
                     ),
-                    child: const Icon(Icons.add, color: Colors.white),
                   ),
                 ],
               ),
@@ -199,12 +209,15 @@ class _AppraisalPageState extends State<AppraisalPage> {
                           entity: e,
                           onTap: (entity) {
                             if (entity.id == null) return;
-                            
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder:
-                                    (_) => AppraisalFormPage(id: entity.id!),
+                                    (_) => CreateAppraisalForm(
+                                      isDetail: true,
+                                      evaluationId: entity.id,
+                                    ),
                               ),
                             );
                           },

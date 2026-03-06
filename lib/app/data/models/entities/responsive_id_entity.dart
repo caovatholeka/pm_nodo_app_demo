@@ -16,10 +16,10 @@ class ResponsiveIdEntity {
   String? note;
 
   @JsonKey(name: "rate_point")
-  bool? ratePoint;
+  dynamic ratePoint;
 
   @JsonKey(name: "parent_rate_point")
-  bool? parentRatePoint;
+  dynamic parentRatePoint;
 
   @JsonKey(name: "parent_note")
   String? parentNote;
@@ -39,14 +39,15 @@ class ResponsiveIdEntity {
     String? code,
     String? name,
     String? note,
-    bool? ratePoint,
-    bool? parentRatePoint,
+    dynamic ratePoint,
+    dynamic parentRatePoint,
     String? parentNote
   }) {
     return ResponsiveIdEntity(
         id: id ?? this.id,
         code: code ?? this.code,
-        name: name ?? this.note,
+        name: name ?? this.name,
+        note: note ?? this.note,
         ratePoint: ratePoint ?? this.ratePoint,
         parentRatePoint: parentRatePoint ?? this.parentRatePoint,
         parentNote: parentNote ?? this.parentNote

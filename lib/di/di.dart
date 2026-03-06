@@ -14,6 +14,7 @@ import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/app/data/repositories/work_trip_repository.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -190,4 +191,6 @@ Future<void> init() async {
   sl.registerLazySingleton<EvaluationRepository>(
         () => EvaluationRepositoryImpl(),
   ); 
+
+  sl.registerLazySingleton<CreateAppraisalCubit>(() => CreateAppraisalCubit(repository: sl()));
 }

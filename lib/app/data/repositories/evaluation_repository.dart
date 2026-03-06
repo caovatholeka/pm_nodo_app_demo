@@ -6,6 +6,8 @@ import '../models/response/common_response.dart';
 abstract class EvaluationRepository {
   Future<CommonResponse> getListEvaluation(String? dateForm, String? dateTo, int limit, int page);
   Future<EvaluationEntity> getDetailEvaluation(int id);
+  Future<CommonResponse> createEvaluation(EvaluationEntity body);
+  Future<dynamic> updateEvaluation(int id, EvaluationEntity body);
 }
 
 class EvaluationRepositoryImpl extends EvaluationRepository {
@@ -19,5 +21,15 @@ class EvaluationRepositoryImpl extends EvaluationRepository {
   @override
   Future<EvaluationEntity> getDetailEvaluation(int id) async{
     return await _apiClient.getDetailEvaluation(id);
+  }
+
+  @override
+  Future<CommonResponse> createEvaluation(EvaluationEntity body) async{
+    return await _apiClient.createEvaluation(body);
+  }
+
+  @override
+  Future<dynamic> updateEvaluation(int id, EvaluationEntity body) async {
+    return await _apiClient.updateEvaluation(id, body);
   }
 }

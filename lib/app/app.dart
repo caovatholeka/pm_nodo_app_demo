@@ -16,6 +16,7 @@ import 'package:pm_app/app/data/repositories/on_leave_repository.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -151,6 +152,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<ExplanationListCubit>()),
       BlocProvider(create: (context) => sl<FaceScanCubit>()),
       BlocProvider(create: (context) => sl<TaskCubit>()),
+      BlocProvider(create: (context) => sl<CreateAppraisalCubit>()),
     ];
   }
 

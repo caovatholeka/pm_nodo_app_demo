@@ -4,6 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/apprasisal_progress_page.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
@@ -14,7 +18,16 @@ import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 
 class CreateAppraisalForm extends StatefulWidget {
-  const CreateAppraisalForm({super.key});
+  final bool isDetail;
+  final bool isCreate;
+  final int? evaluationId;
+
+  const CreateAppraisalForm({
+    super.key,
+    this.isDetail = false,
+    this.isCreate = false,
+    this.evaluationId,
+  });
 
   @override
   State<CreateAppraisalForm> createState() => _CreateAppraisalFormState();
@@ -26,27 +39,52 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
   final _createdDateCtrl = TextEditingController(
     text: DateFormat('dd/MM/yyyy').format(DateTime.now()),
   );
+
+  final _employeeCodeCtrl = TextEditingController();
+  final _employeeNameCtrl = TextEditingController();
+
   final _fromDateCtrl = TextEditingController();
   final _toDateCtrl = TextEditingController();
+
   final _noteCtrl = TextEditingController();
-  final Map<int, TextEditingController> _hourCtrls = {};
+  final _managerNameCtrl = TextEditingController();
+  final profile = GlobalData.instance.userProfile;
+  final _deprtmentCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _cubit = CreateAppraisalCubit();
+
+    _cubit = CreateAppraisalCubit(repository: GetIt.I<EvaluationRepository>());
+
+    if (widget.isDetail) {
+      _cubit.initDetail();
+
+      if (widget.evaluationId != null) {
+        _cubit.getEvaluationDetails(widget.evaluationId!);
+      }
+    } else {
+      _cubit.initCreate();
+
+      final profile = GlobalData.instance.userProfile;
+
+      if (profile != null) {
+        _employeeCodeCtrl.text = "NV ${profile.employeeCode ?? ""}";
+        _employeeNameCtrl.text = profile.name ?? "";
+        _deprtmentCtrl.text = profile.department?.name ?? "";
+        _managerNameCtrl.text = profile.manager?.name ?? "";
+      }
+    }
   }
 
   @override
   void dispose() {
     _createdDateCtrl.dispose();
+    _employeeCodeCtrl.dispose();
+    _employeeNameCtrl.dispose();
     _fromDateCtrl.dispose();
     _toDateCtrl.dispose();
     _noteCtrl.dispose();
-    for (final c in _hourCtrls.values) {
-      c.dispose();
-    }
-    _cubit.close();
     super.dispose();
   }
 
@@ -57,7 +95,6 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
       onConfirm: (d) {
         _fromDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
         _toDateCtrl.clear();
-        _hourCtrls.clear();
         _cubit.setFromDate(d);
       },
     );
@@ -69,7 +106,6 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
       locale: LocaleType.vi,
       onConfirm: (d) {
         _toDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
-        _hourCtrls.clear();
         _cubit.setToDate(d);
       },
     );
@@ -92,172 +128,187 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ApprasisalProgressPage(),
+        builder:
+            (_) => BlocProvider.value(
+              value: _cubit,
+              child: const ApprasisalProgressPage(),
+            ),
       ),
     );
+  }
+
+  void _fillDetail(CreateAppraisalState state) {
+    final e = state.detailEvaluation;
+    if (e == null) return;
+
+    _employeeCodeCtrl.text = "NV ${e.employeeCode ?? ""}";
+    _employeeNameCtrl.text = e.employeeName ?? "";
+    _deprtmentCtrl.text = e.departmentName ?? "";
+
+    _managerNameCtrl.text =
+        GlobalData.instance.userProfile?.manager?.name ?? "";
+
+    if (e.dateFrom != null) {
+      final d = DateTime.parse(e.dateFrom!);
+      _fromDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
+      _cubit.setFromDate(d);
+    }
+
+    if (e.dateTo != null) {
+      final d = DateTime.parse(e.dateTo!);
+      _toDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
+      _cubit.setToDate(d);
+    }
+
+    _noteCtrl.text = e.note ?? "";
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cubit,
-      child: BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
-        builder: (context, state) {
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
-              ),
-              Scaffold(
-                backgroundColor: Colors.transparent,
-                appBar: PreferredSize(
-                  preferredSize: const Size.fromHeight(kToolbarHeight),
-                  child: BlocBuilder<AppCubit, AppState>(
-                    buildWhen:
-                        (prev, cur) => prev.totalUnread != cur.totalUnread,
-                    builder: (context, appState) {
-                      return MyAppBar(
-                        titleAppbar: "Phiếu đánh giá kết quả CV",
-                        haveBackButton: true,
-                        haveActionButton: true,
-                        iconPathAsset: AppAssets.icNotificationBell,
-                        badgeCount: appState.totalUnread,
-                        actionCallBack: () async {
-                          _goNotification();
-                        },
-                      );
-                    },
-                  ),
+      child: BlocListener<CreateAppraisalCubit, CreateAppraisalState>(
+        listener: (context, state) {
+          if (state.loadDetail == LoadStatus.SUCCESS) {
+            _fillDetail(state);
+          }
+        },
+        child: BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
+          builder: (context, state) {
+            return Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
                 ),
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 140),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                Scaffold(
+                  backgroundColor: Colors.transparent,
+                  appBar: PreferredSize(
+                    preferredSize: const Size.fromHeight(kToolbarHeight),
+                    child: BlocBuilder<AppCubit, AppState>(
+                      buildWhen: (p, c) => p.totalUnread != c.totalUnread,
+                      builder: (context, appState) {
+                        return MyAppBar(
+                          titleAppbar:
+                              widget.isDetail == true
+                                  ? "Chi tiết phiếu đánh gia"
+                                  : "Tạo phiếu đánh giá",
+                          haveBackButton: true,
+                          haveActionButton: true,
+                          iconPathAsset: AppAssets.icNotificationBell,
+                          badgeCount: appState.totalUnread,
+                          actionCallBack: _goNotification,
+                        );
+                      },
                     ),
-                    child: Column(
-                      children: [
-                        InputTextField(
-                          title: 'Mã nhân viên',
-                          hintText: 'NV51',
-                          isRequiredField: false,
-                          readOnly: true,
-                        ),
-                        const SizedBox(height: 16),
+                  ),
+                  body: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 140),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          InputTextField(
+                            title: 'Mã nhân viên',
+                            hintText: '',
+                            isRequiredField: widget.isDetail != true,
+                            controller: _employeeCodeCtrl,
+                            readOnly: true,
+                          ),
 
-                        InputTextField(
-                          title: 'Chức danh',
-                          hintText: 'Thực tập sinh',
-                          isRequiredField: false,
-                          readOnly: true,
-                        ),
+                          const SizedBox(height: 16),
 
-                        const SizedBox(height: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RichText(
-                              text: const TextSpan(
-                                text: 'Thời gian thực tập ',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF374151),
+                          InputTextField(
+                            title: 'Tên nhân viên',
+                            hintText: '',
+                            isRequiredField: widget.isDetail != true,
+                            controller: _employeeNameCtrl,
+                            readOnly: true,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          InputTextField(
+                            hintText: "Phòng ban",
+                            isRequiredField: widget.isDetail != true,
+                            title: "Phòng ban",
+                            controller: _deprtmentCtrl,
+                            readOnly: true,
+                          ),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: InputTextField(
+                                  title: 'Từ ngày',
+                                  hintText: '',
+                                  isRequiredField: widget.isDetail != true,
+                                  controller: _fromDateCtrl,
+                                  readOnly: true,
+                                  suffixIcon: AppAssets.icCalendar,
+                                  callback:
+                                      state.isDetail == true
+                                          ? null
+                                          : _pickFromDate,
                                 ),
-                                children: [
-                                  TextSpan(
-                                    text: '(Từ ngày... Đến ngày...)',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w400,
-                                      color: Color(0xFF6B7280),
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: ' *',
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: InputTextField(
-                                    title: '',
-                                    hintText: 'Từ ngày',
-                                    isRequiredField: false,
-                                    controller: _fromDateCtrl,
-                                    readOnly: true,
-                                    suffixIcon: AppAssets.icCalendar,
-
-                                    callback: _pickFromDate,
-                                  ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: InputTextField(
+                                  title: 'Đến ngày',
+                                  hintText: '',
+                                  isRequiredField: widget.isDetail != true,
+                                  controller: _toDateCtrl,
+                                  readOnly: true,
+                                  suffixIcon: AppAssets.icCalendar,
+                                  callback:
+                                      state.isDetail == true
+                                          ? null
+                                          : _pickToDate,
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: InputTextField(
-                                    title: '',
-                                    hintText: 'Đến ngày',
-                                    isRequiredField: false,
-                                    controller: _toDateCtrl,
-                                    readOnly: true,
-                                    suffixIcon: AppAssets.icCalendar,
-                                    callback: _pickToDate,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                            ],
+                          ),
 
-                        const SizedBox(height: 16),
-                        InputTextField(
-                          title: 'Cấp trên trực tiếp',
-                          hintText: 'Trần Xuân Trường',
-                          isRequiredField: true,
-                          controller: _noteCtrl,
-                          onChange: _cubit.setNote,
-                        ),
+                          const SizedBox(height: 16),
 
-                        const SizedBox(height: 16),
-                        InputTextField(
-                          title: 'Chức danh cấp trên',
-                          hintText: 'Giám đốc sản xuất',
-                          isRequiredField: true,
-                          controller: _noteCtrl,
-                          onChange: _cubit.setNote,
-                        ),
-                      ],
+                          InputTextField(
+                            title: 'Cấp trên trực tiếp',
+                            hintText: '',
+                            isRequiredField: widget.isDetail != true,
+                            controller: _managerNameCtrl,
+                            readOnly: true,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                bottomSheet: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: SizedBox(
-                      height: 48,
-                      child: PrimaryButton(
-                        mainText: 'Gửi yêu cầu',
-                        enable: state.isFormValid,
-                        isLoading: state.isSubmitting,
-                        callback: () {
-                          _progressNext();
-                        },
+
+                  bottomSheet: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SizedBox(
+                        height: 48,
+                        child: PrimaryButton(
+                          mainText: "Tiếp tục",
+                          enable:
+                              state.isDetail == true
+                                  ? state.loadDetail == LoadStatus.SUCCESS
+                                  : state.isFormValid,
+                          isLoading: state.isSubmitting,
+                          callback: _progressNext,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
