@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 
 class AppraisalStepResponsibility extends StatelessWidget {
+  final List<ResponsiveIdEntity> responses;
   final List<int> ratings;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
 
   const AppraisalStepResponsibility({
     super.key,
+    required this.responses,
     required this.ratings,
     required this.evidences,
     required this.onRate,
@@ -27,6 +30,8 @@ class AppraisalStepResponsibility extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+
+            /// HEADER
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
@@ -44,6 +49,8 @@ class AppraisalStepResponsibility extends StatelessWidget {
                 ],
               ),
             ),
+
+            /// BODY
             Container(
               margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
               padding: const EdgeInsets.all(12),
@@ -54,6 +61,8 @@ class AppraisalStepResponsibility extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
+                  /// TITLE
                   Row(
                     children: const [
                       CircleAvatar(
@@ -80,7 +89,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 8),
+
                   const Text(
                     'Những việc liên quan trực tiếp đến nhóm nhỏ của người được đánh giá, có liên quan đến công việc của người được đánh giá',
                     style: TextStyle(
@@ -89,41 +100,54 @@ class AppraisalStepResponsibility extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
+
                   const SizedBox(height: 12),
+
+                  /// LIST ITEM
                   Column(
-                    children: List.generate(ratings.length, (i) {
+                    children: List.generate(responses.length, (i) {
+
+                      final item = responses[i];
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
+                          /// TITLE ITEM
                           RichText(
                             text: TextSpan(
                               style: const TextStyle(
                                 color: Color(0xFF111827),
                                 fontSize: 14,
                               ),
-                              children: const [
-                                TextSpan(
-                                  text: '•',
+                              children: [
+
+                                const TextSpan(
+                                  text: '• ',
                                   style: TextStyle(
                                     color: Color(0xFF2563EB),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+
                                 TextSpan(
-                                  text: 'TN01',
-                                  style: TextStyle(
+                                  text: item.code ?? '',
+                                  style: const TextStyle(
                                     color: Color(0xFF2563EB),
                                     fontWeight: FontWeight.w600,
                                     fontSize: 13,
                                   ),
                                 ),
+
                                 TextSpan(
-                                  text:
-                                      ' - Trách nhiệm, thấu đáo trong công việc - ',
-                                  style: TextStyle(fontSize: 13),
+                                  text: ' - ${item.name ?? ''}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                  ),
                                 ),
-                                TextSpan(
-                                  text: 'Hệ số 2',
+
+                                const TextSpan(
+                                  text: ' - Hệ số 2',
                                   style: TextStyle(
                                     color: Color(0xFF2563EB),
                                     fontWeight: FontWeight.w600,
@@ -133,44 +157,56 @@ class AppraisalStepResponsibility extends StatelessWidget {
                               ],
                             ),
                           ),
+
                           const SizedBox(height: 8),
+
                           const Text(
                             'Điểm',
                             style: TextStyle(
                               color: Color.fromARGB(255, 0, 0, 0),
                             ),
                           ),
+
                           const SizedBox(height: 8),
+
+                          /// STAR RATING
                           SizedBox(
                             width: double.infinity,
                             child: Wrap(
                               alignment: WrapAlignment.center,
                               spacing: 30,
                               children: List.generate(5, (j) {
+
                                 final filled = j < ratings[i];
+
                                 return InkWell(
                                   onTap: () => onRate(i, j + 1),
                                   child: SvgPicture.asset(
                                     AppAssets.icStar,
                                     width: 30,
                                     height: 30,
-                                    color:
-                                        filled
-                                            ? const Color(0xFFFFCB45)
-                                            : const Color(0xFF64748B),
+                                    color: filled
+                                        ? const Color(0xFFFFCB45)
+                                        : const Color(0xFF64748B),
                                   ),
                                 );
                               }),
                             ),
                           ),
+
                           const SizedBox(height: 12),
+
+                          /// EVIDENCE
                           InputTextField(
                             title: 'Ghi rõ những gì được, chưa được',
                             hintText: 'Nhập dẫn chứng...',
+                            controller: evidences[i],
                             maxLine: 3,
                             isRequiredField: true,
                           ),
-                          if (i != ratings.length - 1)
+
+                          /// DIVIDER
+                          if (i != responses.length - 1)
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               child: CustomPaint(
@@ -195,17 +231,20 @@ class AppraisalStepResponsibility extends StatelessWidget {
 class _DotDividerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = const Color(0xFFD1FAE5)
-          ..strokeWidth = 1;
+    final paint = Paint()
+      ..color = const Color(0xFFD1FAE5)
+      ..strokeWidth = 1;
 
     const dashWidth = 4;
     const dashSpace = 4;
     double startX = 0;
 
     while (startX < size.width) {
-      canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
+      canvas.drawLine(
+        Offset(startX, 0),
+        Offset(startX + dashWidth, 0),
+        paint,
+      );
       startX += dashWidth + dashSpace;
     }
   }

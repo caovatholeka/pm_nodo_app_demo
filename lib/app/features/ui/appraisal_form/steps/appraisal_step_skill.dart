@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
 
 class AppraisalStepSkill extends StatelessWidget {
+  final List<SkillIdEntity> skills;
   final List<int> ratings;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
 
   const AppraisalStepSkill({
     super.key,
+    required this.skills,
     required this.ratings,
     required this.evidences,
     required this.onRate,
@@ -26,6 +29,8 @@ class AppraisalStepSkill extends StatelessWidget {
         ),
         child: Column(
           children: [
+
+            /// HEADER
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
@@ -39,19 +44,12 @@ class AppraisalStepSkill extends StatelessWidget {
                       color: Color(0xFF374151),
                     ),
                   ),
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                    ),
-                    child: Center(
-                      child: SvgPicture.asset(AppAssets.icQuestion, width: 20),
-                    ),
-                  ),
+                  SvgPicture.asset(AppAssets.icQuestion, width: 20),
                 ],
               ),
             ),
+
+            /// BODY
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -64,6 +62,8 @@ class AppraisalStepSkill extends StatelessWidget {
               ),
               child: Column(
                 children: [
+
+                  /// TITLE
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -86,10 +86,10 @@ class AppraisalStepSkill extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               'Tiêu chí đánh giá Kỹ năng',
                               style: TextStyle(
@@ -111,12 +111,20 @@ class AppraisalStepSkill extends StatelessWidget {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12),
+
+                  /// LIST ITEM
                   Column(
-                    children: List.generate(ratings.length, (i) {
+                    children: List.generate(skills.length, (i) {
+
+                      final skill = skills[i];
+
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
+                          /// TITLE
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -128,20 +136,27 @@ class AppraisalStepSkill extends StatelessWidget {
                                 child: RichText(
                                   text: TextSpan(
                                     children: [
+
                                       TextSpan(
-                                        text: 'KN0${i + 1} - ',
+                                        text: '${skill.code ?? ''} - ',
                                         style: const TextStyle(
                                           color: Color(0xFF0B6FDF),
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      const TextSpan(
-                                        text: 'Phối hợp nội bộ',
-                                        style: TextStyle(color: Color(0xFF0B6FDF)),
-                                      ),
+
                                       TextSpan(
-                                        text: ' - Hệ số ${i == 2 ? '0.5' : '1'}',
-                                        style: const TextStyle(color: Color(0xFF0B6FDF)),
+                                        text: skill.name ?? '',
+                                        style: const TextStyle(
+                                          color: Color(0xFF0B6FDF),
+                                        ),
+                                      ),
+
+                                      const TextSpan(
+                                        text: ' - Hệ số 1',
+                                        style: TextStyle(
+                                          color: Color(0xFF0B6FDF),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -149,7 +164,10 @@ class AppraisalStepSkill extends StatelessWidget {
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 8),
+
+                          /// RATING LABEL
                           Row(
                             children: const [
                               Text('* ', style: TextStyle(color: Color(0xFFEF4444))),
@@ -162,16 +180,21 @@ class AppraisalStepSkill extends StatelessWidget {
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 8),
+
+                          /// STAR RATING
                           Center(
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: List.generate(5, (j) {
+
                                 final filled = j < ratings[i];
+
                                 return InkWell(
                                   onTap: () => onRate(i, j + 1),
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: j == 5 ? 0 : 10),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10),
                                     child: SvgPicture.asset(
                                       AppAssets.icStar,
                                       width: 28,
@@ -185,7 +208,10 @@ class AppraisalStepSkill extends StatelessWidget {
                               }),
                             ),
                           ),
+
                           const SizedBox(height: 12),
+
+                          /// NOTE
                           Row(
                             children: const [
                               Text('* ', style: TextStyle(color: Color(0xFFEF4444))),
@@ -199,7 +225,9 @@ class AppraisalStepSkill extends StatelessWidget {
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 8),
+
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -211,17 +239,21 @@ class AppraisalStepSkill extends StatelessWidget {
                               maxLines: 3,
                               decoration: const InputDecoration(
                                 hintText: 'Nhập dẫn chứng...',
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
                                 border: InputBorder.none,
                                 isCollapsed: true,
                               ),
                               style: const TextStyle(fontSize: 13),
                             ),
                           ),
+
                           const SizedBox(height: 16),
-                          if (i != ratings.length - 1) const _DashedDivider(),
-                          if (i != ratings.length - 1) const SizedBox(height: 16),
+
+                          if (i != skills.length - 1) const _DashedDivider(),
+                          if (i != skills.length - 1) const SizedBox(height: 16),
                         ],
                       );
                     }),
@@ -246,6 +278,7 @@ class _DashedDivider extends StatelessWidget {
         const dashWidth = 6.0;
         const dashSpace = 6.0;
         final count = (constraints.maxWidth / (dashWidth + dashSpace)).floor();
+
         return Row(
           children: List.generate(count, (index) {
             return Padding(

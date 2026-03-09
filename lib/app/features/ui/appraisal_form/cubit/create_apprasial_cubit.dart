@@ -79,9 +79,6 @@ class CreateAppraisalCubit extends Cubit<CreateAppraisalState> {
     emit(state.copyWith(loadDetail: LoadStatus.LOADING));
     try {
       EvaluationEntity? entity = await repository.getDetailEvaluation(id);
-
-      logger.e('Evaluation detail: $entity');
-      logger.e('Evaluation detail form type: ${entity?.taskLineIds}');
       emit(
         state.copyWith(loadDetail: LoadStatus.SUCCESS, detailEvaluation: entity),
       );

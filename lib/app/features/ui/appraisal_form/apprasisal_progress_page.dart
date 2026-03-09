@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_opinion.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_responsibility.dart';
@@ -50,11 +49,18 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     ],
   ];
 
+  final List<TextEditingController> _suggestControllers = [];
+
   final TextEditingController _totalCtrl = TextEditingController();
   final TextEditingController _summaryCtrl = TextEditingController();
 
   int _toInt(dynamic v) {
     if (v == null) return 0;
+
+    if (v is bool) {
+      return v ? 1 : 0;
+    }
+
     return int.tryParse(v.toString()) ?? 0;
   }
 
@@ -72,12 +78,51 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     _ratingsPerStep[0][2] = _toInt(task.progress);
   }
 
+  void _fillDetailStep2(CreateAppraisalState state) {
+    final responses = state.detailEvaluation?.responseIds;
+
+    if (responses == null || responses.isEmpty) return;
+
+    for (int i = 0; i < responses.length; i++) {
+      final r = responses[i];
+      _ratingsPerStep[1][i] = _toInt(r.ratePoint);
+      _evidencesPerStep[1][i].text = r.note ?? "";
+    }
+  }
+
+  void _fillDetailStep3(CreateAppraisalState state) {
+    final skills = state.detailEvaluation?.skillIds;
+
+    if (skills == null || skills.isEmpty) return;
+
+    for (int i = 0; i < skills.length; i++) {
+      final skill = skills[i];
+
+      _ratingsPerStep[2][i] = _toInt(skill.ratePoint);
+
+      _evidencesPerStep[2][i].text = skill.note ?? "";
+    }
+  }
+
+  void _fillDetailStep4(CreateAppraisalState state) {
+    final suggests = state.detailEvaluation?.suggestIds;
+
+    if (suggests == null || suggests.isEmpty) return;
+
+    _suggestControllers.clear();
+
+    for (final item in suggests) {
+      _suggestControllers.add(TextEditingController(text: item.note ?? ""));
+    }
+  }
+
   void _next() {
     if (_currentStep < 3) {
       setState(() {
         _currentStep++;
       });
     } else {
+      Navigator.pop(context);
       Navigator.pop(context, true);
     }
   }
@@ -92,17 +137,15 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     }
   }
 
-  bool get _canNext {
-    if (_currentStep <= 2) {
-      final ratings = _ratingsPerStep[_currentStep];
-      return ratings.every((r) => r > 0);
-    }
-    return _summaryCtrl.text.trim().isNotEmpty;
-  }
+  // bool get _canNext {
+  //   if (_currentStep <= 2) {
+  //     final ratings = _ratingsPerStep[_currentStep];
+  //     return ratings.every((r) => r > 0);
+  //   }
+  //   return true;
+  // }
+  bool get _canNext => true;
 
-  /// ================================
-  /// STEPPER
-  /// ================================
   Widget _buildStepper() {
     const circleSize = 26.0;
     const lineWidth = 80.0;
@@ -151,7 +194,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                   color:
                       isCompleted
                           ? const Color(0xFF2E87FF)
-                          : const Color(0xFF2E87FF).withOpacity(0.25),
+                          : const Color(0xFF2E87FF).withValues(alpha: 0.25),
                 ),
             ],
           );
@@ -170,6 +213,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
               title: '',
               hintText: 'Hệ số',
               controller: _coefCtrl,
+              readOnly: true,
               isRequiredField: false,
             ),
           ),
@@ -181,6 +225,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
               title: '',
               hintText: 'Tổng điểm',
               controller: _totalCtrl,
+              readOnly: true,
               isRequiredField: false,
             ),
           ),
@@ -209,7 +254,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildStepContent(bool isDetail) {
+  Widget _buildStepContent(bool isDetail, CreateAppraisalState state) {
     if (_currentStep == 0) {
       return AppraisalStepResultWork(
         ratings: _ratingsPerStep[0],
@@ -227,6 +272,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
     if (_currentStep == 1) {
       return AppraisalStepResponsibility(
+        responses: state.detailEvaluation?.responseIds ?? [],
         ratings: _ratingsPerStep[1],
         evidences: _evidencesPerStep[1],
         onRate: (i, v) {
@@ -239,6 +285,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
     if (_currentStep == 2) {
       return AppraisalStepSkill(
+        skills: state.detailEvaluation?.skillIds ?? [],
         ratings: _ratingsPerStep[2],
         evidences: _evidencesPerStep[2],
         onRate: (i, v) {
@@ -249,16 +296,16 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       );
     }
 
-    return AppraisalStepOpinion(controller: _summaryCtrl);
+    return AppraisalStepOpinion(
+      suggests: state.detailEvaluation?.suggestIds ?? [],
+      controllers: _suggestControllers,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
       builder: (context, state) {
-        logger.i("PROGRESS PAGE BUILD");
-        logger.i("Detail Evaluation: ${state.detailEvaluation}");
-        logger.i("Task Line IDs: ${state.detailEvaluation?.taskLineIds}");
         final isDetail = state.isDetail == true;
 
         if (!_initDetail && state.detailEvaluation != null) {
@@ -266,7 +313,9 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _fillDetailStep1(state);
-
+            _fillDetailStep2(state);
+            _fillDetailStep3(state);
+            _fillDetailStep4(state);
             setState(() {});
           });
         }
@@ -304,7 +353,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
                             _buildHeaderByStep(),
 
-                            _buildStepContent(isDetail),
+                            _buildStepContent(isDetail, state),
                           ],
                         ),
                       ),
