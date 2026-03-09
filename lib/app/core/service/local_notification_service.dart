@@ -58,7 +58,8 @@ class LocalNotificationService {
     final title = message.notification?.title ?? message.data['title'];
     final body = message.notification?.body ?? message.data['body'];
 
-    if (title == null || body == null) return;
+  if (title == null || title.toString().trim().isEmpty) return;
+  if (body == null || body.toString().trim().isEmpty) return;
 
     await _plugin.show(
       DateTime.now().millisecondsSinceEpoch ~/ 1000,

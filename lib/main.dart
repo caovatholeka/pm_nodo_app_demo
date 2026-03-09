@@ -45,7 +45,7 @@ void main() {
       } catch (_) {
         logger.d("initilize fcm");
       }
-
+  
       await di.init();
 
       await SystemChrome.setPreferredOrientations([

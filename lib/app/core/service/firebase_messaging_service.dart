@@ -43,7 +43,9 @@ class FirebaseMessagingService {
   }
 
   static void openFromLocalNotification() {
-    _openNotificationPage();
+    GlobalData.instance.navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => const NotificationPage()),
+    );
   }
 
   static String? _encodeBase64(String? input) {

@@ -15,8 +15,7 @@ import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 
 class AppraisalFormPage extends StatefulWidget {
-  final int id;
-  const AppraisalFormPage({super.key, required this.id});
+  const AppraisalFormPage({super.key});
 
   @override
   State<AppraisalFormPage> createState() => _AppraisalFormPageState();
@@ -37,7 +36,7 @@ class _AppraisalFormPageState extends State<AppraisalFormPage> {
   @override
   void initState() {
     // get detail
-    _cubit.getEvaluationDetails(widget.id);
+    // _cubit.getEvaluationDetails(widget.id);
     super.initState();
   }
 
