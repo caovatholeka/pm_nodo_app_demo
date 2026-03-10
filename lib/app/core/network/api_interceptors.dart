@@ -7,6 +7,8 @@ import '../commons/global_data.dart';
 import '../logger/logger.dart';
 
 class ApiInterceptors extends InterceptorsWrapper {
+  bool _isShowingServerBusy = false;
+
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
@@ -59,7 +61,19 @@ class ApiInterceptors extends InterceptorsWrapper {
     final statusCode = err.response?.statusCode;
     final uri = err.requestOptions.path;
     logger.long("⚠️ ERROR[$statusCode] => PATH: $uri");
+
+    final isServerBusyError =
+        statusCode == 404 || statusCode == 500;
+
+    if (isServerBusyError && !_isShowingServerBusy) {
+      _isShowingServerBusy = true;
+      AppEvent.instance.onServerBusy.add(true);
+    }
+
     super.onError(err, handler);
   }
 
+  void resetServerBusyFlag() {
+    _isShowingServerBusy = false;
+  }
 }

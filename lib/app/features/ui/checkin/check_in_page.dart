@@ -1154,6 +1154,130 @@ class _CheckInPageState extends State<CheckInPage> {
   // }
 
   // dialog giai trinh
+
+  /*
+  Future<String?> showLateEarlyDialog(BuildContext context) async {
+    final reasonController = TextEditingController();
+    final reasonKey = GlobalKey<FormState>();
+    try {
+      final result = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        useRootNavigator: true,
+        builder: (dialogContext) {
+          final mediaQuery = MediaQuery.of(dialogContext);
+          final keyboardHeight = mediaQuery.viewInsets.bottom;
+          final screenHeight = mediaQuery.size.height;
+
+          final dialogMaxHeight = keyboardHeight > 0
+              ? (screenHeight - keyboardHeight - 24)
+              : (screenHeight * 0.60);
+
+          return PopScope(
+            canPop: true,
+            child: Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 16,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: dialogMaxHeight < 260 ? 260 : dialogMaxHeight,
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    20,
+                    20,
+                    16 + (keyboardHeight > 0 ? 12 : 0),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
+                      Text(
+                        S.of(dialogContext).check_in_late_early,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        S.of(dialogContext).check_in_lateReason,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                          height: 1.35,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Form(
+                        key: reasonKey,
+                        child: InputTextField(
+                          title: "",
+                          disableTitle: true,
+                          hintText: S.of(dialogContext).check_in_enterReason,
+                          isRequiredField: true,
+                          enable: true,
+                          maxLine: 3,
+                          controller: reasonController,
+                          onChange: (_) {
+                            reasonKey.currentState?.validate();
+                          },
+                          validator: (val) =>
+                              Validator.validateEmpty(val, "Lý do"),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: () {
+                          final reasonValid =
+                              reasonKey.currentState?.validate() ?? false;
+                          if (reasonValid) {
+                            final reason = reasonController.text.trim();
+                            // dùng ctx hiện tại để pop dialog
+                            Navigator.of(dialogContext).pop(reason);
+                          }
+                        },
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: AppColors.themePrimaryDefault,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: Text(
+                          S.of(context).check_in_sendExplantation,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+
+      return result;
+    } finally {
+      reasonController.dispose();
+    }
+  }
+
+   */
+
+
   Future<String?> showLateEarlyDialog(BuildContext context) async {
     final reasonController = TextEditingController();
     final reasonKey = GlobalKey<FormState>();
@@ -1162,29 +1286,39 @@ class _CheckInPageState extends State<CheckInPage> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) {
+        final mediaQuery = MediaQuery.of(ctx);
+        final keyboardHeight = mediaQuery.viewInsets.bottom;
+        final screenHeight = mediaQuery.size.height;
+
+        final dialogMaxHeight = keyboardHeight > 0
+            ? (screenHeight - keyboardHeight - 24)
+            : (screenHeight * 0.60);
+
         return StatefulBuilder(
           builder: (ctx, setState) {
-            final viewInsets = MediaQuery.of(ctx).viewInsets;
-            final maxHeight = MediaQuery.of(ctx).size.height * 0.60;
-
-            return AnimatedPadding(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(bottom: viewInsets.bottom),
+            return PopScope(
+              canPop: true,
               child: Dialog(
                 insetPadding: const EdgeInsets.symmetric(
                   horizontal: 24,
-                  vertical: 24,
+                  vertical: 16,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: maxHeight),
+                  constraints: BoxConstraints(
+                    maxHeight: dialogMaxHeight < 260 ? 260 : dialogMaxHeight,
+                  ),
                   child: SingleChildScrollView(
                     physics: const ClampingScrollPhysics(),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        20,
+                        20,
+                        16 + (keyboardHeight > 0 ? 12 : 0),
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1253,20 +1387,6 @@ class _CheckInPageState extends State<CheckInPage> {
                             ),
                           ),
                           const SizedBox(height: 10),
-
-                          // OutlinedButton(
-                          //   onPressed: () => Navigator.of(ctx).pop(null),
-                          //   style: OutlinedButton.styleFrom(
-                          //     minimumSize: const Size.fromHeight(48),
-                          //     backgroundColor: Colors.white,
-                          //     foregroundColor: Colors.black87,
-                          //     side: const BorderSide(color: Color(0xFFE5E7EB)),
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(10),
-                          //     ),
-                          //   ),
-                          //   child: const Text('Để sau', style: TextStyle(fontSize: 16)),
-                          // ),
                         ],
                       ),
                     ),

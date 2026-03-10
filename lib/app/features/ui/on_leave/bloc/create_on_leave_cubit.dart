@@ -154,7 +154,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   }
 
   void onChangeListLeaveDays(List<LeaveDayEntity> list) async{
-    // emit(state.copyWith(listLeaveDays: []));
+    emit(state.copyWith(listLeaveDays: []));
     emit(state.copyWith(listLeaveDays: list));
   }
   // date time

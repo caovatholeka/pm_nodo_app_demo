@@ -1,10 +1,14 @@
 import 'dart:async';
 
 class AppEvent {
-  AppEvent._privateConstructor();
+  AppEvent._();
+  static final AppEvent instance = AppEvent._();
 
-  static final AppEvent instance = AppEvent._privateConstructor();
-
-  // ignore: close_sinks
   final onTokenExpired = StreamController<bool>.broadcast();
+  final onServerBusy = StreamController<bool>.broadcast();
+
+  void dispose() {
+    onTokenExpired.close();
+    onServerBusy.close();
+  }
 }

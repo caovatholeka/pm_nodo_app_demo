@@ -33,6 +33,7 @@ import 'package:pm_app/generated/l10n.dart';
 
 import '../di/di.dart';
 import 'config/app_config.dart';
+import 'config/app_event.dart';
 import 'core/commons/app_theme.dart';
 import 'core/commons/global_data.dart';
 import 'core/logger/logger.dart';
@@ -70,6 +71,9 @@ class _MyAppState extends State<MyApp> {
   final _appCubit = sl<AppCubit>();
   Locale? _locale;
 
+  StreamSubscription<bool>? _serverBusySubscription;
+  bool _isShowingServerBusyDialog = false;
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +82,8 @@ class _MyAppState extends State<MyApp> {
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       _updateConnectionStatus,
     );
+
+    _listenServerBusyEvent();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final pending = GlobalData.instance.quickActionPending;
@@ -99,6 +105,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void dispose() {
     _connectivitySubscription.cancel();
+    _serverBusySubscription?.cancel();
     super.dispose();
   }
 
@@ -133,6 +140,48 @@ class _MyAppState extends State<MyApp> {
       networkEnabled = true;
       _overlaySupportEntry?.dismiss(animate: true);
     }
+  }
+
+  void _listenServerBusyEvent() {
+    _serverBusySubscription = AppEvent.instance.onServerBusy.stream.listen((event) {
+      if (!event || !mounted || _isShowingServerBusyDialog) return;
+
+      final currentContext = GlobalData.instance.navigatorKey.currentContext;
+      if (currentContext == null) return;
+
+      _isShowingServerBusyDialog = true;
+
+      showDialog(
+        context: currentContext,
+        barrierDismissible: false,
+        useRootNavigator: true,
+        builder: (_) => CustomDialog(
+          title: "Thông báo",
+          content: "Server đang bận hoặc hệ thống đang gặp sự cố. Bạn có muốn quay về màn hình đăng nhập không?",
+          success: false,
+          confirmText: "OK",
+          cancelText: "Cancel",
+          onConfirm: () async {
+            Navigator.of(currentContext, rootNavigator: true).pop();
+            _isShowingServerBusyDialog = false;
+
+            await SharedPrefsHelper.saveToken(null);
+            GlobalData.instance.token = null;
+
+            GlobalData.instance.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              Routes.login,
+                  (route) => false,
+            );
+          },
+          onCancel: () {
+            Navigator.of(currentContext, rootNavigator: true).pop();
+            _isShowingServerBusyDialog = false;
+          },
+        ),
+      ).then((_) {
+        _isShowingServerBusyDialog = false;
+      });
+    });
   }
 
   List<SingleChildWidget> _buildBlocProviders() {

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -272,7 +273,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
   }
 
   _openDateTypeLeaveBottomSheet(List<MasterDataItem> list) async {
-    final item = await showModalBottomSheet(
+    final MasterDataItem item = await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       useRootNavigator: true,
@@ -284,7 +285,29 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
             title: S.of(context).day_off_type,
           ),
     );
-    _createCubit.onChangeDateTypeLeaves(item);
+    logger.d("Item selectedddd :::: ${item.code}");
+    if(item.code.toString() == "7"){
+      // nghỉ có lương , tối đa backdate 3 ngày
+      // nghỉ ko lương , ko required
+      if ((DateTime.now()
+          .difference(_createCubit.state.fromDateTime ?? DateTime.now())
+          .inDays >
+          3) || (DateTime.now()
+          .difference(_createCubit.state.toDateTime ?? DateTime.now())
+          .inDays >
+          3)) {
+        AppSnackBar.showError(
+            title: "Cảnh báo",
+            message:"Nghỉ phép có lương xin phép tối đa trước 3 ngày"
+          // s.day_off_warning_greater,
+        );
+      }else{
+        _createCubit.onChangeDateTypeLeaves(item);
+      }
+    }else{
+      _createCubit.onChangeDateTypeLeaves(item);
+    }
+
   }
 
   @override
@@ -522,16 +545,29 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                                 .text = _fmtTotal(total);
                                           }
                                         } else {
-                                          if (selectedDate
-                                                  .difference(DateTime.now())
-                                                  .inDays <
-                                              0) {
-                                            AppSnackBar.showError(
-                                              title: s.warning,
-                                              message:
-                                                  s.day_off_warning_greater,
-                                            );
-                                          } else {
+                                          // nghỉ có lương , tối đa backdate 3 ngày
+                                          // nghỉ ko lương , ko required
+                                          if( _createCubit.state.currentDateLeaveType?.id == 7){
+                                            if (DateTime.now()
+                                                .difference(selectedDate)
+                                                .inDays >
+                                                3) {
+                                              AppSnackBar.showError(
+                                                  title: s.warning,
+                                                  message:"Nghỉ phép có lương xin phép tối đa trước 3 ngày"
+                                                // s.day_off_warning_greater,
+                                              );
+                                            } else {
+                                              _createCubit.setFromDate(
+                                                selectedDate,
+                                              );
+                                              listDays.clear();
+                                              _createCubit.onChangeListLeaveDays(
+                                                listDays,
+                                              );
+                                              totalDaysController.text = '0';
+                                            }
+                                          }else{
                                             _createCubit.setFromDate(
                                               selectedDate,
                                             );
@@ -620,12 +656,23 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             totalDaysController.text = _fmtTotal(total);
                                           }
                                         } else {
-                                          if (selectedDate.difference(DateTime.now()).inDays <0) {
-                                            AppSnackBar.showError(
-                                              title: s.warning,
-                                              message: s.day_off_notToday,
-                                            );
-                                          } else {
+                                          // nghỉ có lương , tối đa backdate 3 ngày
+                                          // nghỉ ko lương , ko required
+                                          if( _createCubit.state.currentDateLeaveType?.id == 7){
+                                            if (DateTime.now().difference(selectedDate).inDays > 3) {
+                                              AppSnackBar.showError(
+                                                title: s.warning,
+                                                message: "Nghỉ phép có lương xin phép tối đa trước 3 ngày"
+                                              );
+                                            } else {
+                                              _createCubit.setToDate(
+                                                selectedDate,
+                                              );
+                                              listDays.clear();
+                                              _createCubit.onChangeListLeaveDays(listDays,);
+                                              totalDaysController.text = '0';
+                                            }
+                                          }else{
                                             _createCubit.setToDate(
                                               selectedDate,
                                             );
@@ -633,6 +680,7 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                                             _createCubit.onChangeListLeaveDays(listDays,);
                                             totalDaysController.text = '0';
                                           }
+
                                         }
                                       },
                                     );
