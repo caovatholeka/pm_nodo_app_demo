@@ -5,6 +5,7 @@ import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
+import 'package:pm_app/app/data/models/entities/work_quality_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
 import 'package:pm_app/app/data/models/param/cancel_ob_param.dart';
@@ -357,6 +358,21 @@ abstract class ApiClient {
     @Path("id") int id,
     @Body() EvaluationEntity body,
   );
+
+  // thống kê đơn từ
+  @GET('/dashboard/request_summary')
+  Future<CommonResponse> getRequestSumaries();
+  // thống kê chất lượng công việc
+  @GET('/dashboard/work_quality')
+  Future<WorkQualityEntity> getWorkQuality(
+      @Query("month") int? month,
+      );
+
+  // chi tiết chất lượng công việc
+  @GET('/dashboard/work_quality_detail')
+  Future<WorkQualityEntity> getWorkQualityDetail(
+      @Query("month") int? month,
+      );
   
   //Thống kê dữ liệu chấm công
   @GET('/dashboard/timesheet_data')

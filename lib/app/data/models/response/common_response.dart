@@ -19,9 +19,11 @@ class CommonResponse {
 
   final dynamic data;
   final dynamic optional;
+  final dynamic items;
 
 
   CommonResponse({this.status, this.message, this.data, this.optional,
+    this.items,
     this.code,this.error,
     this.total,
     this.page,
