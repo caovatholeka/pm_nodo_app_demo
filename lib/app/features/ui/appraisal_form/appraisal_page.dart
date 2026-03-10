@@ -101,7 +101,6 @@ class _AppraisalPageState extends State<AppraisalPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
 
     return BlocListener<ApprasialFormCubit, ApprasialFormState>(
       bloc: _cubit,

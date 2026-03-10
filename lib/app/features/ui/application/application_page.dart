@@ -171,7 +171,7 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "onTap": () => _openAppraisalForm(),
       },
       {
-        "icon": AppAssets.ic_paper,
+        "icon": AppAssets.ic_paper2,
         "title": "Dashboard",
         "onTap": () => openDashborad(),
       },

@@ -113,4 +113,11 @@ class AppAssets {
   static final icQuestion = 'assets/images/icons/icQuestion.svg';
 
   static final icFileKeeper = 'assets/images/icons/ic_pathAttach.svg';
+  static final icCalendar2 = 'assets/images/icons/ic_calender2.svg';
+  static final icClock = 'assets/images/icons/ic_clock.svg';
+  static final icClock2 = 'assets/images/icons/ic_clock2.svg';
+  static final icHome = 'assets/images/icons/ic_home2.svg';
+  static final icWork = 'assets/images/icons/ic_work.svg';
+  static final icCake = 'assets/images/icons/ic_cake.svg';
+  static final icClock3 = 'assets/images/icons/ic_clock3.svg';
 }

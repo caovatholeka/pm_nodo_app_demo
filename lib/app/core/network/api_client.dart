@@ -358,4 +358,41 @@ abstract class ApiClient {
     @Body() EvaluationEntity body,
   );
   
+  //Thống kê dữ liệu chấm công
+  @GET('/dashboard/timesheet_data')
+  Future<CommonResponse> getTimeSheetData(
+    @Query("month") int? month,
+  );
+
+  // thống kê sinh nhật trong tháng
+  @GET('/dashboard/birthdays_this_month')
+  Future<CommonResponse> getBirthdaysThisMonth(
+    @Query("month") int? month,
+  );
+
+  //Thống kê nề nếp
+  @GET('/dashboard/discipline_evaluation')
+  Future<CommonResponse> getDisciplineEvaluation(
+    @Query("month") int? month,
+  );
+
+  //thống kê chi tiết nề nếp
+  @GET('/dashboard/discipline_evaluation_detail')
+  Future<CommonResponse> getDetailDisciplineEvaluation(
+    @Query("month") int? month,
+  );
+
+  //Lấy chi tiết dự án 
+  @GET('/dashboard/project_tasks')
+  Future<CommonResponse> getProjectTasks(
+    @Query("month") int? month,
+  );
+
+  //Lấy dự án
+  @GET('/dashboard/projects')
+  Future<CommonResponse> getProjects();
+
+  //Đề xuất cải thiện
+  @POST('/dashboard/improvement_suggestion')
+  Future<CommonResponse> submitImprovemnt(@Body() Map<String, dynamic> body);
 }

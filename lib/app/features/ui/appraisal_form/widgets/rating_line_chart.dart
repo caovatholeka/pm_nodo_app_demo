@@ -1,18 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/commons/app_assets.dart';
 
-class RatingLineChartCard extends StatefulWidget {
-  const RatingLineChartCard({super.key});
+class RatingSummaryCard extends StatefulWidget {
+  const RatingSummaryCard({super.key});
 
   @override
-  State<RatingLineChartCard> createState() => _RatingLineChartCardState();
+  State<RatingSummaryCard> createState() => _RatingSummaryCardState();
 }
 
-class _RatingLineChartCardState extends State<RatingLineChartCard> {
+class _RatingSummaryCardState extends State<RatingSummaryCard> {
   DateTime _selectedDate = DateTime.now();
 
   String get _monthLabel =>
@@ -79,12 +78,7 @@ class _RatingLineChartCardState extends State<RatingLineChartCard> {
                         },
                         children: List.generate(
                           20,
-                          (i) => Center(
-                            child: Text(
-                              (2020 + i).toString(),
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ),
+                          (i) => Center(child: Text('${2020 + i}')),
                         ),
                       ),
                     ),
@@ -99,12 +93,7 @@ class _RatingLineChartCardState extends State<RatingLineChartCard> {
                         },
                         children: List.generate(
                           12,
-                          (i) => Center(
-                            child: Text(
-                              'Tháng ${i + 1}',
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ),
+                          (i) => Center(child: Text('Tháng ${i + 1}')),
                         ),
                       ),
                     ),
@@ -117,265 +106,6 @@ class _RatingLineChartCardState extends State<RatingLineChartCard> {
       },
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    final blue = [
-      _Point('Tuần 1', 2.7),
-      _Point('Tuần 2', 3.5),
-      _Point('Tuần 3', 4.2),
-      _Point('Tuần 4', 1.6),
-    ];
-
-    final green = [
-      _Point('Tuần 1', 5.6),
-      _Point('Tuần 2', 7.4),
-      _Point('Tuần 3', 8.4),
-      _Point('Tuần 4', 2.5),
-    ];
-
-    return _Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Header(
-            title: 'Đánh giá nề nếp',
-            trailing: _monthLabel,
-            onTapTrailing: _pickMonth,
-          ),
-          const SizedBox(height: 20),
-          const Padding(
-            padding: EdgeInsets.only(left: 16),
-            child: Text(
-              'Số lần',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF9CA3AF),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 240,
-            child: SfCartesianChart(
-              plotAreaBorderWidth: 0,
-              margin:
-                  const EdgeInsets.only(left: 8, right: 16, top: 0, bottom: 0),
-              primaryXAxis: CategoryAxis(
-                labelStyle: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF6B7280),
-                  fontWeight: FontWeight.w500,
-                ),
-                axisLine: const AxisLine(width: 0),
-                majorTickLines: const MajorTickLines(size: 0),
-                majorGridLines: const MajorGridLines(width: 0),
-              ),
-              primaryYAxis: NumericAxis(
-                minimum: 0,
-                maximum: 10,
-                interval: 2,
-                labelStyle: const TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF9CA3AF),
-                ),
-                majorGridLines: const MajorGridLines(
-                  dashArray: [3, 3],
-                  color: Color(0xFFE5E7EB),
-                ),
-                axisLine: const AxisLine(width: 0),
-                majorTickLines: const MajorTickLines(size: 0),
-              ),
-              series: [
-                LineSeries<_Point, String>(
-                  dataSource: blue,
-                  xValueMapper: (d, _) => d.x,
-                  yValueMapper: (d, _) => d.y,
-                  color: const Color(0xFF8B87FF),
-                  width: 2,
-                  markerSettings: const MarkerSettings(
-                    isVisible: true,
-                    shape: DataMarkerType.circle,
-                    width: 8,
-                    height: 8,
-                    color: Color(0xFF8B87FF),
-                    borderWidth: 2,
-                    borderColor: Colors.white,
-                  ),
-                ),
-                LineSeries<_Point, String>(
-                  dataSource: green,
-                  xValueMapper: (d, _) => d.x,
-                  yValueMapper: (d, _) => d.y,
-                  color: const Color(0xFF34D399),
-                  width: 2,
-                  markerSettings: const MarkerSettings(
-                    isVisible: true,
-                    shape: DataMarkerType.circle,
-                    width: 8,
-                    height: 8,
-                    color: Color(0xFF34D399),
-                    borderWidth: 2,
-                    borderColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              _LegendItem(color: Color(0xFF8B87FF), text: 'Đi sớm về muộn'),
-              SizedBox(width: 24),
-              _LegendItem(color: Color(0xFF34D399), text: 'Nghỉ phép'),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF2E87FF)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: const Text(
-                'Xem chi tiết',
-                style: TextStyle(
-                  color: Color(0xFF2E87FF),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Point {
-  final String x;
-  final double y;
-  _Point(this.x, this.y);
-}
-
-class _LegendItem extends StatelessWidget {
-  final Color color;
-  final String text;
-  const _LegendItem({required this.color, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF6B7280),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  final String title;
-  final String trailing;
-  final VoidCallback onTapTrailing;
-
-  const _Header({
-    required this.title,
-    required this.trailing,
-    required this.onTapTrailing,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 35,
-          height: 35,
-          decoration: BoxDecoration(
-            color: const Color(0xFFFCE7F3),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: SvgPicture.asset(
-              AppAssets.icUserRating,
-              width: 20,
-              height: 20,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1F2937),
-            ),
-          ),
-        ),
-        InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: onTapTrailing,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF3F6FA),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  AppAssets.icCalendar,
-                  width: 14,
-                  height: 14,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  trailing,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_drop_down,
-                  size: 18,
-                  color: Color(0xFF6B7280),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Card extends StatelessWidget {
-  final Widget child;
-  const _Card({required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -392,7 +122,152 @@ class _Card extends StatelessWidget {
           ),
         ],
       ),
-      child: child,
+      child: Column(
+        children: [
+          /// HEADER
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFCE7F3),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: SvgPicture.asset(
+                    AppAssets.icUserRating,
+                    width: 20,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  "Đánh giá nề nếp",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: _pickMonth,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F6FA),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.icCalendar,
+                        width: 14,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _monthLabel,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const Icon(Icons.keyboard_arrow_down, size: 18),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          /// SUMMARY BOX
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7F7FB),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: const [
+                Expanded(
+                  child: _SummaryItem(
+                    value: "94%",
+                    label: "Đúng giờ",
+                    color: Color(0xFF7C3AED),
+                  ),
+                ),
+                _Divider(),
+                Expanded(
+                  child: _SummaryItem(
+                    value: "12",
+                    label: "Vắng mặt",
+                    color: Color(0xFFEF4444),
+                  ),
+                ),
+                _Divider(),
+                Expanded(
+                  child: _SummaryItem(
+                    value: "5",
+                    label: "Đi muộn/Về sớm",
+                    color: Color(0xFFF59E0B),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryItem extends StatelessWidget {
+  final String value;
+  final String label;
+  final Color color;
+
+  const _SummaryItem({
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.black54,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 40,
+      color: Color(0xFFE5E7EB),
     );
   }
 }
