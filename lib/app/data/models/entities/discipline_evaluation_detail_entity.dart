@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:pm_app/app/data/models/entities/weeks_entity.dart';

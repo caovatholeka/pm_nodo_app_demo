@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
+import 'package:pm_app/app/data/repositories/dashboard_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
@@ -15,6 +16,7 @@ import 'package:pm_app/app/data/repositories/work_entry_repository.dart';
 import 'package:pm_app/app/data/repositories/work_trip_repository.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -112,8 +114,9 @@ Future<void> init() async {
   sl.registerLazySingleton<StaffCubit>(() => StaffCubit(repository: sl()));
   sl.registerLazySingleton<EmployeeFilterCubit>(() => EmployeeFilterCubit());
 
-  sl.registerLazySingleton<WorkTripCubit>(() => WorkTripCubit(uploadRepo: sl(),
-    tripRepository: sl()));
+  sl.registerLazySingleton<WorkTripCubit>(
+    () => WorkTripCubit(uploadRepo: sl(), tripRepository: sl()),
+  );
 
   sl.registerLazySingleton<AttendanceDataCubit>(
     () => AttendanceDataCubit(repository: sl()),
@@ -184,13 +187,20 @@ Future<void> init() async {
   //OT
   sl.registerLazySingleton<OvertimeCubit>(() => OvertimeCubit());
   sl.registerLazySingleton<OvertimeDetailCubit>(() => OvertimeDetailCubit());
-  sl.registerLazySingleton<OvertimeRepository>(
-    () => OvertimeRepositoryImpl(),
+  sl.registerLazySingleton<OvertimeRepository>(() => OvertimeRepositoryImpl());
+  sl.registerLazySingleton<ApprasialFormCubit>(
+    () => ApprasialFormCubit(repository: sl()),
   );
-  sl.registerLazySingleton<ApprasialFormCubit>(() => ApprasialFormCubit(repository: sl()));
   sl.registerLazySingleton<EvaluationRepository>(
-        () => EvaluationRepositoryImpl(),
-  ); 
+    () => EvaluationRepositoryImpl(),
+  );
 
-  sl.registerLazySingleton<CreateAppraisalCubit>(() => CreateAppraisalCubit(repository: sl()));
+  sl.registerLazySingleton<CreateAppraisalCubit>(
+    () => CreateAppraisalCubit(repository: sl()),
+  );
+
+  sl.registerLazySingleton<DashboardRepository>(
+    () => DashboardRepositoryImpl(),
+  );
+  sl.registerFactory<DashboardCubit>(() => DashboardCubit(repository: sl()));
 }

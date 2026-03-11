@@ -1,10 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
+import 'package:pm_app/app/data/models/entities/discipline_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
+import 'package:pm_app/app/data/models/entities/project_tasks_entity.dart';
+import 'package:pm_app/app/data/models/entities/projects_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_quality_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
@@ -365,7 +368,7 @@ abstract class ApiClient {
   // thống kê chất lượng công việc
   @GET('/dashboard/work_quality')
   Future<WorkQualityEntity> getWorkQuality(
-      @Query("month") int? month,
+      @Query("month") String? month,
       );
 
   // chi tiết chất lượng công việc
@@ -376,19 +379,19 @@ abstract class ApiClient {
   
   //Thống kê dữ liệu chấm công
   @GET('/dashboard/timesheet_data')
-  Future<CommonResponse> getTimeSheetData(
+  Future<dynamic> getTimeSheetData(
     @Query("month") int? month,
   );
 
   // thống kê sinh nhật trong tháng
   @GET('/dashboard/birthdays_this_month')
-  Future<CommonResponse> getBirthdaysThisMonth(
+  Future<dynamic> getBirthdaysThisMonth(
     @Query("month") int? month,
   );
 
   //Thống kê nề nếp
   @GET('/dashboard/discipline_evaluation')
-  Future<CommonResponse> getDisciplineEvaluation(
+  Future<DisciplineEvaluationEntity> getDisciplineEvaluation(
     @Query("month") int? month,
   );
 
@@ -400,13 +403,11 @@ abstract class ApiClient {
 
   //Lấy chi tiết dự án 
   @GET('/dashboard/project_tasks')
-  Future<CommonResponse> getProjectTasks(
-    @Query("month") int? month,
-  );
+  Future<dynamic> getProjectTasks();
 
   //Lấy dự án
   @GET('/dashboard/projects')
-  Future<CommonResponse> getProjects();
+  Future<dynamic> getProjects();
 
   //Đề xuất cải thiện
   @POST('/dashboard/improvement_suggestion')

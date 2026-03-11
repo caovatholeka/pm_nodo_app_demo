@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:pm_app/app/data/models/entities/tasks_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 
-class TaskList extends StatefulWidget {
+class TaskList extends StatelessWidget {
   const TaskList({super.key});
 
-  @override
-  State<TaskList> createState() => _TaskListState();
-}
+  String _formatDeadline(String? raw) {
+    if (raw == null || raw.isEmpty) return '';
+    final date = DateTime.tryParse(raw);
+    if (date == null) return raw;
+    return DateFormat('dd/MM/yyyy HH:mm:ss').format(date);
+  }
 
-class _TaskListState extends State<TaskList> {
-  final List<_TaskItem> tasks = [
-    _TaskItem(
-      title: "Tét",
-      deadline: "20/11/2025 12:00:00",
-      isDone: false,
-    ),
-    _TaskItem(
-      title: "Tét",
-      deadline: "20/11/2025 12:00:00",
-      isDone: false,
-    ),
-    _TaskItem(
-      title: "Tét",
-      deadline: "20/11/2025 12:00:00",
-      isDone: true,
-    ),
-  ];
+  bool _isDone(TasksEntity task) {
+    final stage = (task.stage ?? '').toLowerCase();
+    return stage.contains('done') ||
+        stage.contains('complete') ||
+        stage.contains('completed');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,117 +37,125 @@ class _TaskListState extends State<TaskList> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          /// HEADER
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    "Danh sách việc cần làm hôm nay",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+      child: BlocBuilder<DashboardCubit, DashboardState>(
+        builder: (context, state) {
+          final tasks = state.todayTasks.take(3).toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Danh sách việc cần làm hôm nay',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: () {},
+                      child: const Text(
+                        'Xem tất cả',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF2563EB),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                GestureDetector(
-                  onTap: () {},
-                  child: const Text(
-                    "Xem tất cả",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF2563EB),
-                      fontWeight: FontWeight.w500,
-                    ),
+              ),
+              const SizedBox(height: 12),
+              if (state.taskStatus == LoadStatus.LOADING)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: CircularProgressIndicator(),
+                )
+              else if (state.taskStatus == LoadStatus.FAILURE)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Text(
+                    'Không tải được dữ liệu',
+                    style: TextStyle(color: Colors.red),
                   ),
                 )
-              ],
-            ),
-          ),
+              else if (tasks.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Text('Không có công việc'),
+                )
+              else
+                ListView.builder(
+                  itemCount: tasks.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final task = tasks[index];
+                    final isDone = _isDone(task);
 
-          const SizedBox(height: 12),
-
-          /// TASK LIST
-          ListView.builder(
-            itemCount: tasks.length,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.star,
-                      size: 22,
-                      color: task.isDone
-                          ? Colors.grey.shade300
-                          : const Color(0xFFFBBF24),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: Column(
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            task.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: task.isDone ? FontWeight.normal : FontWeight.bold,
-                              decoration: task.isDone
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                              color: task.isDone
-                                  ? Colors.grey
-                                  : Colors.black87,
-                            ),
+                          Icon(
+                            Icons.star,
+                            size: 22,
+                            color: isDone
+                                ? Colors.grey.shade300
+                                : const Color(0xFFFBBF24),
                           ),
-
-                          const SizedBox(height: 4),
-
-                          Text(
-                            "Deadline:  ${task.deadline}",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                              decoration: task.isDone
-                                  ? TextDecoration.lineThrough
-                                  : null,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  task.taskName ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: isDone
+                                        ? FontWeight.normal
+                                        : FontWeight.bold,
+                                    decoration: isDone
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                    color: isDone ? Colors.grey : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Deadline:  ${_formatDeadline(task.deadline)}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                    decoration: isDone
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    )
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
-          )
-        ],
+            ],
+          );
+        },
       ),
     );
   }
-}
-
-class _TaskItem {
-  final String title;
-  final String deadline;
-  final bool isDone;
-
-  _TaskItem({
-    required this.title,
-    required this.deadline,
-    required this.isDone,
-  });
 }
