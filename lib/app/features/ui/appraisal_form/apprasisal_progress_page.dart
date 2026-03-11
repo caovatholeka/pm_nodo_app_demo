@@ -10,6 +10,8 @@ import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 
+import '../../../data/models/entities/task_line_id_entity.dart';
+
 class ApprasisalProgressPage extends StatefulWidget {
   const ApprasisalProgressPage({super.key});
 
@@ -30,6 +32,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   final TextEditingController _jobCtrl = TextEditingController();
   final TextEditingController _coefCtrl = TextEditingController();
   final TextEditingController _evidenceCtrl = TextEditingController();
+  List<TaskLineIdEntity> listTasks = [];
 
   final List<List<TextEditingController>> _evidencesPerStep = [
     [TextEditingController(), TextEditingController(), TextEditingController()],
@@ -69,13 +72,15 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
     if (task == null) return;
 
+    listTasks = state.detailEvaluation?.taskLineIds ?? [];
+
     _jobCtrl.text = task.name ?? "";
     _coefCtrl.text = task.rate?.toString() ?? "";
     _evidenceCtrl.text = task.jiraKey ?? "";
 
-    _ratingsPerStep[0][0] = _toInt(task.volume);
-    _ratingsPerStep[0][1] = _toInt(task.quality);
-    _ratingsPerStep[0][2] = _toInt(task.progress);
+    // _ratingsPerStep[0][0] = _toInt(task.volume);
+    // _ratingsPerStep[0][1] = _toInt(task.quality);
+    // _ratingsPerStep[0][2] = _toInt(task.progress);
   }
 
   void _fillDetailStep2(CreateAppraisalState state) {
@@ -148,7 +153,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   Widget _buildStepper() {
     const circleSize = 26.0;
-    const lineWidth = 80.0;
+    const lineWidth = 60.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -257,6 +262,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   Widget _buildStepContent(bool isDetail, CreateAppraisalState state) {
     if (_currentStep == 0) {
       return AppraisalStepResultWork(
+        listTask: listTasks,
         ratings: _ratingsPerStep[0],
         jobCtrl: _jobCtrl,
         weightCtrl: _coefCtrl,
@@ -323,72 +329,72 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         final actionText = _currentStep < 3 ? 'Tiếp theo' : 'Xác nhận';
 
         return Scaffold(
+          appBar: MyAppBar(
+            titleAppbar: 'Phiếu đánh giá kết quả CV',
+            haveBackButton: true,
+            haveActionButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
+            actionCallBack: () {},
+          ),
           body: Stack(
             children: [
-              Positioned.fill(
-                child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
-              ),
+              // Positioned.fill(
+              //   child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
+              // ),
 
               SafeArea(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: MyAppBar(
-                        titleAppbar: 'Phiếu đánh giá kết quả CV',
-                        haveBackButton: true,
-                        haveActionButton: true,
-                        iconPathAsset: AppAssets.icNotificationBell,
-                        actionCallBack: () {},
-                      ),
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8,right: 8),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16,),
+                      _buildStepper(),
 
-                    _buildStepper(),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 8),
 
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 8),
+                              _buildHeaderByStep(),
 
-                            _buildHeaderByStep(),
-
-                            _buildStepContent(isDetail, state),
-                          ],
+                              _buildStepContent(isDetail, state),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                    SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: PrimaryButton(
-                                mainText: 'Quay lại',
-                                enable: true,
-                                isLoading: false,
-                                type: PrimaryButtonType.secondary,
-                                callback: _back,
+                      SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: PrimaryButton(
+                                  mainText: 'Quay lại',
+                                  enable: true,
+                                  isLoading: false,
+                                  type: PrimaryButtonType.secondary,
+                                  callback: _back,
+                                ),
                               ),
-                            ),
 
-                            const SizedBox(width: 12),
+                              const SizedBox(width: 12),
 
-                            Expanded(
-                              child: PrimaryButton(
-                                mainText: actionText,
-                                enable: _canNext,
-                                isLoading: false,
-                                callback: _next,
+                              Expanded(
+                                child: PrimaryButton(
+                                  mainText: actionText,
+                                  enable: _canNext,
+                                  isLoading: false,
+                                  callback: _next,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

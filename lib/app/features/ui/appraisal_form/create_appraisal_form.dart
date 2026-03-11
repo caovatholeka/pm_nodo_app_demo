@@ -189,7 +189,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                         return MyAppBar(
                           titleAppbar:
                               widget.isDetail == true
-                                  ? "Chi tiết phiếu đánh gia"
+                                  ? "Phiếu đánh giá kết quả CV"
                                   : "Tạo phiếu đánh giá",
                           haveBackButton: true,
                           haveActionButton: true,
@@ -237,7 +237,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                             controller: _deprtmentCtrl,
                             readOnly: true,
                           ),
-
+                          const SizedBox(height: 16),
                           Row(
                             children: [
                               Expanded(
