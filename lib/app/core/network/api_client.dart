@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
+import 'package:pm_app/app/data/models/entities/discipline_evaluation_detail_entity.dart';
 import 'package:pm_app/app/data/models/entities/discipline_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
-import 'package:pm_app/app/data/models/entities/project_tasks_entity.dart';
-import 'package:pm_app/app/data/models/entities/projects_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_quality_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
@@ -21,6 +20,7 @@ import 'package:pm_app/app/data/models/param/justification_cancel_param.dart';
 import 'package:pm_app/app/data/models/param/leave_approve_param.dart';
 import 'package:pm_app/app/data/models/param/leave_reject_param.dart';
 import 'package:pm_app/app/data/models/param/ot_approve_param.dart';
+import 'package:pm_app/app/data/models/param/send_suggestion_param.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../../data/models/entities/face_search_response_entity.dart';
@@ -374,7 +374,7 @@ abstract class ApiClient {
   // chi tiết chất lượng công việc
   @GET('/dashboard/work_quality_detail')
   Future<WorkQualityEntity> getWorkQualityDetail(
-      @Query("month") int? month,
+      @Query("month") String? month,
       );
   
   //Thống kê dữ liệu chấm công
@@ -397,7 +397,7 @@ abstract class ApiClient {
 
   //thống kê chi tiết nề nếp
   @GET('/dashboard/discipline_evaluation_detail')
-  Future<CommonResponse> getDetailDisciplineEvaluation(
+  Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(
     @Query("month") int? month,
   );
 
@@ -411,5 +411,5 @@ abstract class ApiClient {
 
   //Đề xuất cải thiện
   @POST('/dashboard/improvement_suggestion')
-  Future<CommonResponse> submitImprovemnt(@Body() Map<String, dynamic> body);
+  Future<CommonResponse> submitImprovemnt(@Body() SendSuggestionParam body);
 }

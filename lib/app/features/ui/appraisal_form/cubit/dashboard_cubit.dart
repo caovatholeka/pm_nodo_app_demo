@@ -4,15 +4,16 @@ import 'package:pm_app/app/core/helper/response_mapper.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/birthdays_entity.dart';
 import 'package:pm_app/app/data/models/entities/birthdays_this_month_entity.dart';
+import 'package:pm_app/app/data/models/entities/discipline_evaluation_detail_entity.dart';
 import 'package:pm_app/app/data/models/entities/discipline_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/project_tasks_entity.dart';
-import 'package:pm_app/app/data/models/entities/projects_entity.dart';
 import 'package:pm_app/app/data/models/entities/request_summary_entity.dart';
 import 'package:pm_app/app/data/models/entities/tasks_entity.dart';
 import 'package:pm_app/app/data/models/entities/timesheet_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_quality_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/param/projects_param.dart';
+import 'package:pm_app/app/data/models/param/send_suggestion_param.dart';
 import 'package:pm_app/app/data/repositories/dashboard_repository.dart';
 
 part 'dashboard_state.dart';
@@ -21,8 +22,8 @@ class DashboardCubit extends Cubit<DashboardState> {
   final DashboardRepository _repository;
 
   DashboardCubit({required DashboardRepository repository})
-      : _repository = repository,
-        super(const DashboardState());
+    : _repository = repository,
+      super(const DashboardState());
 
   Map<String, dynamic>? _asMap(dynamic value) {
     if (value is Map<String, dynamic>) {
@@ -52,7 +53,9 @@ class DashboardCubit extends Cubit<DashboardState> {
       final dataMap =
           res.data is Map ? Map<String, dynamic>.from(res.data as Map) : null;
       final rawItems =
-          res.items ?? dataMap?['items'] ?? (res.data is List ? res.data : null);
+          res.items ??
+          dataMap?['items'] ??
+          (res.data is List ? res.data : null);
 
       final items = mapList(rawItems, RequestSummaryEntity.fromJson);
 
@@ -117,6 +120,30 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
+  Future<void> getDisciplineEvaluationDetail(int month) async {
+    try {
+      emit(state.copyWith(disciplineDetailStatus: LoadStatus.LOADING));
+
+      final entity = await _repository.getDetailDisciplineEvaluation(month);
+
+      emit(
+        state.copyWith(
+          disciplineDetailStatus: LoadStatus.SUCCESS,
+          disciplineEvaluationDetail: entity,
+        ),
+      );
+    } catch (e, s) {
+      logger.e(e);
+      logger.d(s);
+      emit(
+        state.copyWith(
+          disciplineDetailStatus: LoadStatus.FAILURE,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
   Future<ProjectTasksEntity> _loadProjectTasks() {
     return _repository.getProjectTasks().then((res) {
       final payload = _extractPayload(res);
@@ -142,9 +169,14 @@ class DashboardCubit extends Cubit<DashboardState> {
       final projects = mapList(rawProjects, ProjectsParam.fromJson);
       final firstProject = projects.isNotEmpty ? projects.first : null;
       final firstProjectId = firstProject?.projectID;
-      final selectedProjectId = state.projectTaskProjectId ?? state.selectedProjectId ?? firstProjectId;
+      final selectedProjectId =
+          state.projectTaskProjectId ??
+          state.selectedProjectId ??
+          firstProjectId;
       final selectedProjectName =
-          state.projectTaskProjectName ?? state.selectedProjectName ?? firstProject?.projectName;
+          state.projectTaskProjectName ??
+          state.selectedProjectName ??
+          firstProject?.projectName;
 
       emit(
         state.copyWith(
@@ -153,7 +185,6 @@ class DashboardCubit extends Cubit<DashboardState> {
           selectedProjectName: selectedProjectName,
         ),
       );
-
     } catch (e, s) {
       logger.e(e);
       logger.d(s);
@@ -164,8 +195,6 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> getTodayTasks() async {
     try {
       emit(state.copyWith(taskStatus: LoadStatus.LOADING));
-
-      logger.d('dashboard.getTodayTasks: start');
       final entity = await _loadProjectTasks();
       emit(
         state.copyWith(
@@ -184,15 +213,35 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       emit(state.copyWith(projectStatus: LoadStatus.LOADING));
 
-      logger.d('dashboard.getProjectTasks: start');
       final entity = await _loadProjectTasks();
       emit(
         state.copyWith(
           projectStatus: LoadStatus.SUCCESS,
           projectTasks: entity.tasks ?? const <TasksEntity>[],
           selectedProjectId: state.selectedProjectId ?? entity.projectID,
-          selectedProjectName:
-              state.selectedProjectName ?? entity.projectName,
+          selectedProjectName: state.selectedProjectName ?? entity.projectName,
+          projectTaskProjectId: entity.projectID,
+          projectTaskProjectName: entity.projectName,
+        ),
+      );
+    } catch (e, s) {
+      logger.e(e);
+      logger.d(s);
+      emit(state.copyWith(projectStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  Future<void> getListProject() async {
+    try {
+      emit(state.copyWith(projectStatus: LoadStatus.LOADING));
+
+      final entity = await _loadProjectTasks();
+      emit(
+        state.copyWith(
+          projectStatus: LoadStatus.SUCCESS,
+          projectTasks: entity.tasks ?? const <TasksEntity>[],
+          selectedProjectId: state.selectedProjectId ?? entity.projectID,
+          selectedProjectName: state.selectedProjectName ?? entity.projectName,
           projectTaskProjectId: entity.projectID,
           projectTaskProjectName: entity.projectName,
         ),
@@ -222,10 +271,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       final entity = mapObject(dataMap, TimesheetEntity.fromJson);
 
       emit(
-        state.copyWith(
-          timesheetStatus: LoadStatus.SUCCESS,
-          timesheet: entity,
-        ),
+        state.copyWith(timesheetStatus: LoadStatus.SUCCESS, timesheet: entity),
       );
     } catch (e, s) {
       logger.e(e);
@@ -241,11 +287,7 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> getBirthdaysThisMonth(int month) async {
     try {
-      emit(
-        state.copyWith(
-          birthdayStatus: LoadStatus.LOADING,
-        ),
-      );
+      emit(state.copyWith(birthdayStatus: LoadStatus.LOADING));
 
       final res = await _repository.getBirthdaysThisMonth(month);
       final dataMap = _extractPayload(res);
@@ -275,5 +317,51 @@ class DashboardCubit extends Cubit<DashboardState> {
         ),
       );
     }
+  }
+
+  Future<void> getWorkQualityDetail(String month) async {
+    try {
+      emit(state.copyWith(workQualityStatus: LoadStatus.LOADING));
+
+      final entity = await _repository.getWorkQualityDetail(month);
+
+      emit(
+        state.copyWith(
+          workQualityStatus: LoadStatus.SUCCESS,
+          worQualityDetail: entity,
+        ),
+      );
+    } catch (e, s) {
+      logger.e(e);
+      logger.d(s);
+      emit(
+        state.copyWith(
+          workQualityStatus: LoadStatus.FAILURE,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> submitImprovemnt(SendSuggestionParam body) async {
+    try {
+      emit(state.copyWith(suggestionStatus: LoadStatus.LOADING));
+
+      await _repository.submitImprovemnt(body);
+      emit(state.copyWith(suggestionStatus: LoadStatus.SUCCESS));
+    } catch (e, s) {
+      logger.e(e);
+      logger.d(s);
+      emit(
+        state.copyWith(
+          suggestionStatus: LoadStatus.FAILURE,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  void resetSuggestionStatus() {
+    emit(state.copyWith(suggestionStatus: LoadStatus.INITIAL));
   }
 }

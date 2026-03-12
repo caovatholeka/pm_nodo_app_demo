@@ -4,15 +4,18 @@ class DashboardState extends Equatable {
   final LoadStatus requestStatus;
   final LoadStatus workQualityStatus;
   final LoadStatus disciplineStatus;
+  final LoadStatus disciplineDetailStatus;
   final LoadStatus taskStatus;
   final LoadStatus projectStatus;
   final LoadStatus birthdayStatus;
   final LoadStatus timesheetStatus;
+  final LoadStatus suggestionStatus;
 
   final List<RequestSummaryEntity> requestSummaries;
   final WorkQualityEntity? workQuality;
   final WorkQualityEntity? worQualityDetail;
   final DisciplineEvaluationEntity? disciplineEvaluation;
+  final DisciplineEvaluationDetailEntity? disciplineEvaluationDetail;
   final List<TasksEntity> todayTasks;
   final List<ProjectsParam> projects;
   final List<TasksEntity> projectTasks;
@@ -28,14 +31,17 @@ class DashboardState extends Equatable {
     this.requestStatus = LoadStatus.INITIAL,
     this.workQualityStatus = LoadStatus.INITIAL,
     this.disciplineStatus = LoadStatus.INITIAL,
+    this.disciplineDetailStatus = LoadStatus.INITIAL,
     this.taskStatus = LoadStatus.INITIAL,
     this.projectStatus = LoadStatus.INITIAL,
     this.birthdayStatus = LoadStatus.INITIAL,
     this.timesheetStatus = LoadStatus.INITIAL,
+    this.suggestionStatus = LoadStatus.INITIAL,
     this.requestSummaries = const [],
     this.workQuality,
     this.worQualityDetail,
     this.disciplineEvaluation,
+    this.disciplineEvaluationDetail,
     this.todayTasks = const [],
     this.projects = const [],
     this.projectTasks = const [],
@@ -52,14 +58,17 @@ class DashboardState extends Equatable {
     LoadStatus? requestStatus,
     LoadStatus? workQualityStatus,
     LoadStatus? disciplineStatus,
+    LoadStatus? disciplineDetailStatus,
     LoadStatus? taskStatus,
     LoadStatus? projectStatus,
     LoadStatus? birthdayStatus,
     LoadStatus? timesheetStatus,
+    LoadStatus? suggestionStatus,
     List<RequestSummaryEntity>? requestSummaries,
     WorkQualityEntity? workQuality,
     WorkQualityEntity? worQualityDetail,
     DisciplineEvaluationEntity? disciplineEvaluation,
+    DisciplineEvaluationDetailEntity? disciplineEvaluationDetail,
     List<TasksEntity>? todayTasks,
     List<ProjectsParam>? projects,
     List<TasksEntity>? projectTasks,
@@ -75,6 +84,8 @@ class DashboardState extends Equatable {
       requestStatus: requestStatus ?? this.requestStatus,
       workQualityStatus: workQualityStatus ?? this.workQualityStatus,
       disciplineStatus: disciplineStatus ?? this.disciplineStatus,
+      disciplineDetailStatus:
+          disciplineDetailStatus ?? this.disciplineDetailStatus,
       taskStatus: taskStatus ?? this.taskStatus,
       projectStatus: projectStatus ?? this.projectStatus,
       birthdayStatus: birthdayStatus ?? this.birthdayStatus,
@@ -83,6 +94,8 @@ class DashboardState extends Equatable {
       workQuality: workQuality ?? this.workQuality,
       worQualityDetail: worQualityDetail ?? this.worQualityDetail,
       disciplineEvaluation: disciplineEvaluation ?? this.disciplineEvaluation,
+      disciplineEvaluationDetail:
+          disciplineEvaluationDetail ?? this.disciplineEvaluationDetail,
       todayTasks: todayTasks ?? this.todayTasks,
       projects: projects ?? this.projects,
       projectTasks: projectTasks ?? this.projectTasks,
@@ -94,6 +107,7 @@ class DashboardState extends Equatable {
       birthdays: birthdays ?? this.birthdays,
       timesheet: timesheet ?? this.timesheet,
       errorMessage: errorMessage ?? this.errorMessage,
+      suggestionStatus: suggestionStatus ?? this.suggestionStatus,
     );
   }
 
@@ -102,14 +116,17 @@ class DashboardState extends Equatable {
         requestStatus,
         workQualityStatus,
         disciplineStatus,
+        disciplineDetailStatus,
         taskStatus,
         projectStatus,
         birthdayStatus,
         timesheetStatus,
+        suggestionStatus,
         requestSummaries,
         workQuality,
         worQualityDetail,
         disciplineEvaluation,
+        disciplineEvaluationDetail,
         todayTasks,
         projects,
         projectTasks,

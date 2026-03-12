@@ -6,7 +6,12 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 
 class TaskList extends StatelessWidget {
-  const TaskList({super.key});
+  final VoidCallback? onTap;
+
+  const TaskList({
+    super.key,
+    this.onTap,
+  });
 
   String _formatDeadline(String? raw) {
     if (raw == null || raw.isEmpty) return '';
@@ -57,7 +62,7 @@ class TaskList extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: onTap,
                       child: const Text(
                         'Xem tất cả',
                         style: TextStyle(
@@ -98,56 +103,61 @@ class TaskList extends StatelessWidget {
                     final task = tasks[index];
                     final isDone = _isDone(task);
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.star,
-                            size: 22,
-                            color: isDone
-                                ? Colors.grey.shade300
-                                : const Color(0xFFFBBF24),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  task.taskName ?? '',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: isDone
-                                        ? FontWeight.normal
-                                        : FontWeight.bold,
-                                    decoration: isDone
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                    color: isDone ? Colors.grey : Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Deadline:  ${_formatDeadline(task.deadline)}',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade600,
-                                    decoration: isDone
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                  ),
-                                ),
-                              ],
+                    return InkWell(
+                      onTap: onTap,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.star,
+                              size: 22,
+                              color: isDone
+                                  ? Colors.grey.shade300
+                                  : const Color(0xFFFBBF24),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    task.taskName ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: isDone
+                                          ? FontWeight.normal
+                                          : FontWeight.bold,
+                                      decoration: isDone
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                      color: isDone
+                                          ? Colors.grey
+                                          : Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Deadline:  ${_formatDeadline(task.deadline)}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade600,
+                                      decoration: isDone
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

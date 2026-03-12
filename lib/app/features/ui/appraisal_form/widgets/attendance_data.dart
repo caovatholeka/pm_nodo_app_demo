@@ -6,7 +6,12 @@ import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data_item.dart';
 
 class AttendanceData extends StatelessWidget {
-  const AttendanceData({super.key});
+  final VoidCallback? onTap;
+
+  const AttendanceData({
+    super.key,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +37,7 @@ class AttendanceData extends StatelessWidget {
 
           return Column(
             children: [
-              const _Header(),
+              _Header(onTap: onTap),
               const SizedBox(height: 16),
               if (state.timesheetStatus == LoadStatus.LOADING)
                 const Padding(
@@ -149,7 +154,9 @@ class AttendanceData extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final VoidCallback? onTap;
+
+  const _Header({this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +185,7 @@ class _Header extends StatelessWidget {
           ),
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: onTap,
           child: const Text(
             'Xem tất cả',
             style: TextStyle(

@@ -8,7 +8,12 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import '../cubit/dashboard_cubit.dart';
 
 class WorkStatusCard extends StatelessWidget {
-  const WorkStatusCard({super.key});
+  final ValueChanged<String>? onTap;
+
+  const WorkStatusCard({
+    super.key,
+    this.onTap,
+  });
 
   static const Map<String, List<String>> _keyAliases = {
     'leave': ['leave', 'hr_leave'],
@@ -84,64 +89,74 @@ class WorkStatusCard extends StatelessWidget {
               childAspectRatio: 1.25,
               children: keysOrder.map((key) {
                 final item = _find(list, key);
+
                 return _itemCard(
                   item?.label ?? _defaultLabel(key),
                   item?.count ?? 0,
                   _iconForKey(key),
                   isLoading: isLoading && item == null,
+                  onTap: () => onTap?.call(key),
                 );
               }).toList(),
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffE6F7FA),
-                      borderRadius: BorderRadius.circular(10),
+            InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () => onTap?.call('wfh'),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
                     ),
-                    child: SvgPicture.asset(AppAssets.icHome, width: 30),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      wfhItem?.label ?? _defaultLabel('wfh'),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffE6F7FA),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: SvgPicture.asset(AppAssets.icHome, width: 30),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        wfhItem?.label ?? _defaultLabel('wfh'),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                  if (isLoading && wfhItem == null)
-                    const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue,),
-                    )
-                  else
-                    Text(
-                      "${wfhItem?.count ?? 0}",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    if (isLoading && wfhItem == null)
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.blue,
+                        ),
+                      )
+                    else
+                      Text(
+                        "${wfhItem?.count ?? 0}",
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
@@ -156,38 +171,45 @@ Widget _itemCard(
   int value,
   String icon, {
   bool isLoading = false,
+  VoidCallback? onTap,
 }) {
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 18),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
-      boxShadow: const [
-        BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-      ],
-    ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SvgPicture.asset(icon, width: 30),
-        const SizedBox(height: 6),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 13, color: Colors.black54),
-        ),
-        const SizedBox(height: 4),
-        if (isLoading)
-          const SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue),
-          )
-        else
+  return InkWell(
+    borderRadius: BorderRadius.circular(14),
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(icon, width: 30),
+          const SizedBox(height: 6),
           Text(
-            value.toString(),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            title,
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
           ),
-      ],
+          const SizedBox(height: 4),
+          if (isLoading)
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child:
+                  CircularProgressIndicator(strokeWidth: 2, color: Colors.blue),
+            )
+          else
+            Text(
+              value.toString(),
+              style: const TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+        ],
+      ),
     ),
   );
 }

@@ -1,9 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 
 class ProjectBarChartCard extends StatefulWidget {
   const ProjectBarChartCard({super.key});
@@ -16,8 +16,8 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
   DateTime _selectedDate = DateTime.now();
 
   void _pickMonth() {
-    int tempYear = _selectedDate.year;
-    int tempMonth = _selectedDate.month;
+    var tempYear = _selectedDate.year;
+    var tempMonth = _selectedDate.month;
 
     showModalBottomSheet(
       context: context,
@@ -31,10 +31,7 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -78,17 +75,15 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
                         },
                         children: List.generate(
                           20,
-                          (i) => Center(
+                          (index) => Center(
                             child: Text(
-                              (2020 + i).toString(),
+                              '${2020 + index}',
                               style: const TextStyle(fontSize: 18),
                             ),
                           ),
                         ),
                       ),
                     ),
-
-                    // MONTH
                     Expanded(
                       child: CupertinoPicker(
                         scrollController: FixedExtentScrollController(
@@ -100,9 +95,9 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
                         },
                         children: List.generate(
                           12,
-                          (i) => Center(
+                          (index) => Center(
                             child: Text(
-                              'Tháng ${i + 1}',
+                              'Tháng ${index + 1}',
                               style: const TextStyle(fontSize: 18),
                             ),
                           ),
@@ -174,8 +169,8 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
               series: [
                 ColumnSeries<_Data, String>(
                   dataSource: data,
-                  xValueMapper: (d, _) => d.name,
-                  yValueMapper: (d, _) => d.value,
+                  xValueMapper: (item, _) => item.name,
+                  yValueMapper: (item, _) => item.value,
                   color: const Color(0xFF8B87FF),
                   width: 0.5,
                   spacing: 0.1,
@@ -214,7 +209,8 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
 class _Data {
   final String name;
   final double value;
-  _Data(this.name, this.value);
+
+  const _Data(this.name, this.value);
 }
 
 class _Header extends StatelessWidget {
@@ -290,6 +286,7 @@ class _Header extends StatelessWidget {
 
 class _Card extends StatelessWidget {
   final Widget child;
+
   const _Card({required this.child});
 
   @override

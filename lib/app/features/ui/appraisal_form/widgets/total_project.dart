@@ -7,7 +7,12 @@ import 'package:pm_app/app/data/models/param/projects_param.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 
 class TotalProject extends StatelessWidget {
-  const TotalProject({super.key});
+  final VoidCallback? onTap;
+
+  const TotalProject({
+    super.key,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,90 +29,115 @@ class TotalProject extends StatelessWidget {
           ),
         ],
       ),
-      child: BlocBuilder<DashboardCubit, DashboardState>(
-        builder: (context, state) {
-          final visibleTasks = state.projectTasks;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Dự án',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              const Expanded(
+                child: Text(
+                  'Dự án',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: const Text(
-                      'Xem tất cả',
-                      style: TextStyle(
-                        color: Color(0xFF2563EB),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _ProjectPicker(
-                selectedProjectName:
-                    state.selectedProjectName ?? state.projectTaskProjectName,
-                projects: state.projects,
-                isLoading: state.projectStatus == LoadStatus.LOADING,
-              ),
-              const SizedBox(height: 16),
-              if (state.projectStatus == LoadStatus.LOADING)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (state.projectStatus == LoadStatus.FAILURE)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text(
-                      'Khong tai duoc du lieu',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                )
-              else if (visibleTasks.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text('Khong co task'),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: visibleTasks.length,
-                  itemBuilder: (context, index) {
-                    return _ProjectTaskCard(task: visibleTasks[index]);
-                  },
                 ),
+              ),
+              GestureDetector(
+                onTap: onTap,
+                child: const Text(
+                  'Xem tất cả',
+                  style: TextStyle(
+                    color: Color(0xFF2563EB),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ],
-          );
-        },
+          ),
+          const SizedBox(height: 16),
+          const ProjectTaskSection(),
+        ],
       ),
     );
   }
 }
 
-class _ProjectPicker extends StatelessWidget {
+class ProjectTaskSection extends StatelessWidget {
+  final bool showShadowlessCards;
+
+  const ProjectTaskSection({
+    super.key,
+    this.showShadowlessCards = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        final visibleTasks = state.projectTasks;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ProjectPicker(
+              selectedProjectName:
+                  state.selectedProjectName ?? state.projectTaskProjectName,
+              projects: state.projects,
+              isLoading: state.projectStatus == LoadStatus.LOADING,
+            ),
+            const SizedBox(height: 16),
+            if (state.projectStatus == LoadStatus.LOADING)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: CircularProgressIndicator(color: Colors.blue),
+                ),
+              )
+            else if (state.projectStatus == LoadStatus.FAILURE)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'Không tải được dữ liệu',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              )
+            else if (visibleTasks.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text('Không có task'),
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: visibleTasks.length,
+                itemBuilder: (context, index) {
+                  return ProjectTaskCard(
+                    task: visibleTasks[index],
+                    compactTopSpacing: showShadowlessCards,
+                  );
+                },
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class ProjectPicker extends StatelessWidget {
   final String? selectedProjectName;
   final List<ProjectsParam> projects;
   final bool isLoading;
 
-  const _ProjectPicker({
+  const ProjectPicker({
+    super.key,
     required this.selectedProjectName,
     required this.projects,
     required this.isLoading,
@@ -128,7 +158,7 @@ class _ProjectPicker extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                selectedProjectName ?? 'Chon du an',
+                selectedProjectName ?? 'Chưa có dự án nào',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -178,7 +208,7 @@ class _ProjectPicker extends StatelessWidget {
                 const Row(
                   children: [
                     Text(
-                      'Chon du an',
+                      'Danh sách dự án',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -190,11 +220,11 @@ class _ProjectPicker extends StatelessWidget {
                 if (projects.isEmpty)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Text('Khong co du an'),
+                    child: Text('Không có dự án'),
                   )
                 else
                   ...projects.map(
-                    (project) => _ProjectSheetTile(project: project),
+                    (project) => ProjectSheetTile(project: project),
                   ),
               ],
             ),
@@ -205,10 +235,13 @@ class _ProjectPicker extends StatelessWidget {
   }
 }
 
-class _ProjectSheetTile extends StatelessWidget {
+class ProjectSheetTile extends StatelessWidget {
   final ProjectsParam project;
 
-  const _ProjectSheetTile({required this.project});
+  const ProjectSheetTile({
+    super.key,
+    required this.project,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,10 +300,15 @@ class _ProjectSheetTile extends StatelessWidget {
   }
 }
 
-class _ProjectTaskCard extends StatelessWidget {
+class ProjectTaskCard extends StatelessWidget {
   final TasksEntity task;
+  final bool compactTopSpacing;
 
-  const _ProjectTaskCard({required this.task});
+  const ProjectTaskCard({
+    super.key,
+    required this.task,
+    this.compactTopSpacing = false,
+  });
 
   String _formatDeadline(String? raw) {
     if (raw == null || raw.isEmpty) return '';
@@ -286,9 +324,10 @@ class _ProjectTaskCard extends StatelessWidget {
     final isFavorite = task.isFavorite == true;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: compactTopSpacing ? 10 : 12),
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
@@ -299,11 +338,9 @@ class _ProjectTaskCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
-                isFavorite ? Icons.star : Icons.star_border,
-                color: isFavorite
-                    ? const Color(0xFFFBBF24)
-                    : const Color(0xFFE5E7EB),
-                size: 24,
+                isFavorite ? Icons.star : Icons.star,
+                color: const Color(0xFFF4C542),
+                size: 20,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -312,15 +349,13 @@ class _ProjectTaskCard extends StatelessWidget {
                   children: [
                     Text(
                       task.taskName ?? '',
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         height: 1.2,
-                        color: isFavorite
-                            ? Colors.black87
-                            : const Color(0xFF6B7280),
+                        color: Color(0xFF262626),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -328,7 +363,7 @@ class _ProjectTaskCard extends StatelessWidget {
                       'Deadline: ${_formatDeadline(task.deadline)}',
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF808080),
                         height: 1.2,
                       ),
                     ),
@@ -344,9 +379,9 @@ class _ProjectTaskCard extends StatelessWidget {
               Expanded(
                 flex: 5,
                 child: _InfoColumn(
-                  title: 'NV phân công',
+                  title: 'NV được phân công',
                   value: task.assignedEmployeeName ?? '',
-                  valueColor: const Color(0xFF2563EB),
+                  valueColor: const Color(0xFF1677FF),
                 ),
               ),
               const SizedBox(width: 12),
@@ -393,17 +428,19 @@ class _InfoColumn extends StatelessWidget {
           title,
           style: const TextStyle(
             fontSize: 13,
-            color: Color(0xFF6B7280),
+            color: Color(0xFF8A8A8A),
             height: 1.2,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           value,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: valueColor ?? const Color(0xFF374151),
+            color: valueColor ?? const Color(0xFF3F3F46),
             height: 1.2,
           ),
         ),

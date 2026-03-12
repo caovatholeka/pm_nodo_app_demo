@@ -9,7 +9,12 @@ import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class SummaryRatingCard extends StatefulWidget {
-  const SummaryRatingCard({super.key});
+  final VoidCallback? onTap;
+
+  const SummaryRatingCard({
+    super.key,
+    this.onTap,
+  });
 
   @override
   State<SummaryRatingCard> createState() => _SummaryRatingCardState();
@@ -123,7 +128,7 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
                           12,
                           (i) => Center(
                             child: Text(
-                              '${(i + 1).toString().padLeft(2, '0')}',
+                              (i + 1).toString().padLeft(2, '0'),
                               style: const TextStyle(fontSize: 18),
                             ),
                           ),
@@ -237,88 +242,92 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
         final data = _buildMetrics(state);
         final colors = _metricColors.take(data.length).toList();
 
-        return Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEEF7FF),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: SvgPicture.asset(
-                        AppAssets.icCheckBlue,
-                        width: 20,
-                        height: 20,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  const Expanded(
-                    child: Text(
-                      'Chất lượng công việc',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: _pickMonth,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
+        return InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: widget.onTap,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F6FA),
-                        borderRadius: BorderRadius.circular(20),
+                        color: const Color(0xFFEEF7FF),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(AppAssets.icCalendar, width: 14),
-                          const SizedBox(width: 6),
-                          Text(
-                            _monthLabel,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black54,
+                      child: Center(
+                        child: SvgPicture.asset(
+                          AppAssets.icCheckBlue,
+                          width: 20,
+                          height: 20,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    const Expanded(
+                      child: Text(
+                        'Chất lượng công việc',
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: _pickMonth,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F6FA),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(AppAssets.icCalendar, width: 14),
+                            const SizedBox(width: 6),
+                            Text(
+                              _monthLabel,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.black54,
+                              ),
                             ),
-                          ),
-                          const Icon(Icons.arrow_drop_down, size: 18),
-                        ],
+                            const Icon(Icons.arrow_drop_down, size: 18),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              if (state.workQualityStatus == LoadStatus.LOADING)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: Center(child: CircularProgressIndicator(color: Colors.blue,)),
-                )
-              else if (state.workQualityStatus == LoadStatus.FAILURE)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Center(
-                    child: Text(
-                      'Không tải được dữ liệu',
-                      style: TextStyle(color: Colors.red),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                if (state.workQualityStatus == LoadStatus.LOADING)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32),
+                    child: Center(child: CircularProgressIndicator(color: Colors.blue)),
+                  )
+                else if (state.workQualityStatus == LoadStatus.FAILURE)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: Text(
+                        'Không tải được dữ liệu',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
-                  ),
-                )
-              else
-                buildTaskLineWidget(data, colors),
-            ],
+                  )
+                else
+                  buildTaskLineWidget(data, colors),
+              ],
+            ),
           ),
         );
       },

@@ -1,5 +1,7 @@
+import 'package:pm_app/app/data/models/entities/discipline_evaluation_detail_entity.dart';
 import 'package:pm_app/app/data/models/entities/discipline_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_quality_entity.dart';
+import 'package:pm_app/app/data/models/param/send_suggestion_param.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/api_util.dart';
@@ -8,14 +10,14 @@ import '../models/response/common_response.dart';
 abstract class DashboardRepository {
   Future<CommonResponse> getRequestSumaries();
   Future<WorkQualityEntity> getWorkQuality(String month);
-  Future<WorkQualityEntity> getWorkQualityDetail(int month);
+  Future<WorkQualityEntity> getWorkQualityDetail(String month);
   Future<dynamic> getTimeSheetData(int month);
   Future<dynamic> getBirthdaysThisMonth(int month);
   Future<DisciplineEvaluationEntity> getDisciplineEvaluation(int month);
-  Future<CommonResponse> getDetailDisciplineEvaluation(int month);
+  Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(int month);
   Future<dynamic> getProjectTasks();
   Future<dynamic> getProjects();
-  Future<CommonResponse> submitImprovemnt(Map<String, dynamic> body);
+  Future<CommonResponse> submitImprovemnt(SendSuggestionParam body);
 }
 
 class DashboardRepositoryImpl implements DashboardRepository {
@@ -35,7 +37,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   //Thống kê chi tiết chất lượng công việc
   @override
-  Future<WorkQualityEntity> getWorkQualityDetail(int month) async {
+  Future<WorkQualityEntity> getWorkQualityDetail(String month) async {
     return await _apiClient.getWorkQualityDetail(month);
   }
 
@@ -59,7 +61,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   //Thống kê chi tiết nề nếp
   @override
-  Future<CommonResponse> getDetailDisciplineEvaluation(int month) async {
+  Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(int month) async {
     return await _apiClient.getDetailDisciplineEvaluation(month);
   }
 
@@ -77,7 +79,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   //Đề xuất cải thiện
   @override
-  Future<CommonResponse> submitImprovemnt(Map<String, dynamic> body) async {
+  Future<CommonResponse> submitImprovemnt(SendSuggestionParam body) async {
     return await _apiClient.submitImprovemnt(body);
   }
 }
