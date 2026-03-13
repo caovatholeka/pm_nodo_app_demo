@@ -117,8 +117,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             },
                           ),
                           SizedBox(height: 12),
-                          TaskList(),
-                          SizedBox(height: 12),
+                          // TaskList(),
+                          // SizedBox(height: 12),
                           TotalProject(
                             onTap: () {
                               _goProject();
