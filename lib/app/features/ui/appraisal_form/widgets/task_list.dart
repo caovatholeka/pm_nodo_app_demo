@@ -64,7 +64,7 @@ class TaskList extends StatelessWidget {
                     GestureDetector(
                       onTap: onTap,
                       child: const Text(
-                        'Xem tất cả',
+                        '',
                         style: TextStyle(
                           fontSize: 14,
                           color: Color(0xFF2563EB),

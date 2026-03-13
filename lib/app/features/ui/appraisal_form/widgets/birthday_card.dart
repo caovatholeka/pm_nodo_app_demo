@@ -286,7 +286,7 @@ class BirthdayHorizontalContent extends StatelessWidget {
     if (state.birthdayStatus == LoadStatus.LOADING && state.birthdays.isEmpty) {
       return const SizedBox(
         height: 120,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: CircularProgressIndicator(color: Colors.blue)),
       );
     }
 
@@ -345,7 +345,7 @@ class BirthdayVerticalContent extends StatelessWidget {
     if (state.birthdayStatus == LoadStatus.LOADING && state.birthdays.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 48),
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: CircularProgressIndicator(color: Colors.blue)),
       );
     }
 
@@ -375,7 +375,6 @@ class BirthdayVerticalContent extends StatelessWidget {
 
     return ListView.separated(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: state.birthdays.length,
       separatorBuilder: (_, __) => const SizedBox(height: 14),
       itemBuilder: (context, index) {
@@ -593,9 +592,9 @@ class BirthdayListTile extends StatelessWidget {
     }
   }
 
-  String get _departmentName {
-    return 'Phòng ban';
-  }
+  // String get _departmentName {
+  //   return 'Phòng ban';
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -624,7 +623,7 @@ class BirthdayListTile extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                '$_departmentName • $_displayBirthDate',
+                _displayBirthDate,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -636,14 +635,14 @@ class BirthdayListTile extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        Text(
-          _employeeCode,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Color(0xFF6EA7DE),
-          ),
-        ),
+        // Text(
+        //   _employeeCode,
+        //   style: const TextStyle(
+        //     fontSize: 14,
+        //     fontWeight: FontWeight.w400,
+        //     color: Color(0xFF6EA7DE),
+        //   ),
+        // ),
       ],
     );
   }
