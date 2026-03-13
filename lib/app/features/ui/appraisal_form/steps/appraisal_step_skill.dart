@@ -8,6 +8,7 @@ class AppraisalStepSkill extends StatelessWidget {
   final List<int> ratings;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
+  final bool isLeaderReview;
 
   const AppraisalStepSkill({
     super.key,
@@ -15,12 +16,13 @@ class AppraisalStepSkill extends StatelessWidget {
     required this.ratings,
     required this.evidences,
     required this.onRate,
+    this.isLeaderReview = false
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -32,7 +34,7 @@ class AppraisalStepSkill extends StatelessWidget {
 
             /// HEADER
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -52,9 +54,9 @@ class AppraisalStepSkill extends StatelessWidget {
             /// BODY
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF7FFF6),
+              padding:const EdgeInsets.symmetric(horizontal: 8,vertical: 12),
+              decoration:  BoxDecoration(
+                color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFF7FFF6),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
@@ -71,7 +73,7 @@ class AppraisalStepSkill extends StatelessWidget {
                         width: 28,
                         height: 28,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0B6F2F),
+                          color: isLeaderReview ? Color(0xFF7030A0) : Color(0xFF0B6F2F),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Center(
@@ -86,7 +88,7 @@ class AppraisalStepSkill extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -95,11 +97,11 @@ class AppraisalStepSkill extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF0B6F2F),
+                                color: isLeaderReview ? Color(0xFF7030A0) : Color(0xFF0B6F2F),
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
+                            const SizedBox(height: 4),
+                            const Text(
                               'Đánh giá theo thang điểm 1–5. (Dựa theo hướng dẫn có sẵn)',
                               style: TextStyle(
                                 fontSize: 12,

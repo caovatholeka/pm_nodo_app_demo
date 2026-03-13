@@ -4,11 +4,16 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 
+import '../../../../core/commons/app_colors.dart';
+import '../widgets/dot_devider_painter.dart';
+
 class AppraisalStepResponsibility extends StatelessWidget {
   final List<ResponsiveIdEntity> responses;
   final List<int> ratings;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
+
+  final bool isLeaderReview;
 
   const AppraisalStepResponsibility({
     super.key,
@@ -16,6 +21,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
     required this.ratings,
     required this.evidences,
     required this.onRate,
+    this.isLeaderReview = false
   });
 
   @override
@@ -33,7 +39,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
 
             /// HEADER
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -52,10 +58,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
 
             /// BODY
             Container(
-              margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFF0FDF4),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -64,10 +69,10 @@ class AppraisalStepResponsibility extends StatelessWidget {
 
                   /// TITLE
                   Row(
-                    children: const [
+                    children:  [
                       CircleAvatar(
                         radius: 10,
-                        backgroundColor: Color(0xFF10B981),
+                        backgroundColor:isLeaderReview ? Color(0xFF7030A0): Color(0xFF10B981),
                         child: Text(
                           '2',
                           style: TextStyle(
@@ -82,7 +87,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
                         child: Text(
                           'Tiêu chí đánh giá Tinh thần trách nhiệm',
                           style: TextStyle(
-                            color: Color(0xFF065F46),
+                            color: isLeaderReview ? Color(0xFF7030A0): Color(0xFF065F46),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -92,6 +97,14 @@ class AppraisalStepResponsibility extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
+                  isLeaderReview ? Text(
+                    'Cấp trên trực tiếp đánh giá (Max = 5 điểm)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.themeDarkDark,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ):
                   const Text(
                     'Những việc liên quan trực tiếp đến nhóm nhỏ của người được đánh giá, có liên quan đến công việc của người được đánh giá',
                     style: TextStyle(
@@ -211,7 +224,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               child: CustomPaint(
                                 size: const Size(double.infinity, 1),
-                                painter: _DotDividerPainter(),
+                                painter: DotDividerPainter(color: Color(0xFFD1FAE5)),
                               ),
                             ),
                         ],
@@ -228,27 +241,3 @@ class AppraisalStepResponsibility extends StatelessWidget {
   }
 }
 
-class _DotDividerPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFD1FAE5)
-      ..strokeWidth = 1;
-
-    const dashWidth = 4;
-    const dashSpace = 4;
-    double startX = 0;
-
-    while (startX < size.width) {
-      canvas.drawLine(
-        Offset(startX, 0),
-        Offset(startX + dashWidth, 0),
-        paint,
-      );
-      startX += dashWidth + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

@@ -32,6 +32,7 @@ class InputTextField extends StatefulWidget {
   final bool? isObscured;
   final VoidCallback? onSuffixAction;
   final bool isPasswordField;
+  final Color? fillBgColor;
 
   const InputTextField({
     super.key,
@@ -60,6 +61,7 @@ class InputTextField extends StatefulWidget {
     this.isObscured,
     this.onSuffixAction,
     this.isPasswordField = false,
+    this.fillBgColor
   });
 
   @override
@@ -178,7 +180,7 @@ class _InputTextFieldState extends State<InputTextField> {
               ),
               counterText: "",
               filled: true,
-              fillColor: fillColor,
+              fillColor: widget.fillBgColor ?? fillColor,
               prefixIcon: widget.prefixWidget,
               suffixIcon:
                   widget.isPasswordField

@@ -13,6 +13,9 @@ class CreateAppraisalState extends Equatable {
   final List<EvaluationEntity>? listEvaluations; 
   final EvaluationEntity? detailEvaluation;
 
+  final int currentTabIndex;
+  final MasterDataItem? currentTabItem;
+
   const CreateAppraisalState({
     this.listEvaluations,
     this.detailEvaluation,
@@ -25,6 +28,8 @@ class CreateAppraisalState extends Equatable {
     this.hours = const {},
     this.formTypes = const {},
     this.isSubmitting = false,
+    this.currentTabIndex = 0,
+    this.currentTabItem,
   });
   bool get isFormValid {
     return fromDate != null && toDate != null;
@@ -43,6 +48,8 @@ class CreateAppraisalState extends Equatable {
     Map<int, String?>? formTypes,
     bool? isSubmitting,
     bool resetLines = false,
+    int? currentTabIndex,
+    MasterDataItem? currentTabItem,
   }) {
     return CreateAppraisalState(
       detailEvaluation: detailEvaluation ?? this.detailEvaluation,
@@ -56,6 +63,8 @@ class CreateAppraisalState extends Equatable {
       hours: resetLines ? {} : (hours ?? this.hours),
       formTypes: resetLines ? {} : (formTypes ?? this.formTypes),
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      currentTabItem: currentTabItem ?? this.currentTabItem,
     );
   }
 
@@ -72,5 +81,7 @@ class CreateAppraisalState extends Equatable {
     isDetail,
     listEvaluations,
     detailEvaluation,
+    currentTabIndex,
+    currentTabItem,
   ];
 }

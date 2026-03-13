@@ -8,18 +8,20 @@ class AppraisalStepOpinion extends StatelessWidget {
 
   final List<SuggestIdEntity> suggests;
   final List<TextEditingController> controllers;
+  final bool isLeaderReview;
 
   const AppraisalStepOpinion({
     super.key,
     required this.suggests,
     required this.controllers,
+    this.isLeaderReview = false
   });
 
   @override
   Widget build(BuildContext context) {
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -32,7 +34,7 @@ class AppraisalStepOpinion extends StatelessWidget {
 
             /// HEADER
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: const EdgeInsets.all(12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -56,7 +58,7 @@ class AppraisalStepOpinion extends StatelessWidget {
 
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 12),
               decoration: const BoxDecoration(
                 color: Color(0xFFF7FFF6),
                 borderRadius: BorderRadius.only(
@@ -82,7 +84,7 @@ class AppraisalStepOpinion extends StatelessWidget {
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0B6F2F),
+                              color: isLeaderReview ? Color(0xFF7030A0) : Color(0xFF0B6F2F),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
@@ -102,10 +104,10 @@ class AppraisalStepOpinion extends StatelessWidget {
                           Expanded(
                             child: Text(
                               '${item.code ?? ''} - ${item.name ?? ''}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF0B6F2F),
+                                color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFF0B6F2F),
                               ),
                             ),
                           ),
@@ -120,6 +122,7 @@ class AppraisalStepOpinion extends StatelessWidget {
                         controller: controllers[i],
                         maxLine: 4,
                         isRequiredField: false,
+                        fillBgColor: Colors.transparent,
                       ),
 
                       const SizedBox(height: 16),

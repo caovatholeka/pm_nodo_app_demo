@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 
 import '../../../../data/models/entities/task_line_id_entity.dart';
+import '../widgets/dot_devider_painter.dart';
 
 class AppraisalStepResultWork extends StatelessWidget {
   final List<int> ratings;
@@ -16,6 +18,7 @@ class AppraisalStepResultWork extends StatelessWidget {
   final List<TaskLineIdEntity>? listTask;
 
   final bool readOnly;
+  final bool isLeaderReview;
 
   const AppraisalStepResultWork({
     super.key,
@@ -26,6 +29,7 @@ class AppraisalStepResultWork extends StatelessWidget {
     required this.weightCtrl,
     required this.evidenceCtrl,
     this.readOnly = false,
+    this.isLeaderReview = false,
   });
 
   int _toInt(dynamic v) {
@@ -44,7 +48,7 @@ class AppraisalStepResultWork extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color:isLeaderReview ? Color(0xFFE5E0F0) : Colors.white,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -73,22 +77,21 @@ class AppraisalStepResultWork extends StatelessWidget {
             /// NOTE
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 16),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF7FFF6),
+              decoration: BoxDecoration(
+                color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFF7FFF6),
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-
+                children: [
                   Row(
                     children: [
                       CircleAvatar(
                         radius: 10,
-                        backgroundColor: Color(0xFF10B981),
-                        child: Text(
+                        backgroundColor:isLeaderReview ?  Color(0xFF7030A0) :  Color(0xFF10B981),
+                        child: const Text(
                           '1',
                           style: TextStyle(
                             color: Colors.white,
@@ -97,91 +100,125 @@ class AppraisalStepResultWork extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         'Các việc đã làm',
                         style: TextStyle(
-                          color: Color(0xFF065F46),
+                          color: isLeaderReview ? Color(0xFF7030A0) : Color(0xFF065F46),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
 
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
-                  Text(
+                  isLeaderReview ? Text(
+                    'Cấp trên trực tiếp đánh giá (Max = 5 điểm)',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.themeDarkDark,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ) : const Text(
                     'Lưu ý: Đọc kỹ sử dụng trước khi dùng. Đánh giá theo thang điểm 1–5.(Dựa theo hướng dẫn cho sẵn)',
                     style: TextStyle(
                       fontSize: 12,
                       color: Color(0xFF2563EB),
                       fontStyle: FontStyle.italic,
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
 
             /// BODY ::: Danh sách việc đã làm
             Column(
-              children: (listTask ??[]).map((TaskLineIdEntity task) {
-                return Container(
-                  // padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF7FFF6),
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(16),
+              children:List.generate((listTask ??[]).length, (i) {
+                final task = (listTask ??[])[i];
+
+                return Column(
+                  children: [
+                    Container(
+                      // padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFF7FFF6),
+                        borderRadius: BorderRadius.vertical(
+                          bottom: Radius.circular(16),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0,right: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// JOB
+                            InputTextField(
+                              title: 'Công việc đã làm',
+                              hintText: 'Nhập công việc đã làm',
+                              controller: TextEditingController(text: task.name),
+                              readOnly: readOnly,
+                              isRequiredField: true,
+                              fillBgColor: Colors.transparent,
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            /// WEIGHT
+                            InputTextField(
+                              title: 'Tỷ trọng %',
+                              hintText: 'Nhập % (0–100)',
+                              controller: TextEditingController(text: (task.rate ?? 0).toString()),
+                              readOnly: readOnly,
+                              isRequiredField: true,
+                              fillBgColor: Colors.transparent,
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            /// RATINGS
+                            _rating('1. Khối lượng', 0, _toInt(task.volume)),
+                            _rating('2. Chất lượng', 1,_toInt(task.quality)),
+                            _rating('3. Tiến độ', 2, _toInt(task.progress)),
+
+                            const SizedBox(height: 12),
+
+                            /// EVIDENCE
+                            isLeaderReview ?
+                            InputTextField(
+                              title: 'Góp ý điều chỉnh',
+                              hintText: '',
+                              controller: TextEditingController(text: ""),
+                              readOnly: readOnly,
+                              isRequiredField: true,
+                              fillBgColor: Colors.transparent,
+                            ):
+                            InputTextField(
+                              title: 'Dẫn chứng',
+                              hintText: 'Nhập dẫn chứng...',
+                              controller: TextEditingController(text: task.jiraKey),
+                              readOnly: readOnly,
+                              isRequiredField: true,
+                              fillBgColor: Colors.transparent,
+                            ),
+                            const SizedBox(height: 12,),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// JOB
-                      InputTextField(
-                        title: 'Công việc đã làm',
-                        hintText: 'Nhập công việc đã làm',
-                        controller: TextEditingController(text: task.name),
-                        readOnly: readOnly,
-                        isRequiredField: true,
+                    const SizedBox(height: 8),
+                    /// DIVIDER
+                    if (i != (listTask ??[]).length - 1)
+
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8,left: 8,right: 8),
+                        child: CustomPaint(
+                          size: const Size(double.infinity, 1),
+                          painter: DotDividerPainter(color:
+                              isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFD1FAE5),)
+                        ),
                       ),
-
-                      const SizedBox(height: 12),
-
-                      /// WEIGHT
-                      InputTextField(
-                        title: 'Tỷ trọng %',
-                        hintText: 'Nhập % (0–100)',
-                        controller: TextEditingController(text: (task.rate ?? 0).toString()),
-                        readOnly: readOnly,
-                        isRequiredField: true,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      /// RATINGS
-                      _rating('1. Khối lượng', 0, _toInt(task.volume)),
-                      _rating('2. Chất lượng', 1,_toInt(task.quality)),
-                      _rating('3. Tiến độ', 2, _toInt(task.progress)),
-
-                      const SizedBox(height: 12),
-
-                      /// EVIDENCE
-                      InputTextField(
-                        title: 'Dẫn chứng',
-                        hintText: 'Nhập dẫn chứng...',
-                        controller: TextEditingController(text: task.jiraKey),
-                        readOnly: readOnly,
-                        isRequiredField: true,
-                      ),
-
-                      const SizedBox(height: 16),
-                      Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: Colors.grey.shade300,
-                      )
-                    ],
-                  ),
+                  ],
                 ).paddingOnly(bottom: 16);
               }).toList(),
             )

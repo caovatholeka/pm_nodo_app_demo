@@ -5,6 +5,8 @@ import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
 
+import '../../../../data/models/entities/master_data_item.dart';
+
 part 'create_apprasial_state.dart';
 
 class CreateAppraisalCubit extends Cubit<CreateAppraisalState> {
@@ -86,5 +88,13 @@ class CreateAppraisalCubit extends Cubit<CreateAppraisalState> {
       logger.d(e);
       emit(state.copyWith(loadDetail: LoadStatus.FAILURE, detailEvaluation: null));
     }
+  }
+
+  void onChangeTab(int index) {
+    emit(state.copyWith(currentTabIndex: index));
+  }
+
+  void onChangeCurrentTabItem(MasterDataItem item) {
+    emit(state.copyWith(currentTabItem: item));
   }
 }
