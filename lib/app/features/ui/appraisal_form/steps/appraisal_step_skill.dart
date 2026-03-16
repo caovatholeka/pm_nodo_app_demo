@@ -224,6 +224,7 @@ class AppraisalStepSkill extends StatelessWidget {
                               controller: _skillEvidence(skill, i),
                               maxLine: 3,
                               isRequiredField: true,
+                              readOnly: true,
                               fillBgColor: Colors.white.withValues(alpha: 0.65),
                             ),
                             if (i != skills.length - 1) ...[

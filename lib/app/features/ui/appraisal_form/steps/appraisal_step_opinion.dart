@@ -122,6 +122,7 @@ class AppraisalStepOpinion extends StatelessWidget {
                             controller: controllers[i],
                             maxLine: 4,
                             isRequiredField: false,
+                            readOnly: true,
                             fillBgColor: const Color(0xFFEFF8EF),
                           ),
                         ],

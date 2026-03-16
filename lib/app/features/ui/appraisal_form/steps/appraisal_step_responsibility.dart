@@ -203,6 +203,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
                               controller: _responseEvidence(item, i),
                               maxLine: 3,
                               isRequiredField: true,
+                              readOnly: true,
                               fillBgColor: Colors.white.withValues(alpha: 0.65),
                             ),
                             if (i != responses.length - 1)

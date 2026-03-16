@@ -29,8 +29,13 @@ class AppraisalListItem extends StatelessWidget {
           color: AppColors.colorDraft,
           bgColor: AppColors.colorDraft.withValues(alpha: 0.1),
         );
-      
-      case "approved" && "director_confirm":
+      case "director_confirm":
+       return StatusUI(
+          text: "Trưởng phòng duyệt",
+          color: AppColors.colorApproved,
+          bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
+        );
+      case "approved":
         return StatusUI(
           text: "Trưởng phòng duyệt",
           color: AppColors.colorApproved,
