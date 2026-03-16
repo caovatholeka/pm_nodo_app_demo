@@ -42,20 +42,54 @@ class AppraisalStepResultWork extends StatelessWidget {
     return int.tryParse(v.toString()) ?? 0;
   }
 
+  int _taskRating(TaskLineIdEntity task, int ratingIndex) {
+    if (isLeaderReview) {
+      switch (ratingIndex) {
+        case 0:
+          return _toInt(task.parentVolume);
+        case 1:
+          return _toInt(task.parentQuality);
+        case 2:
+          return _toInt(task.parentProgress);
+      }
+    }
+
+    switch (ratingIndex) {
+      case 0:
+        return _toInt(task.volume);
+      case 1:
+        return _toInt(task.quality);
+      case 2:
+        return _toInt(task.progress);
+      default:
+        return 0;
+    }
+  }
+
+  String _taskEvidence(TaskLineIdEntity task) {
+    if (isLeaderReview) {
+      return task.parentNote ?? "";
+    }
+
+    if ((task.jiraKey ?? "").isNotEmpty) {
+      return task.jiraKey ?? "";
+    }
+
+    return task.note ?? "";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
         decoration: BoxDecoration(
-          color:isLeaderReview ? Color(0xFFE5E0F0) : Colors.white,
+          color: isLeaderReview ? const Color(0xFFE5E0F0) : Colors.white,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
-            /// HEADER
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Row(
@@ -73,13 +107,11 @@ class AppraisalStepResultWork extends StatelessWidget {
                 ],
               ),
             ),
-
-            /// NOTE
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               decoration: BoxDecoration(
-                color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFF7FFF6),
-                borderRadius: BorderRadius.vertical(
+                color: isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6),
+                borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
               ),
@@ -90,7 +122,8 @@ class AppraisalStepResultWork extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 10,
-                        backgroundColor:isLeaderReview ?  Color(0xFF7030A0) :  Color(0xFF10B981),
+                        backgroundColor:
+                            isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981),
                         child: const Text(
                           '1',
                           style: TextStyle(
@@ -104,55 +137,51 @@ class AppraisalStepResultWork extends StatelessWidget {
                       Text(
                         'Các việc đã làm',
                         style: TextStyle(
-                          color: isLeaderReview ? Color(0xFF7030A0) : Color(0xFF065F46),
+                          color: isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF065F46),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 8),
-
-                  isLeaderReview ? Text(
-                    'Cấp trên trực tiếp đánh giá (Max = 5 điểm)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.themeDarkDark,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ) : const Text(
-                    'Lưu ý: Đọc kỹ sử dụng trước khi dùng. Đánh giá theo thang điểm 1–5.(Dựa theo hướng dẫn cho sẵn)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF2563EB),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  )
+                  isLeaderReview
+                      ? Text(
+                          'Cấp trên trực tiếp đánh giá (Max = 5 điểm)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.themeDarkDark,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        )
+                      : const Text(
+                          'Lưu ý: Đọc kỹ sử dụng trước khi dùng. Đánh giá theo thang điểm 1-5. (Dựa theo hướng dẫn cho sẵn)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF2563EB),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
                 ],
               ),
             ),
-
-            /// BODY ::: Danh sách việc đã làm
             Column(
-              children:List.generate((listTask ??[]).length, (i) {
-                final task = (listTask ??[])[i];
+              children: List.generate((listTask ?? []).length, (i) {
+                final task = (listTask ?? [])[i];
 
                 return Column(
                   children: [
                     Container(
-                      // padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFF7FFF6),
-                        borderRadius: BorderRadius.vertical(
+                        color: isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6),
+                        borderRadius: const BorderRadius.vertical(
                           bottom: Radius.circular(16),
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0,right: 8),
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            /// JOB
                             InputTextField(
                               title: 'Công việc đã làm',
                               hintText: 'Nhập công việc đã làm',
@@ -161,67 +190,58 @@ class AppraisalStepResultWork extends StatelessWidget {
                               isRequiredField: true,
                               fillBgColor: Colors.transparent,
                             ),
-
                             const SizedBox(height: 12),
-
-                            /// WEIGHT
                             InputTextField(
                               title: 'Tỷ trọng %',
-                              hintText: 'Nhập % (0–100)',
+                              hintText: 'Nhập % (0-100)',
                               controller: TextEditingController(text: (task.rate ?? 0).toString()),
                               readOnly: readOnly,
                               isRequiredField: true,
                               fillBgColor: Colors.transparent,
                             ),
-
                             const SizedBox(height: 16),
-
-                            /// RATINGS
-                            _rating('1. Khối lượng', 0, _toInt(task.volume)),
-                            _rating('2. Chất lượng', 1,_toInt(task.quality)),
-                            _rating('3. Tiến độ', 2, _toInt(task.progress)),
-
+                            _rating('1. Khối lượng', 0, _taskRating(task, 0)),
+                            _rating('2. Chất lượng', 1, _taskRating(task, 1)),
+                            _rating('3. Tiến độ', 2, _taskRating(task, 2)),
                             const SizedBox(height: 12),
-
-                            /// EVIDENCE
-                            isLeaderReview ?
-                            InputTextField(
-                              title: 'Góp ý điều chỉnh',
-                              hintText: '',
-                              controller: TextEditingController(text: ""),
-                              readOnly: readOnly,
-                              isRequiredField: true,
-                              fillBgColor: Colors.transparent,
-                            ):
-                            InputTextField(
-                              title: 'Dẫn chứng',
-                              hintText: 'Nhập dẫn chứng...',
-                              controller: TextEditingController(text: task.jiraKey),
-                              readOnly: readOnly,
-                              isRequiredField: true,
-                              fillBgColor: Colors.transparent,
-                            ),
-                            const SizedBox(height: 12,),
+                            isLeaderReview
+                                ? InputTextField(
+                                    title: 'Góp ý điều chỉnh',
+                                    hintText: '',
+                                    controller: TextEditingController(text: _taskEvidence(task)),
+                                    readOnly: readOnly,
+                                    isRequiredField: true,
+                                    fillBgColor: Colors.transparent,
+                                  )
+                                : InputTextField(
+                                    title: 'Dẫn chứng',
+                                    hintText: 'Nhập dẫn chứng...',
+                                    controller: TextEditingController(text: _taskEvidence(task)),
+                                    readOnly: readOnly,
+                                    isRequiredField: true,
+                                    fillBgColor: Colors.transparent,
+                                  ),
+                            const SizedBox(height: 12),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    /// DIVIDER
-                    if (i != (listTask ??[]).length - 1)
-
+                    if (i != (listTask ?? []).length - 1)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8,left: 8,right: 8),
+                        padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                         child: CustomPaint(
                           size: const Size(double.infinity, 1),
-                          painter: DotDividerPainter(color:
-                              isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFD1FAE5),)
+                          painter: DotDividerPainter(
+                            color:
+                                isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFD1FAE5),
+                          ),
                         ),
                       ),
                   ],
                 ).paddingOnly(bottom: 16);
               }).toList(),
-            )
+            ),
           ],
         ),
       ),
@@ -232,42 +252,33 @@ class AppraisalStepResultWork extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         Text(
           title,
           style: const TextStyle(
             fontWeight: FontWeight.w500,
           ),
         ),
-
         const SizedBox(height: 8),
-
         SizedBox(
           width: double.infinity,
           child: Wrap(
             alignment: WrapAlignment.center,
             spacing: 35,
             children: List.generate(5, (i) {
-
-              final filled = i < value;//ratings[index];
+              final filled = i < value;
 
               return InkWell(
-                onTap: readOnly
-                    ? null
-                    : () => onRate(index, i + 1),
+                onTap: readOnly ? null : () => onRate(index, i + 1),
                 child: SvgPicture.asset(
                   AppAssets.icStar,
                   width: 30,
                   height: 30,
-                  color: filled
-                      ? const Color(0xFFFFCB45)
-                      : const Color(0xFF64748B),
+                  color: filled ? const Color(0xFFFFCB45) : const Color(0xFF64748B),
                 ),
               );
             }),
           ),
         ),
-
         const SizedBox(height: 16),
       ],
     );

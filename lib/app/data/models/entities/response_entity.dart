@@ -11,10 +11,10 @@ class ResponseEntity {
   String? name;
 
   @JsonKey(name: "rate_point")
-  bool? ratePoint;
+  dynamic ratePoint;
 
   @JsonKey(name: "parent_rate_point")
-  bool? parentRatePoint;
+  dynamic parentRatePoint;
 
   @JsonKey()
   String? note;
@@ -34,8 +34,8 @@ class ResponseEntity {
   ResponseEntity copyWith({
     String? code,
     String? name,
-    bool? ratePoint,
-    bool? parentRatePoint,
+    dynamic ratePoint,
+    dynamic parentRatePoint,
     String? note,
     String? parentNote,
   }) {

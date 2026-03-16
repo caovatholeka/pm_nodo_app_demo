@@ -13,7 +13,6 @@ import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data.da
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/birthday_card.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/rating_line_chart.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/summary_rating_card.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/task_list.dart';
 
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/total_project.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_status_card.dart';

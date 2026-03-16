@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
+import 'package:pm_app/app/features/widgets/input_text_field.dart';
 
 class AppraisalStepSkill extends StatelessWidget {
   final List<SkillIdEntity> skills;
@@ -16,8 +18,31 @@ class AppraisalStepSkill extends StatelessWidget {
     required this.ratings,
     required this.evidences,
     required this.onRate,
-    this.isLeaderReview = false
+    this.isLeaderReview = false,
   });
+
+  int _toInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is bool) return value ? 1 : 0;
+    return int.tryParse(value.toString()) ?? 0;
+  }
+
+  int _skillRating(SkillIdEntity skill, int index) {
+    final currentRating = index < ratings.length ? ratings[index] : 0;
+    if (currentRating > 0) return currentRating;
+    return _toInt(isLeaderReview ? skill.parentRatePoint : skill.ratePoint);
+  }
+
+  TextEditingController _skillEvidence(SkillIdEntity skill, int index) {
+    final controller = evidences[index];
+    if (controller.text.isEmpty) {
+      controller.text = isLeaderReview ? (skill.parentNote ?? '') : (skill.note ?? '');
+    }
+    return controller;
+  }
+
+  Color get _sectionBg => isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
+  Color get _accent => isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +56,8 @@ class AppraisalStepSkill extends StatelessWidget {
         ),
         child: Column(
           children: [
-
-            /// HEADER
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -42,7 +65,7 @@ class AppraisalStepSkill extends StatelessWidget {
                     'III. Kỹ năng (10%)',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: Color(0xFF374151),
                     ),
                   ),
@@ -50,30 +73,26 @@ class AppraisalStepSkill extends StatelessWidget {
                 ],
               ),
             ),
-
-            /// BODY
             Container(
               width: double.infinity,
-              padding:const EdgeInsets.symmetric(horizontal: 8,vertical: 12),
-              decoration:  BoxDecoration(
-                color: isLeaderReview ? Color(0xFFE5E0F0) : Color(0xFFF7FFF6),
-                borderRadius: BorderRadius.only(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+              decoration: BoxDecoration(
+                color: _sectionBg,
+                borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
                 ),
               ),
               child: Column(
                 children: [
-
-                  /// TITLE
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: 28,
-                        height: 28,
+                        width: 22,
+                        height: 22,
                         decoration: BoxDecoration(
-                          color: isLeaderReview ? Color(0xFF7030A0) : Color(0xFF0B6F2F),
+                          color: _accent,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Center(
@@ -82,12 +101,12 @@ class AppraisalStepSkill extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
-                              fontSize: 13,
+                              fontSize: 11,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,15 +116,18 @@ class AppraisalStepSkill extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: isLeaderReview ? Color(0xFF7030A0) : Color(0xFF0B6F2F),
+                                color: isLeaderReview
+                                    ? const Color(0xFF7030A0)
+                                    : const Color(0xFF0B6F2F),
                               ),
                             ),
                             const SizedBox(height: 4),
                             const Text(
-                              'Đánh giá theo thang điểm 1–5. (Dựa theo hướng dẫn có sẵn)',
+                              'Đánh giá theo thang điểm 1-5. (Dựa theo hướng dẫn có sẵn)',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF6B7280),
+                                color: AppColors.themeDarkDark,
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ],
@@ -113,150 +135,103 @@ class AppraisalStepSkill extends StatelessWidget {
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 12),
-
-                  /// LIST ITEM
+                  if (skills.isNotEmpty) const SizedBox(height: 14),
                   Column(
                     children: List.generate(skills.length, (i) {
-
                       final skill = skills[i];
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          /// TITLE
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                '•  ',
-                                style: TextStyle(color: Color(0xFF0B6FDF)),
-                              ),
-                              Expanded(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: [
-
-                                      TextSpan(
-                                        text: '${skill.code ?? ''} - ',
-                                        style: const TextStyle(
-                                          color: Color(0xFF0B6FDF),
-                                          fontWeight: FontWeight.w600,
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: i == skills.length - 1 ? 0 : 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  '•  ',
+                                  style: TextStyle(color: Color(0xFF0B6FDF)),
+                                ),
+                                Expanded(
+                                  child: RichText(
+                                    text: TextSpan(
+                                      style: const TextStyle(fontSize: 13),
+                                      children: [
+                                        TextSpan(
+                                          text: '${skill.code ?? ''} - ',
+                                          style: const TextStyle(
+                                            color: Color(0xFF0B6FDF),
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
-                                      ),
-
-                                      TextSpan(
-                                        text: skill.name ?? '',
-                                        style: const TextStyle(
-                                          color: Color(0xFF0B6FDF),
+                                        TextSpan(
+                                          text: skill.name ?? '',
+                                          style: const TextStyle(
+                                            color: Color(0xFF0B6FDF),
+                                          ),
                                         ),
-                                      ),
-
-                                      const TextSpan(
-                                        text: ' - Hệ số 1',
-                                        style: TextStyle(
-                                          color: Color(0xFF0B6FDF),
+                                        const TextSpan(
+                                          text: ' - Hệ số 1',
+                                          style: TextStyle(
+                                            color: Color(0xFF0B6FDF),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          /// RATING LABEL
-                          Row(
-                            children: const [
-                              Text('* ', style: TextStyle(color: Color(0xFFEF4444))),
-                              Text(
-                                'Điểm',
-                                style: TextStyle(
-                                  color: Color(0xFF374151),
-                                  fontWeight: FontWeight.w600,
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: const [
+                                Text('* ', style: TextStyle(color: Color(0xFFEF4444))),
+                                Text(
+                                  'Điểm',
+                                  style: TextStyle(
+                                    color: Color(0xFF374151),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 22,
+                                children: List.generate(5, (j) {
+                                  final filled = j < _skillRating(skill, i);
 
-                          const SizedBox(height: 8),
-
-                          /// STAR RATING
-                          Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: List.generate(5, (j) {
-
-                                final filled = j < ratings[i];
-
-                                return InkWell(
-                                  onTap: () => onRate(i, j + 1),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  return InkWell(
+                                    onTap: () => onRate(i, j + 1),
                                     child: SvgPicture.asset(
                                       AppAssets.icStar,
                                       width: 28,
                                       height: 28,
-                                      color: filled
-                                          ? const Color(0xFFFFCB45)
-                                          : const Color(0xFF94A3B8),
+                                      color:
+                                          filled ? const Color(0xFFFFB800) : const Color(0xFF94A3B8),
                                     ),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          /// NOTE
-                          Row(
-                            children: const [
-                              Text('* ', style: TextStyle(color: Color(0xFFEF4444))),
-                              Text(
-                                'Ghi rõ những gì được, chưa được',
-                                style: TextStyle(
-                                  color: Color(0xFF374151),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
+                                  );
+                                }),
                               ),
+                            ),
+                            const SizedBox(height: 12),
+                            InputTextField(
+                              title: 'Ghi rõ những gì được, chưa được',
+                              hintText: 'Nhập dẫn chứng...',
+                              controller: _skillEvidence(skill, i),
+                              maxLine: 3,
+                              isRequiredField: true,
+                              fillBgColor: Colors.white.withValues(alpha: 0.65),
+                            ),
+                            if (i != skills.length - 1) ...[
+                              const SizedBox(height: 16),
+                              const _DashedDivider(),
                             ],
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFE6F4EA)),
-                            ),
-                            child: TextField(
-                              controller: evidences[i],
-                              maxLines: 3,
-                              decoration: const InputDecoration(
-                                hintText: 'Nhập dẫn chứng...',
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 12,
-                                ),
-                                border: InputBorder.none,
-                                isCollapsed: true,
-                              ),
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          if (i != skills.length - 1) const _DashedDivider(),
-                          if (i != skills.length - 1) const SizedBox(height: 16),
-                        ],
+                          ],
+                        ),
                       );
                     }),
                   ),

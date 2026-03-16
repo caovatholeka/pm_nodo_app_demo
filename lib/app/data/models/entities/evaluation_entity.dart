@@ -40,6 +40,24 @@ class EvaluationEntity {
   @JsonKey()
   String? state;
 
+  @JsonKey(name: "total_task_score")
+  dynamic totalTaskScore;
+
+  @JsonKey(name: "total_parent_task_score")
+  dynamic totalParentTaskScore;
+
+  @JsonKey(name: "response_total_score")
+  dynamic responseTotalScore;
+
+  @JsonKey(name: "response_parent_total_score")
+  dynamic responseParentTotalScore;
+
+  @JsonKey(name: "skill_total_score")
+  dynamic skillTotalScore;
+
+  @JsonKey(name: "skill_parent_total_score")
+  dynamic skillParentTotalScore;
+
   @JsonKey(name: "task_line_ids")
   List<TaskLineIdEntity>? taskLineIds;
 
@@ -65,6 +83,12 @@ class EvaluationEntity {
     this.dateTo,
     this.note,
     this.state,
+    this.totalTaskScore,
+    this.totalParentTaskScore,
+    this.responseTotalScore,
+    this.responseParentTotalScore,
+    this.skillTotalScore,
+    this.skillParentTotalScore,
     this.taskLineIds,
     this.responseIds,
     this.skillIds,
@@ -83,6 +107,12 @@ class EvaluationEntity {
     String? dateTo,
     String? note,
     String? state,
+    dynamic totalTaskScore,
+    dynamic totalParentTaskScore,
+    dynamic responseTotalScore,
+    dynamic responseParentTotalScore,
+    dynamic skillTotalScore,
+    dynamic skillParentTotalScore,
     List<TaskLineIdEntity>? taskLineIds,
     List<ResponsiveIdEntity>? responseIds,
     List<SkillIdEntity>? skillIds,
@@ -100,6 +130,14 @@ class EvaluationEntity {
         dateTo: dateTo ?? this.dateTo,
         note: note ?? this.note,
         state: state ?? this.state,
+        totalTaskScore: totalTaskScore ?? this.totalTaskScore,
+        totalParentTaskScore: totalParentTaskScore ?? this.totalParentTaskScore,
+        responseTotalScore: responseTotalScore ?? this.responseTotalScore,
+        responseParentTotalScore:
+            responseParentTotalScore ?? this.responseParentTotalScore,
+        skillTotalScore: skillTotalScore ?? this.skillTotalScore,
+        skillParentTotalScore:
+            skillParentTotalScore ?? this.skillParentTotalScore,
         taskLineIds: taskLineIds ?? this.taskLineIds,
         responseIds: responseIds ?? this.responseIds,
         skillIds: skillIds ?? this.skillIds,

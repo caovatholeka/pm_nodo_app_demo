@@ -39,6 +39,15 @@ class TaskLineIdEntity {
   @JsonKey(name: "parent_note")
   String? parentNote;
 
+  @JsonKey()
+  dynamic weight;
+
+  @JsonKey(name: "total_score")
+  dynamic totalScore;
+
+  @JsonKey(name: "parent_total_score")
+  dynamic parentTotalScore;
+
 
   TaskLineIdEntity({
     this.id,
@@ -52,7 +61,10 @@ class TaskLineIdEntity {
     this.parentVolume,
     this.parentQuality,
     this.parentProgress,
-    this.parentNote
+    this.parentNote,
+    this.weight,
+    this.totalScore,
+    this.parentTotalScore,
   });
 
   TaskLineIdEntity copyWith({
@@ -67,7 +79,10 @@ class TaskLineIdEntity {
     dynamic parentVolume,
     dynamic parentQuality,
     dynamic parentProgress,
-    String? parentNote
+    String? parentNote,
+    dynamic weight,
+    dynamic totalScore,
+    dynamic parentTotalScore,
   }) {
     return TaskLineIdEntity(
         id: id ?? this.id,
@@ -81,7 +96,10 @@ class TaskLineIdEntity {
         parentVolume: parentVolume ?? this.parentVolume,
         parentQuality: parentQuality ?? this.parentQuality,
         parentProgress: parentProgress ?? this.parentProgress,
-        parentNote: parentNote ?? this.parentNote
+        parentNote: parentNote ?? this.parentNote,
+        weight: weight ?? this.weight,
+        totalScore: totalScore ?? this.totalScore,
+        parentTotalScore: parentTotalScore ?? this.parentTotalScore,
     );
   }
 

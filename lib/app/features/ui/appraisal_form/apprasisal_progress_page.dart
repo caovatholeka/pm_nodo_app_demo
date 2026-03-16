@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_opinion.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_responsibility.dart';
@@ -25,17 +23,13 @@ class ApprasisalProgressPage extends StatefulWidget {
 }
 
 class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
-  final _cubit = GetIt.I.get<CreateAppraisalCubit>();
-
   int _currentStep = 0;
   bool _initDetail = false;
 
-  int _currentTabIndex = 0;
-
   final List<List<int>> _ratingsPerStep = [
     [0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
+    [],
+    [],
   ];
 
   final TextEditingController _jobCtrl = TextEditingController();
@@ -45,20 +39,8 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   final List<List<TextEditingController>> _evidencesPerStep = [
     [TextEditingController(), TextEditingController(), TextEditingController()],
-    [
-      TextEditingController(),
-      TextEditingController(),
-      TextEditingController(),
-      TextEditingController(),
-      TextEditingController(),
-    ],
-    [
-      TextEditingController(),
-      TextEditingController(),
-      TextEditingController(),
-      TextEditingController(),
-      TextEditingController(),
-    ],
+    [],
+    [],
   ];
 
   final List<TextEditingController> _suggestControllers = [];
@@ -76,64 +58,141 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     return int.tryParse(v.toString()) ?? 0;
   }
 
+  String _toDisplayText(dynamic value) {
+    if (value == null) return "";
+    return value.toString();
+  }
+
+  void _resetStepRatings(int stepIndex) {
+    for (int i = 0; i < _ratingsPerStep[stepIndex].length; i++) {
+      _ratingsPerStep[stepIndex][i] = 0;
+    }
+  }
+
+  void _ensureStepCapacity(int stepIndex, int length) {
+    while (_ratingsPerStep[stepIndex].length < length) {
+      _ratingsPerStep[stepIndex].add(0);
+    }
+    while (_evidencesPerStep[stepIndex].length < length) {
+      _evidencesPerStep[stepIndex].add(TextEditingController());
+    }
+  }
+
+  void _resetStepEvidences(int stepIndex) {
+    for (final controller in _evidencesPerStep[stepIndex]) {
+      controller.clear();
+    }
+  }
+
   void _fillDetailStep1(CreateAppraisalState state) {
     final task = state.detailEvaluation?.taskLineIds?.firstOrNull;
 
-    if (task == null) return;
-
     listTasks = state.detailEvaluation?.taskLineIds ?? [];
+
+    if (task == null) {
+      _jobCtrl.clear();
+      _coefCtrl.clear();
+      return;
+    }
 
     _jobCtrl.text = task.name ?? "";
     _coefCtrl.text = task.rate?.toString() ?? "";
-    _evidenceCtrl.text = task.jiraKey ?? "";
-
-    // _ratingsPerStep[0][0] = _toInt(task.volume);
-    // _ratingsPerStep[0][1] = _toInt(task.quality);
-    // _ratingsPerStep[0][2] = _toInt(task.progress);
   }
 
-  void _fillDetailStep2(CreateAppraisalState state) {
+  void _fillDetailStep2(CreateAppraisalState state, {required bool isLeaderReview}) {
     final responses = state.detailEvaluation?.responseIds;
+
+    _ensureStepCapacity(1, responses?.length ?? 0);
+    _resetStepRatings(1);
+    _resetStepEvidences(1);
 
     if (responses == null || responses.isEmpty) return;
 
     for (int i = 0; i < responses.length; i++) {
       final r = responses[i];
-      _ratingsPerStep[1][i] = _toInt(r.ratePoint);
-      _evidencesPerStep[1][i].text = r.note ?? "";
+      _ratingsPerStep[1][i] = _toInt(
+        isLeaderReview ? r.parentRatePoint : r.ratePoint,
+      );
+      _evidencesPerStep[1][i].text =
+          isLeaderReview ? (r.parentNote ?? "") : (r.note ?? "");
     }
   }
 
-  void _fillDetailStep3(CreateAppraisalState state) {
+  void _fillDetailStep3(CreateAppraisalState state, {required bool isLeaderReview}) {
     final skills = state.detailEvaluation?.skillIds;
+
+    _ensureStepCapacity(2, skills?.length ?? 0);
+    _resetStepRatings(2);
+    _resetStepEvidences(2);
 
     if (skills == null || skills.isEmpty) return;
 
     for (int i = 0; i < skills.length; i++) {
       final skill = skills[i];
 
-      _ratingsPerStep[2][i] = _toInt(skill.ratePoint);
+      _ratingsPerStep[2][i] = _toInt(
+        isLeaderReview ? skill.parentRatePoint : skill.ratePoint,
+      );
 
-      _evidencesPerStep[2][i].text = skill.note ?? "";
+      _evidencesPerStep[2][i].text =
+          isLeaderReview ? (skill.parentNote ?? "") : (skill.note ?? "");
     }
   }
 
   void _fillDetailStep4(CreateAppraisalState state) {
     final suggests = state.detailEvaluation?.suggestIds;
 
-    if (suggests == null || suggests.isEmpty) return;
-
     _suggestControllers.clear();
+
+    if (suggests == null || suggests.isEmpty) return;
 
     for (final item in suggests) {
       _suggestControllers.add(TextEditingController(text: item.note ?? ""));
     }
   }
 
+  void _fillTotalByStep(CreateAppraisalState state, {required bool isLeaderReview}) {
+    final detail = state.detailEvaluation;
+    if (detail == null) {
+      _totalCtrl.clear();
+      return;
+    }
+
+    if (_currentStep == 0) {
+      _totalCtrl.text = _toDisplayText(
+        isLeaderReview ? detail.totalParentTaskScore : detail.totalTaskScore,
+      );
+      return;
+    }
+
+    if (_currentStep == 1) {
+      _totalCtrl.text = _toDisplayText(
+        isLeaderReview
+            ? detail.responseParentTotalScore
+            : detail.responseTotalScore,
+      );
+      return;
+    }
+
+    if (_currentStep == 2) {
+      _totalCtrl.text = _toDisplayText(
+        isLeaderReview ? detail.skillParentTotalScore : detail.skillTotalScore,
+      );
+      return;
+    }
+
+    _totalCtrl.clear();
+  }
+
   void _next() {
+    final cubit = context.read<CreateAppraisalCubit>();
     if (_currentStep < 3) {
       setState(() {
         _currentStep++;
+        _fillTotalByStep(
+          cubit.state,
+          isLeaderReview: cubit.state.currentTabIndex == 1,
+        );
       });
     } else {
       Navigator.pop(context);
@@ -142,9 +201,14 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   }
 
   void _back() {
+    final cubit = context.read<CreateAppraisalCubit>();
     if (_currentStep > 0) {
       setState(() {
         _currentStep--;
+        _fillTotalByStep(
+          cubit.state,
+          isLeaderReview: cubit.state.currentTabIndex == 1,
+        );
       });
     } else {
       Navigator.pop(context);
@@ -325,6 +389,14 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     return const SizedBox.shrink();
   }
 
+  void _syncTabData(CreateAppraisalState state, {required bool isLeaderReview}) {
+    _fillDetailStep1(state);
+    _fillDetailStep2(state, isLeaderReview: isLeaderReview);
+    _fillDetailStep3(state, isLeaderReview: isLeaderReview);
+    _fillDetailStep4(state);
+    _fillTotalByStep(state, isLeaderReview: isLeaderReview);
+  }
+
   Widget _buildStepContent(bool isDetail, CreateAppraisalState state, bool isLeaderReview) {
     if (_currentStep == 0) {
       return AppraisalStepResultWork(
@@ -388,10 +460,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           _initDetail = true;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _fillDetailStep1(state);
-            _fillDetailStep2(state);
-            _fillDetailStep3(state);
-            _fillDetailStep4(state);
+            _syncTabData(
+              state,
+              isLeaderReview: state.currentTabIndex == 1,
+            );
             setState(() {});
           });
         }
@@ -420,7 +492,6 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
                       // phiếu đánh giá
                       BlocBuilder<CreateAppraisalCubit,CreateAppraisalState>(
-                          bloc: _cubit,
                           buildWhen: (prev,cur) =>
                             prev.currentTabIndex != cur.currentTabIndex ||
                             prev.currentTabItem != cur.currentTabItem,
@@ -497,79 +568,74 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       MasterDataItem(text: "Cấp trên trực tiếp",id:1),
     ];
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24,vertical: 6),
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12000000),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
       ),
-      child: Center(
-        child: BlocBuilder<CreateAppraisalCubit,CreateAppraisalState>(
-          bloc: _cubit,
-            buildWhen: (prev,cur) => prev.currentTabIndex != cur.currentTabIndex,
-            builder: (context,state){
-              return SizedBox(
-                height: 36,
-                  child: ListView.separated(
-                  physics: const ClampingScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: tabs.length,
-                  itemBuilder: (buildContext, index) {
-                    MasterDataItem item = tabs[index];
-                    return InkWell(
-                      onTap: (){
-                        // on change tabs
-                        if (index != _cubit.state.currentTabIndex) {
-                          _cubit.onChangeTab(index);
-                          _cubit.onChangeCurrentTabItem(item);
-                        }},
-                      child: Container (
-                        height: 24,
-                        // width: 100,
-                        padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 6),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(12)
-                          ),
-                          border: Border.all(color: AppColors.gray, width: 1),
-                          color:  (index == state.currentTabIndex) ?
-                          AppColors.themePrimaryDefault : AppColors.whiteColor,
+      child: BlocBuilder<CreateAppraisalCubit,CreateAppraisalState>(
+          buildWhen: (prev,cur) => prev.currentTabIndex != cur.currentTabIndex,
+          builder: (context,state){
+            return Row(
+              children: List.generate(tabs.length, (index) {
+                final item = tabs[index];
+                final isSelected = index == state.currentTabIndex;
 
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      right: index == 0 ? 4 : 0,
+                      left: index == tabs.length - 1 ? 4 : 0,
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(13),
+                      onTap: (){
+                        final cubit = context.read<CreateAppraisalCubit>();
+                        if (index != cubit.state.currentTabIndex) {
+                          cubit.onChangeTab(index);
+                          cubit.onChangeCurrentTabItem(item);
+                          _syncTabData(
+                            cubit.state,
+                            isLeaderReview: index == 1,
+                          );
+                          setState(() {});
+                        }},
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOut,
+                        height: 42,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? const Color(0xFFF3F3F5)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(13),
                         ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                item.text ?? "",
-                                style: (index == state.currentTabIndex) ?
-                                TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.whiteColor
-                                ) :
-                                TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.themeDarkDark
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
+                        child: Text(
+                          item.text ?? "",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: isSelected
+                                ? const Color(0xFF0A84FF)
+                                : const Color(0xFF3A3A3C),
                           ),
                         ),
                       ),
-                    );
-                  },
-
-                  separatorBuilder: (buildContext, index) {
-                    return const SizedBox(width: 10);
-                  },
-                ),
-
-              );
-            }),
-      ),
+                    ),
+                  ),
+                );
+              }),
+            );
+          }),
     );
   }
 }
