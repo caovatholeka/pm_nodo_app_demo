@@ -151,20 +151,14 @@ class _TaskManagePageState extends State<TaskManagePage> {
           backgroundColor: AppColors.bodyColor,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: BlocBuilder<AppCubit, AppState>(
-              buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
-              builder: (context, appState) {
-                return MyAppBar(
+            child: MyAppBar(
                   titleAppbar: s.to_do_detail_title,
                   haveBackButton: widget.isFromHome ?? false,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
-                  badgeCount: appState.totalUnread,
                   actionCallBack: () async {
                     _goNotification();
                   },
-                );
-              },
             ),
           ),
           body: Padding(

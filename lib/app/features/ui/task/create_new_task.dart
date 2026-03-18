@@ -11,10 +11,13 @@ import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/user_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import 'package:pm_app/app/features/ui/task/bottomsheet/select_user_bottom_sheet.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
@@ -118,6 +121,19 @@ class _CreateNewTaskState extends State<CreateNewTask> {
     );
   }
 
+  void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -161,29 +177,13 @@ class _CreateNewTaskState extends State<CreateNewTask> {
           final s = S.of(context);
           return Scaffold(
             backgroundColor: AppColors.bodyColor,
-            appBar: AppBar(
-              title: (widget.isEdit ?? false) ? Text(s.to_edit_title) :
-                Text(s.to_create_title),
-              flexibleSpace: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(AppAssets.appbarBg),
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).maybePop();
-                },
-                icon: Image.asset(
-                  AppAssets.ic_arrowB,
-                  width: 30,
-                  height: 30,
-                ),
-              ),
+            appBar: MyAppBar(
+              titleAppbar:
+                  (widget.isEdit ?? false) ? s.to_edit_title : s.to_create_title,
+              haveBackButton: true,
+              haveActionButton: true,
+              iconPathAsset: AppAssets.icNotificationBell,
+              actionCallBack: _goNotification,
             ),
             body: SizedBox(
               height: double.infinity,

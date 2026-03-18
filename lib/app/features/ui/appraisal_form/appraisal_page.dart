@@ -4,7 +4,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_form.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_list_item.dart';
@@ -109,18 +108,12 @@ class _AppraisalPageState extends State<AppraisalPage> {
         backgroundColor: const Color(0xFFF5F6FA),
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: BlocBuilder<AppCubit, AppState>(
-            buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-            builder: (context, appState) {
-              return MyAppBar(
+          child: MyAppBar(
                 titleAppbar: "Danh sách đánh giá CV",
                 haveBackButton: true,
                 haveActionButton: true,
                 iconPathAsset: AppAssets.icNotificationBell,
-                badgeCount: appState.totalUnread,
                 actionCallBack: _goNotification,
-              );
-            },
           ),
         ),
         body: Column(

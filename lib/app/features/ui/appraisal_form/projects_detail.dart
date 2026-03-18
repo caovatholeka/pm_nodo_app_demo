@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/total_project.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -34,17 +33,11 @@ class _ProjectDetailState extends State<ProjectsDetail> {
         extendBodyBehindAppBar: true,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: BlocBuilder<AppCubit, AppState>(
-            buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-            builder: (context, appState) {
-              return MyAppBar(
+          child: MyAppBar(
                 titleAppbar: 'Dự án',
                 haveBackButton: true,
                 haveActionButton: true,
                 iconPathAsset: AppAssets.icNotificationBell,
-                badgeCount: appState.totalUnread,
-              );
-            },
           ),
         ),
         body: Stack(

@@ -7,7 +7,6 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
@@ -108,20 +107,14 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           backgroundColor: AppColors.bodyColor,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: BlocBuilder<AppCubit, AppState>(
-              buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
-              builder: (context, appState) {
-                return MyAppBar(
+            child: MyAppBar(
                   titleAppbar: S.of(context).to_do_detail_title,
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
-                  badgeCount: appState.totalUnread,
                   actionCallBack: () async {
                     _goNotification();
                   },
-                );
-              },
             ),
           ),
           body: SizedBox(

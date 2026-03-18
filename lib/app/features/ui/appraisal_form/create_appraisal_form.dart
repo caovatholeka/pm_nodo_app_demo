@@ -7,7 +7,6 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/apprasisal_progress_page.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -68,7 +67,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
       final profile = GlobalData.instance.userProfile;
 
       if (profile != null) {
-        _employeeCodeCtrl.text = "NV ${profile.employeeCode ?? ""}";
+        _employeeCodeCtrl.text = "${profile.employeeCode ?? ""}";
         _employeeNameCtrl.text = profile.name ?? "";
         _deprtmentCtrl.text = profile.department?.name ?? "";
         _managerNameCtrl.text = profile.manager?.name ?? "";
@@ -140,7 +139,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
     final e = state.detailEvaluation;
     if (e == null) return;
 
-    _employeeCodeCtrl.text = "NV ${e.employeeCode ?? ""}";
+    _employeeCodeCtrl.text = "${e.employeeCode ?? ""}";
     _employeeNameCtrl.text = e.employeeName ?? "";
     _deprtmentCtrl.text = e.departmentName ?? "";
 
@@ -183,10 +182,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                   backgroundColor: Colors.transparent,
                   appBar: PreferredSize(
                     preferredSize: const Size.fromHeight(kToolbarHeight),
-                    child: BlocBuilder<AppCubit, AppState>(
-                      buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-                      builder: (context, appState) {
-                        return MyAppBar(
+                    child: MyAppBar(
                           titleAppbar:
                               widget.isDetail == true
                                   ? "Phiếu đánh giá kết quả CV"
@@ -194,10 +190,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                           haveBackButton: true,
                           haveActionButton: true,
                           iconPathAsset: AppAssets.icNotificationBell,
-                          badgeCount: appState.totalUnread,
                           actionCallBack: _goNotification,
-                        );
-                      },
                     ),
                   ),
                   body: SingleChildScrollView(

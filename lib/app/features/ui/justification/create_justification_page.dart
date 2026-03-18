@@ -7,7 +7,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/bloc/create_justification_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
@@ -155,23 +154,16 @@ class _CreateJustificationPageState extends State<CreateJustificationPage> {
                 backgroundColor: Colors.transparent,
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
-                  child: BlocBuilder<AppCubit, AppState>(
-                    buildWhen:
-                        (prev, cur) => prev.totalUnread != cur.totalUnread,
-                    builder: (context, appState) {
-                      return MyAppBar(
+                  child: MyAppBar(
                         titleAppbar: widget.isEdit
                             ? s.justification_update_title
                             : s.justification_create_title,
                         haveBackButton: true,
                         haveActionButton: true,
                         iconPathAsset: AppAssets.icNotificationBell,
-                        badgeCount: appState.totalUnread,
                         actionCallBack: () async {
                           _goNotification();
                         },
-                      );
-                    },
                   ),
                 ),
                 body: SingleChildScrollView(

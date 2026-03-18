@@ -144,22 +144,16 @@ class _StaffPageState extends State<StaffPage> {
     final s = S.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: BlocBuilder<AppCubit, AppState>(
-          buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
-          builder: (context, appState) {
-            return MyAppBar(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: MyAppBar(
               titleAppbar: s.employee_title,
               haveBackButton: (widget.isFromHome ?? false),
               haveActionButton: true,
               iconPathAsset: AppAssets.icNotificationBell,
-              badgeCount: appState.totalUnread,
               actionCallBack: () async {
                 _goNotification();
               },
-            );
-          },
         ),
       ),
       body: Stack(

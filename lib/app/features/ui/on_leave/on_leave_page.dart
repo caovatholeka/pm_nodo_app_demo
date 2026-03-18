@@ -295,18 +295,12 @@ class _OnLeavePageState extends State<OnLeavePage> {
         backgroundColor: AppColors.bodyColor,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: BlocBuilder<AppCubit, AppState>(
-            buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-            builder: (context, appState) {
-              return MyAppBar(
+          child: MyAppBar(
                 titleAppbar: s.day_off_title,
                 haveBackButton: widget.isFromHome ?? false,
                 haveActionButton: true,
                 iconPathAsset: AppAssets.icNotificationBell,
-                badgeCount: appState.totalUnread,
                 actionCallBack: _goNotification,
-              );
-            },
           ),
         ),
         body: Column(

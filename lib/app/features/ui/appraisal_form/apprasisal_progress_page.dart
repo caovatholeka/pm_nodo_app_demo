@@ -63,6 +63,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     return value.toString();
   }
 
+  int _totalTaskRate(List<TaskLineIdEntity> tasks) {
+    return tasks.fold<int>(0, (sum, task) => sum + (task.rate ?? 0));
+  }
+
   void _resetStepRatings(int stepIndex) {
     for (int i = 0; i < _ratingsPerStep[stepIndex].length; i++) {
       _ratingsPerStep[stepIndex][i] = 0;
@@ -85,9 +89,8 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   }
 
   void _fillDetailStep1(CreateAppraisalState state) {
-    final task = state.detailEvaluation?.taskLineIds?.firstOrNull;
-
     listTasks = state.detailEvaluation?.taskLineIds ?? [];
+    final task = listTasks.firstOrNull;
 
     if (task == null) {
       _jobCtrl.clear();
@@ -96,7 +99,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     }
 
     _jobCtrl.text = task.name ?? "";
-    _coefCtrl.text = task.rate?.toString() ?? "";
+    _coefCtrl.text = _totalTaskRate(listTasks).toString();
   }
 
   void _fillDetailStep2(CreateAppraisalState state, {required bool isLeaderReview}) {
@@ -376,6 +379,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         title: '',
         hintText: 'Tổng điểm',
         controller: _totalCtrl,
+        readOnly: true,
         isRequiredField: false,
       ),
     );

@@ -228,18 +228,12 @@ class _OvertimePageState extends State<OvertimePage> {
           backgroundColor: const Color(0xFFF5F6FA),
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: BlocBuilder<AppCubit, AppState>(
-              buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-              builder: (context, appState) {
-                return MyAppBar(
+            child: MyAppBar(
                   titleAppbar: s.ot_pageTitle,
                   haveBackButton: true,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
-                  badgeCount: appState.totalUnread,
                   actionCallBack: _goNotification,
-                );
-              },
             ),
           ),
           body: Column(

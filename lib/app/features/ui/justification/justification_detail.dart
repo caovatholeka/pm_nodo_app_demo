@@ -9,7 +9,6 @@ import 'package:pm_app/app/data/models/entities/exception_line_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/param/justification_approve_param.dart';
 import 'package:pm_app/app/data/models/param/justification_cancel_param.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -280,18 +279,12 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
                 backgroundColor: Colors.transparent,
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
-                  child: BlocBuilder<AppCubit, AppState>(
-                    buildWhen: (p, c) => p.totalUnread != c.totalUnread,
-                    builder: (context, appState) {
-                      return MyAppBar(
+                  child: MyAppBar(
                         titleAppbar: s.justification_detail_title,
                         haveBackButton: true,
                         haveActionButton: true,
                         iconPathAsset: AppAssets.icNotificationBell,
-                        badgeCount: appState.totalUnread,
                         actionCallBack: _goNotification,
-                      );
-                    },
                   ),
                 ),
                 body: SafeArea(child: _buildBody(state)),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/appraisal_page.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/dashboard_page.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
@@ -126,19 +125,13 @@ class _ApplicationPageState extends State<ApplicationPage> {
     final s = S.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: BlocBuilder<AppCubit, AppState>(
-        buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
-        builder: (context, appState) {
-          return MyAppBar(
-            titleAppbar: s.application_title,
-            haveBackButton: true,
-            haveActionButton: true,
-            iconPathAsset: AppAssets.icNotificationBell,
-            badgeCount: appState.totalUnread,
-            actionCallBack: () async {
-              _goNotification();
-            },
-          );
+      child: MyAppBar(
+        titleAppbar: s.application_title,
+        haveBackButton: true,
+        haveActionButton: true,
+        iconPathAsset: AppAssets.icNotificationBell,
+        actionCallBack: () async {
+          _goNotification();
         },
       ),
     );

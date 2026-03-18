@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/entities/overtime_line_entity.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
@@ -201,11 +200,7 @@ class _CreateOTPageState extends State<CreateOTPage> {
                 backgroundColor: Colors.transparent,
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
-                  child: BlocBuilder<AppCubit, AppState>(
-                    buildWhen:
-                        (prev, cur) => prev.totalUnread != cur.totalUnread,
-                    builder: (context, appState) {
-                      return MyAppBar(
+                  child: MyAppBar(
                         titleAppbar: widget.isEdit?
                             S.of(context).ot_update_title
                             : S.of(context).ot_create_title 
@@ -213,12 +208,9 @@ class _CreateOTPageState extends State<CreateOTPage> {
                         haveBackButton: true,
                         haveActionButton: true,
                         iconPathAsset: AppAssets.icNotificationBell,
-                        badgeCount: appState.totalUnread,
                         actionCallBack: () async {
                           _goNotification();
                         },
-                      );
-                    },
                   ),
                 ),
                 body: SingleChildScrollView(

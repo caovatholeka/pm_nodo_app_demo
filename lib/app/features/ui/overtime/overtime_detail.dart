@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
@@ -275,19 +274,12 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
                 backgroundColor: Colors.transparent,
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
-                  child: BlocBuilder<AppCubit, AppState>(
-                    buildWhen:
-                        (prev, cur) => prev.totalUnread != cur.totalUnread,
-                    builder: (context, appState) {
-                      return MyAppBar(
+                  child: MyAppBar(
                         titleAppbar: s.ot_detail_title,
                         haveBackButton: true,
                         haveActionButton: true,
                         iconPathAsset: AppAssets.icNotificationBell,
-                        badgeCount: appState.totalUnread,
                         actionCallBack: _goNotification,
-                      );
-                    },
                   ),
                 ),
                 body: SafeArea(child: _buildBody(state)),

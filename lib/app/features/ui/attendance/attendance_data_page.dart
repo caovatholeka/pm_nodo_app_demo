@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/attendance_tab/attendance_tab.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_tab.dart';
@@ -64,20 +63,14 @@ class _AttendanceDataPageState extends State<AttendanceDataPage>
       backgroundColor: AppColors.bodyColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: BlocBuilder<AppCubit, AppState>(
-          buildWhen: (prev, cur) => prev.totalUnread != cur.totalUnread,
-          builder: (context, appState) {
-            return MyAppBar(
+        child: MyAppBar(
               titleAppbar: s.work_data_tab1,
               haveBackButton: true,
               haveActionButton: true,
               iconPathAsset: AppAssets.icNotificationBell,
-              badgeCount: appState.totalUnread,
               actionCallBack: () async {
                 _goNotification();
               },
-            );
-          },
         ),
       ),
       body: Stack(
