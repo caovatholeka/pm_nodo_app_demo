@@ -1,19 +1,18 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/service/local_notification_service.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+
 import '../../../firebase_options.dart';
-
-import 'package:pm_app/app/core/commons/global_data.dart';
-
 import '../../data/local/shared_prefs_helper.dart';
 import '../logger/logger.dart';
 
@@ -24,7 +23,17 @@ class FirebaseMessagingService {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print("🔵 Background FCM: ${message.messageId}");
+
+    logger.d(
+      'Background FCM: id=${message.messageId}, '
+      'title=${message.notification?.title}, data=${message.data}',
+    );
+
+    if (message.notification == null &&
+        LocalNotificationService.hasDisplayableContent(message)) {
+      await LocalNotificationService.initialize();
+      await LocalNotificationService.showNotification(message);
+    }
   }
 
   static void _openNotificationPage() {
@@ -43,9 +52,7 @@ class FirebaseMessagingService {
   }
 
   static void openFromLocalNotification() {
-    GlobalData.instance.navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => const NotificationPage()),
-    );
+    _openNotificationPage();
   }
 
   static String? _encodeBase64(String? input) {
@@ -116,9 +123,9 @@ class FirebaseMessagingService {
       final deviceId = await _getDeviceId();
       final deviceType = await _getDeviceType();
 
-      logger.d("🔔 FCM TOKEN: $token");
-      logger.d("📱 DEVICE ID: $deviceId");
-      logger.d("📱 DEVICE TYPE: $deviceType");
+      logger.d("FCM TOKEN: $token");
+      logger.d("DEVICE ID: $deviceId");
+      logger.d("DEVICE TYPE: $deviceType");
 
       SharedPrefsHelper.setDeviceId(deviceId ?? "");
       SharedPrefsHelper.setFcmToken(token ?? "");
@@ -144,7 +151,7 @@ class FirebaseMessagingService {
         }
 
         if (e.code == 'apns-token-not-set') {
-          logger.d("⚠apns-token-not-set .");
+          logger.d("apns-token-not-set");
         }
       } else {
         logger.d("Firebase other error: $e");
@@ -157,15 +164,15 @@ class FirebaseMessagingService {
   }
 
   static void _setupForegroundHandlers() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       logger.d("Foreground FCM: ${message.notification?.title}");
-      LocalNotificationService.showNotification(message);
+      await LocalNotificationService.showNotification(message);
       final data = message.data;
-      logger.d("📦 FCM DATA: $data");
+      logger.d("FCM DATA: $data");
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      logger.d("Clicked notification → open NotificationPage");
+      logger.d("Clicked notification -> open NotificationPage");
       _openNotificationPage();
     });
   }

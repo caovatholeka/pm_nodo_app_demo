@@ -20,7 +20,6 @@ import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
-import '../../bloc/app_cubit.dart';
 import '../../widgets/input_text_field.dart';
 
 class TaskManagePage extends StatefulWidget {
@@ -33,7 +32,7 @@ class TaskManagePage extends StatefulWidget {
 
 class _TaskManagePageState extends State<TaskManagePage> {
   final _cubit = GetIt.I.get<TaskCubit>();
-  final _appCubit = GetIt.I<AppCubit>();
+
 
   ScrollController controller = ScrollController();
   final TextEditingController _searchController = TextEditingController();

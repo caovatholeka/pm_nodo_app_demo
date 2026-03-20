@@ -23,7 +23,7 @@ import '../../widgets/custom_dialog.dart';
 
 class TaskDetailPage extends StatefulWidget {
   int? taskId;
-  TaskEntity? taskEntity;
+  TaskEntity? taskEntity; 
 
   TaskDetailPage({super.key, this.taskId, this.taskEntity});
 

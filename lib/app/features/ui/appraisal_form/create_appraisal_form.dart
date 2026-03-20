@@ -67,7 +67,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
       final profile = GlobalData.instance.userProfile;
 
       if (profile != null) {
-        _employeeCodeCtrl.text = "${profile.employeeCode ?? ""}";
+        _employeeCodeCtrl.text = profile.employeeCode ?? "";
         _employeeNameCtrl.text = profile.name ?? "";
         _deprtmentCtrl.text = profile.department?.name ?? "";
         _managerNameCtrl.text = profile.manager?.name ?? "";
@@ -139,7 +139,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
     final e = state.detailEvaluation;
     if (e == null) return;
 
-    _employeeCodeCtrl.text = "${e.employeeCode ?? ""}";
+    _employeeCodeCtrl.text = e.employeeCode ?? "";
     _employeeNameCtrl.text = e.employeeName ?? "";
     _deprtmentCtrl.text = e.departmentName ?? "";
 
