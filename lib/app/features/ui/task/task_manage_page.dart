@@ -373,7 +373,7 @@ class _TaskManagePageState extends State<TaskManagePage> {
                         },
                         onShowChangeStatus: () {
                           _updateTaskStatus(entity);
-                        },
+                         },
                       ).paddingOnly(bottom: 30);
                     },
                   ),

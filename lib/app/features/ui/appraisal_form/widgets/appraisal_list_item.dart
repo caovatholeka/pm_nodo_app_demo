@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 
 class StatusUI {
@@ -30,7 +30,7 @@ class AppraisalListItem extends StatelessWidget {
           bgColor: AppColors.colorDraft.withValues(alpha: 0.1),
         );
       case "director_confirm":
-       return StatusUI(
+        return StatusUI(
           text: "Trưởng phòng duyệt",
           color: AppColors.colorApproved,
           bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
@@ -46,7 +46,7 @@ class AppraisalListItem extends StatelessWidget {
           text: "HR đang duyệt",
           color: AppColors.colorApproved,
           bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
-      );
+        );
       case "done":
         return StatusUI(
           text: "Hoàn thành",
@@ -71,12 +71,10 @@ class AppraisalListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusUI = _getStatusUI(entity.state);
-    final df = DateFormat('dd/MM/yyyy');
-
+    final fromText = AppDateUtils.formatFlexibleDateForDisplay(entity.dateFrom);
+    final toText = AppDateUtils.formatFlexibleDateForDisplay(entity.dateTo);
     final dateText =
-        (entity.dateFrom != null && entity.dateTo != null)
-            ? "${df.format(DateTime.parse(entity.dateFrom!))} - ${df.format(DateTime.parse(entity.dateTo!))}"
-            : "";
+        fromText.isNotEmpty && toText.isNotEmpty ? "$fromText - $toText" : "";
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),

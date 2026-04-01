@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/apprasisal_progress_page.dart';
@@ -147,15 +148,21 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
         GlobalData.instance.userProfile?.manager?.name ?? "";
 
     if (e.dateFrom != null) {
-      final d = DateTime.parse(e.dateFrom!);
-      _fromDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
-      _cubit.setFromDate(d);
+      final d = AppDateUtils.parseFlexibleDate(e.dateFrom);
+      _fromDateCtrl.text = AppDateUtils.formatFlexibleDateForDisplay(
+        e.dateFrom,
+      );
+      if (d != null) {
+        _cubit.setFromDate(d);
+      }
     }
 
     if (e.dateTo != null) {
-      final d = DateTime.parse(e.dateTo!);
-      _toDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
-      _cubit.setToDate(d);
+      final d = AppDateUtils.parseFlexibleDate(e.dateTo);
+      _toDateCtrl.text = AppDateUtils.formatFlexibleDateForDisplay(e.dateTo);
+      if (d != null) {
+        _cubit.setToDate(d);
+      }
     }
 
     _noteCtrl.text = e.note ?? "";
@@ -183,14 +190,14 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                   appBar: PreferredSize(
                     preferredSize: const Size.fromHeight(kToolbarHeight),
                     child: MyAppBar(
-                          titleAppbar:
-                              widget.isDetail == true
-                                  ? "Phiếu đánh giá kết quả CV"
-                                  : "Tạo phiếu đánh giá",
-                          haveBackButton: true,
-                          haveActionButton: true,
-                          iconPathAsset: AppAssets.icNotificationBell,
-                          actionCallBack: _goNotification,
+                      titleAppbar:
+                          widget.isDetail == true
+                              ? "Phiếu đánh giá kết quả CV"
+                              : "Tạo phiếu đánh giá",
+                      haveBackButton: true,
+                      haveActionButton: true,
+                      iconPathAsset: AppAssets.icNotificationBell,
+                      actionCallBack: _goNotification,
                     ),
                   ),
                   body: SingleChildScrollView(

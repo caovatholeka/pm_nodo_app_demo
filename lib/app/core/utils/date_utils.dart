@@ -2,6 +2,14 @@ import 'package:intl/intl.dart';
 import '../../config/app_config.dart';
 
 class AppDateUtils {
+  static final List<DateFormat> _flexibleDateFormats = [
+    DateFormat('yyyy-MM-dd'),
+    DateFormat('dd/MM/yyyy'),
+    DateFormat('MM/yyyy'),
+    DateFormat('yyyy-MM'),
+    DateFormat('yyyy-MM-dd HH:mm:ss'),
+  ];
+
   static DateTime? fromString(String? date) {
     if (date == null) return null;
     try {
@@ -9,6 +17,46 @@ class AppDateUtils {
     } catch (e) {
       return null;
     }
+  }
+
+  static DateTime? parseFlexibleDate(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+
+    final value = raw.trim();
+    final parsed =
+        DateTime.tryParse(value) ??
+        DateTime.tryParse(value.replaceFirst(' ', 'T'));
+    if (parsed != null) return parsed;
+
+    for (final format in _flexibleDateFormats) {
+      try {
+        return format.parseStrict(value);
+      } catch (_) {}
+    }
+
+    return null;
+  }
+
+  static String formatFlexibleDateForDisplay(
+    String? raw, {
+    String fallback = '',
+    String datePattern = 'dd/MM/yyyy',
+  }) {
+    if (raw == null || raw.trim().isEmpty) return fallback;
+
+    final value = raw.trim();
+    if (RegExp(r'^\d{2}/\d{4}$').hasMatch(value)) {
+      return value;
+    }
+
+    final parsed = parseFlexibleDate(value);
+    if (parsed == null) return value;
+
+    if (RegExp(r'^\d{4}-\d{2}$').hasMatch(value)) {
+      return DateFormat('MM/yyyy').format(parsed);
+    }
+
+    return DateFormat(datePattern).format(parsed);
   }
 
   String formatIsoToYyyyMmDd(String input) {
@@ -19,14 +67,15 @@ class AppDateUtils {
   static String? parseDateToYMD(String? input) {
     if (input == null || input.trim().isEmpty) return null;
     try {
-      return DateFormat('yyyy-MM-dd')
-          .format(DateFormat('dd/MM/yyyy').parseStrict(input.trim()));
+      return DateFormat(
+        'yyyy-MM-dd',
+      ).format(DateFormat('dd/MM/yyyy').parseStrict(input.trim()));
     } catch (_) {
       return null;
     }
   }
 
- static String? parseBirthdayDate(String s) {
+  static String? parseBirthdayDate(String s) {
     final dt = DateFormat('yyyy-MM-dd HH:mm:ss').parse(s);
     return DateFormat('yyyy-MM-dd').format(dt);
   }
@@ -54,11 +103,9 @@ class AppDateUtils {
     }
   }
 
-
   DateTime _parseLocal(String s) {
     return DateTime.parse(s.replaceFirst(' ', 'T'));
   }
-
 
   String formatDateTime(String input) {
     final dt = _parseLocal(input);
@@ -78,22 +125,24 @@ class AppDateUtils {
     return '$wd , $d/$m/$y';
   }
 
-  static DateTime convertStringDateToDateTime(String date){
-    try{
+  static DateTime convertStringDateToDateTime(String date) {
+    try {
       return DateTime.parse(date);
-    }catch (e) {
+    } catch (e) {
       return DateTime.now();
     }
   }
 
   static List<DateTime> daysBetween(
-      DateTime start,
-      DateTime end, {
-        bool inclusive = true,
-        bool useUtc = false,
-      }) {
+    DateTime start,
+    DateTime end, {
+    bool inclusive = true,
+    bool useUtc = false,
+  }) {
     DateTime normalize(DateTime x) =>
-        useUtc ? DateTime.utc(x.year, x.month, x.day) : DateTime(x.year, x.month, x.day);
+        useUtc
+            ? DateTime.utc(x.year, x.month, x.day)
+            : DateTime(x.year, x.month, x.day);
 
     var s = normalize(start);
     var e = normalize(end);
@@ -112,13 +161,12 @@ class AppDateUtils {
   }
 
   static String getCurrentTimeAM() {
-    try{
+    try {
       final now = DateTime.now();
       final formatter = DateFormat('hh:mm a'); // 12h + AM/PM
       return formatter.format(now);
-    }catch(e){
+    } catch (e) {
       return "";
     }
-
   }
 }

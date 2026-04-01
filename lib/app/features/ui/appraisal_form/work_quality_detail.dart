@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_quality_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
@@ -38,37 +38,39 @@ class _WorkQualityDetailState extends State<WorkQualityDetail> {
   }
 
   DateTime? _parseEvaluationDate(String? raw) {
-    if (raw == null || raw.isEmpty) return null;
-
-    try {
-      return DateFormat('yyyy-MM-dd').parseStrict(raw);
-    } catch (_) {
-      return DateTime.tryParse(raw);
-    }
+    return AppDateUtils.parseFlexibleDate(raw);
   }
 
   List<WorkQualityTaskItemData> _mapTaskItems(WorkQualityEntity? entity) {
     final tasks = entity?.taskEvaluations ?? const <TaskEvaluationEntity>[];
 
-    return tasks.where((task) {
-      final date = _parseEvaluationDate(task.evaluationDate);
-      if (date == null) return false;
-      return date.month == _selectedMonth.month && date.year == _selectedMonth.year;
-    }).map((task) {
-      final evaluationDate = _parseEvaluationDate(task.evaluationDate);
-      final subtitleDate = evaluationDate == null
-          ? (task.evaluationDate ?? '')
-          : DateFormat('dd/MM/yyyy').format(evaluationDate);
+    return tasks
+        .where((task) {
+          final date = _parseEvaluationDate(task.evaluationDate);
+          if (date == null) return false;
+          return date.month == _selectedMonth.month &&
+              date.year == _selectedMonth.year;
+        })
+        .map((task) {
+          final evaluationDate = _parseEvaluationDate(task.evaluationDate);
+          final subtitleDate =
+              evaluationDate == null
+                  ? (task.evaluationDate ?? '')
+                  : AppDateUtils.formatFlexibleDateForDisplay(
+                    task.evaluationDate,
+                  );
 
-      return WorkQualityTaskItemData(
-        title: task.taskName ?? '',
-        subtitle: 'Đánh giá bởi: ${task.evaluatorName ?? ''} • $subtitleDate',
-        description: task.feedback ?? '',
-        owner: task.assignedEmployeeName ?? '',
-        duration: '${task.executionHours ?? 0} giờ',
-        tags: task.tags ?? const <String>[],
-      );
-    }).toList();
+          return WorkQualityTaskItemData(
+            title: task.taskName ?? '',
+            subtitle:
+                'Đánh giá bởi: ${task.evaluatorName ?? ''} • $subtitleDate',
+            description: task.feedback ?? '',
+            owner: task.assignedEmployeeName ?? '',
+            duration: '${task.executionHours ?? 0} giờ',
+            tags: task.tags ?? const <String>[],
+          );
+        })
+        .toList();
   }
 
   List<WorkQualityMetricBarData> _buildBars(WorkQualityEntity? entity) {

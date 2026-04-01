@@ -70,7 +70,6 @@ class _MyAppState extends State<MyApp> {
   OverlaySupportEntry? _overlaySupportEntry;
   bool networkEnabled = true;
 
-  final _appCubit = sl<AppCubit>();
   Locale? _locale;
 
   StreamSubscription<bool>? _serverBusySubscription;
