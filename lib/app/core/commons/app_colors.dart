@@ -8,6 +8,8 @@ class AppColors {
   static const Color textPrimaryDefault = Color(0xFF1677FF);
   static const Color mainColor = Color(0xFF006CFF);
   static const Color mainPrimaryColor6 = Color(0xFF006CFF);
+  // ignore: constant_identifier_names
+  static const Color PrimaryColor = mainColor;
 
   static const Color themeDarkDark = Color(0xFF101255);
 
@@ -37,7 +39,6 @@ class AppColors {
   static const Color neutral500 = Color(0xFF9AA0A6);
   static const Color neutral600 = Color(0xFF8E949B);
 
-
   static const Color textGray600 = Color(0xFF535862);
   static const Color textGray500 = Color(0xFF717680);
   static const Color textBlack600 = Color(0xFF282828);
@@ -62,7 +63,6 @@ class AppColors {
   static const Color colorApproved = Color(0xFF006CFF);
   static const Color colorFinished = Color.fromARGB(255, 36, 181, 4);
   static const Color colorCancel = Color(0xFFD21D0D);
-  
 
   // task
   static const Color newTask = Color(0xFF00B0E9);

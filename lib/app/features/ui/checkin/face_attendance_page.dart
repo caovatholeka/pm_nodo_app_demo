@@ -48,13 +48,12 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   static const double _maxCoverage = 0.85;
   static const double _insetPx = 12;
 
-  static const double _yawMax = 12;   // quay trái/phải (Y)
+  static const double _yawMax = 12; // quay trái/phải (Y)
   static const double _pitchMax = 12; // gật (X)
-  static const double _rollMax = 12;  // nghiêng (Z)
+  static const double _rollMax = 12; // nghiêng (Z)
   bool _canManualCapture = false;
 
   final Rect _guideRect = Rect.zero;
-
 
   // ===== Anti-spoofing =====
   final bool _livenessReady = false;
@@ -84,7 +83,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
     AppSnackBar.showError(
       title: "Cảnh báo",
-      message: "Phát hiện giả mạo (ảnh/video). Vui lòng đưa khuôn mặt thật vào camera.",
+      message:
+          "Phát hiện giả mạo (ảnh/video). Vui lòng đưa khuôn mặt thật vào camera.",
     );
   }
 
@@ -111,7 +111,6 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     //   return false;
     // }
   }
-
 
   @override
   void initState() {
@@ -164,7 +163,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     try {
       final cams = await availableCameras();
       final front = cams.firstWhere(
-            (c) => c.lensDirection == CameraLensDirection.front,
+        (c) => c.lensDirection == CameraLensDirection.front,
         orElse: () => cams.first,
       );
 
@@ -172,9 +171,10 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         front,
         ResolutionPreset.medium,
         enableAudio: false,
-        imageFormatGroup: Platform.isAndroid
-            ? ImageFormatGroup.nv21
-            : ImageFormatGroup.bgra8888,
+        imageFormatGroup:
+            Platform.isAndroid
+                ? ImageFormatGroup.nv21
+                : ImageFormatGroup.bgra8888,
       );
 
       await _cam!.initialize();
@@ -186,7 +186,9 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${S.of(context).check_in_cannotOpenCamera}: $e')),
+          SnackBar(
+            content: Text('${S.of(context).check_in_cannotOpenCamera}: $e'),
+          ),
         );
       }
     }
@@ -251,9 +253,10 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         _stableCount = 0;
 
         // comment : FaceAntiSpoofingDetector
-        final isLive = (face != null)
-            ? await _checkLivenessFromFrame(image, face.boundingBox)
-            : false;
+        final isLive =
+            (face != null)
+                ? await _checkLivenessFromFrame(image, face.boundingBox)
+                : false;
 
         if (!isLive) {
           _isCapturing = false;
@@ -276,7 +279,6 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       _isBusy = false;
     }
   }
-
 
   Future<void> _captureOnceAndReturn() async {
     try {
@@ -312,7 +314,6 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       }
     }
   }
-
 
   // xử lý ảnh tĩnh : browser images
   Future<void> _processStill(File file) async {
@@ -353,9 +354,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     final cy = faceBox.center.dy * screen.height / imgH;
 
     return guide.contains(Offset(cx, cy));
-
   }
-
 
   InputImageRotation _rotationFromSensor(int deg) {
     switch (deg) {
@@ -394,12 +393,15 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         break;
     }
 
-    final isFront = _cam!.description.lensDirection == CameraLensDirection.front;
+    final isFront =
+        _cam!.description.lensDirection == CameraLensDirection.front;
 
     int rotationCompensation;
     if (Platform.isAndroid) {
       rotationCompensation =
-      isFront ? (sensor + deviceDeg) % 360 : (sensor - deviceDeg + 360) % 360;
+          isFront
+              ? (sensor + deviceDeg) % 360
+              : (sensor - deviceDeg + 360) % 360;
     } else {
       rotationCompensation = sensor;
     }
@@ -435,17 +437,23 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       );
     }
 
-    if (image.planes.length < 3) return null;
+    if (image.planes.isEmpty) return null;
 
-    final nv21 = _yuv420ToNv21(image);
+    // Android devices can surface either a single NV21 plane or 3 YUV420 planes
+    // depending on the camera plugin version and device implementation.
+    final Uint8List bytes =
+        image.planes.length == 1
+            ? image.planes.first.bytes
+            : _yuv420ToNv21(image);
+    final int bytesPerRow = image.planes.first.bytesPerRow;
 
     return InputImage.fromBytes(
-      bytes: nv21,
+      bytes: bytes,
       metadata: InputImageMetadata(
         size: Size(image.width.toDouble(), image.height.toDouble()),
         rotation: _inputImageRotation(),
         format: InputImageFormat.nv21,
-        bytesPerRow: image.width,
+        bytesPerRow: bytesPerRow,
       ),
     );
   }
@@ -503,8 +511,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   }
 
   /// Chuyển YUV420 -> JPEG (cách nhanh, dùng nền tảng iOS/Android encode qua CameraImage)
-  Future<Uint8List> _yuvToJpeg(CameraImage image) async{
-
+  Future<Uint8List> _yuvToJpeg(CameraImage image) async {
     final file = await _cam!.takePicture();
     final bytes = await File(file.path).readAsBytes();
     throw UnimplementedError('Use _captureJpeg() instead');
@@ -518,7 +525,6 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   }
 
   String _encodeBase64(Uint8List bytes) => base64Encode(bytes);
-
 
   // Khung hình
   Rect computeGuideRect(Size screenSize) {
@@ -575,8 +581,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     final z = (f.headEulerAngleZ ?? 0).abs(); // roll
 
     const pitchMax = 25.0;
-    const yawMax   = 25.0;
-    const rollMax  = 25.0;
+    const yawMax = 25.0;
+    const rollMax = 25.0;
 
     final okPose = x <= pitchMax && y <= yawMax && z <= rollMax;
     if (!okPose) {
@@ -603,15 +609,12 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
     // 0.2..0.8 nghĩa là chừa biên 20% mỗi phía.
     final okCenter =
-        cxRatio >= 0.2 && cxRatio <= 0.8 &&
-            cyRatio >= 0.2 && cyRatio <= 0.8;
+        cxRatio >= 0.2 && cxRatio <= 0.8 && cyRatio >= 0.2 && cyRatio <= 0.8;
 
     // logger.d('center: cx=$cxRatio, cy=$cyRatio, okCenter=$okCenter');
 
     return okCenter;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -619,9 +622,10 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     final camReady = _initialized && _cam != null && _cam!.value.isInitialized;
     return BlocListener<FaceScanCubit, FaceScanState>(
       bloc: _cubit,
-      listenWhen: (prev, cur) =>
-      prev.scanStatus != cur.scanStatus ||
-          prev.faceResult != cur.faceResult,
+      listenWhen:
+          (prev, cur) =>
+              prev.scanStatus != cur.scanStatus ||
+              prev.faceResult != cur.faceResult,
       listener: (context, state) async {
         if (state.scanStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
@@ -635,8 +639,9 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         } else if (state.scanStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
-              title: S.of(context).failed,
-              message: state.scanMsg ?? S.of(context).check_inFailed2);
+            title: S.of(context).failed,
+            message: state.scanMsg ?? S.of(context).check_inFailed2,
+          );
           Navigator.pop(context);
         } else {
           LoadingOverlay.hide(context);
@@ -651,8 +656,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
               CameraCoverPreview(controller: _cam!)
             else
               const Center(
-                  child:
-                  CircularProgressIndicator(color: Colors.white)),
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
 
             // nếu muốn, có thể bật lại guide ở giữa:
             // if (camReady && !_scanStarted)
@@ -662,9 +667,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
             //       size: Size.infinite,
             //     ),
             //   ),
-
-            if (camReady && _scanStarted)
-              const FaceMaskWithWave(),
+            if (camReady && _scanStarted) const FaceMaskWithWave(),
 
             SafeArea(
               child: Align(
@@ -680,8 +683,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                         color: Colors.black.withOpacity(0.35),
                         shape: BoxShape.circle,
                       ),
-                      child:
-                      const Icon(Icons.arrow_back, color: Colors.white),
+                      child: const Icon(Icons.arrow_back, color: Colors.white),
                     ),
                   ),
                 ),
@@ -695,21 +697,25 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: !_scanStarted
-                      ?Text(
-                    s.check_in_hint,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400),
-                  )
-                      : const SizedBox.shrink(),
+                  child:
+                      !_scanStarted
+                          ? Text(
+                            s.check_in_hint,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          )
+                          : const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -729,8 +735,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.transparent,
-                        border:
-                        Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: Colors.white, width: 2),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.25),

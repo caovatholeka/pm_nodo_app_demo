@@ -66,7 +66,14 @@ Future<void> init() async {
               options.headers['Authorization'] = 'Bearer $token';
             }
 
-            options.headers['Content-Type'] = 'application/json';
+            if (options.data is FormData) {
+              options.headers.remove(Headers.contentTypeHeader);
+            } else {
+              options.headers.putIfAbsent(
+                Headers.contentTypeHeader,
+                () => Headers.jsonContentType,
+              );
+            }
           } catch (e) {
             print('⚠️ Không thể lấy token: $e');
           }
