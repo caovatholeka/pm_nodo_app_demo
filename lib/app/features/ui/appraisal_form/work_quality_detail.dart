@@ -68,6 +68,7 @@ class _WorkQualityDetailState extends State<WorkQualityDetail> {
             owner: task.assignedEmployeeName ?? '',
             duration: '${task.executionHours ?? 0} giờ',
             tags: task.tags ?? const <String>[],
+            projectLogo: task.projectLogo ?? '',
           );
         })
         .toList();

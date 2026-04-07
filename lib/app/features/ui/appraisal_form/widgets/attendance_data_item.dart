@@ -45,7 +45,7 @@ class AttendanceItem extends StatelessWidget {
             subtitle,
             style: TextStyle(
               fontSize: 13,
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
             ),
           ),
         ],

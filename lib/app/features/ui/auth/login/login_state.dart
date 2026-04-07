@@ -1,15 +1,17 @@
 part of 'login_cubit.dart';
 
-class LoginState extends Equatable {
-  TokenEntity? tokenEntity;
-  LoadStatus? loginStatus;
-  bool? showPassword;
-  String? userName;
-  String password;
-  String? errMsg;
-  bool? rememberMe;
+const Object _loginCopyWithUnset = Object();
 
-  LoginState({
+class LoginState extends Equatable {
+  final TokenEntity? tokenEntity;
+  final LoadStatus? loginStatus;
+  final bool? showPassword;
+  final String? userName;
+  final String password;
+  final String? errMsg;
+  final bool? rememberMe;
+
+  const LoginState({
     this.tokenEntity,
     this.loginStatus = LoadStatus.INITIAL,
     this.showPassword,
@@ -27,7 +29,7 @@ class LoginState extends Equatable {
     String? email,
     String? password,
     String? teacherCode,
-    String? errMsg,
+    Object? errMsg = _loginCopyWithUnset,
     bool? rememberMe
   }) {
     return LoginState(
@@ -36,7 +38,7 @@ class LoginState extends Equatable {
         showPassword: showPassword ?? this.showPassword,
         userName: userName ?? this.userName,
         password: password ?? this.password,
-        errMsg: errMsg ?? this.errMsg,
+        errMsg: identical(errMsg, _loginCopyWithUnset) ? this.errMsg : errMsg as String?,
         rememberMe: rememberMe ?? this.rememberMe
     );
   }

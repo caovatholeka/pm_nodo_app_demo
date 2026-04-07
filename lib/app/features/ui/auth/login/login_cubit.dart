@@ -18,10 +18,14 @@ class LogInCubit extends Cubit<LoginState> {
 
   LogInCubit({required this.authRepository}) : super(LoginState());
 
+  void resetState() {
+    emit(const LoginState());
+  }
+
   void doLogin(String username, String password) async {
     final type = GlobalData.instance.quickActionPending;
     GlobalData.instance.isLoggingIn = true;
-    emit(state.copyWith(loginStatus: LoadStatus.LOADING));
+    emit(state.copyWith(loginStatus: LoadStatus.LOADING, errMsg: null));
     try {
       String deviceId = await SharedPrefsHelper.getDeviceId();
       String fcmToken = await SharedPrefsHelper.getFcmToken();
@@ -35,7 +39,7 @@ class LogInCubit extends Cubit<LoginState> {
         "device_type": deviceType,
       };
       final result = await authRepository.authLogin(param);
-      //Bắt lỗi tk không tồn tại
+
       final raw = result.data;
 
       if (raw is Map<String, dynamic> && raw["error"] == true) {
@@ -126,6 +130,7 @@ class LogInCubit extends Cubit<LoginState> {
           errMsg: "Lỗi không xác định",
         ),
       );
+    } finally {
       GlobalData.instance.isLoggingIn = false;
     }
   }

@@ -5,6 +5,8 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/discipline_evaluation_detail_card.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 class DisciplineEvaluationDetail extends StatefulWidget {
@@ -15,9 +17,21 @@ class DisciplineEvaluationDetail extends StatefulWidget {
       _DisciplineEvaluationDetailState();
 }
 
-class _DisciplineEvaluationDetailState
-    extends State<DisciplineEvaluationDetail> {
+class _DisciplineEvaluationDetailState extends State<DisciplineEvaluationDetail> {
   final _cubit = GetIt.I.get<DashboardCubit>();
+
+    void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications("all"),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +40,13 @@ class _DisciplineEvaluationDetailState
       child: Scaffold(
         backgroundColor: AppColors.bodyColor,
         extendBodyBehindAppBar: true,
-        appBar: const MyAppBar(
-          titleAppbar: 'Đánh giá nề nếp',
-          haveBackButton: true,
-        ),
+        appBar: MyAppBar(
+                titleAppbar: "Đánh giá nề nếp",
+                haveBackButton: true,
+                haveActionButton: true,
+                iconPathAsset: AppAssets.icNotificationBell,
+                actionCallBack: _goNotification,
+          ),
         body: Stack(
           children: [
             Positioned(

@@ -19,8 +19,10 @@ class DisciplineEvaluationDetailCard extends StatefulWidget {
 class _DisciplineEvaluationDetailCardState
     extends State<DisciplineEvaluationDetailCard> {
   int _selectedMonth = DateTime.now().month;
+  final int _selectedYear = DateTime.now().year;
 
-  String get _monthLabel => 'Tháng ${_selectedMonth.toString().padLeft(2, '0')}';
+  String get _monthLabel =>
+      'Tháng ${_selectedMonth.toString().padLeft(2, '0')}/$_selectedYear';
 
   @override
   void initState() {
@@ -94,7 +96,7 @@ class _DisciplineEvaluationDetailCardState
                     12,
                     (i) => Center(
                       child: Text(
-                        (i + 1).toString().padLeft(2, '0'),
+                        'Tháng ${(i + 1).toString().padLeft(2, '0')}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -251,8 +253,9 @@ class _DisciplineEvaluationDetailCardState
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
                 SizedBox(
-                  height: 280,
+                  height: 380,
                   child: SfCartesianChart(
                     plotAreaBorderWidth: 1,
                     plotAreaBorderColor: const Color(0xFFD9D9D9),
@@ -468,20 +471,49 @@ class _LegendItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
+        SizedBox(
+          width: 24,
+          height: 24,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.22),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Container(
+                width: 28,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.96),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.98),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.95),
+                    width: 2,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
         Text(
           text,
           style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF666666),
+            fontSize: 14,
+            color: Color(0xFF4B5563),
           ),
         ),
       ],

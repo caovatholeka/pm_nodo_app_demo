@@ -23,7 +23,7 @@ class WorkQualityChartCard extends StatefulWidget {
 class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
   late DateTime _selectedDate;
 
-  String get _monthLabel => DateFormat('MM/yyyy', 'en').format(_selectedDate);
+  String get _monthLabel => 'Tháng ${DateFormat('MM/yyyy').format(_selectedDate)}';
 
   @override
   void initState() {
@@ -104,7 +104,7 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
                           (i) => Center(
                             child: Text(
                               (2020 + i).toString(),
-                              style: const TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ),
                         ),
@@ -124,7 +124,7 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
                           (i) => Center(
                             child: Text(
                               (i + 1).toString().padLeft(2, '0'),
-                              style: const TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ),
                         ),
@@ -149,7 +149,7 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
             borderRadius: BorderRadius.circular(20),
@@ -163,7 +163,11 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
               ),
               child: Row(
                 children: [
-                  SvgPicture.asset(AppAssets.icCalendar, width: 14, height: 14),
+                  SvgPicture.asset(
+                    AppAssets.icCalendar,
+                    width: 14,
+                    height: 14,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     _monthLabel,
@@ -183,31 +187,42 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
             ),
           ),
           const SizedBox(height: 16),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _ScaleText('0'),
-                _ScaleText('20'),
-                _ScaleText('40'),
-                _ScaleText('60'),
-                _ScaleText('80'),
-                _ScaleText('100'),
-              ],
+          const SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _ScaleText('0'),
+                  _ScaleText('20'),
+                  _ScaleText('40'),
+                  _ScaleText('60'),
+                  _ScaleText('80'),
+                  _ScaleText('100'),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 8),
-          ...widget.bars.map((item) => _MetricBar(item: item)),
+          ...widget.bars.map(
+            (item) => SizedBox(
+              width: double.infinity,
+              child: _MetricBar(item: item),
+            ),
+          ),
           const SizedBox(height: 18),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _LegendDot(color: Color(0xFF7B88E8), label: 'Khối lượng CV'),
-              _LegendDot(color: Color(0xFFF4A640), label: 'Tiến độ CV'),
-              _LegendDot(color: Color(0xFF35C3D9), label: 'Chất lượng CV'),
-            ],
+          const SizedBox(
+            width: double.infinity,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _LegendDot(color: Color(0xFF7B88E8), label: 'Khối lượng CV'),
+                _LegendDot(color: Color(0xFFF4A640), label: 'Tiến độ CV'),
+                _LegendDot(color: Color(0xFF35C3D9), label: 'Chất lượng CV'),
+              ],
+            ),
           ),
         ],
       ),
@@ -225,7 +240,7 @@ class _ScaleText extends StatelessWidget {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 12,
+        fontSize: 11,
         fontWeight: FontWeight.w400,
         color: Color(0xFF4F4F4F),
       ),
@@ -240,35 +255,56 @@ class _MetricBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const barHeight = 42.0;
+    final barValue = item.value.clamp(0, 100);
+
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: SizedBox(
-        height: 56,
+        height: barHeight,
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Stack(
               children: [
-                FractionallySizedBox(
-                  widthFactor: (item.value.clamp(0, 100)) / 100,
-                  heightFactor: 1,
-                  alignment: Alignment.centerLeft,
+                Positioned.fill(
                   child: Container(
-                    height: 56,
-                    color: item.color.withValues(alpha: 0.96),
+                    color: const Color(0xFFF2F4FF),
                   ),
                 ),
-                ...List.generate(4, (index) {
-                  final left = constraints.maxWidth * ((index + 1) * 0.2);
-                  return Positioned(
-                    left: left - 0.5,
+                for (final fraction in [0.2, 0.4, 0.6, 0.8, 1.0])
+                  Positioned(
+                    left: constraints.maxWidth * fraction - 0.5,
                     top: 0,
                     bottom: 0,
                     child: CustomPaint(
-                      size: const Size(1, 56),
+                      size: const Size(1, barHeight),
                       painter: _DashedLinePainter(),
                     ),
-                  );
-                }),
+                  ),
+                FractionallySizedBox(
+                  widthFactor: barValue / 100,
+                  heightFactor: 1,
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    color: item.color.withValues(alpha: 0.96),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        barValue.toInt().toString(),
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF4B5563),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             );
           },
@@ -291,20 +327,20 @@ class _LegendDot extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 9,
-          height: 9,
+          width: 7,
+          height: 7,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(99),
+            shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         Text(
           label,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 11.5,
             fontWeight: FontWeight.w400,
-            color: Color(0xFF5B5B5B),
+            color: Color(0xFF666B75),
           ),
         ),
       ],
@@ -328,7 +364,7 @@ class _DashedLinePainter extends CustomPainter {
     const dashHeight = 3.0;
     const dashSpace = 3.0;
     final paint = Paint()
-      ..color = const Color(0xFFBFC4D3)
+      ..color = const Color(0xFFC9CED8)
       ..strokeWidth = 1;
 
     double startY = 0;

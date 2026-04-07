@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
       SystemUiMode.immersiveSticky,
       overlays: [],
     );
-    _cubit.emit(_cubit.state.copyWith(loginStatus: LoadStatus.INITIAL));
+    _cubit.resetState();
     _loadSavedUserName();
   }
 
@@ -150,11 +150,14 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboard = MediaQuery.of(context).viewInsets.bottom;
     final s = S.of(context);
 
     return BlocConsumer<LogInCubit, LoginState>(
       bloc: _cubit,
+      listenWhen: (previous, current) =>
+          previous.loginStatus != current.loginStatus &&
+          (current.loginStatus == LoadStatus.SUCCESS ||
+              current.loginStatus == LoadStatus.FAILURE),
       listener: (context, state) {
         if (state.loginStatus == LoadStatus.SUCCESS) {
           final pending = GlobalData.instance.quickActionPending;

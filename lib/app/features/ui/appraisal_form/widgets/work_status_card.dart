@@ -23,6 +23,22 @@ class WorkStatusCard extends StatelessWidget {
     'wfh': ['wfh', 'work_from_home', 'working_from_home'],
   };
 
+  static const Map<String, Color> _badgeBgColors = {
+    'leave': Color(0xFFEAF1FF),
+    'overtime': Color(0xFFFFF0E7),
+    'late_early': Color(0xFFF3EAFD),
+    'onsite': Color(0xFFE8F8EC),
+    'wfh': Color(0xFFEAF8FF),
+  };
+
+  static const Map<String, Color> _badgeFgColors = {
+    'leave': Color(0xFF4A7CFF),
+    'overtime': Color(0xFFFF8A4C),
+    'late_early': Color(0xFFB84AE6),
+    'onsite': Color(0xFF21C24A),
+    'wfh': Color(0xFF20B8DD),
+  };
+
   RequestSummaryEntity? _find(List<RequestSummaryEntity> list, String key) {
     try {
       final aliases = _keyAliases[key] ?? [key];
@@ -38,17 +54,17 @@ class WorkStatusCard extends StatelessWidget {
   String _defaultLabel(String key) {
     switch (key) {
       case 'leave':
-        return 'Don nghi phep';
+        return 'Đơn nghỉ phép';
       case 'overtime':
-        return 'Don xin OT';
+        return 'Đơn xin OT';
       case 'late_early':
-        return 'Don muon/som';
+        return 'Đơn muộn/sớm';
       case 'onsite':
-        return 'Don Onsite';
+        return 'Đơn Onsite';
       case 'wfh':
-        return 'Don WFH';
+        return 'Đơn WFH';
       default:
-        return 'Don';
+        return 'Đơn';
     }
   }
 
@@ -75,7 +91,7 @@ class WorkStatusCard extends StatelessWidget {
       builder: (context, state) {
         final list = state.requestSummaries;
         final isLoading = state.requestStatus == LoadStatus.LOADING;
-        final keysOrder = ['leave', 'overtime', 'late_early', 'onsite'];
+        final keysOrder = const ['leave', 'overtime', 'late_early', 'onsite'];
         final wfhItem = _find(list, 'wfh');
 
         return Column(
@@ -84,80 +100,32 @@ class WorkStatusCard extends StatelessWidget {
               crossAxisCount: 2,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.25,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.02,
               children: keysOrder.map((key) {
                 final item = _find(list, key);
 
                 return _itemCard(
-                  item?.label ?? _defaultLabel(key),
-                  item?.count ?? 0,
-                  _iconForKey(key),
+                  title: item?.label ?? _defaultLabel(key),
+                  value: item?.count ?? 0,
+                  icon: _iconForKey(key),
+                  badgeBgColor: _badgeBgColors[key] ?? const Color(0xFFF3F4F6),
+                  badgeFgColor: _badgeFgColors[key] ?? const Color(0xFF6B7280),
                   isLoading: isLoading && item == null,
                   onTap: () => onTap?.call(key),
                 );
               }).toList(),
             ),
             const SizedBox(height: 12),
-            InkWell(
-              borderRadius: BorderRadius.circular(14),
+            _horizontalItemCard(
+              title: wfhItem?.label ?? _defaultLabel('wfh'),
+              value: wfhItem?.count ?? 0,
+              icon: _iconForKey('wfh'),
+              badgeBgColor: _badgeBgColors['wfh'] ?? const Color(0xFFF3F4F6),
+              badgeFgColor: _badgeFgColors['wfh'] ?? const Color(0xFF6B7280),
+              isLoading: isLoading && wfhItem == null,
               onTap: () => onTap?.call('wfh'),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 6,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xffE6F7FA),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: SvgPicture.asset(AppAssets.icHome, width: 30),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        wfhItem?.label ?? _defaultLabel('wfh'),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    if (isLoading && wfhItem == null)
-                      const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.blue,
-                        ),
-                      )
-                    else
-                      Text(
-                        "${wfhItem?.count ?? 0}",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
             ),
           ],
         );
@@ -166,47 +134,177 @@ class WorkStatusCard extends StatelessWidget {
   }
 }
 
-Widget _itemCard(
-  String title,
-  int value,
-  String icon, {
+String _formatCount(int? value) {
+  final count = value ?? 0;
+  if (count < 10) return count.toString().padLeft(2, '0');
+  return count.toString();
+}
+
+Widget _itemCard({
+  required String title,
+  required int value,
+  required String icon,
+  required Color badgeBgColor,
+  required Color badgeFgColor,
   bool isLoading = false,
   VoidCallback? onTap,
 }) {
   return InkWell(
-    borderRadius: BorderRadius.circular(14),
+    borderRadius: BorderRadius.circular(18),
     onTap: onTap,
     child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE9ECF2)),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
+          BoxShadow(
+            color: Color(0x0F101828),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
         ],
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(icon, width: 30),
-          const SizedBox(height: 6),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: badgeBgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                icon,
+                width: 22,
+                height: 22,
+                colorFilter: ColorFilter.mode(
+                  badgeFgColor,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           Text(
             title,
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              height: 1.2,
+              color: Color(0xFF7A8493),
+              fontWeight: FontWeight.w500,
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           if (isLoading)
             const SizedBox(
               width: 18,
               height: 18,
-              child:
-                  CircularProgressIndicator(strokeWidth: 2, color: Colors.blue),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Color(0xFF5B6B7C),
+              ),
             )
           else
             Text(
-              value.toString(),
+              _formatCount(value),
               style: const TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.bold),
+                fontSize: 20,
+                height: 1,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF232A36),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _horizontalItemCard({
+  required String title,
+  required int value,
+  required String icon,
+  required Color badgeBgColor,
+  required Color badgeFgColor,
+  bool isLoading = false,
+  VoidCallback? onTap,
+}) {
+  return InkWell(
+    borderRadius: BorderRadius.circular(18),
+    onTap: onTap,
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE9ECF2)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F101828),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: badgeBgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                icon,
+                width: 22,
+                height: 22,
+                colorFilter: ColorFilter.mode(
+                  badgeFgColor,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              title,
+            style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF616B7A),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          if (isLoading)
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Color(0xFF5B6B7C),
+              ),
+            )
+          else
+            Text(
+              _formatCount(value),
+              style: const TextStyle(
+                fontSize: 20,
+                height: 1,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF232A36),
+              ),
             ),
         ],
       ),

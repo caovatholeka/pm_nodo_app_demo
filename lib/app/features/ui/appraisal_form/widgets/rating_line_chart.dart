@@ -23,7 +23,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
   DateTime _selectedDate = DateTime.now();
 
   String get _monthLabel =>
-      DateFormat("'Tháng' MM", 'vi_VN').format(_selectedDate);
+      DateFormat("'Tháng' MM/yyyy", 'vi_VN').format(_selectedDate);
 
   @override
   void initState() {
@@ -105,7 +105,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                     12,
                     (i) => Center(
                       child: Text(
-                        (i + 1).toString().padLeft(2, '0'),
+                        'Tháng ${(i + 1).toString().padLeft(2, '0')}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -132,9 +132,9 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+            boxShadow: [
+              BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
