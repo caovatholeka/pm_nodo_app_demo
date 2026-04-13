@@ -33,6 +33,7 @@ class WorkTripPage extends StatefulWidget {
 
 class _WorkTripPageState extends State<WorkTripPage> {
   final _cubit = GetIt.I<WorkTripCubit>();
+  bool _handlingAction = false;
 
   final ScrollController controller = ScrollController();
   final TextEditingController _searchController = TextEditingController();
@@ -124,6 +125,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
               Navigator.pop(context);
 
               final param = ApproveObParam(businessIds: ids);
+              _handlingAction = true;
 
               _cubit.onApproveWorkTrip(param);
             },
@@ -148,10 +150,37 @@ class _WorkTripPageState extends State<WorkTripPage> {
               prev.approveStatus != cur.approveStatus ||
               prev.cancelStatus != cur.cancelStatus,
       listener: (context, state) {
+        final isOwnerAction = _handlingAction;
+
+        if (!isOwnerAction) {
+          final shouldRefreshSilently =
+              state.submitStatus == LoadStatus.SUCCESS ||
+              state.deleteStatus == LoadStatus.SUCCESS ||
+              state.approveStatus == LoadStatus.SUCCESS ||
+              state.cancelStatus == LoadStatus.SUCCESS;
+
+          if (shouldRefreshSilently) {
+            _selectedIds.clear();
+            _cubit.onResetStatus();
+            _cubit.getListWorkTrips();
+            setState(() {});
+            return;
+          }
+
+          if (state.submitStatus == LoadStatus.FAILURE ||
+              state.deleteStatus == LoadStatus.FAILURE ||
+              state.approveStatus == LoadStatus.FAILURE ||
+              state.cancelStatus == LoadStatus.FAILURE) {
+            _cubit.onResetStatus();
+            return;
+          }
+        }
+
         if (state.deleteStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(title: s.success, message: s.bt_delete_success);
+          _handlingAction = false;
 
           _selectedIds.clear();
           _cubit.onResetStatus();
@@ -167,6 +196,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
             title: s.success,
             message: s.justification_sendApproval,
           );
+          _handlingAction = false;
 
           _selectedIds.clear();
           _cubit.onResetStatus();
@@ -182,6 +212,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
             title: s.success,
             message: s.bt_confirm_susscess,
           );
+          _handlingAction = false;
 
           _selectedIds.clear();
           _cubit.onResetStatus();
@@ -194,6 +225,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showInfo(title: s.success, message: s.bt_confirm_deny);
+          _handlingAction = false;
 
           _selectedIds.clear();
           _cubit.onResetStatus();
@@ -211,6 +243,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
             title: s.warning,
             message: state.errMsg ?? s.to_do_failed,
           );
+          _handlingAction = false;
 
           _cubit.onResetStatus();
           return;
@@ -224,9 +257,13 @@ class _WorkTripPageState extends State<WorkTripPage> {
             state.cancelStatus == LoadStatus.LOADING;
 
         if (isLoading) {
-          LoadingOverlay.show(context);
+          if (isOwnerAction) {
+            LoadingOverlay.show(context);
+          }
         } else {
-          LoadingOverlay.hide(context);
+          if (isOwnerAction) {
+            LoadingOverlay.hide(context);
+          }
         }
       },
       builder: (context, state) {
@@ -457,11 +494,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
               final entity = list[index];
               final stageName = entity.stage?.name ?? '';
 
-              final isFinished = stageName == 'Hoàn thành';
-              final isCanceled = stageName == 'Hủy';
-
-              final canSwipe =
-                  !isFinished && !isCanceled && _selectedIds.isEmpty;
+              final canSwipe = stageName == 'Nháp' && _selectedIds.isEmpty;
 
               final card = WorkTripListItem(
                 entity: entity,
@@ -511,6 +544,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
                                   onCancel: () => Navigator.pop(context),
                                   onConfirm: () {
                                     Navigator.pop(context);
+                                    _handlingAction = true;
                                     _cubit.onSubmitWorkTrip(entity.id!);
                                   },
                                 ),
@@ -535,6 +569,7 @@ class _WorkTripPageState extends State<WorkTripPage> {
                                   onCancel: () => Navigator.pop(context),
                                   onConfirm: () {
                                     Navigator.pop(context);
+                                    _handlingAction = true;
                                     _cubit.onDeleteWorkTrip(entity.id!);
                                   },
                                 ),

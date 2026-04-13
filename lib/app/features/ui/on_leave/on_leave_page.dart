@@ -195,6 +195,10 @@ class _OnLeavePageState extends State<OnLeavePage> {
 
     return BlocListener<OnLeaveCubit, OnLeaveState>(
       bloc: _cubit,
+      listenWhen: (previous, current) =>
+          previous.confirmStatus != current.confirmStatus ||
+          previous.deleteStatus != current.deleteStatus ||
+          previous.approveStatus != current.approveStatus,
       listener: (context, state) {
         if (state.confirmStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
@@ -212,8 +216,8 @@ class _OnLeavePageState extends State<OnLeavePage> {
           ).show(context);
 
           
-          _cubit.getListOnLeaveTimes();
           _cubit.resetConfirmStatus();
+          _cubit.getListOnLeaveTimes();
         }
 
         if (state.confirmStatus == LoadStatus.FAILURE) {
@@ -244,8 +248,8 @@ class _OnLeavePageState extends State<OnLeavePage> {
           ).show(context);
 
          
+          _cubit.resetDeleteStatus();
           _cubit.getListOnLeaveTimes();
-           _cubit.resetDeleteStatus();
         }
 
         if (state.deleteStatus == LoadStatus.FAILURE) {
@@ -273,8 +277,8 @@ class _OnLeavePageState extends State<OnLeavePage> {
             selectedIds.clear();
           });
 
-          _cubit.resetApproveStatus();
           _cubit.getListOnLeaveTimes();
+          _cubit.resetApproveStatus();
         }
 
         if (state.approveStatus == LoadStatus.FAILURE) {
@@ -469,7 +473,7 @@ class _OnLeavePageState extends State<OnLeavePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.mainPrimaryColor6,
                   disabledBackgroundColor: AppColors.mainPrimaryColor6
-                      .withOpacity(0.4),
+                      .withValues(alpha: 0.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

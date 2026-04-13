@@ -1,4 +1,4 @@
-
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -144,17 +144,18 @@ class _JustificationPageState extends State<JustificationPage> {
   void _sendRQJustification(JustificationEntity entity) {
     showDialog(
       context: context,
-       builder: (_) => CustomDialog(
-        title: "Xác nhận",
-        content: "Bạn có muốn gửi đơn duyệt này không?",
-        cancelText: "Không",
-        confirmText: "Ok",
-        onCancel: () => Navigator.pop(context),
-        onConfirm: () {
-          Navigator.pop(context);
-          _cubit.onConfirmJustification(entity.id!);
-        },
-      )
+      builder:
+          (_) => CustomDialog(
+            title: "Xác nhận",
+            content: "Bạn có muốn gửi đơn duyệt này không?",
+            cancelText: "Không",
+            confirmText: "Ok",
+            onCancel: () => Navigator.pop(context),
+            onConfirm: () {
+              Navigator.pop(context);
+              _cubit.onConfirmJustification(entity.id!);
+            },
+          ),
     );
   }
 
@@ -164,35 +165,70 @@ class _JustificationPageState extends State<JustificationPage> {
     return BlocProvider(
       create: (_) => _cubit,
       child: BlocListener<JustificationCubit, JustificationState>(
-        listenWhen: (p, c) => p.approveStatus != c.approveStatus,
-        listener: (context, state) {
+        listenWhen:
+            (p, c) =>
+                p.approveStatus != c.approveStatus ||
+                p.submitStatus != c.submitStatus,
+        listener: (context, state) async {
+          final cubit = _cubit;
+
           if (state.approveStatus == LoadStatus.SUCCESS) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(s.justification_submit_success),
-                backgroundColor: Colors.green,
-              ),
-            );
+            await Flushbar(
+              message: s.justification_submit_success,
+              flushbarPosition: FlushbarPosition.TOP,
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(8),
+              borderRadius: BorderRadius.circular(8),
+            ).show(context);
+
             _selectedIds.clear();
             setState(() {});
-            context.read<JustificationCubit>().resetApproveStatus();
+            cubit.resetApproveStatus();
+            return;
           }
 
           if (state.approveStatus == LoadStatus.FAILURE) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error ?? s.justification_submit_failed),
-                backgroundColor: Colors.red,
-              ),
-            );
-            context.read<JustificationCubit>().resetApproveStatus();
+            await Flushbar(
+              message: state.error ?? s.justification_submit_failed,
+              flushbarPosition: FlushbarPosition.TOP,
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(8),
+              borderRadius: BorderRadius.circular(8),
+            ).show(context);
+
+            cubit.resetApproveStatus();
+            return;
           }
 
-          if(state.submitStatus == LoadStatus.SUCCESS) {
-            SnackBar(
-                content: Text(state.error ?? s.justification_submit_failed),
-                backgroundColor: Colors.green,
-              );
+          if (state.submitStatus == LoadStatus.SUCCESS) {
+            await Flushbar(
+              message: s.justification_submit_success,
+              flushbarPosition: FlushbarPosition.TOP,
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(8),
+              borderRadius: BorderRadius.circular(8),
+            ).show(context);
+
+            _refreshList();
+            cubit.resetSubmitStatus();
+            return;
+          }
+
+          if (state.submitStatus == LoadStatus.FAILURE) {
+            await Flushbar(
+              message: state.error ?? s.justification_submit_failed,
+              flushbarPosition: FlushbarPosition.TOP,
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 2),
+              margin: const EdgeInsets.all(8),
+              borderRadius: BorderRadius.circular(8),
+            ).show(context);
+
+            cubit.resetSubmitStatus();
+            return;
           }
         },
         child: Scaffold(
@@ -200,11 +236,11 @@ class _JustificationPageState extends State<JustificationPage> {
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
             child: MyAppBar(
-                  titleAppbar: s.justification_title,
-                  haveBackButton: true,
-                  haveActionButton: true,
-                  iconPathAsset: AppAssets.icNotificationBell,
-                  actionCallBack: _goNotification,
+              titleAppbar: s.justification_title,
+              haveBackButton: true,
+              haveActionButton: true,
+              iconPathAsset: AppAssets.icNotificationBell,
+              actionCallBack: _goNotification,
             ),
           ),
           body: Column(
@@ -386,10 +422,7 @@ class _JustificationPageState extends State<JustificationPage> {
                         final item = state.list[index];
                         final stageName = item.stage?.name ?? '';
 
-                        final isFinished = stageName == 'Hoàn thành';
-                        final isCanceled = stageName == 'Hủy';
-
-                        final canSwipe = !isFinished && !isCanceled;
+                        final canSwipe = stageName == 'Nháp';
 
                         final card = JustificationListItem(
                           entity: item,

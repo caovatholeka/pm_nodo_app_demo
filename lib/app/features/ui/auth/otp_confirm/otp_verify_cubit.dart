@@ -10,6 +10,14 @@ class OtpVerifyCubit extends Cubit<OtpVerifyState> {
 
   OtpVerifyCubit(this._userRepo) : super(const OtpVerifyState());
 
+  void resetVerifyStatus() {
+    emit(state.copyWith(verifyStatus: LoadStatus.INITIAL, errorMessage: null));
+  }
+
+  void resetResendStatus() {
+    emit(state.copyWith(resendStatus: LoadStatus.INITIAL, errorMessage: null));
+  }
+
   Future<void> verifyOTP({
     required String email,
     required String otp,

@@ -13,6 +13,10 @@ class ForgotCubit extends Cubit<ForgotState> {
 
   final Validator _validator = Validator();
 
+  void resetStatus() {
+    emit(const ForgotState());
+  }
+
   Future<void> submitForgotRequest({
     required String email,
     required String password,

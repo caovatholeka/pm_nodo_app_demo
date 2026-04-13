@@ -46,17 +46,18 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => RejectReasonDialog(
-          title: s.confirm,
-          description: s.ot_sub_confirm_submit,
-          hintText: s.reason,
-          onConfirm: (reason) {
-            final id = _cubit.state.detail?.id;
-            if(id == null) return;
+      builder:
+          (_) => RejectReasonDialog(
+            title: s.confirm,
+            description: s.ot_sub_confirm_submit,
+            hintText: s.reason,
+            onConfirm: (reason) {
+              final id = _cubit.state.detail?.id;
+              if (id == null) return;
 
-            _cubit.cancelOT(id, reason);
-          }
-      ),
+              _cubit.cancelOT(id, reason);
+            },
+          ),
     );
   }
 
@@ -143,13 +144,24 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
     return BlocListener<OvertimeDetailCubit, OvertimeDetailState>(
       bloc: _cubit,
       listener: (context, state) async {
+        final isLoading =
+            state.loadStatus == LoadStatus.LOADING ||
+            state.isSubmitting ||
+            state.approveStatus == LoadStatus.LOADING ||
+            state.cancelStatus == LoadStatus.LOADING;
 
-        if(state.cancelStatus == LoadStatus.LOADING) {
+        if (isLoading) {
+          LoadingOverlay.show(context);
+        } else {
+          LoadingOverlay.hide(context);
+        }
+
+        if (state.cancelStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
           return;
         }
 
-        if(state.cancelStatus == LoadStatus.SUCCESS) {
+        if (state.cancelStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
 
           await Flushbar(
@@ -157,8 +169,8 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
-            icon: const Icon(Icons.check_circle, color: Colors.white,),
-            margin:  const EdgeInsets.all(8),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
+            margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
 
@@ -167,14 +179,14 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
           return;
         }
 
-        if(state.cancelStatus == LoadStatus.FAILURE) {
+        if (state.cancelStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
           await Flushbar(
             message: "Từ chối đơn OT thất bại",
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),
-            icon: const Icon(Icons.error, color: Colors.white,),
+            icon: const Icon(Icons.error, color: Colors.white),
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);
@@ -275,11 +287,11 @@ class _OvertimeDetailPageState extends State<OvertimeDetail> {
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
                   child: MyAppBar(
-                        titleAppbar: s.ot_detail_title,
-                        haveBackButton: true,
-                        haveActionButton: true,
-                        iconPathAsset: AppAssets.icNotificationBell,
-                        actionCallBack: _goNotification,
+                    titleAppbar: s.ot_detail_title,
+                    haveBackButton: true,
+                    haveActionButton: true,
+                    iconPathAsset: AppAssets.icNotificationBell,
+                    actionCallBack: _goNotification,
                   ),
                 ),
                 body: SafeArea(child: _buildBody(state)),

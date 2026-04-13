@@ -23,8 +23,6 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
     try {
       int limit = 10;
       int page = 1;
-      String? startDate;
-      String? endDate;
       final results = await repository.getListTimeOnLeaves(
         limit,
         page,

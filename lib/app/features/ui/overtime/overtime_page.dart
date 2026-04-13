@@ -154,21 +154,35 @@ class _OvertimePageState extends State<OvertimePage> {
     return BlocProvider(
       create: (_) => _cubit,
       child: BlocListener<OvertimeCubit, OvertimeState>(
-        listenWhen: (prev, cur) => prev.approveStatus != cur.approveStatus,
+        listenWhen:
+            (prev, cur) =>
+                prev.loadStatus != cur.loadStatus ||
+                prev.approveStatus != cur.approveStatus ||
+                prev.submitStatus != cur.submitStatus,
         listener: (context, state) {
-          if (state.approveStatus == LoadStatus.LOADING) {
+          if (state.loadStatus == LoadStatus.LOADING ||
+              state.approveStatus == LoadStatus.LOADING ||
+              state.submitStatus == LoadStatus.LOADING) {
             LoadingOverlay.show(context);
           }
 
-          if (state.approveStatus == LoadStatus.SUCCESS) {
+          if (state.loadStatus == LoadStatus.SUCCESS ||
+              state.loadStatus == LoadStatus.FAILURE ||
+              state.approveStatus == LoadStatus.SUCCESS ||
+              state.approveStatus == LoadStatus.FAILURE ||
+              state.submitStatus == LoadStatus.SUCCESS ||
+              state.submitStatus == LoadStatus.FAILURE) {
             LoadingOverlay.hide(context);
+          }
 
+          if (state.approveStatus == LoadStatus.SUCCESS) {
             AppSnackBar.showInfo(
               title: s.success,
               message: s.ot_approve_success,
             );
 
             _selectedIds.clear();
+            _cubit.resetApproveStatus();
 
             if (_selectedRange != null) {
               _cubit.loadOTList(
@@ -199,7 +213,7 @@ class _OvertimePageState extends State<OvertimePage> {
               borderRadius: BorderRadius.circular(8),
             ).show(context);
 
-            _refreshList();
+            _cubit.resetSubmitStatus();
           }
 
           if (state.submitStatus == LoadStatus.FAILURE) {
@@ -229,11 +243,11 @@ class _OvertimePageState extends State<OvertimePage> {
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
             child: MyAppBar(
-                  titleAppbar: s.ot_pageTitle,
-                  haveBackButton: true,
-                  haveActionButton: true,
-                  iconPathAsset: AppAssets.icNotificationBell,
-                  actionCallBack: _goNotification,
+              titleAppbar: s.ot_pageTitle,
+              haveBackButton: true,
+              haveActionButton: true,
+              iconPathAsset: AppAssets.icNotificationBell,
+              actionCallBack: _goNotification,
             ),
           ),
           body: Column(
@@ -404,11 +418,8 @@ class _OvertimePageState extends State<OvertimePage> {
                         final item = state.list[index];
                         final stageName = item.stage?.name ?? '';
 
-                        final isFinished = stageName == 'Hoàn thành';
-                        final isCanceled = stageName == 'Hủy';
-
                         final canSwipe =
-                            !isFinished && !isCanceled && _selectedIds.isEmpty;
+                            stageName == 'Nháp' && _selectedIds.isEmpty;
 
                         final card = OvertimeListItem(
                           entity: item,

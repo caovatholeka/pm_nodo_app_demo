@@ -315,6 +315,9 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
     final s = S.of(context);
     return BlocConsumer<CreateOnLeaveCubit, CreateOnLeaveState>(
       bloc: _createCubit,
+      listenWhen: (prev, cur) =>
+          prev.createStatus != cur.createStatus ||
+          prev.updateStatus != cur.updateStatus,
       buildWhen:
           (prev, cur) =>
               prev.createStatus != cur.createStatus ||
@@ -335,14 +338,18 @@ class _CreateNewLeavePageState extends State<CreateNewLeavePage> {
                     : s.day_off_create_success,
           );
 
+          _createCubit.resetStatus();
+          final navigator = Navigator.of(context);
           Future.delayed(const Duration(milliseconds: 300), () {
-            Navigator.pop(context, true);
+            if (!mounted) return;
+            navigator.pop(true);
           });
         } else if (state.createStatus == LoadStatus.FAILURE ||
             state.updateStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
 
           AppSnackBar.showError(title: s.warning, message: state.errMsg);
+          _createCubit.resetStatus();
         }
       },
 

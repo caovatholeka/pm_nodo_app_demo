@@ -2,12 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/items_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data_item.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 
 class TimesheetDataDetail extends StatefulWidget {
@@ -22,7 +25,8 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
 
   DateTime get _selectedDate => DateTime(DateTime.now().year, _selectedMonth);
 
-  String get _monthLabel => DateFormat("'Tháng' MM/yyyy", 'vi_VN').format(_selectedDate);
+  String get _monthLabel =>
+      DateFormat("'Tháng' MM/yyyy", 'vi_VN').format(_selectedDate);
 
   @override
   void initState() {
@@ -31,6 +35,19 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DashboardCubit>().getTimeSheetData(_selectedMonth);
     });
+  }
+
+  void _goNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => BlocProvider(
+              create: (_) => GetIt.I<NotiCubit>()..loadNotifications('all'),
+              child: const NotificationPage(),
+            ),
+      ),
+    );
   }
 
   void _pickMonth() {
@@ -48,7 +65,10 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -65,7 +85,9 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                           _selectedMonth = tempMonth;
                         });
 
-                        context.read<DashboardCubit>().getTimeSheetData(tempMonth);
+                        context.read<DashboardCubit>().getTimeSheetData(
+                          tempMonth,
+                        );
                         Navigator.pop(context);
                       },
                       child: const Text(
@@ -122,11 +144,52 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
       return title;
     }
 
-    return '$title ($count)';
+    if (title.contains('(') && title.contains(')')) {
+      return title;
+    }
+
+    return '$title ($count lần)';
   }
 
-  _AttendanceStyle _resolveStyle(String? type) {
-    final normalized = (type ?? '').trim().toLowerCase();
+  _AttendanceStyle _resolveStyle(ItemsEntity item) {
+    final normalizedTitle = (item.title ?? '').trim().toLowerCase();
+
+    if (normalizedTitle.contains('quên chấm')) {
+      return const _AttendanceStyle(
+        foreground: Color(0xFFFF3B30),
+        background: Color(0xFFFFF0EF),
+      );
+    }
+
+    if (normalizedTitle.contains('muộn') || normalizedTitle.contains('sớm')) {
+      return const _AttendanceStyle(
+        foreground: Color(0xFFE93FC8),
+        background: Color(0xFFF9EAFE),
+      );
+    }
+
+    if (normalizedTitle.contains('nghỉ không lương')) {
+      return const _AttendanceStyle(
+        foreground: Color(0xFFE91EBC),
+        background: Color(0xFFFCEEF9),
+      );
+    }
+
+    if (normalizedTitle.contains('nghỉ phép')) {
+      return const _AttendanceStyle(
+        foreground: Color(0xFFFFA000),
+        background: Color(0xFFFFF8E8),
+      );
+    }
+
+    if (normalizedTitle.contains('thiếu giờ')) {
+      return const _AttendanceStyle(
+        foreground: Color(0xFF1E6BFF),
+        background: Color(0xFFEFF4FF),
+      );
+    }
+
+    final normalized = (item.type ?? '').trim().toLowerCase();
 
     switch (normalized) {
       case 'missing_attendance':
@@ -137,31 +200,31 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
       case 'missing_checkout':
         return const _AttendanceStyle(
           foreground: Color(0xFFFF3B30),
-          background: Color(0xFFFCEAEA),
+          background: Color(0xFFFFF0EF),
         );
       case 'late_early':
       case 'late':
       case 'early':
         return const _AttendanceStyle(
-          foreground: Color(0xFFE91E63),
-          background: Color(0xFFF3E5F5),
+          foreground: Color(0xFFE93FC8),
+          background: Color(0xFFF9EAFE),
         );
       case 'leave':
       case 'paid_leave':
         return const _AttendanceStyle(
-          foreground: Color(0xFFFF9800),
-          background: Color(0xFFFFF3E0),
+          foreground: Color(0xFFFFA000),
+          background: Color(0xFFFFF8E8),
         );
       case 'missing_hours':
       case 'missing_time':
         return const _AttendanceStyle(
           foreground: Color(0xFF1E6BFF),
-          background: Color(0xFFEAF2FF),
+          background: Color(0xFFEFF4FF),
         );
       case 'unpaid_leave':
         return const _AttendanceStyle(
-          foreground: Color(0xFFE91E63),
-          background: Color(0xFFF8E6F3),
+          foreground: Color(0xFFE91EBC),
+          background: Color(0xFFFCEEF9),
         );
       default:
         return const _AttendanceStyle(
@@ -175,73 +238,44 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: const MyAppBar(
+      appBar: MyAppBar(
         titleAppbar: 'Dữ liệu chấm công',
         haveBackButton: true,
+        haveActionButton: true,
+        iconPathAsset: AppAssets.icNotificationBell,
+        actionCallBack: _goNotification,
       ),
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              AppAssets.appBG2,
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset(AppAssets.appBG2, fit: BoxFit.cover),
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              padding: const EdgeInsets.fromLTRB(10, 12, 10, 10),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(10, 12, 10, 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x12000000),
-                      blurRadius: 14,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(24),
                 ),
                 child: BlocBuilder<DashboardCubit, DashboardState>(
-                  buildWhen: (p, c) =>
-                      p.timesheetStatus != c.timesheetStatus || p.timesheet != c.timesheet,
+                  buildWhen:
+                      (previous, current) =>
+                          previous.timesheetStatus != current.timesheetStatus ||
+                          previous.timesheet != current.timesheet,
                   builder: (context, state) {
-                    final items = state.timesheet?.items ?? const <ItemsEntity>[];
+                    final items =
+                        state.timesheet?.items ?? const <ItemsEntity>[];
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFF3E0),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.access_time,
-                                color: Colors.orange,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Expanded(
-                              child: Text(
-                                'Dữ liệu chấm công',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF1F2937),
-                                ),
-                              ),
-                            ),
-                            _buildMonthSelector(),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
+                        const _TimesheetHeader(),
+                        const SizedBox(height: 18),
+                        _MonthSelector(label: _monthLabel, onTap: _pickMonth),
+                        const SizedBox(height: 16),
                         Expanded(
                           child: Builder(
                             builder: (context) {
@@ -252,41 +286,55 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                               }
 
                               if (state.timesheetStatus == LoadStatus.FAILURE) {
-                                return const Center(
-                                  child: Text(
-                                    'Không tải được dữ liệu chấm công',
-                                    style: TextStyle(color: Colors.red),
-                                    textAlign: TextAlign.center,
-                                  ),
+                                return const _TimesheetStatusCard(
+                                  message: 'Không tải được dữ liệu chấm công',
+                                  textColor: Color(0xFFE53935),
                                 );
                               }
 
                               if (items.isEmpty) {
-                                return const Center(
-                                  child: Text(
-                                    'Không có dữ liệu chấm công trong tháng này',
-                                    textAlign: TextAlign.center,
-                                  ),
+                                return const _TimesheetStatusCard(
+                                  message:
+                                      'Không có dữ liệu chấm công trong tháng này',
+                                  textColor: Color(0xFF6B7280),
                                 );
                               }
 
                               return ListView.separated(
                                 padding: EdgeInsets.zero,
                                 itemCount: items.length,
-                                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                                separatorBuilder:
+                                    (_, __) => const SizedBox(height: 12),
                                 itemBuilder: (_, index) {
                                   final item = items[index];
-                                  final style = _resolveStyle(item.type);
+                                  final style = _resolveStyle(item);
                                   final title = _buildTitle(item);
-                                  final subtitle = item.description?.trim().isNotEmpty == true
-                                      ? item.description!.trim()
-                                      : 'Không có mô tả';
+                                  final subtitle =
+                                      item.description?.trim().isNotEmpty ==
+                                              true
+                                          ? item.description!.trim()
+                                          : 'Không có mô tả';
 
                                   return AttendanceItem(
                                     title: title,
                                     subtitle: subtitle,
                                     color: style.foreground,
                                     background: style.background,
+                                    curvedStripe: true,
+                                    borderRadius: 16,
+                                    stripeWidth: 6,
+                                    stripeInset: 0,
+                                    padding: const EdgeInsets.fromLTRB(
+                                      22,
+                                      14,
+                                      18,
+                                      14,
+                                    ),
+                                    titleFontWeight: FontWeight.w700,
+                                    subtitleFontWeight: FontWeight.w500,
+                                    subtitleOpacity: 0.72,
+                                    titleHeight: 1.25,
+                                    subtitleHeight: 1.35,
                                   );
                                 },
                               );
@@ -304,40 +352,112 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
       ),
     );
   }
+}
 
-  Widget _buildMonthSelector() {
+class _MonthSelector extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _MonthSelector({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: _pickMonth,
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFFF3F6FA),
-          borderRadius: BorderRadius.circular(18),
+          color: const Color(0xFFE8F1FF),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset(
-              AppAssets.icCalendar,
-              width: 14,
-              height: 14,
-            ),
-            const SizedBox(width: 6),
+            SvgPicture.asset(AppAssets.icCalendar, width: 18, height: 18),
+            const SizedBox(width: 10),
             Text(
-              _monthLabel,
+              label,
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
                 color: Color(0xFF4B5563),
               ),
             ),
-            const SizedBox(width: 2),
+            const Spacer(),
             const Icon(
-              Icons.keyboard_arrow_down,
-              size: 18,
+              Icons.keyboard_arrow_down_rounded,
+              size: 22,
               color: Color(0xFF4B5563),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimesheetHeader extends StatelessWidget {
+  const _TimesheetHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF4DE),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: const Icon(
+            Icons.access_time_rounded,
+            color: Color(0xFFFFA000),
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Expanded(
+          child: Text(
+            'Dữ liệu chấm công',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF334155),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TimesheetStatusCard extends StatelessWidget {
+  final String message;
+  final Color textColor;
+
+  const _TimesheetStatusCard({required this.message, required this.textColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+        ),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: textColor,
+          ),
         ),
       ),
     );
@@ -348,8 +468,5 @@ class _AttendanceStyle {
   final Color foreground;
   final Color background;
 
-  const _AttendanceStyle({
-    required this.foreground,
-    required this.background,
-  });
+  const _AttendanceStyle({required this.foreground, required this.background});
 }

@@ -41,6 +41,7 @@ class RequestNewTripPage extends StatefulWidget {
 
 class _RequestNewTripPageState extends State<RequestNewTripPage> {
   final _cubit = GetIt.I.get<WorkTripCubit>();
+  bool _handlingAction = false;
 
   final _staffsKey = GlobalKey<FormState>();
   final _fromDateKey = GlobalKey<FormState>();
@@ -67,7 +68,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
 
   @override
   void initState() {
-    if((_cubit.state.listUsers ??[]).isEmpty){
+    if ((_cubit.state.listUsers ?? []).isEmpty) {
       _cubit.getListUsers();
     }
 
@@ -111,9 +112,13 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
           final d = _tryParseIso(e['date_from'] as String?);
           final t = (e['type'] as String?) ?? 'full';
           if (d != null) {
-            out.add(ScheduleEntity(dateFrom: _formatYyyyMmDd(d),
+            out.add(
+              ScheduleEntity(
+                dateFrom: _formatYyyyMmDd(d),
                 dateTo: _formatYyyyMmDd(d),
-                type: t));
+                type: t,
+              ),
+            );
           }
         }
       }
@@ -122,7 +127,13 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
 
     final allDays = AppDateUtils.daysBetween(from, to);
     for (final d in allDays) {
-      out.add(ScheduleEntity(dateFrom:_formatYyyyMmDd(d),dateTo: _formatYyyyMmDd(d), type: 'full'));
+      out.add(
+        ScheduleEntity(
+          dateFrom: _formatYyyyMmDd(d),
+          dateTo: _formatYyyyMmDd(d),
+          type: 'full',
+        ),
+      );
     }
     return out;
   }
@@ -157,14 +168,20 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
 
     // nhan vien
     List<UserEntity> users = detail.employees ?? [];
-    if(users.isNotEmpty){
+    if (users.isNotEmpty) {
       _cubit.onChangeCurrentUsers(users);
-      _cubit.onChangeUser((detail.employees ??[]).map((u) => u.name).join(','));
+      _cubit.onChangeUser(
+        (detail.employees ?? []).map((u) => u.name).join(','),
+      );
     }
 
     // danh sach ngay cong tac
     if (from != null && to != null) {
-      listDays = _buildDaysForEdit(from: from, to: to, lineSchedules: schedules);
+      listDays = _buildDaysForEdit(
+        from: from,
+        to: to,
+        lineSchedules: schedules,
+      );
       _cubit.onChangeListSchedulesDays(listDays);
 
       // leave days
@@ -177,8 +194,6 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
       // totalDaysController.text = '0';
       // totalSchedulesDays = 0;
     }
-
-
   }
 
   _showDatePicker({DateTime? defaultValue, DateChangedCallback? onConfirm}) {
@@ -191,37 +206,34 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
     );
   }
 
-  _openAttachFiles(){
+  _openAttachFiles() {
     showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        useRootNavigator: true,
-        isScrollControlled: true,
-        builder: (BuildContext context) =>
-            AttachFileBottomSheet(
-              cubit: _cubit,
-            )
+      context: context,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) => AttachFileBottomSheet(cubit: _cubit),
     );
   }
 
   _openUsersBottomSheet(List<UserEntity> list) async {
     await showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        useRootNavigator: true,
-        isScrollControlled: true,
-        builder: (BuildContext context) =>
-            SelectUserBottomSheet(
-              listUsers: _cubit.state.listUsers ?? [],
-              listCurrentUsers: _cubit.state.currentUsers ?? [],
-              onUsersSelected:(users){
-                String user =  users.map((sc) => sc.name).toList().join(",");
-                if(user != _cubit.state.strUsers){
-                  _cubit.onChangeUser(user);
-                  _cubit.onChangeCurrentUsers(users);
-                }
-              },
-            )
+      context: context,
+      backgroundColor: Colors.transparent,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder:
+          (BuildContext context) => SelectUserBottomSheet(
+            listUsers: _cubit.state.listUsers ?? [],
+            listCurrentUsers: _cubit.state.currentUsers ?? [],
+            onUsersSelected: (users) {
+              String user = users.map((sc) => sc.name).toList().join(",");
+              if (user != _cubit.state.strUsers) {
+                _cubit.onChangeUser(user);
+                _cubit.onChangeCurrentUsers(users);
+              }
+            },
+          ),
     );
   }
 
@@ -249,6 +261,16 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
         : v.toStringAsFixed(1);
   }
 
+  DateTime _dateOnly(DateTime value) => DateUtils.dateOnly(value);
+
+  bool _isBeforeDay(DateTime left, DateTime right) {
+    return _dateOnly(left).isBefore(_dateOnly(right));
+  }
+
+  bool _isBeforeToday(DateTime value) {
+    return _dateOnly(value).isBefore(_dateOnly(DateTime.now()));
+  }
+
   // Edit
   DateTime? _tryParseIso(String? iso) {
     if (iso == null || iso.isEmpty) return null;
@@ -261,516 +283,613 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<WorkTripCubit,WorkTripState>(
-        bloc: _cubit,
-        listener: (context, state) async {
-          // helper: chạy sau frame để tránh !_debugLocked
-          Future<void> postFrame(VoidCallback fn) async {
+    return BlocConsumer<WorkTripCubit, WorkTripState>(
+      bloc: _cubit,
+      listener: (context, state) async {
+        // helper: chạy sau frame để tránh !_debugLocked
+        Future<void> postFrame(VoidCallback fn) async {
+          if (!context.mounted) return;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!context.mounted) return;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!context.mounted) return;
-              fn();
-            });
-          }
+            fn();
+          });
+        }
 
-          final isLoading =
-              state.createStatus == LoadStatus.LOADING ||
-                  state.updateStatus == LoadStatus.LOADING;
+        final hasMutationState =
+            state.createStatus != LoadStatus.INITIAL ||
+            state.updateStatus != LoadStatus.INITIAL;
 
-          if (isLoading) {
-            LoadingOverlay.show(context);
-            return;
-          }
+        if (hasMutationState && !_handlingAction) return;
 
-          LoadingOverlay.hide(context);
+        final isLoading =
+            state.createStatus == LoadStatus.LOADING ||
+            state.updateStatus == LoadStatus.LOADING;
 
-          if (state.createStatus == LoadStatus.SUCCESS) {
-            AppSnackBar.showInfo(
-              title: "Thành công",
-              message: state.errMsg ?? "Phiếu công tác được tạo thành công!",
-            );
+        if (isLoading) {
+          LoadingOverlay.show(context);
+          return;
+        }
 
-            await postFrame(() {
-              Navigator.of(context).pop(true);
-              _cubit.onResetStatus();
-            });
-            return;
-          }
+        LoadingOverlay.hide(context);
 
-          if (state.createStatus == LoadStatus.FAILURE) {
-            AppSnackBar.showError(
-              title: "Cảnh báo",
-              message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
-            );
+        if (state.createStatus == LoadStatus.SUCCESS) {
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: state.errMsg ?? "Phiếu công tác được tạo thành công!",
+          );
+          _handlingAction = false;
+
+          await postFrame(() {
+            Navigator.of(context).pop(true);
             _cubit.onResetStatus();
-            return;
-          }
+          });
+          return;
+        }
 
-          if (state.updateStatus == LoadStatus.SUCCESS) {
-            AppSnackBar.showInfo(
-              title: "Thành công",
-              message: state.errMsg ?? "",
-            );
+        if (state.createStatus == LoadStatus.FAILURE) {
+          AppSnackBar.showError(
+            title: "Cảnh báo",
+            message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
+          );
+          _handlingAction = false;
+          _cubit.onResetStatus();
+          return;
+        }
 
-            await postFrame(() {
-              // Navigator.of(context).pop(true);
-              int count = 0;
-              Navigator.of(context).popUntil((route) {
-                count++;
-                return count >= 2;
-              });
-              _cubit.onResetStatus();
+        if (state.updateStatus == LoadStatus.SUCCESS) {
+          AppSnackBar.showInfo(
+            title: "Thành công",
+            message: state.errMsg ?? "",
+          );
+          _handlingAction = false;
+
+          await postFrame(() {
+            // Navigator.of(context).pop(true);
+            int count = 0;
+            Navigator.of(context).popUntil((route) {
+              count++;
+              return count >= 2;
             });
-
-            return;
-          }
-
-          if (state.updateStatus == LoadStatus.FAILURE) {
-            AppSnackBar.showError(
-              title: "Cảnh báo",
-              message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
-            );
             _cubit.onResetStatus();
-            return;
-          }
-        },
-        builder: (context,state){
-          return Scaffold(
-            backgroundColor: AppColors.bodyColor,
-            appBar: MyAppBar(titleAppbar: (widget.isEdit ?? false) ? S.of(context).bt_updateTitle : S.of(context).bt_createTitle,
-              haveBackButton: true,
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: AppColors.whiteColor,
-                        borderRadius: BorderRadius.all(Radius.circular(6))
-                    ),
-                    child: Column(
-                      children: [
-                        BlocBuilder<WorkTripCubit,WorkTripState>(
-                            bloc: _cubit,
-                            buildWhen: (prev,cur) => prev.strUsers != cur.strUsers ||
-                              prev.currentUsers != cur.currentUsers,
-                            builder: (context,state){
-                              return Column(
-                                children: [
-                                  Form(
-                                    key: _staffsKey,
-                                    child: BlocListener<WorkTripCubit,WorkTripState>(
-                                      bloc: _cubit,
-                                      listenWhen: (prev, cur) => prev.currentUsers != cur.currentUsers ||
+          });
+
+          return;
+        }
+
+        if (state.updateStatus == LoadStatus.FAILURE) {
+          AppSnackBar.showError(
+            title: "Cảnh báo",
+            message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
+          );
+          _handlingAction = false;
+          _cubit.onResetStatus();
+          return;
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.bodyColor,
+          appBar: MyAppBar(
+            titleAppbar:
+                (widget.isEdit ?? false)
+                    ? S.of(context).bt_updateTitle
+                    : S.of(context).bt_createTitle,
+            haveBackButton: true,
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteColor,
+                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                  ),
+                  child: Column(
+                    children: [
+                      BlocBuilder<WorkTripCubit, WorkTripState>(
+                        bloc: _cubit,
+                        buildWhen:
+                            (prev, cur) =>
+                                prev.strUsers != cur.strUsers ||
+                                prev.currentUsers != cur.currentUsers,
+                        builder: (context, state) {
+                          return Column(
+                            children: [
+                              Form(
+                                key: _staffsKey,
+                                child: BlocListener<
+                                  WorkTripCubit,
+                                  WorkTripState
+                                >(
+                                  bloc: _cubit,
+                                  listenWhen:
+                                      (prev, cur) =>
+                                          prev.currentUsers !=
+                                              cur.currentUsers ||
                                           prev.strUsers != cur.strUsers,
-                                      listener: (context, state) {
-                                        final text = state.strUsers ?? "";
-                                        staffsController.value = staffsController.value.copyWith(
+                                  listener: (context, state) {
+                                    final text = state.strUsers ?? "";
+                                    staffsController.value = staffsController
+                                        .value
+                                        .copyWith(
                                           text: text,
-                                          selection: TextSelection.collapsed(offset: text.length),
+                                          selection: TextSelection.collapsed(
+                                            offset: text.length,
+                                          ),
                                           composing: TextRange.empty,
                                         );
 
-                                        if(text.isNotEmpty){
-                                          _staffsKey.currentState?.validate();
-                                        }
-                                      },
-                                      child: BlocBuilder<WorkTripCubit,WorkTripState>(
-                                          bloc: _cubit,
-                                          buildWhen: (prev,cur) => prev.strUsers != cur.strUsers ||
-                                              prev.currentUsers != cur.currentUsers ||
-                                              prev.listUsers != cur.listUsers,
-                                          builder: (context,state){
-                                            return InputTextField(
-                                              title: S.of(context).bt_titleEmployee,
-                                              hintText: "",
-                                              isRequiredField: true,
-                                              controller: staffsController,
-                                              enable: true,
-                                              readOnly: true,
-                                              suffixIcon: AppAssets.icArrowDown,
-                                              callback: (){
-                                                _openUsersBottomSheet(state.listUsers ?? []);
-                                              },
-                                              validator: (value) =>
-                                                  Validator.validateEmpty(value, "Nhân viên "),
-                                            ).paddingOnly(bottom: 20);
-                                          }),
-                                    ),
-                                  ),
-                                  // Tổng số người
-                                  InputTextField(
-                                    title: S.of(context).bt_totalEmployee,
-                                    hintText: "",
-                                    isRequiredField: false,
-                                    readOnly: true,
-                                    enable: false,
-                                    controller: totalStaffsController..text =
-                                    (state.currentUsers ?? []).isNotEmpty ? (state.currentUsers ?? []).length.toString() : "" ,
-                                  ).paddingOnly(bottom: 20),
-                                ],
-                              );
-                            }),
+                                    if (text.isNotEmpty) {
+                                      _staffsKey.currentState?.validate();
+                                    }
+                                  },
+                                  child:
+                                      BlocBuilder<WorkTripCubit, WorkTripState>(
+                                        bloc: _cubit,
+                                        buildWhen:
+                                            (prev, cur) =>
+                                                prev.strUsers != cur.strUsers ||
+                                                prev.currentUsers !=
+                                                    cur.currentUsers ||
+                                                prev.listUsers != cur.listUsers,
+                                        builder: (context, state) {
+                                          return InputTextField(
+                                            title:
+                                                S.of(context).bt_titleEmployee,
+                                            hintText: "",
+                                            isRequiredField: true,
+                                            controller: staffsController,
+                                            enable: true,
+                                            readOnly: true,
+                                            suffixIcon: AppAssets.icArrowDown,
+                                            callback: () {
+                                              _openUsersBottomSheet(
+                                                state.listUsers ?? [],
+                                              );
+                                            },
+                                            validator:
+                                                (value) =>
+                                                    Validator.validateEmpty(
+                                                      value,
+                                                      "Nhân viên ",
+                                                    ),
+                                          ).paddingOnly(bottom: 20);
+                                        },
+                                      ),
+                                ),
+                              ),
+                              // Tổng số người
+                              InputTextField(
+                                title: S.of(context).bt_totalEmployee,
+                                hintText: "",
+                                isRequiredField: false,
+                                readOnly: true,
+                                enable: false,
+                                controller:
+                                    totalStaffsController
+                                      ..text =
+                                          (state.currentUsers ?? []).isNotEmpty
+                                              ? (state.currentUsers ?? [])
+                                                  .length
+                                                  .toString()
+                                              : "",
+                              ).paddingOnly(bottom: 20),
+                            ],
+                          );
+                        },
+                      ),
 
-                        InputTextField(
-                          title: S.of(context).bt_createEmployee,
-                          hintText: "",
-                          isRequiredField: false,
-                          readOnly: true,
-                          enable: false,
-                          controller: createdByController..text = GlobalData.instance.userProfile?.name ?? "",
-                        ).paddingOnly(bottom: 20),
+                      InputTextField(
+                        title: S.of(context).bt_createEmployee,
+                        hintText: "",
+                        isRequiredField: false,
+                        readOnly: true,
+                        enable: false,
+                        controller:
+                            createdByController
+                              ..text =
+                                  GlobalData.instance.userProfile?.name ?? "",
+                      ).paddingOnly(bottom: 20),
 
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: BlocBuilder<WorkTripCubit,WorkTripState>(
-                                  bloc: _cubit,
-                                  buildWhen: (prev,cur) => prev.fromDate != cur.fromDate ||
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: BlocBuilder<WorkTripCubit, WorkTripState>(
+                              bloc: _cubit,
+                              buildWhen:
+                                  (prev, cur) =>
+                                      prev.fromDate != cur.fromDate ||
                                       prev.fromDateTime != cur.fromDateTime,
-                                  builder: (context,state){
-                                    return InputTextField(
-                                      title: S.of(context).bt_formDate,
-                                      hintText: "",
-                                      isRequiredField: true,
-                                      enable: true,
-                                      readOnly: true,
-                                      controller: fromDateController..text = state.fromDate ?? "",
-                                      suffixIcon: AppAssets.icCalendar,
-                                      callback: () {
-                                        _showDatePicker(
-                                          defaultValue: state.fromDateTime ?? _initFromDate,
-                                          onConfirm: (selectedDate) {
-                                            _selectedDate = selectedDate;
-                                            if (_cubit.state.toDateTime != null) {
-                                              if (_cubit.state.toDateTime!
-                                                  .difference(selectedDate)
-                                                  .inDays <
-                                                  0) {
-                                                AppSnackBar.showError(
-                                                  title: "Cảnh báo",
-                                                  message:
+                              builder: (context, state) {
+                                return InputTextField(
+                                  title: S.of(context).bt_formDate,
+                                  hintText: "",
+                                  isRequiredField: true,
+                                  enable: true,
+                                  readOnly: true,
+                                  controller:
+                                      fromDateController
+                                        ..text = state.fromDate ?? "",
+                                  suffixIcon: AppAssets.icCalendar,
+                                  callback: () {
+                                    _showDatePicker(
+                                      defaultValue:
+                                          state.fromDateTime ?? _initFromDate,
+                                      onConfirm: (selectedDate) {
+                                        _selectedDate = selectedDate;
+                                        if (_cubit.state.toDateTime != null) {
+                                          if (_isBeforeDay(
+                                            _cubit.state.toDateTime!,
+                                            selectedDate,
+                                          )) {
+                                            AppSnackBar.showError(
+                                              title: "Cảnh báo",
+                                              message:
                                                   "Từ ngày không được lớn hơn đến ngày",
-                                                );
-                                              } else {
-                                                _cubit.setFromDate(selectedDate);
-                                                final allDays = AppDateUtils.daysBetween(
+                                            );
+                                          } else {
+                                            _cubit.setFromDate(selectedDate);
+                                            final allDays =
+                                                AppDateUtils.daysBetween(
                                                   selectedDate,
                                                   _cubit.state.toDateTime!,
                                                 );
-                                                listDays.clear();
-                                                for (final e in allDays) {
-                                                  listDays.add(
-                                                    ScheduleEntity(
-                                                      dateFrom: _formatYyyyMmDd(e),
-                                                      dateTo: _formatYyyyMmDd(e),
-                                                      type: 'full',
-                                                      address: _cubit.state.address ?? "",
-                                                      isOvernight: _cubit.state.isOvernight,
-                                                      keepLunchAllowance: false
-                                                    ),
-                                                  );
-                                                }
-                                                _cubit.onChangeListSchedulesDays(
-                                                  listDays,
-                                                );
+                                            listDays.clear();
+                                            for (final e in allDays) {
+                                              listDays.add(
+                                                ScheduleEntity(
+                                                  dateFrom: _formatYyyyMmDd(e),
+                                                  dateTo: _formatYyyyMmDd(e),
+                                                  type: 'full',
+                                                  address:
+                                                      _cubit.state.address ??
+                                                      "",
+                                                  isOvernight:
+                                                      _cubit.state.isOvernight,
+                                                  keepLunchAllowance: false,
+                                                ),
+                                              );
+                                            }
+                                            _cubit.onChangeListSchedulesDays(
+                                              listDays,
+                                            );
 
-                                                // Tổng số ngày
-                                                // final total = _sumDaysByType(listDays);
-                                                // totalDaysController.text = _fmtTotal(total);
-                                              }
-                                            } else {
-                                              if(selectedDate.difference(DateTime.now()).inDays < 0) {
-                                                AppSnackBar.showError(
-                                                  title: "Cảnh báo",
-                                                  message:
+                                            // Tổng số ngày
+                                            // final total = _sumDaysByType(listDays);
+                                            // totalDaysController.text = _fmtTotal(total);
+                                          }
+                                        } else {
+                                          if (_isBeforeToday(selectedDate)) {
+                                            AppSnackBar.showError(
+                                              title: "Cảnh báo",
+                                              message:
                                                   "Từ ngày không được nhỏ hơn hôm nay",
-                                                );
-                                              }else{
-                                                _cubit.setFromDate(selectedDate);
-                                                listDays.clear();
-                                                _cubit.onChangeListSchedulesDays(listDays);
-                                                // totalDaysController.text = '0';
-                                              }
-
-                                            }
-                                          },
-                                        );
-                                      },
-                                    );
-                                  }),),
-                            const SizedBox(width: 12,),
-                            Expanded(
-                              flex: 1,
-                              child: BlocBuilder<WorkTripCubit,WorkTripState>(
-                                  bloc: _cubit,
-                                  buildWhen: (prev,cur) => prev.toDate != cur.toDate ||
-                                      prev.toDateTime != cur.toDateTime,
-                                  builder: (context,state){
-                                    return InputTextField(
-                                      title: S.of(context).bt_toDate,
-                                      hintText: "",
-                                      isRequiredField: true,
-                                      enable: true,
-                                      readOnly: true,
-                                      controller: toDateController..text = state.toDate ?? "",
-                                      suffixIcon: AppAssets.icCalendar,
-                                      callback: () {
-                                        _showDatePicker(
-                                          defaultValue: state.toDateTime ?? _initToDate,
-                                          onConfirm: (selectedDate) {
-                                            _selectedDate = selectedDate;
-                                            if (_cubit.state.fromDateTime != null) {
-                                              if (selectedDate
-                                                  .difference(
-                                                _cubit.state.fromDateTime!,
-                                              ).inDays < 0) {
-                                                AppSnackBar.showError(
-                                                  title: "Cảnh báo",
-                                                  message:
-                                                  "Từ ngày không được lớn hơn đến ngày",
-                                                );
-
-                                                // AppSnackBar.showError(title: S.current.warning, message: S.current.from_time_to_time_validate);
-                                              } else {
-                                                _cubit.setToDate(selectedDate);
-                                                final allDays = AppDateUtils.daysBetween(
-                                                  _cubit.state.fromDateTime!,
-                                                  selectedDate,
-                                                );
-                                                listDays.clear();
-                                                for (final e in allDays) {
-                                                  listDays.add(
-                                                    ScheduleEntity(
-                                                        dateFrom: _formatYyyyMmDd(e),
-                                                        dateTo: _formatYyyyMmDd(e),
-                                                        type: 'full',
-                                                        address: _cubit.state.address ?? "",
-                                                        isOvernight: _cubit.state.isOvernight,
-                                                        keepLunchAllowance: false
-                                                    ));
-                                                }
-                                                _cubit.onChangeListSchedulesDays(
-                                                  listDays,
-                                                );
-
-                                                // Tổng số ngày
-                                                // final total = _sumDaysByType(listDays);
-                                                // totalDaysController.text = _fmtTotal(total);
-                                              }
-                                            } else {
-
-                                              if(selectedDate.difference(DateTime.now()).inDays < 0) {
-                                                AppSnackBar.showError(
-                                                  title: "Cảnh báo",
-                                                  message:
-                                                  "Đến ngày không được nhỏ hơn hôm nay",
-                                                );
-                                              }else{
-                                                _cubit.setToDate(selectedDate);
-
-                                                listDays.clear();
-                                                _cubit.onChangeListSchedulesDays(listDays);
-                                                // totalDaysController.text = '0';
-                                              }
-                                            }
-                                          },
-                                        );
-                                      },
-                                    );
-                                  }),),
-                          ],
-                        ).paddingOnly(bottom: 20),
-                        // list danh sach ngay nghi
-                        BlocBuilder<WorkTripCubit, WorkTripState>(
-                          bloc: _cubit,
-                          buildWhen: (prev, cur) => prev.listScheduleDays != cur.listScheduleDays,
-                          builder: (context, state) {
-                            return SizedBox(
-                              height:
-                              (state.listScheduleDays ?? []).isEmpty
-                                  ? 0
-                                  : (((state.listScheduleDays ?? []).length > 3)
-                                  ? 300
-                                  : (state.listScheduleDays ?? []).length * 100),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children:
-                                  (state.listScheduleDays ?? []).map((entity) {
-                                    return OnleaveDayItemWidget(
-                                      date: entity.dateFrom ?? "",
-                                      type:
-                                      (entity.type?.isNotEmpty ?? false)
-                                          ? (entity.type ?? 'full')
-                                          : 'full',
-                                      onTypeChanged: (newType) {
-                                        final idx = listDays.indexWhere(
-                                              (e) => e.dateFrom == entity.dateFrom,
-                                        );
-                                        if (idx != -1) {
-                                          listDays[idx] = ScheduleEntity(
-                                            dateFrom: listDays[idx].dateFrom,
-                                            dateTo: listDays[idx].dateTo,
-                                            type: newType,
-                                          );
-                                          _cubit.onChangeListSchedulesDays(
-                                            List<ScheduleEntity>.from(listDays),
-                                          );
-
-                                          // final total = _sumDaysByType(listDays);
-                                          // totalDaysController.text = _fmtTotal(total);
+                                            );
+                                          } else {
+                                            _cubit.setFromDate(selectedDate);
+                                            listDays.clear();
+                                            _cubit.onChangeListSchedulesDays(
+                                              listDays,
+                                            );
+                                            // totalDaysController.text = '0';
+                                          }
                                         }
                                       },
                                     );
-                                  }).toList(),
-                                ),
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 1,
+                            child: BlocBuilder<WorkTripCubit, WorkTripState>(
+                              bloc: _cubit,
+                              buildWhen:
+                                  (prev, cur) =>
+                                      prev.toDate != cur.toDate ||
+                                      prev.toDateTime != cur.toDateTime,
+                              builder: (context, state) {
+                                return InputTextField(
+                                  title: S.of(context).bt_toDate,
+                                  hintText: "",
+                                  isRequiredField: true,
+                                  enable: true,
+                                  readOnly: true,
+                                  controller:
+                                      toDateController
+                                        ..text = state.toDate ?? "",
+                                  suffixIcon: AppAssets.icCalendar,
+                                  callback: () {
+                                    _showDatePicker(
+                                      defaultValue:
+                                          state.toDateTime ?? _initToDate,
+                                      onConfirm: (selectedDate) {
+                                        _selectedDate = selectedDate;
+                                        if (_cubit.state.fromDateTime != null) {
+                                          if (_isBeforeDay(
+                                            selectedDate,
+                                            _cubit.state.fromDateTime!,
+                                          )) {
+                                            AppSnackBar.showError(
+                                              title: "Cảnh báo",
+                                              message:
+                                                  "Từ ngày không được lớn hơn đến ngày",
+                                            );
+
+                                            // AppSnackBar.showError(title: S.current.warning, message: S.current.from_time_to_time_validate);
+                                          } else {
+                                            _cubit.setToDate(selectedDate);
+                                            final allDays =
+                                                AppDateUtils.daysBetween(
+                                                  _cubit.state.fromDateTime!,
+                                                  selectedDate,
+                                                );
+                                            listDays.clear();
+                                            for (final e in allDays) {
+                                              listDays.add(
+                                                ScheduleEntity(
+                                                  dateFrom: _formatYyyyMmDd(e),
+                                                  dateTo: _formatYyyyMmDd(e),
+                                                  type: 'full',
+                                                  address:
+                                                      _cubit.state.address ??
+                                                      "",
+                                                  isOvernight:
+                                                      _cubit.state.isOvernight,
+                                                  keepLunchAllowance: false,
+                                                ),
+                                              );
+                                            }
+                                            _cubit.onChangeListSchedulesDays(
+                                              listDays,
+                                            );
+
+                                            // Tổng số ngày
+                                            // final total = _sumDaysByType(listDays);
+                                            // totalDaysController.text = _fmtTotal(total);
+                                          }
+                                        } else {
+                                          if (_isBeforeToday(selectedDate)) {
+                                            AppSnackBar.showError(
+                                              title: "Cảnh báo",
+                                              message:
+                                                  "Đến ngày không được nhỏ hơn hôm nay",
+                                            );
+                                          } else {
+                                            _cubit.setToDate(selectedDate);
+
+                                            listDays.clear();
+                                            _cubit.onChangeListSchedulesDays(
+                                              listDays,
+                                            );
+                                            // totalDaysController.text = '0';
+                                          }
+                                        }
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ).paddingOnly(bottom: 20),
+                      // list danh sach ngay nghi
+                      BlocBuilder<WorkTripCubit, WorkTripState>(
+                        bloc: _cubit,
+                        buildWhen:
+                            (prev, cur) =>
+                                prev.listScheduleDays != cur.listScheduleDays,
+                        builder: (context, state) {
+                          return SizedBox(
+                            height:
+                                (state.listScheduleDays ?? []).isEmpty
+                                    ? 0
+                                    : (((state.listScheduleDays ?? []).length >
+                                            3)
+                                        ? 300
+                                        : (state.listScheduleDays ?? [])
+                                                .length *
+                                            100),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children:
+                                    (state.listScheduleDays ?? []).map((
+                                      entity,
+                                    ) {
+                                      return OnleaveDayItemWidget(
+                                        date: entity.dateFrom ?? "",
+                                        type:
+                                            (entity.type?.isNotEmpty ?? false)
+                                                ? (entity.type ?? 'full')
+                                                : 'full',
+                                        onTypeChanged: (newType) {
+                                          final idx = listDays.indexWhere(
+                                            (e) =>
+                                                e.dateFrom == entity.dateFrom,
+                                          );
+                                          if (idx != -1) {
+                                            listDays[idx] = ScheduleEntity(
+                                              dateFrom: listDays[idx].dateFrom,
+                                              dateTo: listDays[idx].dateTo,
+                                              type: newType,
+                                            );
+                                            _cubit.onChangeListSchedulesDays(
+                                              List<ScheduleEntity>.from(
+                                                listDays,
+                                              ),
+                                            );
+
+                                            // final total = _sumDaysByType(listDays);
+                                            // totalDaysController.text = _fmtTotal(total);
+                                          }
+                                        },
+                                      );
+                                    }).toList(),
                               ),
-                            );
+                            ),
+                          );
+                        },
+                      ),
+
+                      // const SizedBox(height: 20,),
+                      // _utilsWidget,
+
+                      // địa chỉ
+                      InputTextField(
+                        title: S.of(context).bt_address,
+                        hintText: "",
+                        isRequiredField: false,
+                        controller: addressController,
+                        onChange: (value) {
+                          _cubit.onChangeAddress(value);
+                        },
+                      ).paddingOnly(bottom: 20),
+
+                      // note
+                      Form(
+                        key: _noteKey,
+                        child: InputTextField(
+                          title: S.of(context).bt_notes,
+                          hintText: S.of(context).bt_hintNotes,
+                          isRequiredField: true,
+                          enable: true,
+                          controller: noteController,
+                          maxLine: 5,
+                          onChange: (value) {
+                            _cubit.onChangeNote(value);
                           },
                         ),
-
-                        // const SizedBox(height: 20,),
-                        // _utilsWidget,
-
-                        // địa chỉ
-                        InputTextField(
-                          title: S.of(context).bt_address,
-                          hintText: "",
-                          isRequiredField: false,
-                          controller: addressController,
-                          onChange: (value) {
-                            _cubit.onChangeAddress(value);
-                          },
-                        ).paddingOnly(bottom: 20),
-
-                        // note
-                        Form(
-                          key: _noteKey,
-                          child: InputTextField(
-                            title: S.of(context).bt_notes,
-                            hintText: S.of(context).bt_hintNotes,
-                            isRequiredField: true,
-                            enable: true,
-                            controller: noteController,
-                            maxLine: 5,
-                            onChange: (value) {
-                              _cubit.onChangeNote(value);
-                            },
-                          ),
-                        ).paddingOnly(bottom: 20),
-                        // _attachFile,
-                        // const SizedBox(height: 20,)
-                      ],
-                    ),
+                      ).paddingOnly(bottom: 20),
+                      // _attachFile,
+                      // const SizedBox(height: 20,)
+                    ],
                   ),
-                  const SizedBox(height: 40,),
-                  _bottomSheet
-                ],
-              ),
+                ),
+                const SizedBox(height: 40),
+                _bottomSheet,
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   // utils widget
   get _utilsWidget {
-    return BlocBuilder<WorkTripCubit,WorkTripState>(
-        bloc: _cubit,
-        buildWhen: (prev,cur) => prev.isOvernight != cur.isOvernight ||
-          prev.needRoom != cur.needRoom ||
-          prev.needTicket != cur.needTicket,
-        builder: (context,state){
-          return Column(
-            children: [
-              Row(
-                children: [
-                  // phòng khách sạn
-                  Expanded(
-                    flex: 6,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Cần phòng khách sạn",
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.neutral400
-                          ),).paddingOnly(right: 6),
-                        InkWell(
-                          onTap: (){
-                            _cubit.onChangeNeedRoom(!state.needRoom);
-                          },
-                          child: state.needRoom ? CheckBoxSelection() :
-                            CheckBoxIcon(),
-                        )
-                      ],
-                    ),
+    return BlocBuilder<WorkTripCubit, WorkTripState>(
+      bloc: _cubit,
+      buildWhen:
+          (prev, cur) =>
+              prev.isOvernight != cur.isOvernight ||
+              prev.needRoom != cur.needRoom ||
+              prev.needTicket != cur.needTicket,
+      builder: (context, state) {
+        return Column(
+          children: [
+            Row(
+              children: [
+                // phòng khách sạn
+                Expanded(
+                  flex: 6,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Cần phòng khách sạn",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.neutral400,
+                        ),
+                      ).paddingOnly(right: 6),
+                      InkWell(
+                        onTap: () {
+                          _cubit.onChangeNeedRoom(!state.needRoom);
+                        },
+                        child:
+                            state.needRoom
+                                ? CheckBoxSelection()
+                                : CheckBoxIcon(),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16,),
-                  // vé máy bay
-                  BlocBuilder<WorkTripCubit,WorkTripState>(
-                      bloc: _cubit,
-                      buildWhen: (prev,cur) => prev.needTicket != cur.needTicket,
-                      builder: (context,state){
-                        return Expanded(
-                          flex: 4,
-                          child: InkWell(
-                            onTap: (){
-                              _cubit.onChangeNeedTicket(!state.needTicket);
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text("Vé máy bay",
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w400,
-                                      color: AppColors.neutral400
-                                  ),).paddingOnly(right: 6),
-                                InkWell(
-                                  onTap: (){
-                                    _cubit.onChangeNeedTicket(!state.needTicket);
-                                  },
-                                  child: state.needTicket ? CheckBoxSelection() :
-                                  CheckBoxIcon(),
-                                )
-                              ],
+                ),
+                const SizedBox(width: 16),
+                // vé máy bay
+                BlocBuilder<WorkTripCubit, WorkTripState>(
+                  bloc: _cubit,
+                  buildWhen: (prev, cur) => prev.needTicket != cur.needTicket,
+                  builder: (context, state) {
+                    return Expanded(
+                      flex: 4,
+                      child: InkWell(
+                        onTap: () {
+                          _cubit.onChangeNeedTicket(!state.needTicket);
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Vé máy bay",
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.neutral400,
+                              ),
+                            ).paddingOnly(right: 6),
+                            InkWell(
+                              onTap: () {
+                                _cubit.onChangeNeedTicket(!state.needTicket);
+                              },
+                              child:
+                                  state.needTicket
+                                      ? CheckBoxSelection()
+                                      : CheckBoxIcon(),
                             ),
-                          ),
-                        );
-                      })
-
-                ],
-              ).paddingOnly(bottom: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text("Qua đêm",
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.neutral400
-                    ),).paddingOnly(right: 6),
-                  InkWell(
-                    onTap: (){
-                      _cubit.onchangeIsOverNight(!state.isOvernight);
-                    },
-                    child: state.isOvernight? CheckBoxSelection() : CheckBoxIcon(),
-                  )
-                ],
-              )
-            ],
-          ).paddingOnly(bottom: 20);
-        });
-
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ).paddingOnly(bottom: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  "Qua đêm",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.neutral400,
+                  ),
+                ).paddingOnly(right: 6),
+                InkWell(
+                  onTap: () {
+                    _cubit.onchangeIsOverNight(!state.isOvernight);
+                  },
+                  child:
+                      state.isOvernight ? CheckBoxSelection() : CheckBoxIcon(),
+                ),
+              ],
+            ),
+          ],
+        ).paddingOnly(bottom: 20);
+      },
+    );
   }
 
-  get _attachFile{
-   return Column(
+  get _attachFile {
+    return Column(
       children: [
         Row(
           children: [
@@ -791,7 +910,7 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
             SvgPicture.asset(AppAssets.starRating),
           ],
         ),
-        const SizedBox(height: 8,),
+        const SizedBox(height: 8),
         GestureDetector(
           onTap: () {
             _openAttachFiles();
@@ -809,42 +928,51 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(AppAssets.icCloud,width: 32,height: 28,color: AppColors.themePrimaryDefault,),
-                  const SizedBox(height: 4,),
+                  Image.asset(
+                    AppAssets.icCloud,
+                    width: 32,
+                    height: 28,
+                    color: AppColors.themePrimaryDefault,
+                  ),
+                  const SizedBox(height: 4),
                   Container(
-                      margin: EdgeInsets.only(left: 4),
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          text: "Drag your file(s) or ",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.themeBlackDefault,
-                          ),
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: "browses",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.themePrimaryDefault,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = (){
-                                   _openAttachFiles();
-                                  }),
-                          ],
+                    margin: EdgeInsets.only(left: 4),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        text: "Drag your file(s) or ",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.themeBlackDefault,
                         ),
-                      ),),
-                  const SizedBox(height: 4,),
-                  Text("Max 1MB files are allowed",
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: "browses",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.themePrimaryDefault,
+                            ),
+                            recognizer:
+                                TapGestureRecognizer()
+                                  ..onTap = () {
+                                    _openAttachFiles();
+                                  },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Max 1MB files are allowed",
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
-                      color: AppColors.textGray600
+                      color: AppColors.textGray600,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -855,65 +983,75 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
   }
 
   get _bottomSheet {
-    return BlocBuilder<WorkTripCubit,WorkTripState>(
-        bloc: _cubit,
-        buildWhen: (prev,cur) =>
-          prev.strUsers != cur.strUsers ||
-            prev.fromDate != cur.fromDate ||
-            prev.toDate != cur.toDate ||
-          prev.note != cur.note,
+    return BlocBuilder<WorkTripCubit, WorkTripState>(
+      bloc: _cubit,
+      buildWhen:
+          (prev, cur) =>
+              prev.strUsers != cur.strUsers ||
+              prev.fromDate != cur.fromDate ||
+              prev.toDate != cur.toDate ||
+              prev.note != cur.note,
 
-        builder: (context,state){
-          bool isEnable = false;
-          if((state.strUsers ?? "").isNotEmpty &&
-              (state.fromDate ?? "").isNotEmpty &&
-              (state.toDate ?? "").isNotEmpty &&
-              (state.note ?? "").isNotEmpty
-          ){
-            isEnable = true;
-          }
-          return InkWell(
-            onTap:isEnable ? (){
-              (widget.isEdit ?? false) ?
-              _showUpdate()
-              : _cubit.createNewWorkTrip();
-            } : (){},
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 36),
-              width: double.infinity,
-              height: 46,
-              decoration: BoxDecoration(
-                  color: isEnable ?
-                  AppColors.themePrimaryDefault
-                      : Color(0xFFDFDFDF),
-                  borderRadius: BorderRadius.all(Radius.circular(6))
-              ),
-              child: Center(
-                child: Text(S.of(context).bt_btnSave,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.whiteColor
-                  ),
+      builder: (context, state) {
+        bool isEnable = false;
+        if ((state.strUsers ?? "").isNotEmpty &&
+            (state.fromDate ?? "").isNotEmpty &&
+            (state.toDate ?? "").isNotEmpty &&
+            (state.note ?? "").isNotEmpty) {
+          isEnable = true;
+        }
+        return InkWell(
+          onTap:
+              isEnable
+                  ? () {
+                    (widget.isEdit ?? false)
+                        ? _showUpdate()
+                        : (() {
+                          _handlingAction = true;
+                          _cubit.createNewWorkTrip();
+                        })();
+                  }
+                  : () {},
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 36),
+            width: double.infinity,
+            height: 46,
+            decoration: BoxDecoration(
+              color:
+                  isEnable ? AppColors.themePrimaryDefault : Color(0xFFDFDFDF),
+              borderRadius: BorderRadius.all(Radius.circular(6)),
+            ),
+            child: Center(
+              child: Text(
+                S.of(context).bt_btnSave,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.whiteColor,
                 ),
               ),
             ),
-          );
-        });
-
+          ),
+        );
+      },
+    );
   }
-  _showUpdate(){
+
+  _showUpdate() {
     _showDialog(
       title: S.of(context).confirm,
-      message:"Thông tin sẽ được thay đổi. Bạn chắc chắn "
+      message:
+          "Thông tin sẽ được thay đổi. Bạn chắc chắn "
           "muốn thay đổi thông tin này?",
       success: true,
       onConfirm: () {
+        _handlingAction = true;
         _cubit.updateWorkTrip(widget.detailEntity?.id ?? 0);
         Navigator.of(context).maybePop();
       },
     );
   }
+
   void _showDialog({
     required String title,
     required String message,
@@ -926,16 +1064,16 @@ class _RequestNewTripPageState extends State<RequestNewTripPage> {
       barrierColor: Colors.transparent,
       builder:
           (_) => CustomDialog(
-        iconPath: success ? AppAssets.ic_done : AppAssets.ic_delete,
-        title: title,
-        content: message,
-        success: success,
-        onConfirm: () {
-          Navigator.pop(context);
-          if (onConfirm != null) onConfirm();
-        },
-        onCancel: () => Navigator.pop(context),
-      ),
+            iconPath: success ? AppAssets.ic_done : AppAssets.ic_delete,
+            title: title,
+            content: message,
+            success: success,
+            onConfirm: () {
+              Navigator.pop(context);
+              if (onConfirm != null) onConfirm();
+            },
+            onCancel: () => Navigator.pop(context),
+          ),
     );
   }
 }

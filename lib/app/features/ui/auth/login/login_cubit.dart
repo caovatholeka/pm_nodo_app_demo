@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,7 +45,10 @@ class LogInCubit extends Cubit<LoginState> {
       final raw = result.data;
 
       if (raw is Map<String, dynamic> && raw["error"] == true) {
-        final message = raw["message"] ?? "Đăng nhập thất bại";
+        final message = _extractServerMessage(
+          raw,
+          fallback: result.message ?? "Đăng nhập thất bại",
+        );
 
         emit(state.copyWith(loginStatus: LoadStatus.FAILURE, errMsg: message));
         GlobalData.instance.isLoggingIn = false;
@@ -98,7 +103,10 @@ class LogInCubit extends Cubit<LoginState> {
         emit(
           state.copyWith(
             loginStatus: LoadStatus.FAILURE,
-            errMsg: "Không nhận được token từ server",
+            errMsg: _extractServerMessage(
+              raw,
+              fallback: result.message ?? "Không nhận được token từ server",
+            ),
           ),
         );
       }
@@ -112,10 +120,12 @@ class LogInCubit extends Cubit<LoginState> {
       String message = "Đăng nhập thất bại";
       final res = e.response?.data;
 
-      if (e.response?.statusCode == 401) {
+      final serverMessage = _extractServerMessage(res);
+
+      if (serverMessage.isNotEmpty) {
+        message = serverMessage;
+      } else if (e.response?.statusCode == 401) {
         message = "Tài khoản hoặc mật khẩu không đúng";
-      } else if (res is Map<String, dynamic> && res["message"] != null) {
-        message = res["message"];
       } else if (e.type == DioExceptionType.connectionError) {
         message = "Không thể kết nối đến máy chủ, kiểm tra mạng của bạn";
       }
@@ -149,5 +159,69 @@ class LogInCubit extends Cubit<LoginState> {
 
   void onRememberMe(bool? value) {
     emit(state.copyWith(rememberMe: value));
+  }
+
+  String _extractServerMessage(dynamic data, {String fallback = ''}) {
+    final message = _findMessage(data);
+    if (message.isNotEmpty) return message;
+    return fallback;
+  }
+
+  String _findMessage(dynamic data) {
+    if (data == null) return '';
+
+    if (data is String) {
+      final text = data.trim();
+      if (text.isEmpty) return '';
+
+      try {
+        final decoded = jsonDecode(text);
+        return _findMessage(decoded);
+      } catch (_) {
+        return text;
+      }
+    }
+
+    if (data is List) {
+      for (final item in data) {
+        final message = _findMessage(item);
+        if (message.isNotEmpty) return message;
+      }
+      return '';
+    }
+
+    if (data is Map) {
+      final map = Map<String, dynamic>.from(data);
+
+      const directKeys = [
+        'message',
+        'msg',
+        'errorMessage',
+        'error_message',
+        'detail',
+      ];
+      for (final key in directKeys) {
+        final value = map[key];
+        final message = _findMessage(value);
+        if (message.isNotEmpty) return message;
+      }
+
+      if (map['errors'] != null) {
+        final errors = _findMessage(map['errors']);
+        if (errors.isNotEmpty) return errors;
+      }
+
+      for (final entry in map.entries) {
+        final key = entry.key.toString().toLowerCase();
+        if (key.contains('message') ||
+            key.contains('error') ||
+            key.contains('detail')) {
+          final message = _findMessage(entry.value);
+          if (message.isNotEmpty) return message;
+        }
+      }
+    }
+
+    return '';
   }
 }

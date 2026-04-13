@@ -76,7 +76,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.3),
+      barrierColor: Colors.black.withValues(alpha: 0.3),
       builder: (_) {
         return RejectReasonDialog(
           title: s.on_leave_deny_reason,
@@ -161,6 +161,7 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
   }
 
   Future<void> doUpdate(BuildContext context) async {
+    final navigator = Navigator.of(context);
     final bool? updated = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -172,7 +173,8 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
       ),
     );
     if (updated == true) {
-      Navigator.pop(context, true);
+      if (!mounted) return;
+      navigator.pop(true);
     }
   }
 
@@ -181,6 +183,12 @@ class _OnLeaveDetailPageState extends State<OnLeaveDetailPage> {
     final s = S.of(context);
     return BlocConsumer<DetailOnLeaveCubit, DetailOnLeaveState>(
       bloc: _cubit,
+      listenWhen: (previous, current) =>
+          previous.loadStatus != current.loadStatus ||
+          previous.deleteStatus != current.deleteStatus ||
+          previous.confirmStatus != current.confirmStatus ||
+          previous.approveStatus != current.approveStatus ||
+          previous.rejectStatus != current.rejectStatus,
       listener: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING ||
             state.deleteStatus == LoadStatus.LOADING ||

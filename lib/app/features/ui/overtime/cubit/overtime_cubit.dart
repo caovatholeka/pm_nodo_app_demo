@@ -49,9 +49,7 @@ class OvertimeCubit extends Cubit<OvertimeState> {
     emit(state.copyWith(approveStatus: LoadStatus.LOADING));
 
     try {
-      final res = await _repo.approveOT(
-        OtApproveParam(overtimeIds: overtimeIds),
-      );
+      await _repo.approveOT(OtApproveParam(overtimeIds: overtimeIds));
 
       emit(state.copyWith(approveStatus: LoadStatus.SUCCESS));
     } catch (e, s) {
@@ -66,6 +64,10 @@ class OvertimeCubit extends Cubit<OvertimeState> {
 
   void resetApproveStatus() {
     emit(state.copyWith(approveStatus: LoadStatus.INITIAL));
+  }
+
+  void resetSubmitStatus() {
+    emit(state.copyWith(submitStatus: LoadStatus.INITIAL));
   }
 
   Future<void> submitApproval(int id) async {

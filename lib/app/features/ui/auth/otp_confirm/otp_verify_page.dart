@@ -156,6 +156,10 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     return BlocConsumer<OtpVerifyCubit, OtpVerifyState>(
+      listenWhen: (previous, current) =>
+          previous.verifyStatus != current.verifyStatus ||
+          previous.resendStatus != current.resendStatus ||
+          previous.errorMessage != current.errorMessage,
       listener: (context, state) {
         if (state.errorMessage != null) {
           Flushbar(
@@ -165,6 +169,8 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
             flushbarPosition: FlushbarPosition.TOP,
             margin: const EdgeInsets.all(12),
           ).show(context);
+          context.read<OtpVerifyCubit>().resetVerifyStatus();
+          context.read<OtpVerifyCubit>().resetResendStatus();
           return;
         }
 
@@ -177,13 +183,15 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
             margin: const EdgeInsets.all(12),
           ).show(context);
 
+          final navigator = Navigator.of(context);
           Future.delayed(const Duration(milliseconds: 1200), () {
-            Navigator.pushAndRemoveUntil(
-              context,
+            if (!mounted) return;
+            navigator.pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const LoginPage()),
               (route) => false,
             );
           });
+          context.read<OtpVerifyCubit>().resetVerifyStatus();
           return;
         }
 
@@ -196,6 +204,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
             flushbarPosition: FlushbarPosition.TOP,
             margin: const EdgeInsets.all(12),
           ).show(context);
+          context.read<OtpVerifyCubit>().resetResendStatus();
         }
       },
       builder: (context, state) {
@@ -221,16 +230,16 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.92,
                       padding: const EdgeInsets.fromLTRB(26, 28, 26, 32),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 12,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.06),
+                              blurRadius: 12,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                       ),
                       child: Column(
                         children: [

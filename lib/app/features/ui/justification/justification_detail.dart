@@ -242,9 +242,9 @@ class _JustificationDetailPageState extends State<JustificationDetailPage> {
           await Flushbar(
             message: s.justification_detail_deny_success,
             flushbarPosition: FlushbarPosition.TOP,
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
-            icon: const Icon(Icons.cancel, color: Colors.white),
+            icon: const Icon(Icons.check_circle, color: Colors.white),
             margin: const EdgeInsets.all(8),
             borderRadius: BorderRadius.circular(8),
           ).show(context);

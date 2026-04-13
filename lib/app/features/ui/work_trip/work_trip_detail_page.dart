@@ -35,6 +35,7 @@ class WorkTripDetailPage extends StatefulWidget {
 
 class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   final _cubit = GetIt.I.get<WorkTripCubit>();
+  bool _handlingAction = false;
 
   @override
   void initState() {
@@ -206,6 +207,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
   }
 
   void _onSubmitWorkTrip() {
+    _handlingAction = true;
     _cubit.onSubmitWorkTrip(_cubit.state.detailWorkTrip?.id ?? 0);
   }
 
@@ -226,6 +228,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
               final id = _cubit.state.detailWorkTrip?.id ?? 0;
 
               final param = ApproveObParam(businessIds: [id]);
+              _handlingAction = true;
               _cubit.onApproveWorkTrip(param);
             },
             onCancel: () {
@@ -254,6 +257,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
                 if (!context.mounted) return;
 
                 final param = CancelObParam(note: reason);
+                _handlingAction = true;
                 _cubit.onRejectWorkTrip(id, param);
               });
             },
@@ -274,9 +278,18 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
               prev.approveStatus != cur.approveStatus ||
               prev.cancelStatus != cur.cancelStatus,
       listener: (context, state) {
+        final hasMutationState =
+            state.deleteStatus != LoadStatus.INITIAL ||
+            state.submitStatus != LoadStatus.INITIAL ||
+            state.approveStatus != LoadStatus.INITIAL ||
+            state.cancelStatus != LoadStatus.INITIAL;
+
+        if (hasMutationState && !_handlingAction) return;
+
         if (state.deleteStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(title: s.success, message: s.delete_success);
+          _handlingAction = false;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!context.mounted) return;
@@ -292,6 +305,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
             title: s.success,
             message: s.send_approval_success,
           );
+          _handlingAction = false;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!context.mounted) return;
@@ -308,11 +322,13 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
             title: s.warning,
             message: state.errMsg ?? s.to_do_failed,
           );
+          _handlingAction = false;
           _cubit.onResetStatus();
           return;
         }
 
         if (state.approveStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
           Flushbar(
             message: s.bt_confirm_susscess,
             flushbarPosition: FlushbarPosition.TOP,
@@ -323,11 +339,14 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
             borderRadius: BorderRadius.circular(8),
           ).show(context);
 
+          _handlingAction = false;
           _cubit.onResetStatus();
           _cubit.getWorkTripDetail(widget.workId ?? 0);
+          return;
         }
 
         if (state.cancelStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
           Flushbar(
             message: s.bt_cancel_success,
             flushbarPosition: FlushbarPosition.TOP,
@@ -338,14 +357,15 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
             borderRadius: BorderRadius.circular(8),
           ).show(context);
 
+          _handlingAction = false;
           _cubit.onResetStatus();
           _cubit.getWorkTripDetail(widget.workId ?? 0);
+          return;
         }
 
         final isLoading =
             state.submitStatus == LoadStatus.LOADING ||
             state.deleteStatus == LoadStatus.LOADING ||
-            state.detailStatus == LoadStatus.LOADING ||
             state.approveStatus == LoadStatus.LOADING ||
             state.cancelStatus == LoadStatus.LOADING;
 
@@ -507,7 +527,7 @@ class _WorkTripDetailPageState extends State<WorkTripDetailPage> {
           const SizedBox(width: 4),
           Text(
             getStatusTitle(_cubit.state.detailWorkTrip?.stage?.id ?? 0),
-            style: TextStyle( 
+            style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w400,
               color: getStatusColor(

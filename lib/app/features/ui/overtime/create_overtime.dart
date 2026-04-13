@@ -14,6 +14,7 @@ import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -164,8 +165,17 @@ class _CreateOTPageState extends State<CreateOTPage> {
       child: BlocConsumer<CreateOvertimeCubit, CreateOvertimeState>(
         listenWhen:
             (p, c) =>
-                p.errorMessage != c.errorMessage || p.isSuccess != c.isSuccess,
+                p.isSubmitting != c.isSubmitting ||
+                p.errorMessage != c.errorMessage ||
+                p.isSuccess != c.isSuccess,
         listener: (context, state) async {
+          if (state.isSubmitting) {
+            LoadingOverlay.show(context);
+            return;
+          }
+
+          LoadingOverlay.hide(context);
+
           if (state.errorMessage != null) {
             await Flushbar(
               message: state.errorMessage!,
@@ -201,16 +211,16 @@ class _CreateOTPageState extends State<CreateOTPage> {
                 appBar: PreferredSize(
                   preferredSize: const Size.fromHeight(kToolbarHeight),
                   child: MyAppBar(
-                        titleAppbar: widget.isEdit?
-                            S.of(context).ot_update_title
-                            : S.of(context).ot_create_title 
-                        ,
-                        haveBackButton: true,
-                        haveActionButton: true,
-                        iconPathAsset: AppAssets.icNotificationBell,
-                        actionCallBack: () async {
-                          _goNotification();
-                        },
+                    titleAppbar:
+                        widget.isEdit
+                            ? S.of(context).ot_update_title
+                            : S.of(context).ot_create_title,
+                    haveBackButton: true,
+                    haveActionButton: true,
+                    iconPathAsset: AppAssets.icNotificationBell,
+                    actionCallBack: () async {
+                      _goNotification();
+                    },
                   ),
                 ),
                 body: SingleChildScrollView(
@@ -282,7 +292,10 @@ class _CreateOTPageState extends State<CreateOTPage> {
                     child: SizedBox(
                       height: 48,
                       child: PrimaryButton(
-                        mainText: widget.isEdit ? s.justification_detail_updatebtn : s.send_approval_btn,
+                        mainText:
+                            widget.isEdit
+                                ? s.justification_detail_updatebtn
+                                : s.send_approval_btn,
                         enable: state.isFormValid,
                         isLoading: state.isSubmitting,
                         callback: _cubit.submit,

@@ -61,9 +61,13 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
     final keyboard = MediaQuery.of(context).viewInsets.bottom;
     final s = S.of(context);
     return BlocConsumer<ForgotCubit, ForgotState>(
+      listenWhen: (previous, current) =>
+          previous.forgotStatus != current.forgotStatus ||
+          previous.validationMessage != current.validationMessage,
       listener: (context, state) {
         if (state.forgotStatus == LoadStatus.FAILURE) {
           _showError(state);
+          context.read<ForgotCubit>().resetStatus();
         }
 
         if (state.forgotStatus == LoadStatus.SUCCESS) {
@@ -78,9 +82,10 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                       password: _passCtrl.text.trim(),
                       confirmPassword: _confirmCtrl.text.trim(),
                     ),
-                  ),
+              ),
             ),
           );
+          context.read<ForgotCubit>().resetStatus();
         }
       },
       builder: (context, state) {
@@ -134,7 +139,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                     borderRadius: BorderRadius.circular(18),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.06),
+                                        color: Colors.black.withValues(alpha: 0.06),
                                         blurRadius: 12,
                                         offset: const Offset(0, 3),
                                       ),
