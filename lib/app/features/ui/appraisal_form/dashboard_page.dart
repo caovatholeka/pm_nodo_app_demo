@@ -32,8 +32,6 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     _cubit.getRequestSummaries();
-    _cubit.getProjects();
-    _cubit.getTodayTasks();
     _cubit.getProjectTasks();
     _cubit.getTimeSheetData(DateTime.now().month);
     _cubit.getBirthdaysThisMonth(DateTime.now().month);

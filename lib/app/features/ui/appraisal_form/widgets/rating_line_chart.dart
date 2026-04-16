@@ -32,11 +32,13 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DashboardCubit>().getDisciplineEvaluation(
             _selectedDate.month,
+            year: _selectedDate.year,
           );
     });
   }
 
   void _pickMonth() {
+    int tempYear = _selectedDate.year;
     int tempMonth = _selectedDate.month;
 
     showModalBottomSheet(
@@ -67,8 +69,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        final nextDate =
-                            DateTime(_selectedDate.year, tempMonth);
+                        final nextDate = DateTime(tempYear, tempMonth);
 
                         setState(() {
                           _selectedDate = nextDate;
@@ -76,6 +77,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
 
                         context.read<DashboardCubit>().getDisciplineEvaluation(
                               nextDate.month,
+                              year: nextDate.year,
                             );
 
                         Navigator.pop(context);
@@ -93,26 +95,55 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                 ),
               ),
               Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 40,
-                  scrollController: FixedExtentScrollController(
-                    initialItem: tempMonth - 1,
-                  ),
-                  onSelectedItemChanged: (index) {
-                    tempMonth = index + 1;
-                  },
-                  children: List.generate(
-                    12,
-                    (i) => Center(
-                      child: Text(
-                        'Tháng ${(i + 1).toString().padLeft(2, '0')}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: CupertinoPicker(
+                        itemExtent: 40,
+                        scrollController: FixedExtentScrollController(
+                          initialItem: tempYear - 2020,
+                        ),
+                        onSelectedItemChanged: (index) {
+                          tempYear = 2020 + index;
+                        },
+                        children: List.generate(
+                          20,
+                          (i) => Center(
+                            child: Text(
+                              (2020 + i).toString(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    Expanded(
+                      child: CupertinoPicker(
+                        itemExtent: 40,
+                        scrollController: FixedExtentScrollController(
+                          initialItem: tempMonth - 1,
+                        ),
+                        onSelectedItemChanged: (index) {
+                          tempMonth = index + 1;
+                        },
+                        children: List.generate(
+                          12,
+                          (i) => Center(
+                            child: Text(
+                              'Tháng ${(i + 1).toString().padLeft(2, '0')}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -132,8 +163,8 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
+          boxShadow: [
+            BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
               offset: const Offset(0, 2),
@@ -184,8 +215,10 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                       children: [
                         SvgPicture.asset(AppAssets.icCalendar, width: 14),
                         const SizedBox(width: 6),
-                        Text(_monthLabel,
-                            style: const TextStyle(fontSize: 12)),
+                        Text(
+                          _monthLabel,
+                          style: const TextStyle(fontSize: 12),
+                        ),
                         const Icon(Icons.keyboard_arrow_down, size: 18),
                       ],
                     ),

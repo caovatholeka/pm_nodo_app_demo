@@ -45,6 +45,85 @@ class DashboardCubit extends Cubit<DashboardState> {
     return nestedData ?? root;
   }
 
+  List<ProjectsParam> _parseProjects(dynamic response) {
+    final dataMap = _extractPayload(response);
+    final rawProjects =
+        dataMap?['projects'] ??
+        dataMap?['items'] ??
+        (response is Map ? response['items'] : null) ??
+        (response is List ? response : null);
+
+    return mapList(rawProjects, ProjectsParam.fromJson);
+  }
+
+  ProjectsParam? _findProjectById(List<ProjectsParam> projects, int? projectId) {
+    if (projectId == null) {
+      return null;
+    }
+
+    for (final project in projects) {
+      if (project.projectID == projectId) {
+        return project;
+      }
+    }
+
+    return null;
+  }
+
+  Future<ProjectsParam> _resolveProjectSelection({int? projectId}) async {
+    var projects = state.projects;
+
+    if (projects.isEmpty) {
+      final res = await _repository.getProjects();
+      projects = _parseProjects(res);
+    }
+
+    final selectedProject =
+        _findProjectById(projects, projectId) ??
+        _findProjectById(projects, state.selectedProjectId) ??
+        (projects.isNotEmpty ? projects.first : null);
+
+    if (selectedProject == null) {
+      throw Exception('No projects available');
+    }
+
+    emit(
+      state.copyWith(
+        projects: projects,
+        selectedProjectId: selectedProject.projectID,
+        selectedProjectName: selectedProject.projectName,
+      ),
+    );
+
+    return selectedProject;
+  }
+
+  int _requireProjectId(ProjectsParam project) {
+    final id = project.projectID;
+
+    if (id == null) {
+      throw Exception('Selected project has no project_id');
+    }
+
+    return id;
+  }
+
+  DateTime _resolvePeriod(String period) {
+    final normalized = period.trim();
+    final parts = normalized.split('-');
+
+    if (parts.length >= 2) {
+      final year = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+
+      if (year != null && month != null && month >= 1 && month <= 12) {
+        return DateTime(year, month);
+      }
+    }
+
+    throw FormatException('Invalid period format. Expected yyyy-MM, got: $period');
+  }
+
   Future<void> getRequestSummaries() async {
     try {
       emit(state.copyWith(requestStatus: LoadStatus.LOADING));
@@ -81,7 +160,11 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       emit(state.copyWith(workQualityStatus: LoadStatus.LOADING));
 
-      final entity = await _repository.getWorkQuality(month);
+      final period = _resolvePeriod(month);
+      final entity = await _repository.getWorkQuality(
+        period.month,
+        period.year,
+      );
       emit(
         state.copyWith(
           workQualityStatus: LoadStatus.SUCCESS,
@@ -95,11 +178,14 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  Future<void> getDisciplineEvaluation(int month) async {
+  Future<void> getDisciplineEvaluation(int month, {int? year}) async {
     try {
       emit(state.copyWith(disciplineStatus: LoadStatus.LOADING));
 
-      final entity = await _repository.getDisciplineEvaluation(month);
+      final entity = await _repository.getDisciplineEvaluation(
+        month,
+        year ?? DateTime.now().year,
+      );
 
       emit(
         state.copyWith(
@@ -120,11 +206,14 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  Future<void> getDisciplineEvaluationDetail(int month) async {
+  Future<void> getDisciplineEvaluationDetail(int month, {int? year}) async {
     try {
       emit(state.copyWith(disciplineDetailStatus: LoadStatus.LOADING));
 
-      final entity = await _repository.getDetailDisciplineEvaluation(month);
+      final entity = await _repository.getDetailDisciplineEvaluation(
+        month,
+        year ?? DateTime.now().year,
+      );
 
       emit(
         state.copyWith(
@@ -144,8 +233,8 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  Future<ProjectTasksEntity> _loadProjectTasks() {
-    return _repository.getProjectTasks().then((res) {
+  Future<ProjectTasksEntity> _loadProjectTasks(int projectId) {
+    return _repository.getProjectTasks(projectId).then((res) {
       final payload = _extractPayload(res);
       final entity = mapObject(payload, ProjectTasksEntity.fromJson);
 
@@ -160,29 +249,17 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> getProjects() async {
     try {
       final res = await _repository.getProjects();
-      final dataMap = _extractPayload(res);
-      final rawProjects =
-          dataMap?['projects'] ??
-          dataMap?['items'] ??
-          (res is Map ? res['items'] : null) ??
-          (res is List ? res : null);
-      final projects = mapList(rawProjects, ProjectsParam.fromJson);
-      final firstProject = projects.isNotEmpty ? projects.first : null;
-      final firstProjectId = firstProject?.projectID;
-      final selectedProjectId =
-          state.projectTaskProjectId ??
-          state.selectedProjectId ??
-          firstProjectId;
-      final selectedProjectName =
-          state.projectTaskProjectName ??
-          state.selectedProjectName ??
-          firstProject?.projectName;
+      final projects = _parseProjects(res);
+      final selectedProject =
+          _findProjectById(projects, state.selectedProjectId) ??
+          _findProjectById(projects, state.projectTaskProjectId) ??
+          (projects.isNotEmpty ? projects.first : null);
 
       emit(
         state.copyWith(
           projects: projects,
-          selectedProjectId: selectedProjectId,
-          selectedProjectName: selectedProjectName,
+          selectedProjectId: selectedProject?.projectID,
+          selectedProjectName: selectedProject?.projectName,
         ),
       );
     } catch (e, s) {
@@ -195,7 +272,8 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future<void> getTodayTasks() async {
     try {
       emit(state.copyWith(taskStatus: LoadStatus.LOADING));
-      final entity = await _loadProjectTasks();
+      final selectedProject = await _resolveProjectSelection();
+      final entity = await _loadProjectTasks(_requireProjectId(selectedProject));
       emit(
         state.copyWith(
           taskStatus: LoadStatus.SUCCESS,
@@ -209,17 +287,21 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  Future<void> getProjectTasks() async {
+  Future<void> getProjectTasks({int? projectId}) async {
     try {
       emit(state.copyWith(projectStatus: LoadStatus.LOADING));
 
-      final entity = await _loadProjectTasks();
+      final selectedProject = await _resolveProjectSelection(
+        projectId: projectId,
+      );
+      final entity = await _loadProjectTasks(_requireProjectId(selectedProject));
       emit(
         state.copyWith(
           projectStatus: LoadStatus.SUCCESS,
           projectTasks: entity.tasks ?? const <TasksEntity>[],
-          selectedProjectId: state.selectedProjectId ?? entity.projectID,
-          selectedProjectName: state.selectedProjectName ?? entity.projectName,
+          selectedProjectId: selectedProject.projectID ?? entity.projectID,
+          selectedProjectName:
+              selectedProject.projectName ?? entity.projectName,
           projectTaskProjectId: entity.projectID,
           projectTaskProjectName: entity.projectName,
         ),
@@ -235,13 +317,15 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       emit(state.copyWith(projectStatus: LoadStatus.LOADING));
 
-      final entity = await _loadProjectTasks();
+      final selectedProject = await _resolveProjectSelection();
+      final entity = await _loadProjectTasks(_requireProjectId(selectedProject));
       emit(
         state.copyWith(
           projectStatus: LoadStatus.SUCCESS,
           projectTasks: entity.tasks ?? const <TasksEntity>[],
-          selectedProjectId: state.selectedProjectId ?? entity.projectID,
-          selectedProjectName: state.selectedProjectName ?? entity.projectName,
+          selectedProjectId: selectedProject.projectID ?? entity.projectID,
+          selectedProjectName:
+              selectedProject.projectName ?? entity.projectName,
           projectTaskProjectId: entity.projectID,
           projectTaskProjectName: entity.projectName,
         ),
@@ -262,11 +346,14 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
   }
 
-  Future<void> getTimeSheetData(int month) async {
+  Future<void> getTimeSheetData(int month, {int? year}) async {
     try {
       emit(state.copyWith(timesheetStatus: LoadStatus.LOADING));
 
-      final res = await _repository.getTimeSheetData(month);
+      final res = await _repository.getTimeSheetData(
+        month,
+        year ?? DateTime.now().year,
+      );
       final dataMap = _extractPayload(res);
       final entity = mapObject(dataMap, TimesheetEntity.fromJson);
 
@@ -323,7 +410,11 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       emit(state.copyWith(workQualityStatus: LoadStatus.LOADING));
 
-      final entity = await _repository.getWorkQualityDetail(month);
+      final period = _resolvePeriod(month);
+      final entity = await _repository.getWorkQualityDetail(
+        period.month,
+        period.year,
+      );
 
       emit(
         state.copyWith(

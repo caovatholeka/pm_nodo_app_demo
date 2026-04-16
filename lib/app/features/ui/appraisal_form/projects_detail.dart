@@ -20,7 +20,6 @@ class _ProjectDetailState extends State<ProjectsDetail> {
   @override
   void initState() {
     super.initState();
-    _cubit.getProjects();
     _cubit.getProjectTasks();
   }
 

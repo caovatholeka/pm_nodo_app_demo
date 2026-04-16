@@ -258,7 +258,7 @@ class ProjectSheetTile extends StatelessWidget {
                 final cubit = context.read<DashboardCubit>();
                 cubit.selectProject(project);
                 Navigator.pop(context);
-                await cubit.getProjectTasks();
+                await cubit.getProjectTasks(projectId: project.projectID);
               },
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),

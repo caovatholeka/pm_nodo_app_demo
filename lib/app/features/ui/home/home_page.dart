@@ -207,7 +207,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     "${s.home_title}${state.userProfile?.name ?? ""}",
                     style: TextStyle(
-                      fontSize: context.sw(0.06),
+                      fontSize: context.sw(0.05),
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),

@@ -368,19 +368,22 @@ abstract class ApiClient {
   // thống kê chất lượng công việc
   @GET('/dashboard/work_quality')
   Future<WorkQualityEntity> getWorkQuality(
-      @Query("month") String? month,
+      @Query("month") int? month,
+      @Query("year") int? year,
       );
 
   // chi tiết chất lượng công việc
   @GET('/dashboard/work_quality_detail')
   Future<WorkQualityEntity> getWorkQualityDetail(
-      @Query("month") String? month,
+      @Query("month") int? month,
+      @Query("year") int? year
       );
   
   //Thống kê dữ liệu chấm công
   @GET('/dashboard/timesheet_data')
   Future<dynamic> getTimeSheetData(
     @Query("month") int? month,
+    @Query("year") int? year,
   );
 
   // thống kê sinh nhật trong tháng
@@ -393,17 +396,21 @@ abstract class ApiClient {
   @GET('/dashboard/discipline_evaluation')
   Future<DisciplineEvaluationEntity> getDisciplineEvaluation(
     @Query("month") int? month,
+    @Query("year") int? year,
   );
 
   //thống kê chi tiết nề nếp
   @GET('/dashboard/discipline_evaluation_detail')
   Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(
     @Query("month") int? month,
+    @Query("year") int? year,
   );
 
   //Lấy chi tiết dự án 
   @GET('/dashboard/project_tasks')
-  Future<dynamic> getProjectTasks();
+  Future<dynamic> getProjectTasks(
+    @Query("project_id") int? projectId,
+  );
 
   //Lấy dự án
   @GET('/dashboard/projects')

@@ -9,13 +9,13 @@ import '../models/response/common_response.dart';
 
 abstract class DashboardRepository {
   Future<CommonResponse> getRequestSumaries();
-  Future<WorkQualityEntity> getWorkQuality(String month);
-  Future<WorkQualityEntity> getWorkQualityDetail(String month);
-  Future<dynamic> getTimeSheetData(int month);
+  Future<WorkQualityEntity> getWorkQuality(int month, int year);
+  Future<WorkQualityEntity> getWorkQualityDetail(int month, int year);
+  Future<dynamic> getTimeSheetData(int month, int year);
   Future<dynamic> getBirthdaysThisMonth(int month);
-  Future<DisciplineEvaluationEntity> getDisciplineEvaluation(int month);
-  Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(int month);
-  Future<dynamic> getProjectTasks();
+  Future<DisciplineEvaluationEntity> getDisciplineEvaluation(int month, int year);
+  Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(int month, int year);
+  Future<dynamic> getProjectTasks(int projectId);
   Future<dynamic> getProjects();
   Future<CommonResponse> submitImprovemnt(SendSuggestionParam body);
 }
@@ -31,20 +31,20 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   //Thống kê chất lượng công việc
   @override
-  Future<WorkQualityEntity> getWorkQuality(String month) async {
-    return await _apiClient.getWorkQuality(month);
+  Future<WorkQualityEntity> getWorkQuality(int month, int year) async {
+    return await _apiClient.getWorkQuality(month, year);
   }
 
   //Thống kê chi tiết chất lượng công việc
   @override
-  Future<WorkQualityEntity> getWorkQualityDetail(String month) async {
-    return await _apiClient.getWorkQualityDetail(month);
+  Future<WorkQualityEntity> getWorkQualityDetail(int month, int year) async {
+    return await _apiClient.getWorkQualityDetail(month, year);
   }
 
   //Thống kê dữ liệu chấm công
   @override
-  Future<dynamic> getTimeSheetData(int month) async {
-    return await _apiClient.getTimeSheetData(month);
+  Future<dynamic> getTimeSheetData(int month, int year) async {
+    return await _apiClient.getTimeSheetData(month, year);
   }
 
   //Thống kê sinh nhật trong tháng
@@ -55,20 +55,20 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   //Thống kê nề nếp
   @override
-  Future<DisciplineEvaluationEntity> getDisciplineEvaluation(int month) async {
-    return await _apiClient.getDisciplineEvaluation(month);
+  Future<DisciplineEvaluationEntity> getDisciplineEvaluation(int month, int year) async {
+    return await _apiClient.getDisciplineEvaluation(month, year);
   }
 
   //Thống kê chi tiết nề nếp
   @override
-  Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(int month) async {
-    return await _apiClient.getDetailDisciplineEvaluation(month);
+  Future<DisciplineEvaluationDetailEntity> getDetailDisciplineEvaluation(int month, int year) async {
+    return await _apiClient.getDetailDisciplineEvaluation(month, year);
   }
 
   //Lấy chi tiết dự án 
   @override
-  Future<dynamic> getProjectTasks() async {
-    return await _apiClient.getProjectTasks();
+  Future<dynamic> getProjectTasks(int projectId) async {
+    return await _apiClient.getProjectTasks(projectId);
   }
 
   //Lấy dự án
