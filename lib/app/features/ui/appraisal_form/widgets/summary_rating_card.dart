@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class SummaryRatingCard extends StatefulWidget {
   final VoidCallback? onTap;
@@ -28,7 +28,8 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
     Color(0xFF35D4EF),
   ];
 
-  String get _monthLabel => 'Tháng ${DateFormat('MM/yyyy').format(_selectedDate)}';
+  String _monthLabel(BuildContext context) =>
+      '${S.of(context).month} ${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}';
 
   String get _monthApi =>
       '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}';
@@ -42,6 +43,7 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
   }
 
   void _pickMonth() {
+    final s = S.of(context);
     int tempYear = _selectedDate.year;
     int tempMonth = _selectedDate.month;
 
@@ -63,9 +65,9 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     ),
                     GestureDetector(
@@ -79,9 +81,9 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
                             );
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Xong',
-                        style: TextStyle(
+                      child: Text(
+                        s.day_off_donebtn,
+                        style: const TextStyle(
                           color: Color(0xFF2E87FF),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -127,7 +129,7 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
                           12,
                           (i) => Center(
                             child: Text(
-                              (i + 1).toString().padLeft(2, '0'),
+                              '${s.month} ${(i + 1).toString().padLeft(2, '0')}',
                               style: const TextStyle(fontSize: 16),
                             ),
                           ),
@@ -144,20 +146,22 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
     );
   }
 
-  List<Metric> _buildMetrics(DashboardState state) {
+  List<Metric> _buildMetrics(DashboardState state, S s) {
     final workQuality = state.workQuality;
     return [
-      Metric('Khối lượng CV', workQuality?.volumeScore ?? 0),
-      Metric('Tiến độ CV', workQuality?.progressScore ?? 0),
-      Metric('Chất lượng CV', workQuality?.qualityScore ?? 0),
+      Metric(s.appraisal_metric_volume, workQuality?.volumeScore ?? 0),
+      Metric(s.appraisal_metric_progress, workQuality?.progressScore ?? 0),
+      Metric(s.appraisal_metric_quality, workQuality?.qualityScore ?? 0),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
-        final data = _buildMetrics(state);
+        final data = _buildMetrics(state, s);
 
         return InkWell(
           borderRadius: BorderRadius.circular(18),
@@ -193,10 +197,10 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Chất lượng công việc',
-                        style: TextStyle(
+                        s.appraisal_work_quality_title,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: Color(0xFF475569),
@@ -230,7 +234,7 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              _monthLabel,
+                              _monthLabel(context),
                               style: const TextStyle(
                                 fontSize: 11.5,
                                 color: Color(0xFF374151),
@@ -260,12 +264,12 @@ class _SummaryRatingCardState extends State<SummaryRatingCard> {
                     ),
                   )
                 else if (state.workQualityStatus == LoadStatus.FAILURE)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 28),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 28),
                     child: Center(
                       child: Text(
-                        'Không tải được dữ liệu',
-                        style: TextStyle(color: Colors.red),
+                        s.appraisal_load_failed,
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ),
                   )
@@ -301,6 +305,8 @@ class _MetricChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -333,14 +339,14 @@ class _MetricChart extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const SizedBox(
+        SizedBox(
           width: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _LegendDot(color: Color(0xFF7B88E8), label: 'Khối lượng CV'),
-              _LegendDot(color: Color(0xFFF4A640), label: 'Tiến độ CV'),
-              _LegendDot(color: Color(0xFF35C3D9), label: 'Chất lượng CV'),
+              _LegendDot(color: const Color(0xFF7B88E8), label: s.appraisal_metric_volume),
+              _LegendDot(color: const Color(0xFFF4A640), label: s.appraisal_metric_progress),
+              _LegendDot(color: const Color(0xFF35C3D9), label: s.appraisal_metric_quality),
             ],
           ),
         ),

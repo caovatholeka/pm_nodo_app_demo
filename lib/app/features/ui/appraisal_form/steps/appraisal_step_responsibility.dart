@@ -4,6 +4,7 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../widgets/dot_devider_painter.dart';
 
@@ -38,18 +39,25 @@ class AppraisalStepResponsibility extends StatelessWidget {
   TextEditingController _responseEvidence(ResponsiveIdEntity item, int index) {
     final controller = evidences[index];
     if (controller.text.isEmpty) {
-      controller.text = isLeaderReview ? (item.parentNote ?? '') : (item.note ?? '');
+      controller.text =
+          isLeaderReview ? (item.parentNote ?? '') : (item.note ?? '');
     }
     return controller;
   }
 
-  Color get _sectionBg => isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
-  Color get _accent => isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
-  Color get _titleColor => isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF065F46);
-  Color get _dividerColor => isLeaderReview ? const Color(0xFFD8CAE8) : const Color(0xFFD1FAE5);
+  Color get _sectionBg =>
+      isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
+  Color get _accent =>
+      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
+  Color get _titleColor =>
+      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF065F46);
+  Color get _dividerColor =>
+      isLeaderReview ? const Color(0xFFD8CAE8) : const Color(0xFFD1FAE5);
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
@@ -65,9 +73,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'II. Tinh thần trách nhiệm (20%)',
-                    style: TextStyle(
+                  Text(
+                    s.appraisal_step_responsibility,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF374151),
@@ -103,7 +111,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          'Tiêu chí đánh giá Tinh thần trách nhiệm',
+                          s.appraisal_responsibility_criteria,
                           style: TextStyle(
                             color: _titleColor,
                             fontWeight: FontWeight.w700,
@@ -116,8 +124,8 @@ class AppraisalStepResponsibility extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     isLeaderReview
-                        ? 'Cấp trên trực tiếp đánh giá (Max = 5 điểm)'
-                        : 'Đánh giá các tiêu chí liên quan đến tinh thần trách nhiệm trong công việc.',
+                        ? s.appraisal_step_direct_manager_rate
+                        : s.appraisal_responsibility_description,
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.themeDarkDark,
@@ -130,7 +138,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
                       final item = responses[i];
 
                       return Padding(
-                        padding: EdgeInsets.only(bottom: i == responses.length - 1 ? 0 : 16),
+                        padding: EdgeInsets.only(
+                          bottom: i == responses.length - 1 ? 0 : 16,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -156,9 +166,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
                                     ),
                                   ),
                                   TextSpan(text: ' - ${item.name ?? ''}'),
-                                  const TextSpan(
-                                    text: ' - Hệ số 2',
-                                    style: TextStyle(
+                                  TextSpan(
+                                    text: ' - ${s.appraisal_coefficient} 2',
+                                    style: const TextStyle(
                                       color: Color(0xFF2563EB),
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -167,9 +177,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            const Text(
-                              'Điểm',
-                              style: TextStyle(
+                            Text(
+                              s.appraisal_score,
+                              style: const TextStyle(
                                 color: Color(0xFF111827),
                                 fontSize: 13,
                               ),
@@ -190,7 +200,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
                                       width: 28,
                                       height: 28,
                                       color:
-                                          filled ? const Color(0xFFFFB800) : const Color(0xFF64748B),
+                                          filled
+                                              ? const Color(0xFFFFB800)
+                                              : const Color(0xFF64748B),
                                     ),
                                   );
                                 }),
@@ -198,8 +210,8 @@ class AppraisalStepResponsibility extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             InputTextField(
-                              title: 'Ghi rõ những gì được, chưa được',
-                              hintText: 'Nhập dẫn chứng...',
+                              title: s.appraisal_comment_detail,
+                              hintText: s.appraisal_evidence_hint,
                               controller: _responseEvidence(item, i),
                               maxLine: 3,
                               isRequiredField: true,
@@ -211,7 +223,9 @@ class AppraisalStepResponsibility extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 16),
                                 child: CustomPaint(
                                   size: const Size(double.infinity, 1),
-                                  painter: DotDividerPainter(color: _dividerColor),
+                                  painter: DotDividerPainter(
+                                    color: _dividerColor,
+                                  ),
                                 ),
                               ),
                           ],

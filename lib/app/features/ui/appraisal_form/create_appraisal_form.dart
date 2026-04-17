@@ -15,6 +15,7 @@ import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class CreateAppraisalForm extends StatefulWidget {
   final bool isDetail;
@@ -49,6 +50,11 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
   final _managerNameCtrl = TextEditingController();
   final profile = GlobalData.instance.userProfile;
   final _deprtmentCtrl = TextEditingController();
+
+  LocaleType get _pickerLocale =>
+      Localizations.localeOf(context).languageCode == 'en'
+          ? LocaleType.en
+          : LocaleType.vi;
 
   @override
   void initState() {
@@ -90,7 +96,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
   void _pickFromDate() {
     DatePicker.showDatePicker(
       context,
-      locale: LocaleType.vi,
+      locale: _pickerLocale,
       onConfirm: (d) {
         _fromDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
         _toDateCtrl.clear();
@@ -102,7 +108,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
   void _pickToDate() {
     DatePicker.showDatePicker(
       context,
-      locale: LocaleType.vi,
+      locale: _pickerLocale,
       onConfirm: (d) {
         _toDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
         _cubit.setToDate(d);
@@ -170,6 +176,8 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocProvider.value(
       value: _cubit,
       child: BlocListener<CreateAppraisalCubit, CreateAppraisalState>(
@@ -192,8 +200,8 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                     child: MyAppBar(
                       titleAppbar:
                           widget.isDetail == true
-                              ? "Phiếu đánh giá kết quả CV"
-                              : "Tạo phiếu đánh giá",
+                              ? s.appraisal_form_title
+                              : s.appraisal_create_title,
                       haveBackButton: true,
                       haveActionButton: true,
                       iconPathAsset: AppAssets.icNotificationBell,
@@ -211,29 +219,25 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                       child: Column(
                         children: [
                           InputTextField(
-                            title: 'Mã nhân viên',
+                            title: s.appraisal_employee_code,
                             hintText: '',
                             isRequiredField: widget.isDetail != true,
                             controller: _employeeCodeCtrl,
                             readOnly: true,
                           ),
-
                           const SizedBox(height: 16),
-
                           InputTextField(
-                            title: 'Tên nhân viên',
+                            title: s.appraisal_employee_name,
                             hintText: '',
                             isRequiredField: widget.isDetail != true,
                             controller: _employeeNameCtrl,
                             readOnly: true,
                           ),
-
                           const SizedBox(height: 16),
-
                           InputTextField(
-                            hintText: "Phòng ban",
+                            hintText: s.employee_card_department,
                             isRequiredField: widget.isDetail != true,
-                            title: "Phòng ban",
+                            title: s.employee_card_department,
                             controller: _deprtmentCtrl,
                             readOnly: true,
                           ),
@@ -242,7 +246,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                             children: [
                               Expanded(
                                 child: InputTextField(
-                                  title: 'Từ ngày',
+                                  title: s.day_off_from,
                                   hintText: '',
                                   isRequiredField: widget.isDetail != true,
                                   controller: _fromDateCtrl,
@@ -257,7 +261,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: InputTextField(
-                                  title: 'Đến ngày',
+                                  title: s.day_off_to,
                                   hintText: '',
                                   isRequiredField: widget.isDetail != true,
                                   controller: _toDateCtrl,
@@ -271,11 +275,9 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                               ),
                             ],
                           ),
-
                           const SizedBox(height: 16),
-
                           InputTextField(
-                            title: 'Cấp trên trực tiếp',
+                            title: s.appraisal_direct_manager,
                             hintText: '',
                             isRequiredField: widget.isDetail != true,
                             controller: _managerNameCtrl,
@@ -285,14 +287,13 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                       ),
                     ),
                   ),
-
                   bottomSheet: SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: SizedBox(
                         height: 48,
                         child: PrimaryButton(
-                          mainText: "Tiếp tục",
+                          mainText: s.appraisal_continue,
                           enable:
                               state.isDetail == true
                                   ? state.loadDetail == LoadStatus.SUCCESS

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class ProjectBarChartCard extends StatefulWidget {
@@ -16,6 +16,7 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
   DateTime _selectedDate = DateTime.now();
 
   void _pickMonth() {
+    final s = S.of(context);
     var tempYear = _selectedDate.year;
     var tempMonth = _selectedDate.month;
 
@@ -37,9 +38,9 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Hủy bỏ',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     ),
                     GestureDetector(
@@ -49,9 +50,9 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
                         });
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Xong',
-                        style: TextStyle(
+                      child: Text(
+                        s.day_off_donebtn,
+                        style: const TextStyle(
                           color: Color(0xFF2E87FF),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -97,7 +98,7 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
                           12,
                           (index) => Center(
                             child: Text(
-                              'Tháng ${index + 1}',
+                              '${s.month} ${index + 1}',
                               style: const TextStyle(fontSize: 18),
                             ),
                           ),
@@ -114,11 +115,12 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
     );
   }
 
-  String get _monthLabel =>
-      DateFormat("'Tháng' MM/yyyy", 'vi').format(_selectedDate);
+  String _monthLabel(BuildContext context) =>
+      '${S.of(context).month} ${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}';
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final data = [
       _Data('1', 90),
       _Data('2', 70),
@@ -131,8 +133,8 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Header(
-            title: 'Bám dự án (%)',
-            trailing: _monthLabel,
+            title: s.appraisal_project_adherence_percent,
+            trailing: _monthLabel(context),
             onTapTrailing: _pickMonth,
           ),
           const SizedBox(height: 16),
@@ -190,9 +192,9 @@ class _ProjectBarChartCardState extends State<ProjectBarChartCard> {
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text(
-                'Xem chi tiết',
-                style: TextStyle(
+              child: Text(
+                s.appraisal_view_detail,
+                style: const TextStyle(
                   color: Color(0xFF2E87FF),
                   fontWeight: FontWeight.w600,
                   fontSize: 14,

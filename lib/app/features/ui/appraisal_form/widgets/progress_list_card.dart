@@ -1,11 +1,14 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ProgressListCard extends StatelessWidget {
   const ProgressListCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final items = [
       _ProgressItem('PM Nodo', 100),
       _ProgressItem('PM Nodo', 80),
@@ -17,7 +20,10 @@ class ProgressListCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _headerRow(title: 'Tiến độ dự án', trailing: '1/4 completed'),
+          _headerRow(
+            title: s.appraisal_project_progress,
+            trailing: s.appraisal_completed_fraction(1, 4),
+          ),
           const SizedBox(height: 16),
           ...items.asMap().entries.map(
             (entry) => Padding(
@@ -39,6 +45,7 @@ class ProgressListCard extends StatelessWidget {
 class _ProgressItem {
   final String label;
   final int percent;
+
   _ProgressItem(this.label, this.percent);
 }
 
@@ -78,7 +85,6 @@ class _ProgressRow extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-
         LayoutBuilder(
           builder: (context, constraints) {
             final barWidth = constraints.maxWidth;
@@ -99,7 +105,6 @@ class _ProgressRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-
                 if (percent > 0)
                   Container(
                     width: filledWidth,
@@ -111,7 +116,6 @@ class _ProgressRow extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-
                 if (percent > 0 && percent < 100)
                   Positioned(
                     left: markerLeft,
@@ -188,6 +192,7 @@ Widget _headerRow({required String title, required String trailing}) {
 
 class _CardContainer extends StatelessWidget {
   final Widget child;
+
   const _CardContainer({required this.child});
 
   @override
@@ -198,7 +203,7 @@ class _CardContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),

@@ -12,6 +12,7 @@ import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_quality_chart
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_quality_suggestion_card.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_quality_task_card.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class WorkQualityDetail extends StatefulWidget {
   const WorkQualityDetail({super.key});
@@ -41,7 +42,10 @@ class _WorkQualityDetailState extends State<WorkQualityDetail> {
     return AppDateUtils.parseFlexibleDate(raw);
   }
 
-  List<WorkQualityTaskItemData> _mapTaskItems(WorkQualityEntity? entity) {
+  List<WorkQualityTaskItemData> _mapTaskItems(
+    WorkQualityEntity? entity,
+    S s,
+  ) {
     final tasks = entity?.taskEvaluations ?? const <TaskEvaluationEntity>[];
 
     return tasks
@@ -62,11 +66,13 @@ class _WorkQualityDetailState extends State<WorkQualityDetail> {
 
           return WorkQualityTaskItemData(
             title: task.taskName ?? '',
-            subtitle:
-                'Đánh giá bởi: ${task.evaluatorName ?? ''} • $subtitleDate',
+            subtitle: s.appraisal_evaluated_by(
+              task.evaluatorName ?? '',
+              subtitleDate,
+            ),
             description: task.feedback ?? '',
             owner: task.assignedEmployeeName ?? '',
-            duration: '${task.executionHours ?? 0} giờ',
+            duration: s.appraisal_hours(task.executionHours ?? 0),
             tags: task.tags ?? const <String>[],
             projectLogo: task.projectLogo ?? '',
           );
@@ -93,13 +99,15 @@ class _WorkQualityDetailState extends State<WorkQualityDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocProvider(
       create: (_) => _cubit,
       child: Scaffold(
         backgroundColor: AppColors.bodyColor,
         extendBodyBehindAppBar: true,
-        appBar: const MyAppBar(
-          titleAppbar: 'Chất lượng công việc',
+        appBar: MyAppBar(
+          titleAppbar: s.appraisal_work_quality_title,
           haveBackButton: true,
         ),
         body: Stack(
@@ -118,7 +126,7 @@ class _WorkQualityDetailState extends State<WorkQualityDetail> {
               child: BlocBuilder<DashboardCubit, DashboardState>(
                 builder: (context, state) {
                   final detail = state.worQualityDetail;
-                  final taskItems = _mapTaskItems(detail);
+                  final taskItems = _mapTaskItems(detail, s);
                   final bars = _buildBars(detail);
 
                   return SingleChildScrollView(
@@ -146,20 +154,20 @@ class _WorkQualityDetailState extends State<WorkQualityDetail> {
                             ),
                           )
                         else if (state.workQualityStatus == LoadStatus.FAILURE)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
                             child: Center(
                               child: Text(
-                                'Không tải được dữ liệu',
-                                style: TextStyle(color: Colors.red),
+                                s.appraisal_load_failed,
+                                style: const TextStyle(color: Colors.red),
                               ),
                             ),
                           )
                         else if (taskItems.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 24),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
                             child: Center(
-                              child: Text('Không có đánh giá trong tháng này'),
+                              child: Text(s.appraisal_no_review_this_month),
                             ),
                           )
                         else

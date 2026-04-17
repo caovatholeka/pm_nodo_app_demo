@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+  import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/suggest_id_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class AppraisalStepOpinion extends StatelessWidget {
   final List<SuggestIdEntity> suggests;
@@ -16,12 +17,17 @@ class AppraisalStepOpinion extends StatelessWidget {
     this.isLeaderReview = false,
   });
 
-  Color get _sectionBg => isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
-  Color get _accent => isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
-  Color get _titleColor => isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
+  Color get _sectionBg =>
+      isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
+  Color get _accent =>
+      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
+  Color get _titleColor =>
+      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
@@ -38,9 +44,9 @@ class AppraisalStepOpinion extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'IV. Ý kiến - Đề xuất',
-                    style: TextStyle(
+                  Text(
+                    s.appraisal_step_opinion,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF374151),
@@ -68,7 +74,9 @@ class AppraisalStepOpinion extends StatelessWidget {
                   final item = suggests[i];
 
                   return Padding(
-                    padding: EdgeInsets.only(bottom: i == suggests.length - 1 ? 0 : 14),
+                    padding: EdgeInsets.only(
+                      bottom: i == suggests.length - 1 ? 0 : 14,
+                    ),
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
@@ -118,7 +126,7 @@ class AppraisalStepOpinion extends StatelessWidget {
                           const SizedBox(height: 10),
                           InputTextField(
                             title: '',
-                            hintText: 'Nhập ý kiến / đề xuất...',
+                            hintText: s.appraisal_suggestion_hint,
                             controller: controllers[i],
                             maxLine: 4,
                             isRequiredField: false,

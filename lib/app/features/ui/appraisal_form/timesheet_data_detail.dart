@@ -12,6 +12,7 @@ import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data_it
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class TimesheetDataDetail extends StatefulWidget {
   const TimesheetDataDetail({super.key});
@@ -25,8 +26,8 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
 
   DateTime get _selectedDate => DateTime(DateTime.now().year, _selectedMonth);
 
-  String get _monthLabel =>
-      DateFormat("'Tháng' MM/yyyy", 'vi_VN').format(_selectedDate);
+  String _monthLabel(BuildContext context) =>
+      '${S.of(context).month} ${DateFormat('MM/yyyy').format(_selectedDate)}';
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
   }
 
   void _pickMonth() {
+    final s = S.of(context);
     int tempMonth = _selectedMonth;
 
     showModalBottomSheet(
@@ -74,9 +76,9 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     ),
                     GestureDetector(
@@ -90,9 +92,9 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                         );
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Xong',
-                        style: TextStyle(
+                      child: Text(
+                        s.day_off_donebtn,
+                        style: const TextStyle(
                           color: Color(0xFF2E87FF),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -115,7 +117,7 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                     12,
                     (i) => Center(
                       child: Text(
-                        'Tháng ${(i + 1).toString().padLeft(2, '0')}',
+                        '${s.month} ${(i + 1).toString().padLeft(2, '0')}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -132,12 +134,12 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
     );
   }
 
-  String _buildTitle(ItemsEntity item) {
+  String _buildTitle(ItemsEntity item, S s) {
     final title = item.title?.trim();
     final count = item.count;
 
     if (title == null || title.isEmpty) {
-      return count == null ? '--' : 'Mục $count';
+      return count == null ? '--' : s.appraisal_item_count(count);
     }
 
     if (count == null) {
@@ -148,7 +150,7 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
       return title;
     }
 
-    return '$title ($count lần)';
+    return s.appraisal_occurrence_count(title, count);
   }
 
   _AttendanceStyle _resolveStyle(ItemsEntity item) {
@@ -236,10 +238,12 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: MyAppBar(
-        titleAppbar: 'Dữ liệu chấm công',
+        titleAppbar: s.appraisal_timesheet_title,
         haveBackButton: true,
         haveActionButton: true,
         iconPathAsset: AppAssets.icNotificationBell,
@@ -274,7 +278,10 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                       children: [
                         const _TimesheetHeader(),
                         const SizedBox(height: 18),
-                        _MonthSelector(label: _monthLabel, onTap: _pickMonth),
+                        _MonthSelector(
+                          label: _monthLabel(context),
+                          onTap: _pickMonth,
+                        ),
                         const SizedBox(height: 16),
                         Expanded(
                           child: Builder(
@@ -286,17 +293,16 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                               }
 
                               if (state.timesheetStatus == LoadStatus.FAILURE) {
-                                return const _TimesheetStatusCard(
-                                  message: 'Không tải được dữ liệu chấm công',
-                                  textColor: Color(0xFFE53935),
+                                return _TimesheetStatusCard(
+                                  message: s.appraisal_timesheet_load_failed,
+                                  textColor: const Color(0xFFE53935),
                                 );
                               }
 
                               if (items.isEmpty) {
-                                return const _TimesheetStatusCard(
-                                  message:
-                                      'Không có dữ liệu chấm công trong tháng này',
-                                  textColor: Color(0xFF6B7280),
+                                return _TimesheetStatusCard(
+                                  message: s.appraisal_timesheet_empty,
+                                  textColor: const Color(0xFF6B7280),
                                 );
                               }
 
@@ -308,12 +314,12 @@ class _TimesheetDataDetailState extends State<TimesheetDataDetail> {
                                 itemBuilder: (_, index) {
                                   final item = items[index];
                                   final style = _resolveStyle(item);
-                                  final title = _buildTitle(item);
+                                  final title = _buildTitle(item, s);
                                   final subtitle =
                                       item.description?.trim().isNotEmpty ==
                                               true
                                           ? item.description!.trim()
-                                          : 'Không có mô tả';
+                                          : s.appraisal_no_description;
 
                                   return AttendanceItem(
                                     title: title,
@@ -402,6 +408,8 @@ class _TimesheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Row(
       children: [
         Container(
@@ -418,10 +426,10 @@ class _TimesheetHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           child: Text(
-            'Dữ liệu chấm công',
-            style: TextStyle(
+            s.appraisal_timesheet_title,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: Color(0xFF334155),

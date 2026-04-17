@@ -100,6 +100,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
 
     return BlocListener<ApprasialFormCubit, ApprasialFormState>(
       bloc: _cubit,
@@ -109,11 +110,11 @@ class _AppraisalPageState extends State<AppraisalPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: MyAppBar(
-                titleAppbar: "Danh sách đánh giá CV",
-                haveBackButton: true,
-                haveActionButton: true,
-                iconPathAsset: AppAssets.icNotificationBell,
-                actionCallBack: _goNotification,
+            titleAppbar: s.appraisal_list_title,
+            haveBackButton: true,
+            haveActionButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
+            actionCallBack: _goNotification,
           ),
         ),
         body: Column(
@@ -144,27 +145,6 @@ class _AppraisalPageState extends State<AppraisalPage> {
                       ),
                     ),
                   ),
-                  // const SizedBox(width: 12),
-                  // InkWell(
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (_) => const CreateAppraisalForm(),
-                  //       ),
-                  //     );
-                  //   },
-                  //   borderRadius: BorderRadius.circular(10),
-                  //   child: Container(
-                  //     width: 44,
-                  //     height: 44,
-                  //     decoration: BoxDecoration(
-                  //       color: AppColors.mainPrimaryColor6,
-                  //       borderRadius: BorderRadius.circular(10),
-                  //     ),
-                  //     child: const Icon(Icons.add, color: Colors.white),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -186,7 +166,7 @@ class _AppraisalPageState extends State<AppraisalPage> {
 
                   if (state.listEvaluations == null ||
                       state.listEvaluations!.isEmpty) {
-                    return Center(child: Text(S.of(context).bt_empty));
+                    return Center(child: Text(s.bt_empty));
                   }
 
                   return RefreshIndicator(

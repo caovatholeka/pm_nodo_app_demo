@@ -1,13 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter_app_badge/flutter_app_badge.dart';
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/profile_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_entry_type_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_flow_stage_entity.dart';
-import 'package:quick_actions/quick_actions.dart';
 
 import '../../core/commons/global_data.dart';
 import '../../core/helper/response_mapper.dart';
@@ -27,8 +25,6 @@ class AppCubit extends Cubit<AppState> {
 
   AppCubit({required this.authRepository, required this.userRepository})
     : super(AppState());
-
-  final QuickActions _quickActions = const QuickActions();
 
   Future<void> changeAppLanguage(String code) async {
     try {
@@ -125,22 +121,40 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-Future<void> countUnreadNoti() async {
-  try {
-    final res = await userRepository.countUnreadNoti();
+  Future<void> countUnreadNoti() async {
+    try {
+      final res = await userRepository.countUnreadNoti();
 
-    if (res.code == 200) {
-      final data = res.data as Map<String, dynamic>;
-      final unread = data['unread_count'] ?? 0;
+      if (res.code == 200) {
+        final data = res.data as Map<String, dynamic>;
+        final unread = (data['unread_count'] as num?)?.toInt() ?? 0;
 
-      emit(state.copyWith(totalUnread: unread));
-      FlutterAppBadge.count(unread);
+        syncUnreadCount(unread);
+      }
+    } catch (e, s) {
+      logger.e("countUnreadNoti error: $e");
+      logger.d("stack: $s");
     }
-  } catch (e, s) {
-    logger.e("countUnreadNoti error: $e");
-    logger.d("stack: $s");
   }
-}
+
+  void syncUnreadCount(int unread) {
+    final normalizedUnread = unread < 0 ? 0 : unread;
+    emit(state.copyWith(totalUnread: normalizedUnread));
+    _syncAppBadge(normalizedUnread);
+  }
+
+  void clearUnreadNoti() {
+    syncUnreadCount(0);
+  }
+
+  void _syncAppBadge(int unread) {
+    try {
+      FlutterAppBadge.count(unread);
+    } catch (e, s) {
+      logger.e("sync app badge error: $e");
+      logger.d("stack: $s");
+    }
+  }
 
 
 

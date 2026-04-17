@@ -519,5 +519,134 @@
   
   "delete_confirm":"Xoá yêu cầu",
   "delete_subtile":"Bạn có chắc muốn xoá yêu cầu này không?",
-  "delete_subtitle1":"Thao tác này không thể hoàn tác"
+  "delete_subtitle1":"Thao tác này không thể hoàn tác",
+
+  "shortCut1":"Việc cần làm",
+  "shortCut2":"Chấm công",
+  "shortCut3":"Nghỉ phép",
+
+  "appraisal_list_title": "Phiếu đánh giá",
+  "appraisal_form_title": "Phiếu đánh giá",
+  "appraisal_create_title": "Tạo phiếu đánh giá",
+  "appraisal_employee_code": "Mã nhân viên",
+  "appraisal_employee_name": "Tên nhân viên",
+  "appraisal_direct_manager": "Quản lý trực tiếp",
+  "appraisal_continue": "Tiếp tục",
+  "appraisal_coefficient": "Hệ số",
+  "appraisal_total_score": "Tổng điểm",
+  "appraisal_next": "Tiếp theo",
+  "appraisal_back": "Quay lại",
+  "appraisal_tab_form": "Phiếu tự đánh giá",
+  "appraisal_tab_direct_manager": "Quản lý trực tiếp",
+  "appraisal_step_opinion": "Ý kiến",
+  "appraisal_step_responsibility": "Tinh thần trách nhiệm",
+  "appraisal_step_result_work": "Kết quả công việc",
+  "appraisal_step_result_work_tasks": "Kết quả thực hiện công việc",
+  "appraisal_step_skill": "Kỹ năng",
+  "appraisal_step_direct_manager_rate": "Đánh giá của quản lý trực tiếp",
+  "appraisal_responsibility_criteria": "Tiêu chí trách nhiệm",
+  "appraisal_responsibility_description": "Mô tả",
+  "appraisal_comment_detail": "Chi tiết nhận xét",
+  "appraisal_evidence": "Minh chứng",
+  "appraisal_evidence_hint": "Nhập minh chứng",
+  "appraisal_rating_note": "Đánh giá từng tiêu chí từ 1 đến 5 sao",
+  "appraisal_task_done": "Công việc đã thực hiện",
+  "appraisal_task_done_hint": "Nhập công việc đã thực hiện",
+  "appraisal_weight_percent": "Trọng số (%)",
+  "appraisal_weight_percent_hint": "Nhập trọng số phần trăm",
+  "appraisal_metric_volume": "Khối lượng CV",
+  "appraisal_metric_quality": "Chất lượng CV",
+  "appraisal_metric_progress": "Tiến độ CV",
+  "appraisal_metric_volume_numbered": "1. Khối lượng CV",
+  "appraisal_metric_quality_numbered": "2. Chất lượng CV",
+  "appraisal_metric_progress_numbered": "3. Tiến độ CV",
+  "appraisal_adjustment_feedback": "Ý kiến điều chỉnh",
+  "appraisal_skill_criteria": "Tiêu chí kỹ năng",
+  "appraisal_skill_description": "Mô tả",
+  "appraisal_suggestion_hint": "Nhập ý kiến của bạn",
+  "appraisal_work_quality_title": "Chất lượng công việc",
+  "appraisal_birthday_month_title": "Sinh nhật trong tháng",
+  "appraisal_discipline_title": "Đánh giá nề nếp",
+  "appraisal_status_hr_review": "HR duyệt",
+  "appraisal_status_cancelled": "Đã hủy",
+  "appraisal_leave_request": "Đơn nghỉ phép",
+  "appraisal_overtime_request": "Đơn tăng ca",
+  "appraisal_late_early_request": "Đơn đi muộn/về sớm",
+  "appraisal_onsite_request": "Đơn công tác",
+  "appraisal_wfh_request": "Đơn WFH",
+  "appraisal_request": "Đơn từ",
+  "appraisal_task_list_today": "Danh sách việc hôm nay",
+  "appraisal_deadline": "Hạn chót",
+  "appraisal_load_failed": "Không tải được dữ liệu.",
+  "appraisal_no_tasks": "Không có công việc nào.",
+  "appraisal_no_task": "Không có công việc.",
+  "appraisal_no_project_available": "Không có dự án",
+  "appraisal_project_title": "Dự án",
+  "appraisal_project_list": "Danh sách dự án",
+  "appraisal_no_projects": "Không có dự án nào.",
+  "appraisal_assigned_employee": "Nhân viên phụ trách",
+  "appraisal_stage": "Giai đoạn",
+  "appraisal_tag": "Thẻ",
+  "appraisal_assignee": "Người thực hiện",
+  "appraisal_execution_time": "Thời gian thực hiện",
+  "appraisal_suggestion_title": "Đề xuất cải thiện",
+  "appraisal_optional": "Không bắt buộc",
+  "appraisal_suggestion_empty": "Vui lòng nhập đề xuất.",
+  "appraisal_suggestion_success": "Gửi đề xuất thành công.",
+  "appraisal_suggestion_failed": "Gửi đề xuất thất bại.",
+  "appraisal_suggestion_hint_long": "Nhập đề xuất để cải thiện chất lượng công việc",
+  "appraisal_timesheet_title": "Dữ liệu chấm công",
+  "appraisal_timesheet_load_failed": "Không tải được dữ liệu chấm công.",
+  "appraisal_timesheet_empty": "Không có dữ liệu chấm công.",
+  "appraisal_no_description": "Không có mô tả",
+  "appraisal_no_review_this_month": "Không có đánh giá trong tháng này.",
+  "appraisal_score": "Điểm",
+  "appraisal_no_birthdays_this_month": "Không có sinh nhật trong tháng này.",
+  "appraisal_occurrence_label": "Số lần",
+  "appraisal_on_time": "Đúng giờ",
+  "appraisal_absent": "Vắng mặt",
+  "appraisal_late_early_summary": "Muộn/Sớm",
+  "appraisal_leave_label": "Nghỉ phép",
+  "appraisal_comment_added_new": "đã thêm",
+  "appraisal_comment_label": "bình luận",
+  "appraisal_likes": "Lượt thích",
+  "appraisal_replies": "Phản hồi",
+  "appraisal_comment_hint": "Nhập bình luận...",
+  "appraisal_send": "Gửi",
+  "appraisal_project_adherence_percent": "Bám dự án (%)",
+  "appraisal_view_detail": "Xem chi tiết",
+  "appraisal_project_progress": "Tiến độ dự án",
+  "appraisal_item_count": "{count} mục",
+  "@appraisal_item_count": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "appraisal_occurrence_count": "{title} ({count})",
+  "@appraisal_occurrence_count": {
+    "placeholders": {
+      "title": {},
+      "count": {}
+    }
+  },
+  "appraisal_evaluated_by": "Đánh giá bởi {name} vào {date}",
+  "@appraisal_evaluated_by": {
+    "placeholders": {
+      "name": {},
+      "date": {}
+    }
+  },
+  "appraisal_hours": "{count} giờ",
+  "@appraisal_hours": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "appraisal_completed_fraction": "{completed}/{total} đã hoàn thành",
+  "@appraisal_completed_fraction": {
+    "placeholders": {
+      "completed": {},
+      "total": {}
+    }
+  }
 }

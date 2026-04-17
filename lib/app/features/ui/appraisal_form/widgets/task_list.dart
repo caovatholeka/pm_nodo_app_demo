@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/data/models/entities/tasks_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class TaskList extends StatelessWidget {
   final VoidCallback? onTap;
@@ -29,6 +30,8 @@ class TaskList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
@@ -52,10 +55,10 @@ class TaskList extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Danh sách việc cần làm hôm nay',
-                        style: TextStyle(
+                        s.appraisal_task_list_today,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -82,17 +85,17 @@ class TaskList extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 )
               else if (state.taskStatus == LoadStatus.FAILURE)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Text(
-                    'Không tải được dữ liệu',
-                    style: TextStyle(color: Colors.red),
+                    s.appraisal_load_failed,
+                    style: const TextStyle(color: Colors.red),
                   ),
                 )
               else if (tasks.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
-                  child: Text('Không có công việc'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Text(s.appraisal_no_tasks),
                 )
               else
                 ListView.builder(
@@ -116,9 +119,10 @@ class TaskList extends StatelessWidget {
                             Icon(
                               Icons.star,
                               size: 22,
-                              color: isDone
-                                  ? Colors.grey.shade300
-                                  : const Color(0xFFFBBF24),
+                              color:
+                                  isDone
+                                      ? Colors.grey.shade300
+                                      : const Color(0xFFFBBF24),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -131,26 +135,30 @@ class TaskList extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 15,
-                                      fontWeight: isDone
-                                          ? FontWeight.normal
-                                          : FontWeight.bold,
-                                      decoration: isDone
-                                          ? TextDecoration.lineThrough
-                                          : null,
-                                      color: isDone
-                                          ? Colors.grey
-                                          : Colors.black87,
+                                      fontWeight:
+                                          isDone
+                                              ? FontWeight.normal
+                                              : FontWeight.bold,
+                                      decoration:
+                                          isDone
+                                              ? TextDecoration.lineThrough
+                                              : null,
+                                      color:
+                                          isDone
+                                              ? Colors.grey
+                                              : Colors.black87,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Deadline:  ${_formatDeadline(task.deadline)}',
+                                    '${s.appraisal_deadline}: ${_formatDeadline(task.deadline)}',
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.grey.shade600,
-                                      decoration: isDone
-                                          ? TextDecoration.lineThrough
-                                          : null,
+                                      decoration:
+                                          isDone
+                                              ? TextDecoration.lineThrough
+                                              : null,
                                     ),
                                   ),
                                 ],

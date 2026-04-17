@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -87,6 +88,7 @@ class _AccountPageState extends State<AccountPage> {
 
             await SharedPrefsHelper.saveToken(null);
             await SharedPrefsHelper.setIsLoginApp(false);
+            GetIt.I<AppCubit>().clearUnreadNoti();
             GlobalData.instance.bottomNavIndex.value = 0;
 
             if (!mounted) return;

@@ -146,13 +146,16 @@ class _TaskManagePageState extends State<TaskManagePage> {
         }
       },
       builder: (context, state) {
+        final canShowBackButton =
+            widget.isFromHome ?? Navigator.of(context).canPop();
+
         return Scaffold(
           backgroundColor: AppColors.bodyColor,
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(kToolbarHeight),
             child: MyAppBar(
                   titleAppbar: s.to_do_detail_title,
-                  haveBackButton: widget.isFromHome ?? false,
+                  haveBackButton: canShowBackButton,
                   haveActionButton: true,
                   iconPathAsset: AppAssets.icNotificationBell,
                   actionCallBack: () async {

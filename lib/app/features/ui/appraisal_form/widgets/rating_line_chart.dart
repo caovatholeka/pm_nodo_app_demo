@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class RatingSummaryCard extends StatefulWidget {
   final VoidCallback? onTap;
@@ -22,8 +22,8 @@ class RatingSummaryCard extends StatefulWidget {
 class _RatingSummaryCardState extends State<RatingSummaryCard> {
   DateTime _selectedDate = DateTime.now();
 
-  String get _monthLabel =>
-      DateFormat("'Tháng' MM/yyyy", 'vi_VN').format(_selectedDate);
+  String _monthLabel(BuildContext context) =>
+      '${S.of(context).month} ${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}';
 
   @override
   void initState() {
@@ -38,6 +38,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
   }
 
   void _pickMonth() {
+    final s = S.of(context);
     int tempYear = _selectedDate.year;
     int tempMonth = _selectedDate.month;
 
@@ -62,9 +63,9 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     ),
                     GestureDetector(
@@ -82,9 +83,9 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
 
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Xong',
-                        style: TextStyle(
+                      child: Text(
+                        s.day_off_donebtn,
+                        style: const TextStyle(
                           color: Color(0xFF2E87FF),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -133,7 +134,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                           12,
                           (i) => Center(
                             child: Text(
-                              'Tháng ${(i + 1).toString().padLeft(2, '0')}',
+                              '${s.month} ${(i + 1).toString().padLeft(2, '0')}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -155,6 +156,8 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: widget.onTap,
@@ -190,10 +193,10 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Đánh giá nề nếp',
-                    style: TextStyle(
+                    s.appraisal_discipline_title,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -216,7 +219,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                         SvgPicture.asset(AppAssets.icCalendar, width: 14),
                         const SizedBox(width: 6),
                         Text(
-                          _monthLabel,
+                          _monthLabel(context),
                           style: const TextStyle(fontSize: 12),
                         ),
                         const Icon(Icons.keyboard_arrow_down, size: 18),
@@ -241,9 +244,9 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     alignment: Alignment.center,
-                    child: const Text(
-                      'Không tải được dữ liệu',
-                      style: TextStyle(color: Colors.red),
+                    child: Text(
+                      s.appraisal_load_failed,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   );
                 }
@@ -261,7 +264,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                       Expanded(
                         child: _SummaryItem(
                           value: '${data?.onTimePercent ?? 0}%',
-                          label: 'Đúng giờ',
+                          label: s.appraisal_on_time,
                           color: const Color(0xFF7C3AED),
                         ),
                       ),
@@ -269,7 +272,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                       Expanded(
                         child: _SummaryItem(
                           value: '${data?.absentCount ?? 0}',
-                          label: 'Vắng mặt',
+                          label: s.appraisal_absent,
                           color: const Color(0xFFEF4444),
                         ),
                       ),
@@ -277,7 +280,7 @@ class _RatingSummaryCardState extends State<RatingSummaryCard> {
                       Expanded(
                         child: _SummaryItem(
                           value: '${data?.lateEarlyCount ?? 0}',
-                          label: 'Muộn/Sớm',
+                          label: s.appraisal_late_early_summary,
                           color: const Color(0xFFF59E0B),
                         ),
                       ),

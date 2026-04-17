@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/request_summary_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../cubit/dashboard_cubit.dart';
 
@@ -51,20 +52,22 @@ class WorkStatusCard extends StatelessWidget {
     }
   }
 
-  String _defaultLabel(String key) {
+  String _defaultLabel(BuildContext context, String key) {
+    final s = S.of(context);
+
     switch (key) {
       case 'leave':
-        return 'Đơn nghỉ phép';
+        return s.appraisal_leave_request;
       case 'overtime':
-        return 'Đơn xin OT';
+        return s.appraisal_overtime_request;
       case 'late_early':
-        return 'Đơn muộn/sớm';
+        return s.appraisal_late_early_request;
       case 'onsite':
-        return 'Đơn Onsite';
+        return s.appraisal_onsite_request;
       case 'wfh':
-        return 'Đơn WFH';
+        return s.appraisal_wfh_request;
       default:
-        return 'Đơn';
+        return s.appraisal_request;
     }
   }
 
@@ -107,7 +110,7 @@ class WorkStatusCard extends StatelessWidget {
                 final item = _find(list, key);
 
                 return _itemCard(
-                  title: item?.label ?? _defaultLabel(key),
+                  title: item?.label ?? _defaultLabel(context, key),
                   value: item?.count ?? 0,
                   icon: _iconForKey(key),
                   badgeBgColor: _badgeBgColors[key] ?? const Color(0xFFF3F4F6),
@@ -119,7 +122,7 @@ class WorkStatusCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _horizontalItemCard(
-              title: wfhItem?.label ?? _defaultLabel('wfh'),
+              title: wfhItem?.label ?? _defaultLabel(context, 'wfh'),
               value: wfhItem?.count ?? 0,
               icon: _iconForKey('wfh'),
               badgeBgColor: _badgeBgColors['wfh'] ?? const Color(0xFFF3F4F6),
@@ -279,7 +282,7 @@ Widget _horizontalItemCard({
           Expanded(
             child: Text(
               title,
-            style: const TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: Color(0xFF616B7A),
                 fontWeight: FontWeight.w500,

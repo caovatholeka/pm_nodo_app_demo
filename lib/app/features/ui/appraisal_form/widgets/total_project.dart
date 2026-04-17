@@ -5,6 +5,7 @@ import 'package:pm_app/app/data/models/entities/tasks_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/param/projects_param.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class TotalProject extends StatelessWidget {
   final VoidCallback? onTap;
@@ -16,6 +17,8 @@ class TotalProject extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -34,10 +37,10 @@ class TotalProject extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Dự án',
-                  style: TextStyle(
+                  s.appraisal_project_title,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -45,9 +48,9 @@ class TotalProject extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: onTap,
-                child: const Text(
-                  'Xem tất cả',
-                  style: TextStyle(
+                child: Text(
+                  s.to_do_all,
+                  style: const TextStyle(
                     color: Color(0xFF2563EB),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -74,6 +77,8 @@ class ProjectTaskSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         final visibleTasks = state.projectTasks;
@@ -96,20 +101,20 @@ class ProjectTaskSection extends StatelessWidget {
                 ),
               )
             else if (state.projectStatus == LoadStatus.FAILURE)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(
-                    'Không tải được dữ liệu',
-                    style: TextStyle(color: Colors.red),
+                    s.appraisal_load_failed,
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
               )
             else if (visibleTasks.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: Text('Không có task'),
+                  child: Text(s.appraisal_no_task),
                 ),
               )
             else
@@ -145,6 +150,8 @@ class ProjectPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: isLoading ? null : () => _showProjectBottomSheet(context),
@@ -158,7 +165,7 @@ class ProjectPicker extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                selectedProjectName ?? 'Chưa có dự án nào',
+                selectedProjectName ?? s.appraisal_no_project_available,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -169,7 +176,10 @@ class ProjectPicker extends StatelessWidget {
               const SizedBox(
                 width: 18,
                 height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.blue,),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.blue,
+                ),
               )
             else
               const Icon(Icons.keyboard_arrow_down),
@@ -181,6 +191,7 @@ class ProjectPicker extends StatelessWidget {
 
   void _showProjectBottomSheet(BuildContext context) {
     final cubit = context.read<DashboardCubit>();
+    final s = S.of(context);
 
     showModalBottomSheet(
       context: context,
@@ -205,11 +216,11 @@ class ProjectPicker extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Row(
+                Row(
                   children: [
                     Text(
-                      'Danh sách dự án',
-                      style: TextStyle(
+                      s.appraisal_project_list,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -218,9 +229,9 @@ class ProjectPicker extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 if (projects.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Text('Không có dự án'),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(s.appraisal_no_projects),
                   )
                 else
                   ...projects.map(
@@ -252,14 +263,15 @@ class ProjectSheetTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: state.projectStatus == LoadStatus.LOADING
-            ? null
-            : () async {
-                final cubit = context.read<DashboardCubit>();
-                cubit.selectProject(project);
-                Navigator.pop(context);
-                await cubit.getProjectTasks(projectId: project.projectID);
-              },
+        onTap:
+            state.projectStatus == LoadStatus.LOADING
+                ? null
+                : () async {
+                  final cubit = context.read<DashboardCubit>();
+                  cubit.selectProject(project);
+                  Navigator.pop(context);
+                  await cubit.getProjectTasks(projectId: project.projectID);
+                },
         child: Container(
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -268,9 +280,10 @@ class ProjectSheetTile extends StatelessWidget {
                 isSelected ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected
-                  ? const Color(0xFF93C5FD)
-                  : const Color(0xFFE5E7EB),
+              color:
+                  isSelected
+                      ? const Color(0xFF93C5FD)
+                      : const Color(0xFFE5E7EB),
             ),
           ),
           child: Row(
@@ -280,8 +293,7 @@ class ProjectSheetTile extends StatelessWidget {
                   project.projectName ?? '',
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: const Color(0xFF111827),
                   ),
                 ),
@@ -319,6 +331,7 @@ class ProjectTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     final tag =
         (task.tags != null && task.tags!.isNotEmpty) ? task.tags!.first : '';
     final isFavorite = task.isFavorite == true;
@@ -360,7 +373,7 @@ class ProjectTaskCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Deadline: ${_formatDeadline(task.deadline)}',
+                      '${s.appraisal_deadline}: ${_formatDeadline(task.deadline)}',
                       style: const TextStyle(
                         fontSize: 13,
                         color: Color(0xFF808080),
@@ -379,7 +392,7 @@ class ProjectTaskCard extends StatelessWidget {
               Expanded(
                 flex: 5,
                 child: _InfoColumn(
-                  title: 'NV được phân công',
+                  title: s.appraisal_assigned_employee,
                   value: task.assignedEmployeeName ?? '',
                   valueColor: const Color(0xFF1677FF),
                 ),
@@ -388,7 +401,7 @@ class ProjectTaskCard extends StatelessWidget {
               Expanded(
                 flex: 4,
                 child: _InfoColumn(
-                  title: 'Giai đoạn',
+                  title: s.appraisal_stage,
                   value: task.stage ?? '',
                 ),
               ),
@@ -396,7 +409,7 @@ class ProjectTaskCard extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: _InfoColumn(
-                  title: 'Thẻ',
+                  title: s.appraisal_tag,
                   value: tag,
                 ),
               ),

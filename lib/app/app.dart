@@ -7,9 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:get_it/get_it.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/repositories/dashboard_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
@@ -51,8 +49,6 @@ import 'features/ui/checkin/bloc/face_scan_cubit.dart';
 import 'features/ui/splash/splash_cubit.dart';
 import 'features/ui/account/account_cubit.dart';
 
-final getIt = GetIt.instance;
-
 class MyApp extends StatefulWidget {
   MyApp({super.key}) {
     final router = FluroRouter();
@@ -85,15 +81,6 @@ class _MyAppState extends State<MyApp> {
     );
 
     _listenServerBusyEvent();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final pending = GlobalData.instance.quickActionPending;
-      if (pending != null &&
-          GlobalData.instance.navigatorKey.currentState != null) {
-        QuickNavigator.navigate(pending);
-        GlobalData.instance.quickActionPending = null;
-      }
-    });
   }
 
   Future<void> _loadSavedLanguage() async {
@@ -168,6 +155,7 @@ class _MyAppState extends State<MyApp> {
 
             await SharedPrefsHelper.saveToken(null);
             GlobalData.instance.token = null;
+            sl<AppCubit>().clearUnreadNoti();
 
             GlobalData.instance.navigatorKey.currentState?.pushNamedAndRemoveUntil(
               Routes.login,
@@ -187,7 +175,7 @@ class _MyAppState extends State<MyApp> {
 
   List<SingleChildWidget> _buildBlocProviders() {
     return [
-      BlocProvider(create: (context) => sl<AppCubit>()),
+      BlocProvider(create: (context) => sl<AppCubit>()..countUnreadNoti()),
       BlocProvider(create: (context) => sl<NotiCubit>()..countUnreadNoti()),
       BlocProvider(create: (context) => sl<SplashCubit>()),
       BlocProvider(create: (context) => sl<OnLeaveCubit>()),
@@ -246,6 +234,7 @@ class _MyAppState extends State<MyApp> {
                       Navigator.of(context, rootNavigator: true).pop();
                       context.read<AppCubit>().resetTokenExpired();
                       await SharedPrefsHelper.saveToken(null);
+                      context.read<AppCubit>().clearUnreadNoti();
                       GlobalData.instance.navigatorKey.currentState
                           ?.pushNamedAndRemoveUntil(
                             Routes.login,

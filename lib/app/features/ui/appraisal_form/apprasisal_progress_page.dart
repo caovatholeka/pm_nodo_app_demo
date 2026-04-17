@@ -10,6 +10,7 @@ import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_skill
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../data/models/entities/task_line_id_entity.dart';
 
@@ -100,7 +101,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     _coefCtrl.text = _totalTaskRate(listTasks).toString();
   }
 
-  void _fillDetailStep2(CreateAppraisalState state, {required bool isLeaderReview}) {
+  void _fillDetailStep2(
+    CreateAppraisalState state, {
+    required bool isLeaderReview,
+  }) {
     final responses = state.detailEvaluation?.responseIds;
 
     _ensureStepCapacity(1, responses?.length ?? 0);
@@ -119,7 +123,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     }
   }
 
-  void _fillDetailStep3(CreateAppraisalState state, {required bool isLeaderReview}) {
+  void _fillDetailStep3(
+    CreateAppraisalState state, {
+    required bool isLeaderReview,
+  }) {
     final skills = state.detailEvaluation?.skillIds;
 
     _ensureStepCapacity(2, skills?.length ?? 0);
@@ -152,7 +159,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     }
   }
 
-  void _fillTotalByStep(CreateAppraisalState state, {required bool isLeaderReview}) {
+  void _fillTotalByStep(
+    CreateAppraisalState state, {
+    required bool isLeaderReview,
+  }) {
     final detail = state.detailEvaluation;
     if (detail == null) {
       _totalCtrl.clear();
@@ -216,13 +226,6 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     }
   }
 
-  // bool get _canNext {
-  //   if (_currentStep <= 2) {
-  //     final ratings = _ratingsPerStep[_currentStep];
-  //     return ratings.every((r) => r > 0);
-  //   }
-  //   return true;
-  // }
   bool get _canNext => true;
 
   Widget _buildStepper() {
@@ -264,7 +267,6 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                   ),
                 ),
               ),
-
               if (index < 3)
                 Container(
                   width: lineWidth,
@@ -301,9 +303,9 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                 height: circleSize,
                 decoration: BoxDecoration(
                   color:
-                  isActive || isCompleted
-                      ? const Color(0xFF7030A0)
-                      : Colors.white,
+                      isActive || isCompleted
+                          ? const Color(0xFF7030A0)
+                          : Colors.white,
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFF7030A0), width: 2),
                 ),
@@ -314,23 +316,22 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color:
-                      isActive || isCompleted
-                          ? Colors.white
-                          : const Color(0xFF7030A0),
+                          isActive || isCompleted
+                              ? Colors.white
+                              : const Color(0xFF7030A0),
                     ),
                   ),
                 ),
               ),
-
               if (index < 3)
                 Container(
                   width: lineWidth,
                   height: 2,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   color:
-                  isCompleted
-                      ? const Color(0xFF7030A0)
-                      : const Color(0xFF7030A0).withValues(alpha: 0.25),
+                      isCompleted
+                          ? const Color(0xFF7030A0)
+                          : const Color(0xFF7030A0).withValues(alpha: 0.25),
                 ),
             ],
           );
@@ -339,7 +340,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     );
   }
 
-  Widget _headerProgress() {
+  Widget _headerProgress(S s) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Row(
@@ -347,19 +348,17 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           Expanded(
             child: InputTextField(
               title: '',
-              hintText: 'Hệ số',
+              hintText: s.appraisal_coefficient,
               controller: _coefCtrl,
               readOnly: true,
               isRequiredField: false,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: InputTextField(
               title: '',
-              hintText: 'Tổng điểm',
+              hintText: s.appraisal_total_score,
               controller: _totalCtrl,
               readOnly: true,
               isRequiredField: false,
@@ -370,12 +369,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     );
   }
 
-  Widget _secondHeader() {
+  Widget _secondHeader(S s) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: InputTextField(
         title: '',
-        hintText: 'Tổng điểm',
+        hintText: s.appraisal_total_score,
         controller: _totalCtrl,
         readOnly: true,
         isRequiredField: false,
@@ -383,10 +382,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     );
   }
 
-  Widget _buildHeaderByStep() {
-    if (_currentStep == 0) return _headerProgress();
-    if (_currentStep == 1) return _secondHeader();
-    if (_currentStep == 2) return _secondHeader();
+  Widget _buildHeaderByStep(S s) {
+    if (_currentStep == 0) return _headerProgress(s);
+    if (_currentStep == 1) return _secondHeader(s);
+    if (_currentStep == 2) return _secondHeader(s);
 
     return const SizedBox.shrink();
   }
@@ -399,7 +398,11 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     _fillTotalByStep(state, isLeaderReview: isLeaderReview);
   }
 
-  Widget _buildStepContent(bool isDetail, CreateAppraisalState state, bool isLeaderReview) {
+  Widget _buildStepContent(
+    bool isDetail,
+    CreateAppraisalState state,
+    bool isLeaderReview,
+  ) {
     if (_currentStep == 0) {
       return AppraisalStepResultWork(
         isLeaderReview: isLeaderReview,
@@ -427,7 +430,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
             _ratingsPerStep[1][i] = v;
           });
         },
-        isLeaderReview: isLeaderReview
+        isLeaderReview: isLeaderReview,
       );
     }
 
@@ -441,19 +444,21 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
             _ratingsPerStep[2][i] = v;
           });
         },
-        isLeaderReview: isLeaderReview
+        isLeaderReview: isLeaderReview,
       );
     }
 
     return AppraisalStepOpinion(
       suggests: state.detailEvaluation?.suggestIds ?? [],
       controllers: _suggestControllers,
-      isLeaderReview: isLeaderReview
+      isLeaderReview: isLeaderReview,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
       builder: (context, state) {
         final isDetail = state.isDetail == true;
@@ -470,11 +475,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           });
         }
 
-        final actionText = _currentStep < 3 ? 'Tiếp theo' : 'Xác nhận';
+        final actionText =
+            _currentStep < 3 ? s.appraisal_next : s.confirm;
 
         return Scaffold(
           appBar: MyAppBar(
-            titleAppbar: 'Phiếu đánh giá kết quả CV',
+            titleAppbar: s.appraisal_form_title,
             haveBackButton: true,
             haveActionButton: true,
             iconPathAsset: AppAssets.icNotificationBell,
@@ -484,45 +490,45 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
             children: [
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8,right: 8),
+                  padding: const EdgeInsets.only(left: 8, right: 8),
                   child: Column(
                     children: [
-                      const SizedBox(height: 16,),
-                      // tabbar
-                      _buildTabBar(),
-                      const SizedBox(height: 8,),
-
-                      // phiếu đánh giá
-                      BlocBuilder<CreateAppraisalCubit,CreateAppraisalState>(
-                          buildWhen: (prev,cur) =>
-                            prev.currentTabIndex != cur.currentTabIndex ||
-                            prev.currentTabItem != cur.currentTabItem,
-                          builder: (context,state) {
-                            return state.currentTabIndex == 0 ?
-                            Expanded(
-                              child: SingleChildScrollView(
-                                    child: Column(
-                                      children: [
-                                        _buildStepper(),
-                                        const SizedBox(height: 8),
-                                        _buildHeaderByStep(),
-                                        _buildStepContent(isDetail, state,false),
-                                      ],
-                                    ),
+                      const SizedBox(height: 16),
+                      _buildTabBar(s),
+                      const SizedBox(height: 8),
+                      BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
+                        buildWhen:
+                            (prev, cur) =>
+                                prev.currentTabIndex != cur.currentTabIndex ||
+                                prev.currentTabItem != cur.currentTabItem,
+                        builder: (context, state) {
+                          return state.currentTabIndex == 0
+                              ? Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      _buildStepper(),
+                                      const SizedBox(height: 8),
+                                      _buildHeaderByStep(s),
+                                      _buildStepContent(isDetail, state, false),
+                                    ],
                                   ),
-                            ) :
-                            Expanded(
-                              child: SingleChildScrollView(
-                                    child: Column(children: [
+                                ),
+                              )
+                              : Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
                                       _buildStepperLeaderReview(),
                                       const SizedBox(height: 8),
-                                      _buildHeaderByStep(),
+                                      _buildHeaderByStep(s),
                                       _buildStepContent(isDetail, state, true),
-                                    ],),
+                                    ],
                                   ),
-                            );
-                          }),
-
+                                ),
+                              );
+                        },
+                      ),
                       SafeArea(
                         child: Padding(
                           padding: const EdgeInsets.all(12),
@@ -530,16 +536,14 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                             children: [
                               Expanded(
                                 child: PrimaryButton(
-                                  mainText: 'Quay lại',
+                                  mainText: s.appraisal_back,
                                   enable: true,
                                   isLoading: false,
                                   type: PrimaryButtonType.secondary,
                                   callback: _back,
                                 ),
                               ),
-
                               const SizedBox(width: 12),
-
                               Expanded(
                                 child: PrimaryButton(
                                   mainText: actionText,
@@ -563,11 +567,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     );
   }
 
-
-  Widget _buildTabBar() {
-    List<MasterDataItem> tabs = [
-      MasterDataItem(text: "Phiếu đánh giá",id:0),
-      MasterDataItem(text: "Cấp trên trực tiếp",id:1),
+  Widget _buildTabBar(S s) {
+    final tabs = [
+      MasterDataItem(text: s.appraisal_tab_form, id: 0),
+      MasterDataItem(text: s.appraisal_tab_direct_manager, id: 1),
     ];
     return Container(
       padding: const EdgeInsets.all(5),
@@ -582,62 +585,66 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           ),
         ],
       ),
-      child: BlocBuilder<CreateAppraisalCubit,CreateAppraisalState>(
-          buildWhen: (prev,cur) => prev.currentTabIndex != cur.currentTabIndex,
-          builder: (context,state){
-            return Row(
-              children: List.generate(tabs.length, (index) {
-                final item = tabs[index];
-                final isSelected = index == state.currentTabIndex;
+      child: BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
+        buildWhen: (prev, cur) => prev.currentTabIndex != cur.currentTabIndex,
+        builder: (context, state) {
+          return Row(
+            children: List.generate(tabs.length, (index) {
+              final item = tabs[index];
+              final isSelected = index == state.currentTabIndex;
 
-                return Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      right: index == 0 ? 4 : 0,
-                      left: index == tabs.length - 1 ? 4 : 0,
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(13),
-                      onTap: (){
-                        final cubit = context.read<CreateAppraisalCubit>();
-                        if (index != cubit.state.currentTabIndex) {
-                          cubit.onChangeTab(index);
-                          cubit.onChangeCurrentTabItem(item);
-                          _syncTabData(
-                            cubit.state,
-                            isLeaderReview: index == 1,
-                          );
-                          setState(() {});
-                        }},
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        curve: Curves.easeOut,
-                        height: 42,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? const Color(0xFFF3F3F5)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: Text(
-                          item.text ?? "",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: isSelected
-                                ? const Color(0xFF0A84FF)
-                                : const Color(0xFF3A3A3C),
-                          ),
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    right: index == 0 ? 4 : 0,
+                    left: index == tabs.length - 1 ? 4 : 0,
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(13),
+                    onTap: () {
+                      final cubit = context.read<CreateAppraisalCubit>();
+                      if (index != cubit.state.currentTabIndex) {
+                        cubit.onChangeTab(index);
+                        cubit.onChangeCurrentTabItem(item);
+                        _syncTabData(
+                          cubit.state,
+                          isLeaderReview: index == 1,
+                        );
+                        setState(() {});
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOut,
+                      height: 42,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color:
+                            isSelected
+                                ? const Color(0xFFF3F3F5)
+                                : Colors.white,
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: Text(
+                        item.text ?? "",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color:
+                              isSelected
+                                  ? const Color(0xFF0A84FF)
+                                  : const Color(0xFF3A3A3C),
                         ),
                       ),
                     ),
                   ),
-                );
-              }),
-            );
-          }),
+                ),
+              );
+            }),
+          );
+        },
+      ),
     );
   }
 }

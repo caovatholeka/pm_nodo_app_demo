@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
+import 'package:pm_app/app/core/service/firebase_messaging_service.dart';
 import '../../../../core/commons/global_data.dart';
 import '../../../../core/helper/response_mapper.dart';
 import '../../../../core/logger/logger.dart';
@@ -29,17 +30,37 @@ class LogInCubit extends Cubit<LoginState> {
     GlobalData.instance.isLoggingIn = true;
     emit(state.copyWith(loginStatus: LoadStatus.LOADING, errMsg: null));
     try {
-      String deviceId = await SharedPrefsHelper.getDeviceId();
-      String fcmToken = await SharedPrefsHelper.getFcmToken();
-      String deviceType = await SharedPrefsHelper.getDeviceType();
+      final identifiers =
+          await FirebaseMessagingService.ensureCachedMessagingIdentifiers(
+            refreshToken: false,
+          );
+
+      final deviceId = identifiers['device_id'] ?? '';
+      final fcmToken = identifiers['fcm_token'] ?? '';
+      final deviceType = identifiers['device_type'] ?? '';
 
       final param = {
         "login": username,
         "password": password,
-        "device_id": deviceId,
-        "fcm_token": fcmToken,
-        "device_type": deviceType,
       };
+
+      if (deviceId.isNotEmpty) {
+        param["device_id"] = deviceId;
+      }
+      if (fcmToken.isNotEmpty) {
+        param["fcm_token"] = fcmToken;
+      }
+      if (deviceType.isNotEmpty) {
+        param["device_type"] = deviceType;
+      }
+
+      logger.d(
+        "Login device payload -> "
+        "deviceId=${deviceId.isEmpty ? '<empty>' : deviceId}, "
+        "deviceType=${deviceType.isEmpty ? '<empty>' : deviceType}, "
+        "hasFcmToken=${fcmToken.isNotEmpty}",
+      );
+
       final result = await authRepository.authLogin(param);
 
       final raw = result.data;

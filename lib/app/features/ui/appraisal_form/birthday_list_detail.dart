@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/birthday_card.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class BirthdayListDetail extends StatefulWidget {
   const BirthdayListDetail({super.key});
@@ -19,6 +20,8 @@ class _BirthdayListDetailState extends State<BirthdayListDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocProvider(
       create: (_) => _cubit,
       child: Scaffold(
@@ -27,10 +30,10 @@ class _BirthdayListDetailState extends State<BirthdayListDetail> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: MyAppBar(
-                titleAppbar: 'Sinh nhật trong tháng',
-                haveBackButton: true,
-                haveActionButton: true,
-                iconPathAsset: AppAssets.icNotificationBell,
+            titleAppbar: s.appraisal_birthday_month_title,
+            haveBackButton: true,
+            haveActionButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
           ),
         ),
         body: Stack(

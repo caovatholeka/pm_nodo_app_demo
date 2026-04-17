@@ -4,6 +4,7 @@ import 'package:pm_app/app/data/models/entities/items_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data_item.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class AttendanceData extends StatelessWidget {
   final VoidCallback? onTap;
@@ -15,6 +16,8 @@ class AttendanceData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -29,9 +32,10 @@ class AttendanceData extends StatelessWidget {
         ],
       ),
       child: BlocBuilder<DashboardCubit, DashboardState>(
-        buildWhen: (previous, current) =>
-            previous.timesheetStatus != current.timesheetStatus ||
-            previous.timesheet != current.timesheet,
+        buildWhen:
+            (previous, current) =>
+                previous.timesheetStatus != current.timesheetStatus ||
+                previous.timesheet != current.timesheet,
         builder: (context, state) {
           final items = state.timesheet?.items ?? const <ItemsEntity>[];
 
@@ -45,24 +49,24 @@ class AttendanceData extends StatelessWidget {
                   child: Center(child: CircularProgressIndicator()),
                 )
               else if (state.timesheetStatus == LoadStatus.FAILURE)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Center(
                     child: Text(
-                      'Khong tai duoc du lieu cham cong',
-                      style: TextStyle(color: Colors.red),
+                      s.appraisal_timesheet_load_failed,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                 )
               else if (items.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Center(
-                    child: Text('Khong co du lieu cham cong trong thang nay'),
+                    child: Text(s.appraisal_timesheet_empty),
                   ),
                 )
               else
-                ..._buildItems(items),
+                ..._buildItems(items, s),
             ],
           );
         },
@@ -70,14 +74,15 @@ class AttendanceData extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildItems(List<ItemsEntity> items) {
+  List<Widget> _buildItems(List<ItemsEntity> items, S s) {
     return List.generate(items.length, (index) {
       final item = items[index];
       final style = _resolveStyle(item.type);
-      final title = _buildTitle(item);
-      final subtitle = item.description?.trim().isNotEmpty == true
-          ? item.description!.trim()
-          : 'Khong co mo ta';
+      final title = _buildTitle(item, s);
+      final subtitle =
+          item.description?.trim().isNotEmpty == true
+              ? item.description!.trim()
+              : s.appraisal_no_description;
 
       return Padding(
         padding: EdgeInsets.only(bottom: index == items.length - 1 ? 0 : 10),
@@ -91,19 +96,19 @@ class AttendanceData extends StatelessWidget {
     });
   }
 
-  String _buildTitle(ItemsEntity item) {
+  String _buildTitle(ItemsEntity item, S s) {
     final title = item.title?.trim();
     final count = item.count;
 
     if (title == null || title.isEmpty) {
-      return count == null ? '--' : 'Muc $count';
+      return count == null ? '--' : s.appraisal_item_count(count);
     }
 
     if (count == null) {
       return title;
     }
 
-    return '$title ($count)';
+    return s.appraisal_occurrence_count(title, count);
   }
 
   _AttendanceStyle _resolveStyle(String? type) {
@@ -160,6 +165,8 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Row(
       children: [
         Container(
@@ -175,10 +182,10 @@ class _Header extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        const Expanded(
+        Expanded(
           child: Text(
-            'Dữ liệu chấm công',
-            style: TextStyle(
+            s.appraisal_timesheet_title,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -186,9 +193,9 @@ class _Header extends StatelessWidget {
         ),
         GestureDetector(
           onTap: onTap,
-          child: const Text(
-            'Xem tất cả',
-            style: TextStyle(
+          child: Text(
+            s.to_do_all,
+            style: const TextStyle(
               color: Color(0xFF2563EB),
               fontSize: 14,
             ),

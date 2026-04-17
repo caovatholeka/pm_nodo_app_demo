@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -18,6 +19,9 @@ import '../logger/logger.dart';
 
 class FirebaseMessagingService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  static StreamSubscription<String>? _tokenRefreshSubscription;
+  static bool _foregroundHandlersInitialized = false;
+  static bool _tokenRefreshInitialized = false;
 
   static Future<void> backgroundHandler(RemoteMessage message) async {
     await Firebase.initializeApp(
@@ -89,11 +93,73 @@ class FirebaseMessagingService {
     return type;
   }
 
+  static Future<Map<String, String>> ensureCachedMessagingIdentifiers({
+    bool refreshToken = false,
+  }) async {
+    String token = await SharedPrefsHelper.getFcmToken();
+    String deviceId = await SharedPrefsHelper.getDeviceId();
+    String deviceType = await SharedPrefsHelper.getDeviceType();
+
+    if (deviceId.isEmpty) {
+      deviceId = (await _getDeviceId()) ?? '';
+      if (deviceId.isNotEmpty) {
+        await SharedPrefsHelper.setDeviceId(deviceId);
+      }
+    }
+
+    if (deviceType.isEmpty) {
+      deviceType = (await _getDeviceType()) ?? '';
+      if (deviceType.isNotEmpty) {
+        await SharedPrefsHelper.setDeviceType(deviceType);
+      }
+    }
+
+    if (refreshToken || token.isEmpty) {
+      final latestToken = await _messaging.getToken();
+      if (latestToken != null && latestToken.trim().isNotEmpty) {
+        token = latestToken.trim();
+        await SharedPrefsHelper.setFcmToken(token);
+      }
+    }
+
+    logger.d(
+      "FCM cache -> token=${token.isEmpty ? '<empty>' : token}, "
+      "deviceId=${deviceId.isEmpty ? '<empty>' : deviceId}, "
+      "deviceType=${deviceType.isEmpty ? '<empty>' : deviceType}",
+    );
+
+    return {
+      'fcm_token': token,
+      'device_id': deviceId,
+      'device_type': deviceType,
+    };
+  }
+
+  static void _setupTokenRefreshListener() {
+    if (_tokenRefreshInitialized) return;
+    _tokenRefreshInitialized = true;
+
+    _tokenRefreshSubscription?.cancel();
+    _tokenRefreshSubscription = _messaging.onTokenRefresh.listen((
+      String token,
+    ) async {
+      final normalized = token.trim();
+      if (normalized.isEmpty) {
+        logger.d("Skip FCM token refresh because token is empty");
+        return;
+      }
+
+      await SharedPrefsHelper.setFcmToken(normalized);
+      logger.d("FCM token refreshed and cached");
+    });
+  }
+
   static Future<void> initializeFCM({int retry = 0}) async {
     const maxRetry = 3;
 
     try {
       FirebaseMessaging.onBackgroundMessage(backgroundHandler);
+      _setupTokenRefreshListener();
 
       final settings = await _messaging.requestPermission(
         alert: true,
@@ -119,17 +185,13 @@ class FirebaseMessagingService {
         }
       }
 
-      final token = await _messaging.getToken();
-      final deviceId = await _getDeviceId();
-      final deviceType = await _getDeviceType();
+      final identifiers = await ensureCachedMessagingIdentifiers(
+        refreshToken: true,
+      );
 
-      logger.d("FCM TOKEN: $token");
-      logger.d("DEVICE ID: $deviceId");
-      logger.d("DEVICE TYPE: $deviceType");
-
-      SharedPrefsHelper.setDeviceId(deviceId ?? "");
-      SharedPrefsHelper.setFcmToken(token ?? "");
-      SharedPrefsHelper.setDeviceType(deviceType ?? "unknown device");
+      logger.d("FCM TOKEN: ${identifiers['fcm_token']}");
+      logger.d("DEVICE ID: ${identifiers['device_id']}");
+      logger.d("DEVICE TYPE: ${identifiers['device_type']}");
 
       _setupForegroundHandlers();
     } on FirebaseException catch (e, s) {
@@ -164,6 +226,9 @@ class FirebaseMessagingService {
   }
 
   static void _setupForegroundHandlers() {
+    if (_foregroundHandlersInitialized) return;
+    _foregroundHandlersInitialized = true;
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       logger.d("Foreground FCM: ${message.notification?.title}");
       await LocalNotificationService.showNotification(message);

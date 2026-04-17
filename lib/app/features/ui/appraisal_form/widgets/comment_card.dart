@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class CommentCard extends StatefulWidget {
   final String projectTitle;
@@ -61,6 +62,8 @@ class _CommentCardState extends State<CommentCard> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
       decoration: BoxDecoration(
@@ -75,8 +78,8 @@ class _CommentCardState extends State<CommentCard> {
             child: Container(
               margin: const EdgeInsets.all(10),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
+              decoration: const BoxDecoration(
+                color: Color(0xFFEFF6FF),
               ),
               child: Row(
                 children: [
@@ -100,7 +103,6 @@ class _CommentCardState extends State<CommentCard> {
               ),
             ),
           ),
-
           if (_isExpanded)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
@@ -112,30 +114,30 @@ class _CommentCardState extends State<CommentCard> {
                     children: [
                       CircleAvatar(
                         radius: 22,
-                        backgroundImage:
-                            widget.userAvatar.isNotEmpty
-                                ? NetworkImage(widget.userAvatar)
-                                : null,
+                        backgroundImage: widget.userAvatar.isNotEmpty
+                            ? NetworkImage(widget.userAvatar)
+                            : null,
                         backgroundColor: const Color(0xFF94A3B8),
-                        child:
-                            widget.userAvatar.isEmpty
-                                ? Text(
-                                  widget.userName.isNotEmpty
-                                      ? widget.userName[0].toUpperCase()
-                                      : 'U',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                                : null,
+                        child: widget.userAvatar.isEmpty
+                            ? Text(
+                                widget.userName.isNotEmpty
+                                    ? widget.userName[0].toUpperCase()
+                                    : '',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 2,
                               children: [
                                 Text(
                                   widget.userName,
@@ -145,17 +147,16 @@ class _CommentCardState extends State<CommentCard> {
                                     color: Color(0xFF0F172A),
                                   ),
                                 ),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  'added new ',
-                                  style: TextStyle(
+                                Text(
+                                  s.appraisal_comment_added_new,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: Color(0xFF64748B),
                                   ),
                                 ),
-                                const Text(
-                                  'Comment',
-                                  style: TextStyle(
+                                Text(
+                                  s.appraisal_comment_label,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: Color(0xFF0EA5E9),
                                     fontWeight: FontWeight.w500,
@@ -177,9 +178,7 @@ class _CommentCardState extends State<CommentCard> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
                   Row(
                     children: [
                       InkWell(
@@ -193,7 +192,7 @@ class _CommentCardState extends State<CommentCard> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'likes',
+                              s.appraisal_likes,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey.shade600,
@@ -214,7 +213,7 @@ class _CommentCardState extends State<CommentCard> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              'replies',
+                              s.appraisal_replies,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey.shade600,
@@ -225,15 +224,13 @@ class _CommentCardState extends State<CommentCard> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 16),
-
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(
                         child: InputTextField(
-                          hintText: 'Type your commend...',
+                          hintText: s.appraisal_comment_hint,
                           isRequiredField: false,
                           controller: _commentController,
                           maxLine: 1,
@@ -267,9 +264,9 @@ class _CommentCardState extends State<CommentCard> {
                               _commentController.clear();
                             }
                           },
-                          child: const Text(
-                            'Gửi',
-                            style: TextStyle(
+                          child: Text(
+                            s.appraisal_send,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,

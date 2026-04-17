@@ -530,5 +530,134 @@
 
   "delete_confirm":"Confirm Delete",
   "delete_subtile":"Are you sure you wanted to delete this request?",
-  "delete_subtitle1":"This task can't be rewind!"
+  "delete_subtitle1":"This task can't be rewind!",
+
+  "shortCut1":"To-do Task",
+  "shortCut2":"Timekeeping",
+  "shortCut3":"Day off",
+
+  "appraisal_list_title": "Appraisal Forms",
+  "appraisal_form_title": "Appraisal Form",
+  "appraisal_create_title": "Create Appraisal Form",
+  "appraisal_employee_code": "Employee Code",
+  "appraisal_employee_name": "Employee Name",
+  "appraisal_direct_manager": "Direct Manager",
+  "appraisal_continue": "Continue",
+  "appraisal_coefficient": "Coefficient",
+  "appraisal_total_score": "Total Score",
+  "appraisal_next": "Next",
+  "appraisal_back": "Back",
+  "appraisal_tab_form": "Form",
+  "appraisal_tab_direct_manager": "Direct Manager",
+  "appraisal_step_opinion": "Opinion",
+  "appraisal_step_responsibility": "Responsibility",
+  "appraisal_step_result_work": "Work Results",
+  "appraisal_step_result_work_tasks": "Task Results",
+  "appraisal_step_skill": "Skills",
+  "appraisal_step_direct_manager_rate": "Direct manager evaluation",
+  "appraisal_responsibility_criteria": "Responsibility Criteria",
+  "appraisal_responsibility_description": "Description",
+  "appraisal_comment_detail": "Comment Details",
+  "appraisal_evidence": "Evidence",
+  "appraisal_evidence_hint": "Enter supporting evidence",
+  "appraisal_rating_note": "Rate each criterion from 1 to 5 stars",
+  "appraisal_task_done": "Completed Task",
+  "appraisal_task_done_hint": "Enter completed task",
+  "appraisal_weight_percent": "Weight (%)",
+  "appraisal_weight_percent_hint": "Enter weight percentage",
+  "appraisal_metric_volume": "Workload",
+  "appraisal_metric_quality": "Quality",
+  "appraisal_metric_progress": "Progress",
+  "appraisal_metric_volume_numbered": "1. Workload",
+  "appraisal_metric_quality_numbered": "2. Quality",
+  "appraisal_metric_progress_numbered": "3. Progress",
+  "appraisal_adjustment_feedback": "Adjustment Feedback",
+  "appraisal_skill_criteria": "Skill Criteria",
+  "appraisal_skill_description": "Description",
+  "appraisal_suggestion_hint": "Enter your comments",
+  "appraisal_work_quality_title": "Work Quality",
+  "appraisal_birthday_month_title": "Birthdays This Month",
+  "appraisal_discipline_title": "Discipline Evaluation",
+  "appraisal_status_hr_review": "HR Review",
+  "appraisal_status_cancelled": "Cancelled",
+  "appraisal_leave_request": "Leave Request",
+  "appraisal_overtime_request": "Overtime Request",
+  "appraisal_late_early_request": "Late/Early Request",
+  "appraisal_onsite_request": "Onsite Request",
+  "appraisal_wfh_request": "WFH Request",
+  "appraisal_request": "Request",
+  "appraisal_task_list_today": "Today's Tasks",
+  "appraisal_deadline": "Deadline",
+  "appraisal_load_failed": "Unable to load data.",
+  "appraisal_no_tasks": "No tasks available.",
+  "appraisal_no_task": "No task available.",
+  "appraisal_no_project_available": "No project available",
+  "appraisal_project_title": "Projects",
+  "appraisal_project_list": "Project List",
+  "appraisal_no_projects": "No projects available.",
+  "appraisal_assigned_employee": "Assigned Employee",
+  "appraisal_stage": "Stage",
+  "appraisal_tag": "Tag",
+  "appraisal_assignee": "Assignee",
+  "appraisal_execution_time": "Execution Time",
+  "appraisal_suggestion_title": "Suggestions for Improvement",
+  "appraisal_optional": "Optional",
+  "appraisal_suggestion_empty": "Please enter a suggestion.",
+  "appraisal_suggestion_success": "Suggestion submitted successfully.",
+  "appraisal_suggestion_failed": "Failed to submit suggestion.",
+  "appraisal_suggestion_hint_long": "Enter suggestions to improve work quality",
+  "appraisal_timesheet_title": "Timesheet Data",
+  "appraisal_timesheet_load_failed": "Unable to load timesheet data.",
+  "appraisal_timesheet_empty": "No timesheet data available.",
+  "appraisal_no_description": "No description",
+  "appraisal_no_review_this_month": "No reviews for this month.",
+  "appraisal_score": "Score",
+  "appraisal_no_birthdays_this_month": "No birthdays this month.",
+  "appraisal_occurrence_label": "Occurrences",
+  "appraisal_on_time": "On Time",
+  "appraisal_absent": "Absent",
+  "appraisal_late_early_summary": "Late/Early",
+  "appraisal_leave_label": "Leave",
+  "appraisal_comment_added_new": "added a new",
+  "appraisal_comment_label": "Comment",
+  "appraisal_likes": "Likes",
+  "appraisal_replies": "Replies",
+  "appraisal_comment_hint": "Type your comment...",
+  "appraisal_send": "Send",
+  "appraisal_project_adherence_percent": "Project Adherence (%)",
+  "appraisal_view_detail": "View Details",
+  "appraisal_project_progress": "Project Progress",
+  "appraisal_item_count": "{count} item(s)",
+  "@appraisal_item_count": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "appraisal_occurrence_count": "{title} ({count})",
+  "@appraisal_occurrence_count": {
+    "placeholders": {
+      "title": {},
+      "count": {}
+    }
+  },
+  "appraisal_evaluated_by": "Evaluated by {name} on {date}",
+  "@appraisal_evaluated_by": {
+    "placeholders": {
+      "name": {},
+      "date": {}
+    }
+  },
+  "appraisal_hours": "{count} hour(s)",
+  "@appraisal_hours": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "appraisal_completed_fraction": "{completed}/{total} completed",
+  "@appraisal_completed_fraction": {
+    "placeholders": {
+      "completed": {},
+      "total": {}
+    }
+  }
 }

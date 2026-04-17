@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/app_cached_image.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class WorkQualityTaskList extends StatelessWidget {
   final List<WorkQualityTaskItemData> items;
@@ -35,6 +36,8 @@ class WorkQualityTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
@@ -103,7 +106,7 @@ class WorkQualityTaskCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _InfoText(
-                  title: 'Người được phân công',
+                  title: s.appraisal_assignee,
                   value: item.owner,
                   valueColor: const Color(0xFF1677FF),
                 ),
@@ -111,7 +114,7 @@ class WorkQualityTaskCard extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: _InfoText(
-                  title: 'Thời gian thực hiện',
+                  title: s.appraisal_execution_time,
                   value: item.duration,
                   valueColor: const Color(0xFF111827),
                 ),

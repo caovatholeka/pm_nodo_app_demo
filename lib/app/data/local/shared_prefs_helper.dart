@@ -90,8 +90,11 @@ static Future<void> saveToken(TokenEntity? token) async {
 
 
   static Future<void> setFcmToken(String fcmToken) async {
+    final normalized = fcmToken.trim();
+    if (normalized.isEmpty) return;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_appFcmToken, fcmToken);
+    await prefs.setString(_appFcmToken, normalized);
   }
 
   static Future<String> getFcmToken() async {
@@ -112,8 +115,11 @@ static Future<void> saveToken(TokenEntity? token) async {
   }
 
   static Future<void> setDeviceId(String deviceId) async {
+    final normalized = deviceId.trim();
+    if (normalized.isEmpty) return;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_appDeviceId, deviceId);
+    await prefs.setString(_appDeviceId, normalized);
   }
 
   static Future<String> getDeviceId() async {
@@ -123,8 +129,11 @@ static Future<void> saveToken(TokenEntity? token) async {
   }
 
   static Future<void> setDeviceType(String type) async {
+    final normalized = type.trim();
+    if (normalized.isEmpty) return;
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_appDeviceType, type);
+    await prefs.setString(_appDeviceType, normalized);
   }
 
   static Future<String> getDeviceType() async {

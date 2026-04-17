@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class StatusUI {
   final String text;
@@ -21,41 +22,38 @@ class AppraisalListItem extends StatelessWidget {
 
   const AppraisalListItem({super.key, required this.entity, this.onTap});
 
-  StatusUI _getStatusUI(String? state) {
+  StatusUI _getStatusUI(BuildContext context, String? state) {
+    final s = S.of(context);
+
     switch (state) {
       case "draft":
         return StatusUI(
-          text: "Nháp",
+          text: s.bt_status1,
           color: AppColors.colorDraft,
           bgColor: AppColors.colorDraft.withValues(alpha: 0.1),
         );
       case "director_confirm":
-        return StatusUI(
-          text: "Trưởng phòng duyệt",
-          color: AppColors.colorApproved,
-          bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
-        );
       case "approved":
         return StatusUI(
-          text: "Trưởng phòng duyệt",
+          text: s.bt_status2,
           color: AppColors.colorApproved,
           bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
         );
       case "hr_confirm":
         return StatusUI(
-          text: "HR đang duyệt",
+          text: s.appraisal_status_hr_review,
           color: AppColors.colorApproved,
           bgColor: AppColors.colorApproved.withValues(alpha: 0.1),
         );
       case "done":
         return StatusUI(
-          text: "Hoàn thành",
+          text: s.bt_status3,
           color: AppColors.colorFinished,
           bgColor: AppColors.colorFinished.withValues(alpha: 0.1),
         );
       case "cancel":
         return StatusUI(
-          text: "Đã hủy",
+          text: s.appraisal_status_cancelled,
           color: AppColors.colorCancel,
           bgColor: AppColors.colorCancel.withValues(alpha: 0.1),
         );
@@ -70,7 +68,8 @@ class AppraisalListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final statusUI = _getStatusUI(entity.state);
+    final s = S.of(context);
+    final statusUI = _getStatusUI(context, entity.state);
     final fromText = AppDateUtils.formatFlexibleDateForDisplay(entity.dateFrom);
     final toText = AppDateUtils.formatFlexibleDateForDisplay(entity.dateTo);
     final dateText =
@@ -92,11 +91,9 @@ class AppraisalListItem extends StatelessWidget {
           ],
         ),
         child: IntrinsicHeight(
-          // <-- đảm bảo thanh màu kéo đầy chiều cao
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Thanh màu bên trái: thêm borderRadius 2 góc trái để không bị che bởi parent
               Container(
                 width: 6,
                 decoration: BoxDecoration(
@@ -174,9 +171,15 @@ class AppraisalListItem extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildItem("Phòng ban:", entity.departmentName ?? ''),
+                        _buildItem(
+                          '${s.employee_card_department}:',
+                          entity.departmentName ?? '',
+                        ),
                         const SizedBox(height: 12),
-                        _buildItem("Nhân viên:", entity.employeeName ?? ''),
+                        _buildItem(
+                          '${s.day_off_card_employee}:',
+                          entity.employeeName ?? '',
+                        ),
                       ],
                     ),
                   ),

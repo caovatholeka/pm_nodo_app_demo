@@ -4,6 +4,7 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class AppraisalStepSkill extends StatelessWidget {
   final List<SkillIdEntity> skills;
@@ -36,16 +37,21 @@ class AppraisalStepSkill extends StatelessWidget {
   TextEditingController _skillEvidence(SkillIdEntity skill, int index) {
     final controller = evidences[index];
     if (controller.text.isEmpty) {
-      controller.text = isLeaderReview ? (skill.parentNote ?? '') : (skill.note ?? '');
+      controller.text =
+          isLeaderReview ? (skill.parentNote ?? '') : (skill.note ?? '');
     }
     return controller;
   }
 
-  Color get _sectionBg => isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
-  Color get _accent => isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
+  Color get _sectionBg =>
+      isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
+  Color get _accent =>
+      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
@@ -61,9 +67,9 @@ class AppraisalStepSkill extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'III. Kỹ năng (10%)',
-                    style: TextStyle(
+                  Text(
+                    s.appraisal_step_skill,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF374151),
@@ -112,19 +118,20 @@ class AppraisalStepSkill extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Tiêu chí đánh giá Kỹ năng',
+                              s.appraisal_skill_criteria,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: isLeaderReview
-                                    ? const Color(0xFF7030A0)
-                                    : const Color(0xFF0B6F2F),
+                                color:
+                                    isLeaderReview
+                                        ? const Color(0xFF7030A0)
+                                        : const Color(0xFF0B6F2F),
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              'Đánh giá theo thang điểm 1-5. (Dựa theo hướng dẫn có sẵn)',
-                              style: TextStyle(
+                            Text(
+                              s.appraisal_skill_description,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.themeDarkDark,
                                 fontStyle: FontStyle.italic,
@@ -141,7 +148,9 @@ class AppraisalStepSkill extends StatelessWidget {
                       final skill = skills[i];
 
                       return Padding(
-                        padding: EdgeInsets.only(bottom: i == skills.length - 1 ? 0 : 18),
+                        padding: EdgeInsets.only(
+                          bottom: i == skills.length - 1 ? 0 : 18,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -170,9 +179,9 @@ class AppraisalStepSkill extends StatelessWidget {
                                             color: Color(0xFF0B6FDF),
                                           ),
                                         ),
-                                        const TextSpan(
-                                          text: ' - Hệ số 1',
-                                          style: TextStyle(
+                                        TextSpan(
+                                          text: ' - ${s.appraisal_coefficient} 1',
+                                          style: const TextStyle(
                                             color: Color(0xFF0B6FDF),
                                           ),
                                         ),
@@ -184,11 +193,14 @@ class AppraisalStepSkill extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Row(
-                              children: const [
-                                Text('* ', style: TextStyle(color: Color(0xFFEF4444))),
+                              children: [
+                                const Text(
+                                  '* ',
+                                  style: TextStyle(color: Color(0xFFEF4444)),
+                                ),
                                 Text(
-                                  'Điểm',
-                                  style: TextStyle(
+                                  s.appraisal_score,
+                                  style: const TextStyle(
                                     color: Color(0xFF374151),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -211,7 +223,9 @@ class AppraisalStepSkill extends StatelessWidget {
                                       width: 28,
                                       height: 28,
                                       color:
-                                          filled ? const Color(0xFFFFB800) : const Color(0xFF94A3B8),
+                                          filled
+                                              ? const Color(0xFFFFB800)
+                                              : const Color(0xFF94A3B8),
                                     ),
                                   );
                                 }),
@@ -219,8 +233,8 @@ class AppraisalStepSkill extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             InputTextField(
-                              title: 'Ghi rõ những gì được, chưa được',
-                              hintText: 'Nhập dẫn chứng...',
+                              title: s.appraisal_comment_detail,
+                              hintText: s.appraisal_evidence_hint,
                               controller: _skillEvidence(skill, i),
                               maxLine: 3,
                               isRequiredField: true,

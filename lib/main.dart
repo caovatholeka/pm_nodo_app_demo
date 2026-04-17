@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:get_it/get_it.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
@@ -15,17 +14,12 @@ import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
-import 'package:pm_app/app/data/repositories/auth_repository.dart';
-import 'package:pm_app/app/data/repositories/user_repository.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'firebase_options.dart';
 import 'app/app.dart';
 import 'di/di.dart' as di;
 import 'app/core/service/firebase_messaging_service.dart';
 import 'app/core/service/fire_base_analystic.dart';
 import 'app/core/service/app_bloc_observer.dart';
-
-final getIt = GetIt.instance;
 
 void main() {
   Bloc.observer = AppBlocObserver();
@@ -65,8 +59,10 @@ void main() {
         final token = await SharedPrefsHelper.getToken();
 
         if (token == null) {
-          GlobalData.instance.navigatorKey.currentState?.pushReplacement(
+          GlobalData.instance.isFromQuickAction = false;
+          GlobalData.instance.navigatorKey.currentState?.pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const LoginPage()),
+            (route) => false,
           );
           return;
         }
@@ -74,12 +70,9 @@ void main() {
         final nav = GlobalData.instance.navigatorKey.currentState;
 
         if (nav != null) {
-          GlobalData.instance.isFromQuickAction = true;
           QuickNavigator.navigate(type);
-          GlobalData.instance.quickActionPending = null;
         } else {
           GlobalData.instance.quickActionPending = type;
-          GlobalData.instance.isFromQuickAction = true;
         }
       });
 
@@ -111,20 +104,7 @@ void main() {
         mapsImplementation.useAndroidViewSurface = true;
       }
 
-      runApp(
-        MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create:
-                  (_) => AppCubit(
-                    authRepository: getIt<AuthRepository>(),
-                    userRepository: getIt<UserRepository>(),
-                  )..countUnreadNoti(),
-            ),
-          ],
-          child: MyApp(),
-        ),
-      );
+      runApp(MyApp());
     },
     (error, stack) {
       FirebaseAnalysticService.recordError(error, stack, fatal: true);

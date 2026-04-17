@@ -1,9 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/notification_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
+import 'package:pm_app/app/features/bloc/app_cubit.dart';
 
 part 'noti_state.dart';
 
@@ -48,6 +50,7 @@ class NotiCubit extends Cubit<NotiState> {
             canLoadMore: list.length >= params["limit"],
           ),
         );
+        _syncGlobalUnreadCount(res.totalUnread ?? 0);
       } else {
         emit(state.copyWith(status: LoadStatus.FAILURE));
       }
@@ -93,65 +96,80 @@ class NotiCubit extends Cubit<NotiState> {
     }
   }
 
-Future<void> markRead({required bool markAll, int? id}) async {
-  if (markAll) {
-    final updatedList =
-        state.notifications.map((e) => e.copyWith(isSeen: true)).toList();
+  Future<void> markRead({required bool markAll, int? id}) async {
+    if (markAll) {
+      final updatedList =
+          state.notifications.map((e) => e.copyWith(isSeen: true)).toList();
 
-    emit(
-      state.copyWith(
-        notifications: updatedList,
-        totalUnread: 0,
-      ),
-    );
-  } else if (id != null) {
-    final updatedList = state.notifications.map((e) {
-      if (e.id == id && !(e.isSeen ?? false)) {
-        return e.copyWith(isSeen: true);
-      }
-      return e;
-    }).toList();
+      emit(
+        state.copyWith(
+          notifications: updatedList,
+          totalUnread: 0,
+        ),
+      );
+      _syncGlobalUnreadCount(0);
+    } else if (id != null) {
+      final updatedList = state.notifications.map((e) {
+        if (e.id == id && !(e.isSeen ?? false)) {
+          return e.copyWith(isSeen: true);
+        }
+        return e;
+      }).toList();
 
-    emit(
-      state.copyWith(
-        notifications: updatedList,
-        totalUnread:
-            state.totalUnread > 0 ? state.totalUnread - 1 : 0,
-      ),
-    );
-  }
+      final nextUnread = state.totalUnread > 0 ? state.totalUnread - 1 : 0;
 
-  try {
-    final body = {
-      "mark_all": markAll ? "True" : "False",
-    };
-
-    await userRepository.markNotiRead(
-      body,
-      markAll ? 0 : (id ?? 0),
-    );
-  } catch (e) {
-    logger.e('err: $e');
-  }
-}
-
-
-
-Future<void> countUnreadNoti() async {
-  try {
-    final res = await userRepository.countUnreadNoti();
-
-    if (res.code == 200) {
-      final data = res.data as Map<String, dynamic>;
-      final unread = data['unread_count'] ?? 0;
-
-      emit(state.copyWith(totalUnread: unread));
+      emit(
+        state.copyWith(
+          notifications: updatedList,
+          totalUnread: nextUnread,
+        ),
+      );
+      _syncGlobalUnreadCount(nextUnread);
     }
-  } catch (e, s) {
-    logger.e("countUnreadNoti error: $e");
-    logger.d("stack: $s");
+
+    try {
+      final body = {"mark_all": markAll ? "True" : "False"};
+
+      await userRepository.markNotiRead(
+        body,
+        markAll ? 0 : (id ?? 0),
+      );
+
+      await countUnreadNoti();
+    } catch (e, s) {
+      logger.e('markRead error: $e');
+      logger.d('stack: $s');
+      await countUnreadNoti();
+    }
   }
-}
+
+  Future<void> countUnreadNoti() async {
+    try {
+      final res = await userRepository.countUnreadNoti();
+
+      if (res.code == 200) {
+        final data = res.data as Map<String, dynamic>;
+        final unread = (data['unread_count'] as num?)?.toInt() ?? 0;
+
+        emit(state.copyWith(totalUnread: unread));
+        _syncGlobalUnreadCount(unread);
+      }
+    } catch (e, s) {
+      logger.e("countUnreadNoti error: $e");
+      logger.d("stack: $s");
+    }
+  }
+
+  void _syncGlobalUnreadCount(int unread) {
+    try {
+      if (GetIt.I.isRegistered<AppCubit>()) {
+        GetIt.I<AppCubit>().syncUnreadCount(unread);
+      }
+    } catch (e, s) {
+      logger.e("sync global unread error: $e");
+      logger.d("stack: $s");
+    }
+  }
 
 
 

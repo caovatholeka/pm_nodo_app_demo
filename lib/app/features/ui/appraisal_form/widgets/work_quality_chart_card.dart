@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class WorkQualityChartCard extends StatefulWidget {
   final DateTime? initialDate;
@@ -23,7 +24,8 @@ class WorkQualityChartCard extends StatefulWidget {
 class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
   late DateTime _selectedDate;
 
-  String get _monthLabel => 'Tháng ${DateFormat('MM/yyyy').format(_selectedDate)}';
+  String _monthLabel(BuildContext context) =>
+      '${S.of(context).month} ${DateFormat('MM/yyyy').format(_selectedDate)}';
 
   @override
   void initState() {
@@ -40,6 +42,7 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
   }
 
   void _pickMonth() {
+    final s = S.of(context);
     int tempYear = _selectedDate.year;
     int tempMonth = _selectedDate.month;
 
@@ -61,9 +64,9 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     ),
                     GestureDetector(
@@ -75,9 +78,9 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
                         widget.onMonthChanged?.call(nextDate);
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Xong',
-                        style: TextStyle(
+                      child: Text(
+                        s.day_off_donebtn,
+                        style: const TextStyle(
                           color: Color(0xFF2E87FF),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -142,6 +145,8 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
       decoration: BoxDecoration(
@@ -170,7 +175,7 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    _monthLabel,
+                    _monthLabel(context),
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.black54,
@@ -212,15 +217,24 @@ class _WorkQualityChartCardState extends State<WorkQualityChartCard> {
             ),
           ),
           const SizedBox(height: 18),
-          const SizedBox(
+          SizedBox(
             width: double.infinity,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _LegendDot(color: Color(0xFF7B88E8), label: 'Khối lượng CV'),
-                _LegendDot(color: Color(0xFFF4A640), label: 'Tiến độ CV'),
-                _LegendDot(color: Color(0xFF35C3D9), label: 'Chất lượng CV'),
+                _LegendDot(
+                  color: const Color(0xFF7B88E8),
+                  label: s.appraisal_metric_volume,
+                ),
+                _LegendDot(
+                  color: const Color(0xFFF4A640),
+                  label: s.appraisal_metric_progress,
+                ),
+                _LegendDot(
+                  color: const Color(0xFF35C3D9),
+                  label: s.appraisal_metric_quality,
+                ),
               ],
             ),
           ),

@@ -42,7 +42,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
       final pending = GlobalData.instance.quickActionPending;
       if (pending != null) {
         GlobalData.instance.quickActionPending = null;
-        QuickNavigator.navigate(pending);
+        QuickNavigator.navigate(pending, ensureHomeBase: false);
       }
     });
   }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../data/models/entities/task_line_id_entity.dart';
 import '../widgets/dot_devider_painter.dart';
@@ -80,6 +81,8 @@ class AppraisalStepResultWork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
@@ -95,9 +98,9 @@ class AppraisalStepResultWork extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'I. Kết quả công việc (70%)',
-                    style: TextStyle(
+                  Text(
+                    s.appraisal_step_result_work,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       color: Color(0xFF374151),
@@ -110,7 +113,10 @@ class AppraisalStepResultWork extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
               decoration: BoxDecoration(
-                color: isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6),
+                color:
+                    isLeaderReview
+                        ? const Color(0xFFE5E0F0)
+                        : const Color(0xFFF7FFF6),
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
@@ -123,7 +129,9 @@ class AppraisalStepResultWork extends StatelessWidget {
                       CircleAvatar(
                         radius: 10,
                         backgroundColor:
-                            isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981),
+                            isLeaderReview
+                                ? const Color(0xFF7030A0)
+                                : const Color(0xFF10B981),
                         child: const Text(
                           '1',
                           style: TextStyle(
@@ -135,9 +143,12 @@ class AppraisalStepResultWork extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Các việc đã làm',
+                        s.appraisal_step_result_work_tasks,
                         style: TextStyle(
-                          color: isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF065F46),
+                          color:
+                              isLeaderReview
+                                  ? const Color(0xFF7030A0)
+                                  : const Color(0xFF065F46),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -146,21 +157,21 @@ class AppraisalStepResultWork extends StatelessWidget {
                   const SizedBox(height: 8),
                   isLeaderReview
                       ? Text(
-                          'Cấp trên trực tiếp đánh giá (Max = 5 điểm)',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.themeDarkDark,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        )
-                      : const Text(
-                          'Lưu ý: Đọc kỹ sử dụng trước khi dùng. Đánh giá theo thang điểm 1-5. (Dựa theo hướng dẫn cho sẵn)',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF2563EB),
-                            fontStyle: FontStyle.italic,
-                          ),
+                        s.appraisal_step_direct_manager_rate,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.themeDarkDark,
+                          fontStyle: FontStyle.italic,
                         ),
+                      )
+                      : Text(
+                        s.appraisal_rating_note,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF2563EB),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                 ],
               ),
             ),
@@ -172,7 +183,10 @@ class AppraisalStepResultWork extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6),
+                        color:
+                            isLeaderReview
+                                ? const Color(0xFFE5E0F0)
+                                : const Color(0xFFF7FFF6),
                         borderRadius: const BorderRadius.vertical(
                           bottom: Radius.circular(16),
                         ),
@@ -183,8 +197,8 @@ class AppraisalStepResultWork extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             InputTextField(
-                              title: 'Công việc đã làm',
-                              hintText: 'Nhập công việc đã làm',
+                              title: s.appraisal_task_done,
+                              hintText: s.appraisal_task_done_hint,
                               controller: TextEditingController(text: task.name),
                               readOnly: readOnly,
                               isRequiredField: true,
@@ -192,35 +206,53 @@ class AppraisalStepResultWork extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             InputTextField(
-                              title: 'Tỷ trọng %',
-                              hintText: 'Nhập % (0-100)',
-                              controller: TextEditingController(text: (task.rate ?? 0).toString()),
+                              title: s.appraisal_weight_percent,
+                              hintText: s.appraisal_weight_percent_hint,
+                              controller: TextEditingController(
+                                text: (task.rate ?? 0).toString(),
+                              ),
                               readOnly: readOnly,
                               isRequiredField: true,
                               fillBgColor: Colors.transparent,
                             ),
                             const SizedBox(height: 16),
-                            _rating('1. Khối lượng', 0, _taskRating(task, 0)),
-                            _rating('2. Chất lượng', 1, _taskRating(task, 1)),
-                            _rating('3. Tiến độ', 2, _taskRating(task, 2)),
+                            _rating(
+                              s.appraisal_metric_volume_numbered,
+                              0,
+                              _taskRating(task, 0),
+                            ),
+                            _rating(
+                              s.appraisal_metric_quality_numbered,
+                              1,
+                              _taskRating(task, 1),
+                            ),
+                            _rating(
+                              s.appraisal_metric_progress_numbered,
+                              2,
+                              _taskRating(task, 2),
+                            ),
                             const SizedBox(height: 12),
                             isLeaderReview
                                 ? InputTextField(
-                                    title: 'Góp ý điều chỉnh',
-                                    hintText: '',
-                                    controller: TextEditingController(text: _taskEvidence(task)),
-                                    readOnly: readOnly,
-                                    isRequiredField: true,
-                                    fillBgColor: Colors.transparent,
-                                  )
-                                : InputTextField(
-                                    title: 'Dẫn chứng',
-                                    hintText: 'Nhập dẫn chứng...',
-                                    controller: TextEditingController(text: _taskEvidence(task)),
-                                    readOnly: readOnly,
-                                    isRequiredField: true,
-                                    fillBgColor: Colors.transparent,
+                                  title: s.appraisal_adjustment_feedback,
+                                  hintText: '',
+                                  controller: TextEditingController(
+                                    text: _taskEvidence(task),
                                   ),
+                                  readOnly: readOnly,
+                                  isRequiredField: true,
+                                  fillBgColor: Colors.transparent,
+                                )
+                                : InputTextField(
+                                  title: s.appraisal_evidence,
+                                  hintText: s.appraisal_evidence_hint,
+                                  controller: TextEditingController(
+                                    text: _taskEvidence(task),
+                                  ),
+                                  readOnly: readOnly,
+                                  isRequiredField: true,
+                                  fillBgColor: Colors.transparent,
+                                ),
                             const SizedBox(height: 12),
                           ],
                         ),
@@ -229,12 +261,18 @@ class AppraisalStepResultWork extends StatelessWidget {
                     const SizedBox(height: 8),
                     if (i != (listTask ?? []).length - 1)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
+                        padding: const EdgeInsets.only(
+                          top: 8,
+                          left: 8,
+                          right: 8,
+                        ),
                         child: CustomPaint(
                           size: const Size(double.infinity, 1),
                           painter: DotDividerPainter(
                             color:
-                                isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFD1FAE5),
+                                isLeaderReview
+                                    ? const Color(0xFFE5E0F0)
+                                    : const Color(0xFFD1FAE5),
                           ),
                         ),
                       ),
@@ -273,7 +311,10 @@ class AppraisalStepResultWork extends StatelessWidget {
                   AppAssets.icStar,
                   width: 30,
                   height: 30,
-                  color: filled ? const Color(0xFFFFCB45) : const Color(0xFF64748B),
+                  color:
+                      filled
+                          ? const Color(0xFFFFCB45)
+                          : const Color(0xFF64748B),
                 ),
               );
             }),

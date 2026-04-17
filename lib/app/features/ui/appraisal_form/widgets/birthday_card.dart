@@ -8,6 +8,7 @@ import 'package:pm_app/app/data/models/entities/birthdays_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/widgets/app_cached_image.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class BirthdayCard extends StatelessWidget {
   final VoidCallback? onTap;
@@ -68,8 +69,8 @@ class BirthdayDetailSection extends StatefulWidget {
 class _BirthdayDetailSectionState extends State<BirthdayDetailSection> {
   int _selectedMonth = DateTime.now().month;
 
-  String get _monthLabel =>
-      'Tháng ${_selectedMonth.toString().padLeft(2, '0')}/${DateTime.now().year}';
+  String _monthLabel(BuildContext context) =>
+      '${S.of(context).month} ${_selectedMonth.toString().padLeft(2, '0')}/${DateTime.now().year}';
 
   @override
   void initState() {
@@ -80,6 +81,7 @@ class _BirthdayDetailSectionState extends State<BirthdayDetailSection> {
   }
 
   void _pickMonth() {
+    final s = S.of(context);
     int tempMonth = _selectedMonth;
 
     showModalBottomSheet(
@@ -103,9 +105,12 @@ class _BirthdayDetailSectionState extends State<BirthdayDetailSection> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                     GestureDetector(
@@ -114,13 +119,13 @@ class _BirthdayDetailSectionState extends State<BirthdayDetailSection> {
                           _selectedMonth = tempMonth;
                         });
                         context.read<DashboardCubit>().getBirthdaysThisMonth(
-                          tempMonth,
-                        );
+                              tempMonth,
+                            );
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Xong',
-                        style: TextStyle(
+                      child: Text(
+                        s.day_off_donebtn,
+                        style: const TextStyle(
                           color: Color(0xFF2E87FF),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -143,7 +148,7 @@ class _BirthdayDetailSectionState extends State<BirthdayDetailSection> {
                     12,
                     (i) => Center(
                       child: Text(
-                        'Tháng ${(i + 1).toString().padLeft(2, '0')}',
+                        '${s.month} ${(i + 1).toString().padLeft(2, '0')}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -180,7 +185,7 @@ class _BirthdayDetailSectionState extends State<BirthdayDetailSection> {
               const BirthdayHeader(),
               const SizedBox(height: 16),
               BirthdayMonthPicker(
-                label: _monthLabel,
+                label: _monthLabel(context),
                 onTap: _pickMonth,
               ),
               const SizedBox(height: 14),
@@ -198,6 +203,8 @@ class BirthdayHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Row(
       children: [
         Container(
@@ -215,9 +222,9 @@ class BirthdayHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        const Text(
-          'Sinh nhật trong tháng',
-          style: TextStyle(
+        Text(
+          s.appraisal_birthday_month_title,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Color(0xFF5C678D),
@@ -283,6 +290,8 @@ class BirthdayHorizontalContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     if (state.birthdayStatus == LoadStatus.LOADING && state.birthdays.isEmpty) {
       return const SizedBox(
         height: 120,
@@ -291,24 +300,24 @@ class BirthdayHorizontalContent extends StatelessWidget {
     }
 
     if (state.birthdayStatus == LoadStatus.FAILURE && state.birthdays.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 80,
         child: Center(
           child: Text(
-            'Không tải được danh sách.',
-            style: TextStyle(fontSize: 13, color: Colors.grey),
+            s.appraisal_load_failed,
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
         ),
       );
     }
 
     if (state.birthdays.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 80,
         child: Center(
           child: Text(
-            'Không có sinh nhật trong tháng này.',
-            style: TextStyle(fontSize: 13, color: Colors.grey),
+            s.appraisal_no_birthdays_this_month,
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
         ),
       );
@@ -342,6 +351,8 @@ class BirthdayVerticalContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     if (state.birthdayStatus == LoadStatus.LOADING && state.birthdays.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 48),
@@ -350,24 +361,24 @@ class BirthdayVerticalContent extends StatelessWidget {
     }
 
     if (state.birthdayStatus == LoadStatus.FAILURE && state.birthdays.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
         child: Center(
           child: Text(
-            'Không tải được danh sách.',
-            style: TextStyle(fontSize: 13, color: Colors.grey),
+            s.appraisal_load_failed,
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
         ),
       );
     }
 
     if (state.birthdays.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
         child: Center(
           child: Text(
-            'Không có sinh nhật trong tháng này.',
-            style: TextStyle(fontSize: 13, color: Colors.grey),
+            s.appraisal_no_birthdays_this_month,
+            style: const TextStyle(fontSize: 13, color: Colors.grey),
           ),
         ),
       );
@@ -532,11 +543,11 @@ class BirthdayAvatarItem extends StatelessWidget {
               ),
             ),
             if (_isTodayBirthday)
-              const Padding(
-                padding: EdgeInsets.only(top: 2),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
                 child: Text(
-                  'Hôm nay',
-                  style: TextStyle(
+                  S.of(context).attendance_card1,
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFEF4444),
@@ -565,12 +576,6 @@ class BirthdayListTile extends StatelessWidget {
     return isNetworkImage ? rawAvatar : '';
   }
 
-  String get _employeeCode {
-    final id = employee.employeeId;
-    if (id == null) return '';
-    return 'NV${id.toString().padLeft(5, '0')}';
-  }
-
   String get _displayBirthDate {
     final rawDate = employee.birthDate;
     if (rawDate == null || rawDate.trim().isEmpty) {
@@ -579,7 +584,9 @@ class BirthdayListTile extends StatelessWidget {
 
     for (final pattern in ['yyyy-MM-dd', 'dd-MM-yyyy', 'yyyy-MM-dd HH:mm:ss']) {
       try {
-        return DateFormat('dd/MM/yyyy').format(DateFormat(pattern).parse(rawDate));
+        return DateFormat('dd/MM/yyyy').format(
+          DateFormat(pattern).parse(rawDate),
+        );
       } catch (_) {
         continue;
       }
@@ -591,10 +598,6 @@ class BirthdayListTile extends StatelessWidget {
       return rawDate;
     }
   }
-
-  // String get _departmentName {
-  //   return 'Phòng ban';
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -635,14 +638,6 @@ class BirthdayListTile extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        // Text(
-        //   _employeeCode,
-        //   style: const TextStyle(
-        //     fontSize: 14,
-        //     fontWeight: FontWeight.w400,
-        //     color: Color(0xFF6EA7DE),
-        //   ),
-        // ),
       ],
     );
   }

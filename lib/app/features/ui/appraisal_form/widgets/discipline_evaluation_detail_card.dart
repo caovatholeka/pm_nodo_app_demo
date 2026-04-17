@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/weeks_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DisciplineEvaluationDetailCard extends StatefulWidget {
@@ -21,18 +22,21 @@ class _DisciplineEvaluationDetailCardState
   int _selectedMonth = DateTime.now().month;
   final int _selectedYear = DateTime.now().year;
 
-  String get _monthLabel =>
-      'Tháng ${_selectedMonth.toString().padLeft(2, '0')}/$_selectedYear';
+  String _monthLabel(BuildContext context) =>
+      '${S.of(context).month} ${_selectedMonth.toString().padLeft(2, '0')}/$_selectedYear';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DashboardCubit>().getDisciplineEvaluationDetail(_selectedMonth);
+      context.read<DashboardCubit>().getDisciplineEvaluationDetail(
+            _selectedMonth,
+          );
     });
   }
 
   void _pickMonth() {
+    final s = S.of(context);
     int tempMonth = _selectedMonth;
 
     showModalBottomSheet(
@@ -56,9 +60,9 @@ class _DisciplineEvaluationDetailCardState
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Text(
-                        'Hủy',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(color: Colors.grey, fontSize: 16),
                       ),
                     ),
                     GestureDetector(
@@ -67,13 +71,13 @@ class _DisciplineEvaluationDetailCardState
                           _selectedMonth = tempMonth;
                         });
                         context.read<DashboardCubit>().getDisciplineEvaluationDetail(
-                          tempMonth,
-                        );
+                              tempMonth,
+                            );
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Xong',
-                        style: TextStyle(
+                      child: Text(
+                        s.day_off_donebtn,
+                        style: const TextStyle(
                           color: Color(0xFF2E87FF),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -96,7 +100,7 @@ class _DisciplineEvaluationDetailCardState
                     12,
                     (i) => Center(
                       child: Text(
-                        'Tháng ${(i + 1).toString().padLeft(2, '0')}',
+                        '${s.month} ${(i + 1).toString().padLeft(2, '0')}',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -140,7 +144,8 @@ class _DisciplineEvaluationDetailCardState
       ...weeks.map((e) => (e.earlyLateCount ?? 0).toDouble()),
       ...weeks.map((e) => (e.leaveCount ?? 0).toDouble()),
     ];
-    final maxValue = values.isEmpty ? 0.0 : values.reduce((a, b) => a > b ? a : b);
+    final maxValue =
+        values.isEmpty ? 0.0 : values.reduce((a, b) => a > b ? a : b);
     if (maxValue <= 10) return 10;
     final normalized = (maxValue / 2).ceil() * 2;
     return normalized.toDouble();
@@ -148,6 +153,8 @@ class _DisciplineEvaluationDetailCardState
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         final detail = state.disciplineEvaluationDetail;
@@ -180,10 +187,10 @@ class _DisciplineEvaluationDetailCardState
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Đánh giá nề nếp',
-                      style: TextStyle(
+                      s.appraisal_discipline_title,
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF50555C),
@@ -211,7 +218,7 @@ class _DisciplineEvaluationDetailCardState
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            _monthLabel,
+                            _monthLabel(context),
                             style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF4B5563),
@@ -233,21 +240,21 @@ class _DisciplineEvaluationDetailCardState
                   ),
                 )
               else if (state.disciplineDetailStatus == LoadStatus.FAILURE)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 36),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 36),
                   child: Center(
                     child: Text(
-                      'Không tải được dữ liệu',
-                      style: TextStyle(color: Colors.red),
+                      s.appraisal_load_failed,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                 )
               else ...[
-                const Padding(
-                  padding: EdgeInsets.only(left: 2, bottom: 6),
+                Padding(
+                  padding: const EdgeInsets.only(left: 2, bottom: 6),
                   child: Text(
-                    'Số lần',
-                    style: TextStyle(
+                    s.appraisal_occurrence_label,
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Color(0xFF666666),
                     ),
@@ -329,17 +336,17 @@ class _DisciplineEvaluationDetailCardState
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _LegendItem(
-                      color: Color(0xFF7489FF),
-                      text: 'Đi sớm về muộn',
+                      color: const Color(0xFF7489FF),
+                      text: s.appraisal_late_early_summary,
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     _LegendItem(
-                      color: Color(0xFF69C88A),
-                      text: 'Nghỉ phép',
+                      color: const Color(0xFF69C88A),
+                      text: s.appraisal_leave_label,
                     ),
                   ],
                 ),
@@ -371,6 +378,8 @@ class _SummaryBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18),
       decoration: BoxDecoration(
@@ -382,7 +391,7 @@ class _SummaryBox extends StatelessWidget {
           Expanded(
             child: _SummaryItem(
               value: '$onTimePercent%',
-              label: 'Đúng giờ',
+              label: s.appraisal_on_time,
               color: const Color(0xFF7C3AED),
             ),
           ),
@@ -390,7 +399,7 @@ class _SummaryBox extends StatelessWidget {
           Expanded(
             child: _SummaryItem(
               value: '$absentCount',
-              label: 'Vắng mặt',
+              label: s.appraisal_absent,
               color: const Color(0xFFEF4444),
             ),
           ),
@@ -398,7 +407,7 @@ class _SummaryBox extends StatelessWidget {
           Expanded(
             child: _SummaryItem(
               value: '$lateEarlyCount',
-              label: 'Đi muộn/Về sớm',
+              label: s.appraisal_late_early_summary,
               color: const Color(0xFFF59E0B),
             ),
           ),

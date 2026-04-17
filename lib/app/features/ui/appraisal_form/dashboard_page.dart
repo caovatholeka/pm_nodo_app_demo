@@ -12,11 +12,11 @@ import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data.da
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/birthday_card.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/rating_line_chart.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/summary_rating_card.dart';
-
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/total_project.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_status_card.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/work_quality_detail.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -48,27 +48,35 @@ class _DashboardPageState extends State<DashboardPage> {
       context,
     ).push(MaterialPageRoute(builder: (_) => const WorkQualityDetail()));
   }
-  
+
   void _goDisciplineEvaluationDetail() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const DisciplineEvaluationDetail()));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const DisciplineEvaluationDetail()),
+    );
   }
 
   void _goProject() {
-    Navigator.of(context).push(MaterialPageRoute(builder:(_) => const ProjectsDetail()));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const ProjectsDetail()));
   }
 
   void _goBirthdayList() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BirthdayListDetail()));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const BirthdayListDetail()));
   }
 
   void _goTimeSheetData() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TimesheetDataDetail()));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const TimesheetDataDetail()));
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocProvider(
       create: (_) => _cubit,
       child: Scaffold(
@@ -83,11 +91,11 @@ class _DashboardPageState extends State<DashboardPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: MyAppBar(
-                          titleAppbar: 'Chất lượng công việc',
-                          haveBackButton: true,
-                          haveActionButton: false,
-                          iconPathAsset: AppAssets.icFlush,
-                          actionCallBack: _createAppraisalForm,
+                      titleAppbar: s.appraisal_work_quality_title,
+                      haveBackButton: true,
+                      haveActionButton: false,
+                      iconPathAsset: AppAssets.icFlush,
+                      actionCallBack: _createAppraisalForm,
                     ),
                   ),
                   Expanded(
@@ -100,31 +108,15 @@ class _DashboardPageState extends State<DashboardPage> {
                         children: [
                           const WorkStatusCard(),
                           const SizedBox(height: 12),
-                          SummaryRatingCard(onTap: () => _goWorkQuality()),
-                          SizedBox(height: 12),
-                          RatingSummaryCard(
-                            onTap: () {
-                              _goDisciplineEvaluationDetail();
-                            },
-                          ),
-                          SizedBox(height: 12),
-                          // TaskList(),
-                          // SizedBox(height: 12),
-                          TotalProject(
-                            onTap: () {
-                              _goProject();
-                            },
-                          ),
-                          SizedBox(height: 12),
-                          BirthdayCard(
-                            onTap: () {
-                              _goBirthdayList();
-                            },
-                          ),
-                          SizedBox(height: 12),
-                          AttendanceData(
-                            onTap: () => _goTimeSheetData(),
-                          ),
+                          SummaryRatingCard(onTap: _goWorkQuality),
+                          const SizedBox(height: 12),
+                          RatingSummaryCard(onTap: _goDisciplineEvaluationDetail),
+                          const SizedBox(height: 12),
+                          TotalProject(onTap: _goProject),
+                          const SizedBox(height: 12),
+                          BirthdayCard(onTap: _goBirthdayList),
+                          const SizedBox(height: 12),
+                          AttendanceData(onTap: _goTimeSheetData),
                         ],
                       ),
                     ),

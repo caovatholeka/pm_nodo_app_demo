@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/total_project.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ProjectsDetail extends StatefulWidget {
   const ProjectsDetail({super.key});
@@ -25,6 +26,8 @@ class _ProjectDetailState extends State<ProjectsDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return BlocProvider(
       create: (_) => _cubit,
       child: Scaffold(
@@ -33,10 +36,10 @@ class _ProjectDetailState extends State<ProjectsDetail> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: MyAppBar(
-                titleAppbar: 'Dự án',
-                haveBackButton: true,
-                haveActionButton: true,
-                iconPathAsset: AppAssets.icNotificationBell,
+            titleAppbar: s.appraisal_project_title,
+            haveBackButton: true,
+            haveActionButton: true,
+            iconPathAsset: AppAssets.icNotificationBell,
           ),
         ),
         body: Stack(
