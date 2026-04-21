@@ -165,6 +165,7 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   Future<void> _onInit() async {
+    await _ensureUserProfileReady(showLoading: false);
     await _requestLocationPermission();
     _initMapRenderer();
     _movedToGpsOnce = false;
@@ -172,8 +173,44 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   Future<void> _onRefresh() async {
+    await _ensureUserProfileReady(showLoading: false);
     await _requestLocationPermission();
     _cubit.getListCheckInInfo();
+  }
+
+  Future<bool> _ensureUserProfileReady({bool showLoading = true}) async {
+    if (GlobalData.instance.userProfile?.employeeId != null) {
+      return true;
+    }
+
+    if (showLoading && mounted) {
+      LoadingOverlay.show(context);
+    }
+
+    try {
+      final profile = await _appCubit.getProfile(forceRefresh: true);
+      return profile?.employeeId != null;
+    } finally {
+      if (showLoading && mounted) {
+        LoadingOverlay.hide(context);
+      }
+    }
+  }
+
+  Future<bool> _guardUserProfileReady() async {
+    final ready = await _ensureUserProfileReady();
+    if (ready) {
+      return true;
+    }
+
+    if (mounted) {
+      AppSnackBar.showError(
+        title: S.of(context).check_in_failed,
+        message:
+            "Thông tin người dùng chưa sẵn sàng. Vui lòng thử lại sau ít giây.",
+      );
+    }
+    return false;
   }
 
   Future _initMarkers(List<CheckInInfoEntity> listCheckins) async {
@@ -1277,7 +1314,6 @@ class _CheckInPageState extends State<CheckInPage> {
 
    */
 
-
   Future<String?> showLateEarlyDialog(BuildContext context) async {
     final reasonController = TextEditingController();
     final reasonKey = GlobalKey<FormState>();
@@ -1290,9 +1326,10 @@ class _CheckInPageState extends State<CheckInPage> {
         final keyboardHeight = mediaQuery.viewInsets.bottom;
         final screenHeight = mediaQuery.size.height;
 
-        final dialogMaxHeight = keyboardHeight > 0
-            ? (screenHeight - keyboardHeight - 24)
-            : (screenHeight * 0.60);
+        final dialogMaxHeight =
+            keyboardHeight > 0
+                ? (screenHeight - keyboardHeight - 24)
+                : (screenHeight * 0.60);
 
         return StatefulBuilder(
           builder: (ctx, setState) {
@@ -1499,6 +1536,18 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   doCheckIn() async {
+    if (!await _guardUserProfileReady()) {
+      return;
+    }
+
+    if ((_cubit.state.position?.latitude ?? 0) == 0) {
+      AppSnackBar.showError(
+        title: "Cáº£nh bÃ¡o",
+        message: "TÃ­n hiá»‡u GPS kÃ©m",
+      );
+      return;
+    }
+
     // Validate
     bool serviceEnabled;
     LocationPermission permission;

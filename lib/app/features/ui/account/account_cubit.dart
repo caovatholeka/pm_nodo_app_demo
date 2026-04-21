@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/di/di.dart';
@@ -13,9 +14,13 @@ class AccountCubit extends Cubit<AccountState> {
 
   AccountCubit(this.userRepository) : super(const AccountState());
 
-  onResetStatus(){
-    emit(state.copyWith(loadStatus: LoadStatus.INITIAL,
-      logoutStatus: LoadStatus.INITIAL));
+  void onResetStatus() {
+    emit(
+      state.copyWith(
+        loadStatus: LoadStatus.INITIAL,
+        logoutStatus: LoadStatus.INITIAL,
+      ),
+    );
   }
 
   Future<void> fetchUserProfile() async {
@@ -46,22 +51,39 @@ class AccountCubit extends Cubit<AccountState> {
     }
   }
 
-  doLogout() async{
+  Future<void> logout() async {
     emit(state.copyWith(logoutStatus: LoadStatus.LOADING));
-    try{
-      String deviceType = await SharedPrefsHelper.getDeviceType();
-      final param = {
-        "device_type" : deviceType,
-      };
-      final res = await userRepository.logOut(param);
-      if(res.code == 200){
-        emit(state.copyWith(logoutStatus: LoadStatus.SUCCESS));
-      }else{
-        emit(state.copyWith(logoutStatus: LoadStatus.FAILURE));
-      }
-    }catch(e){
+
+    try {
+      await _notifyServerLogout();
+      await _clearLocalSession();
+      emit(state.copyWith(logoutStatus: LoadStatus.SUCCESS));
+    } catch (e) {
       logger.d(e);
       emit(state.copyWith(logoutStatus: LoadStatus.FAILURE));
     }
+  }
+
+  Future<void> _notifyServerLogout() async {
+    try {
+      final deviceType = await SharedPrefsHelper.getDeviceType();
+      await userRepository.logOut({"device_type": deviceType});
+    } catch (e) {
+      // Logout local should still continue even if the server call fails.
+      logger.d(e);
+    }
+  }
+
+  Future<void> _clearLocalSession() async {
+    await SharedPrefsHelper.saveToken(null);
+    await SharedPrefsHelper.setIsLoginApp(false);
+
+    final globalData = GlobalData.instance;
+    globalData.token = null;
+    globalData.userId = null;
+    globalData.userProfile = null;
+    globalData.bottomNavIndex.value = 0;
+
+    sl<AppCubit>().clearUnreadNoti();
   }
 }

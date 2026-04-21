@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
-import 'package:dio/dio.dart';
-import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
-import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -13,10 +10,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
-import '../../../core/network/api_util.dart';
 import '../../../data/models/enums/load_status.dart';
 
 import '../../widgets/custom_dialog.dart';
+import '../../widgets/loading_overlay.dart';
 import '../auth/login/login_page.dart';
 import '../account/change_languge/change_languge_page.dart';
 import '../account/personal_info/personal_info_page.dart';
@@ -24,9 +21,6 @@ import '../account/changepassword/change_password_page.dart';
 
 import 'account_cubit.dart';
 import 'account_state.dart';
-
-import 'package:pm_app/app/core/network/api_client.dart';
-import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -54,12 +48,16 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _initPackageInfo() async {
     final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+
     setState(() {
       appVersion = info.version;
     });
   }
 
-  void _logout() async {
+  void _logout() {
+    if (_cubit.state.logoutStatus == LoadStatus.LOADING) return;
+
     final s = S.of(context);
     showDialog(
       context: context,
@@ -71,35 +69,11 @@ class _AccountPageState extends State<AccountPage> {
           confirmText: s.dialog_logout_btn1,
           cancelText: s.dialog_logout_btn2,
           onConfirm: () async {
-            Navigator.pop(context);
-
-            // await _cubit.doLogout();
-            String deviceType = await SharedPrefsHelper.getDeviceType();
-            try {
-              ApiClient api = ApiUtil.instance.createApiClient();
-              final token = await SharedPrefsHelper.getToken();
-              if (token?.accessToken != null) {
-                final dio = GetIt.I<Dio>();
-                dio.options.headers['Authorization'] =
-                    'Bearer ${token!.accessToken}';
-                await api.logOut({ "device_type" : deviceType,});
-              }
-            } catch (_) {}
-
-            await SharedPrefsHelper.saveToken(null);
-            await SharedPrefsHelper.setIsLoginApp(false);
-            GetIt.I<AppCubit>().clearUnreadNoti();
-            GlobalData.instance.bottomNavIndex.value = 0;
-
-            if (!mounted) return;
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
-              (_) => false,
-            );
+            Navigator.of(context, rootNavigator: true).pop();
+            await _cubit.logout();
           },
           success: false,
-          onCancel: () => Navigator.pop(context),
+          onCancel: () => Navigator.of(context, rootNavigator: true).pop(),
         );
       },
     );
@@ -140,138 +114,139 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
     return BlocConsumer<AccountCubit, AccountState>(
         bloc: _cubit,
-        listener: (context,state) async{
-          // if(state.logoutStatus == LoadStatus.LOADING){
-          //   LoadingOverlay.show(context);
-          // }else if(state.logoutStatus == LoadStatus.SUCCESS) {
-          //   LoadingOverlay.hide(context);
-          //   await SharedPrefsHelper.saveToken(null);
-          //   await SharedPrefsHelper.setIsLoginApp(false);
-          //   _cubit.onResetStatus();
-          //   GlobalData.instance.bottomNavIndex.value = 0;
-          //
-          //   Navigator.pushAndRemoveUntil(
-          //     context,
-          //     MaterialPageRoute(builder: (_) => const LoginPage()),
-          //         (r) => false,
-          //   );
-          // }else{
-          //   _cubit.onResetStatus();
-          //   LoadingOverlay.hide(context);
-          // }
+        listenWhen: (previous, current) =>
+            previous.logoutStatus != current.logoutStatus,
+        listener: (context, state) async {
+          if (state.logoutStatus == LoadStatus.LOADING) {
+            LoadingOverlay.show(context);
+            return;
+          }
+
+          if (state.logoutStatus == LoadStatus.SUCCESS) {
+            LoadingOverlay.hide(context);
+
+            if (!mounted) return;
+
+            _cubit.onResetStatus();
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+              (_) => false,
+            );
+          }
+
+          if (state.logoutStatus == LoadStatus.FAILURE) {
+            LoadingOverlay.hide(context);
+            _cubit.onResetStatus();
+          }
         },
-        builder: (context,state){
-          return BlocBuilder<AccountCubit, AccountState>(
-            bloc: _cubit,
-            builder: (context, state) {
-              final profile = state.profile;
-              final screen = ScreenSize.of(context);
-              final appBarHeight = screen.height * 0.24;
+        builder: (context, state) {
+          final s = S.of(context);
+          final profile = state.profile;
+          final screen = ScreenSize.of(context);
+          final appBarHeight = screen.height * 0.24;
 
-              return Scaffold(
-                backgroundColor: const Color(0xFFF4F6F8),
-                body: CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      expandedHeight: appBarHeight,
-                      flexibleSpace: FlexibleSpaceBar(
-                        background: _header(profile, state.loadStatus),
+          return Scaffold(
+            backgroundColor: const Color(0xFFF4F6F8),
+            body: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: appBarHeight,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: _header(profile, state.loadStatus),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      const SizedBox(height: 18),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          s.account_page_title1,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
                       ),
-                    ),
-
-                    SliverList(
-                      delegate: SliverChildListDelegate(
-                        [
-                          const SizedBox(height: 18),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 10),
-                            child: Text(
-                              s.account_page_title1,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
+                      _roundedMenuContainer(
+                        children: [
+                          _menuItem(
+                            icon: AppAssets.icUser,
+                            title: s.account_page_util1,
+                            onTap: _goInfo,
                           ),
-                          _roundedMenuContainer(
-                            children: [
-                              _menuItem(
-                                icon: AppAssets.icUser,
-                                title: s.account_page_util1,
-                                onTap: _goInfo,
-                              ),
-                              _menuItem(
-                                icon: AppAssets.icNotificationPF,
-                                title: s.account_page_util2,
-                                onTap: _goNotification,
-                              ),
-                              _menuItem(
-                                icon: AppAssets.icProtect,
-                                title: s.account_page_util3,
-                                onTap: _goPassword,
-                              ),
-                              _menuItem(
-                                icon: AppAssets.icLangague,
-                                title: s.account_page_util4,
-                                onTap: _goLanguge,
-                              ),
-                            ],
+                          _menuItem(
+                            icon: AppAssets.icNotificationPF,
+                            title: s.account_page_util2,
+                            onTap: _goNotification,
                           ),
-                          const SizedBox(height: 6),
-                          Padding(
-                            padding: const EdgeInsets.only(left:10),
-                            child: Text(
-                              s.account_page_title2,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
+                          _menuItem(
+                            icon: AppAssets.icProtect,
+                            title: s.account_page_util3,
+                            onTap: _goPassword,
                           ),
-                          _roundedMenuContainer(
-                            children: [
-                              // _menuItem(
-                              //   icon: AppAssets.icHelpCenter,
-                              //   title: "Help Center",
-                              //   onTap: () {},
-                              // ),
-                              // _menuItem(
-                              //   icon: AppAssets.icUser,
-                              //   title: "Privacy Policy",
-                              //   onTap: () {},
-                              // ),
-                              _menuItem(
-                                icon: AppAssets.icLogout,
-                                title: s.account_page_util5,
-                                onTap: _logout,
-                              ),
-                            ],
+                          _menuItem(
+                            icon: AppAssets.icLangague,
+                            title: s.account_page_util4,
+                            onTap: _goLanguge,
                           ),
-                          const SizedBox(height: 24),
-                          Center(child: Text("App Version: $appVersion",
-                            textAlign: TextAlign.center,
-                          ),)
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          s.account_page_title2,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                      _roundedMenuContainer(
+                        children: [
+                          // _menuItem(
+                          //   icon: AppAssets.icHelpCenter,
+                          //   title: "Help Center",
+                          //   onTap: () {},
+                          // ),
+                          // _menuItem(
+                          //   icon: AppAssets.icUser,
+                          //   title: "Privacy Policy",
+                          //   onTap: () {},
+                          // ),
+                          _menuItem(
+                            icon: AppAssets.icLogout,
+                            title: s.account_page_util5,
+                            onTap: _logout,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: Text(
+                          "App Version: $appVersion",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
+              ],
+            ),
           );
         });
   }
 
   Widget _header(profile, LoadStatus status) {
     final screen = ScreenSize.of(context);
-
     final avatarSize = screen.width * 0.18;
-    final cameraSize = avatarSize * 0.28;
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -302,24 +277,7 @@ class _AccountPageState extends State<AccountPage> {
                       children: [
                         Stack(
                           alignment: Alignment.bottomRight,
-                          children: [
-                            _buildAvatar(
-                              profile.avatarUrl,
-                              avatarSize,
-                            ),
-                            // Container(
-                            //   width: cameraSize,
-                            //   height: cameraSize,
-                            //   decoration: const BoxDecoration(
-                            //     color: Colors.white,
-                            //     shape: BoxShape.circle,
-                            //   ),
-                            //   child: Icon(
-                            //     Icons.camera_alt,
-                            //     size: cameraSize * 0.55,
-                            //   ),
-                            // ),
-                          ],
+                          children: [_buildAvatar(profile.avatarUrl, avatarSize)],
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -374,19 +332,19 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-    // Widget _sectionTitle(String text) {
-    //   return Padding(
-    //     padding: const EdgeInsets.only(left: 10, bottom: 4),
-    //     child: Text(
-    //       text,
-    //       style: TextStyle(
-    //         fontSize: 13,
-    //         fontWeight: FontWeight.w700,
-    //         color: Colors.grey.shade600,
-    //       ),
-    //     ),
-    //   );
-    // }
+  // Widget _sectionTitle(String text) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(left: 10, bottom: 4),
+  //     child: Text(
+  //       text,
+  //       style: TextStyle(
+  //         fontSize: 13,
+  //         fontWeight: FontWeight.w700,
+  //         color: Colors.grey.shade600,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _roundedMenuContainer({required List<Widget> children}) {
     return Container(

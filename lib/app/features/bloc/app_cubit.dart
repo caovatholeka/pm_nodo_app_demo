@@ -48,7 +48,15 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> getProfile() async {
+  Future<ProfileEntity?> getProfile({bool forceRefresh = false}) async {
+    final cachedProfile = GlobalData.instance.userProfile ?? state.userProfile;
+    if (!forceRefresh && cachedProfile != null) {
+      if (state.userProfile != cachedProfile) {
+        emit(state.copyWith(userProfile: cachedProfile));
+      }
+      return cachedProfile;
+    }
+
     if (GlobalData.instance.userId == null) {
       final token = await SharedPrefsHelper.getToken();
       GlobalData.instance.userId = token?.uid;
@@ -56,7 +64,7 @@ class AppCubit extends Cubit<AppState> {
 
     if (GlobalData.instance.userId == null) {
       logger.e("Không có user_id để gọi API getUserProfile");
-      return;
+      return null;
     }
 
     final param = {"user_id": GlobalData.instance.userId};
@@ -67,10 +75,13 @@ class AppCubit extends Cubit<AppState> {
         final userEntity = mapObject(user.data, ProfileEntity.fromJson);
         GlobalData.instance.userProfile = userEntity;
         emit(state.copyWith(userProfile: userEntity));
+        return userEntity;
       }
     } catch (error) {
       logger.e(error);
     }
+
+    return GlobalData.instance.userProfile ?? state.userProfile;
   }
 
   Future<void> getListWorkFlowStages() async {
@@ -156,14 +167,11 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-
-
   void onTokenExpired() {
     emit(state.copyWith(tokenExpired: true));
   }
 
   void resetTokenExpired() {
-    emit(state.copyWith(tokenExpired: false)); 
+    emit(state.copyWith(tokenExpired: false));
   }
-
 }

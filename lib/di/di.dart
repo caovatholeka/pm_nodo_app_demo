@@ -105,7 +105,7 @@ Future<void> init() async {
     () => AppCubit(authRepository: sl(), userRepository: sl()),
   );
   sl.registerLazySingleton<SplashCubit>(
-    () => SplashCubit(authRepository: sl()),
+    () => SplashCubit(authRepository: sl(), appCubit: sl()),
   );
   sl.registerLazySingleton<LogInCubit>(() => LogInCubit(authRepository: sl()));
   sl.registerLazySingleton<OnLeaveCubit>(() => OnLeaveCubit(repository: sl()));

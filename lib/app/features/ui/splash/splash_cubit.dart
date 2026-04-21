@@ -5,24 +5,22 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../../core/commons/global_data.dart';
 import '../../../core/logger/logger.dart';
+import '../../bloc/app_cubit.dart';
 import '../../../data/models/entities/token_entity.dart';
 import '../../../data/repositories/auth_repository.dart';
 
 part 'splash_state.dart';
 
-enum SplashNavigator {
-  OPEN_HOME,
-  OPEN_LOG_IN,
-}
+enum SplashNavigator { OPEN_HOME, OPEN_LOG_IN }
 
 class SplashCubit extends Cubit<SplashState> {
   AuthRepository authRepository;
+  AppCubit appCubit;
 
   final navigatorController = PublishSubject<SplashNavigator>();
 
-  SplashCubit({
-    required this.authRepository,
-  }) : super(SplashState());
+  SplashCubit({required this.authRepository, required this.appCubit})
+    : super(SplashState());
 
   @override
   Future<void> close() {
@@ -44,6 +42,8 @@ class SplashCubit extends Cubit<SplashState> {
     } else {
       try {
         GlobalData.instance.token = token;
+        GlobalData.instance.userId = token.uid;
+        await appCubit.getProfile(forceRefresh: true);
 
         emit(state.copyWith(loginState: LoginState.LOGGED_IN));
         navigatorController.sink.add(SplashNavigator.OPEN_HOME);
