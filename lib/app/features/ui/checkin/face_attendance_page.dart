@@ -680,7 +680,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.35),
+                        color: Colors.black.withValues(alpha: 0.35),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.arrow_back, color: Colors.white),
@@ -690,35 +690,38 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
               ),
             ),
 
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 125 + MediaQuery.of(context).padding.bottom,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
+            if (!_scanStarted)
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 125 + MediaQuery.of(context).padding.bottom,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 360),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.32),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        s.check_in_hint,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child:
-                      !_scanStarted
-                          ? Text(
-                            s.check_in_hint,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          )
-                          : const SizedBox.shrink(),
                 ),
               ),
-            ),
 
             if (camReady && !_scanStarted)
               Positioned(
@@ -738,7 +741,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                         border: Border.all(color: Colors.white, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.25),
+                            color: Colors.black.withValues(alpha: 0.25),
                             blurRadius: 10,
                             spreadRadius: 1,
                             offset: const Offset(0, 4),

@@ -226,7 +226,7 @@ class CheckInCubit extends Cubit<CheckInState> {
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
-      permission = await Geolocator.requestPermission();
+      permission = await Geolocator.requestPermission();  
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         logger.w('Location permission not granted');

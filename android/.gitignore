@@ -12,3 +12,6 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+key.properties.bak
+upload-keystore.jks.shortcut.bak
+upload-keystore.jks

@@ -26,8 +26,8 @@ android {
         applicationId = "com.nodo.pm_app"
         minSdk = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.0.2"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     compileOptions {
@@ -45,8 +45,9 @@ android {
     //       create("release") {
     //           keyAlias = keystoreProperties.getProperty("keyAlias")
     //           keyPassword = keystoreProperties.getProperty("keyPassword")
-    //           storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+    //           storeFile = file(keystoreProperties.getProperty("storeFile"))
     //           storePassword = keystoreProperties.getProperty("storePassword")
+    //           storeType = "JKS"
     //       }
     //   }
 
