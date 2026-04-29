@@ -38,40 +38,40 @@ class _ApplicationPageState extends State<ApplicationPage> {
     );
   }
 
-  void _openStaffPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true)),
-    );
-  }
+  // void _openStaffPage() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true)),
+  //   );
+  // }
 
-  void _goAttendanceData() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => AttendanceDataPage()),
-    );
-  }
+  // void _goAttendanceData() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => AttendanceDataPage()),
+  //   );
+  // }
 
-  void _openCheckIn() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => CheckInPage(isFromHome: true)),
-    );
-  }
+  // void _openCheckIn() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => CheckInPage(isFromHome: true)),
+  //   );
+  // }
 
-  void _openOnLeave() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => OnLeavePage(isFromHome: true)),
-    );
-  }
+  // void _openOnLeave() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => OnLeavePage(isFromHome: true)),
+  //   );
+  // }
 
-  void _openTaskList() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => TaskManagePage()),
-    );
-  }
+  // void _openTaskList() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => TaskManagePage()),
+  //   );
+  // }
 
   void _openJustifications() {
     Navigator.push(
@@ -163,11 +163,11 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "title": s.app_until4,
         "onTap": () => _openAppraisalForm(),
       },
-      {
-        "icon": AppAssets.ic_paper2,
-        "title": "Dashboard",
-        "onTap": () => openDashborad(),
-      },
+      // {
+      //   "icon": AppAssets.ic_paper2,
+      //   "title": "Dashboard",
+      //   "onTap": () => openDashborad(),
+      // },
     ];
 
     return Padding(
