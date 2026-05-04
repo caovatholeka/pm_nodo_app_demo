@@ -120,4 +120,6 @@ class AppAssets {
   static final icWork = 'assets/images/icons/ic_work.svg';
   static final icCake = 'assets/images/icons/ic_cake.svg';
   static final icClock3 = 'assets/images/icons/ic_clock3.svg';
+
+  static final icFlag = 'assets/images/icons/ic_flag.svg';
 }

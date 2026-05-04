@@ -1,28 +1,55 @@
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/suggest_id_entity.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_dialog.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
 
-class AppraisalStepOpinion extends StatelessWidget {
+class AppraisalStepOpinion extends StatefulWidget {
   final List<SuggestIdEntity> suggests;
   final List<TextEditingController> controllers;
   final bool isLeaderReview;
+  final String? evaluationState;
 
   const AppraisalStepOpinion({
     super.key,
     required this.suggests,
     required this.controllers,
     this.isLeaderReview = false,
+    this.evaluationState,
   });
 
+  @override
+  State<AppraisalStepOpinion> createState() => _AppraisalStepOpinionState();
+}
+
+class _AppraisalStepOpinionState extends State<AppraisalStepOpinion> {
   Color get _sectionBg =>
-      isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
+      widget.isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
   Color get _accent =>
-      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
+      widget.isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
   Color get _titleColor =>
-      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
+      widget.isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
+
+  Future<void> _openSuggestionDialog(
+    BuildContext context,
+    SuggestIdEntity item,
+    TextEditingController controller,
+  ) async {
+    final result = await AppraisalDialog.show(
+      context,
+      suggestId: item.id,
+      departmentName: item.name ?? '',
+      initialNote: controller.text,
+    );
+
+    if (result == null || result.note.trim().isEmpty) return;
+
+    controller.text = result.note;
+    item.note = result.note;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +79,7 @@ class AppraisalStepOpinion extends StatelessWidget {
                       color: Color(0xFF374151),
                     ),
                   ),
-                  SvgPicture.asset(
-                    AppAssets.icQuestion,
-                    width: 20,
-                  ),
+                  SvgPicture.asset(AppAssets.icQuestion, width: 20),
                 ],
               ),
             ),
@@ -70,12 +94,13 @@ class AppraisalStepOpinion extends StatelessWidget {
                 ),
               ),
               child: Column(
-                children: List.generate(suggests.length, (i) {
-                  final item = suggests[i];
+                children: List.generate(widget.suggests.length, (i) {
+                  final item = widget.suggests[i];
+                  final controller = widget.controllers[i];
 
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: i == suggests.length - 1 ? 0 : 14,
+                      bottom: i == widget.suggests.length - 1 ? 0 : 14,
                     ),
                     child: Container(
                       padding: const EdgeInsets.all(10),
@@ -127,10 +152,16 @@ class AppraisalStepOpinion extends StatelessWidget {
                           InputTextField(
                             title: '',
                             hintText: s.appraisal_suggestion_hint,
-                            controller: controllers[i],
+                            controller: controller,
                             maxLine: 4,
                             isRequiredField: false,
                             readOnly: true,
+                            callback:
+                                () => _openSuggestionDialog(
+                                  context,
+                                  item,
+                                  controller,
+                                ),
                             fillBgColor: const Color(0xFFEFF8EF),
                           ),
                         ],

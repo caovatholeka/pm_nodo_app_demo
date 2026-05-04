@@ -390,7 +390,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     return const SizedBox.shrink();
   }
 
-  void _syncTabData(CreateAppraisalState state, {required bool isLeaderReview}) {
+  void _syncTabData(
+    CreateAppraisalState state, {
+    required bool isLeaderReview,
+  }) {
     _fillDetailStep1(state);
     _fillDetailStep2(state, isLeaderReview: isLeaderReview);
     _fillDetailStep3(state, isLeaderReview: isLeaderReview);
@@ -452,6 +455,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       suggests: state.detailEvaluation?.suggestIds ?? [],
       controllers: _suggestControllers,
       isLeaderReview: isLeaderReview,
+      evaluationState: state.detailEvaluation?.state,
     );
   }
 
@@ -467,16 +471,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           _initDetail = true;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _syncTabData(
-              state,
-              isLeaderReview: state.currentTabIndex == 1,
-            );
+            _syncTabData(state, isLeaderReview: state.currentTabIndex == 1);
             setState(() {});
           });
         }
 
-        final actionText =
-            _currentStep < 3 ? s.appraisal_next : s.confirm;
+        final actionText = _currentStep < 3 ? s.appraisal_next : s.confirm;
 
         return Scaffold(
           appBar: MyAppBar(
@@ -606,10 +606,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                       if (index != cubit.state.currentTabIndex) {
                         cubit.onChangeTab(index);
                         cubit.onChangeCurrentTabItem(item);
-                        _syncTabData(
-                          cubit.state,
-                          isLeaderReview: index == 1,
-                        );
+                        _syncTabData(cubit.state, isLeaderReview: index == 1);
                         setState(() {});
                       }
                     },
@@ -620,9 +617,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color:
-                            isSelected
-                                ? const Color(0xFFF3F3F5)
-                                : Colors.white,
+                            isSelected ? const Color(0xFFF3F3F5) : Colors.white,
                         borderRadius: BorderRadius.circular(13),
                       ),
                       child: Text(
