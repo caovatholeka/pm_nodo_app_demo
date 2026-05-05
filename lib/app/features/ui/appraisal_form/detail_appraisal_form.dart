@@ -9,7 +9,7 @@ import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/apprasisal_progress_page.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/detail_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
@@ -17,24 +17,26 @@ import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/generated/l10n.dart';
 
-class CreateAppraisalForm extends StatefulWidget {
+class DetailAppraisalForm extends StatefulWidget {
   final bool isDetail;
-  final bool isCreate;
+  final bool isEdit;
   final int? evaluationId;
 
-  const CreateAppraisalForm({
+  const DetailAppraisalForm({
     super.key,
     this.isDetail = false,
-    this.isCreate = false,
+    this.isEdit = false,
     this.evaluationId,
   });
 
   @override
-  State<CreateAppraisalForm> createState() => _CreateAppraisalFormState();
+  State<DetailAppraisalForm> createState() => _DetailAppraisalFormState();
 }
 
-class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
+class _DetailAppraisalFormState extends State<DetailAppraisalForm> {
   late final CreateAppraisalCubit _cubit;
+  bool _didFillDetail = false;
+  final _displayDateFormat = DateFormat('MM/yyyy');
 
   final _createdDateCtrl = TextEditingController(
     text: DateFormat('dd/MM/yyyy').format(DateTime.now()),
@@ -56,6 +58,30 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
           ? LocaleType.en
           : LocaleType.vi;
 
+  DateTime _pickerDateOf(TextEditingController controller) {
+    return AppDateUtils.parseFlexibleDate(controller.text) ?? DateTime.now();
+  }
+
+  Future<void> _showYearMonthPicker({
+    required TextEditingController controller,
+    required ValueChanged<DateTime> onConfirm,
+  }) async {
+    final initial = _pickerDateOf(controller);
+
+    await DatePicker.showPicker(
+      context,
+      showTitleActions: true,
+      locale: _pickerLocale,
+      pickerModel: _YearMonthPicker(
+        currentTime: DateTime(initial.year, initial.month, 1),
+        minTime: DateTime(2015, 1, 1),
+        maxTime: DateTime(2035, 12, 31),
+        locale: _pickerLocale,
+      ),
+      onConfirm: onConfirm,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +90,12 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
 
     if (widget.isDetail) {
       _cubit.initDetail();
+
+      if (widget.evaluationId != null) {
+        _cubit.getEvaluationDetails(widget.evaluationId!);
+      }
+    } else if (widget.isEdit) {
+      _cubit.initEdit();
 
       if (widget.evaluationId != null) {
         _cubit.getEvaluationDetails(widget.evaluationId!);
@@ -90,15 +122,16 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
     _fromDateCtrl.dispose();
     _toDateCtrl.dispose();
     _noteCtrl.dispose();
+    _managerNameCtrl.dispose();
+    _deprtmentCtrl.dispose();
     super.dispose();
   }
 
   void _pickFromDate() {
-    DatePicker.showDatePicker(
-      context,
-      locale: _pickerLocale,
+    _showYearMonthPicker(
+      controller: _fromDateCtrl,
       onConfirm: (d) {
-        _fromDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
+        _fromDateCtrl.text = _displayDateFormat.format(d);
         _toDateCtrl.clear();
         _cubit.setFromDate(d);
       },
@@ -106,11 +139,10 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
   }
 
   void _pickToDate() {
-    DatePicker.showDatePicker(
-      context,
-      locale: _pickerLocale,
+    _showYearMonthPicker(
+      controller: _toDateCtrl,
       onConfirm: (d) {
-        _toDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
+        _toDateCtrl.text = _displayDateFormat.format(d);
         _cubit.setToDate(d);
       },
     );
@@ -157,6 +189,7 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
       final d = AppDateUtils.parseFlexibleDate(e.dateFrom);
       _fromDateCtrl.text = AppDateUtils.formatFlexibleDateForDisplay(
         e.dateFrom,
+        datePattern: _displayDateFormat.pattern!,
       );
       if (d != null) {
         _cubit.setFromDate(d);
@@ -165,7 +198,10 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
 
     if (e.dateTo != null) {
       final d = AppDateUtils.parseFlexibleDate(e.dateTo);
-      _toDateCtrl.text = AppDateUtils.formatFlexibleDateForDisplay(e.dateTo);
+      _toDateCtrl.text = AppDateUtils.formatFlexibleDateForDisplay(
+        e.dateTo,
+        datePattern: _displayDateFormat.pattern!,
+      );
       if (d != null) {
         _cubit.setToDate(d);
       }
@@ -181,9 +217,11 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
     return BlocProvider.value(
       value: _cubit,
       child: BlocListener<CreateAppraisalCubit, CreateAppraisalState>(
+        listenWhen: (prev, cur) => prev.loadDetail != cur.loadDetail,
         listener: (context, state) {
-          if (state.loadDetail == LoadStatus.SUCCESS) {
+          if (state.loadDetail == LoadStatus.SUCCESS && !_didFillDetail) {
             _fillDetail(state);
+            _didFillDetail = true;
           }
         },
         child: BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
@@ -201,6 +239,8 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
                       titleAppbar:
                           widget.isDetail == true
                               ? s.appraisal_form_title
+                              : widget.isEdit
+                              ? s.bt_updateTitle
                               : s.appraisal_create_title,
                       haveBackButton: true,
                       haveActionButton: true,
@@ -311,5 +351,58 @@ class _CreateAppraisalFormState extends State<CreateAppraisalForm> {
         ),
       ),
     );
+  }
+}
+
+class _YearMonthPicker extends CommonPickerModel {
+  _YearMonthPicker({
+    required DateTime currentTime,
+    DateTime? minTime,
+    DateTime? maxTime,
+    super.locale,
+  }) {
+    this.currentTime = currentTime;
+    this.minTime = minTime ?? DateTime(2000, 1, 1);
+    this.maxTime = maxTime ?? DateTime(2100, 12, 31);
+
+    setLeftIndex(currentTime.year - this.minTime.year);
+    setMiddleIndex(currentTime.month - 1);
+    setRightIndex(0);
+  }
+
+  late DateTime minTime;
+  late DateTime maxTime;
+
+  @override
+  String? leftStringAtIndex(int index) {
+    final year = minTime.year + index;
+    if (year < minTime.year || year > maxTime.year) return null;
+    return '$year';
+  }
+
+  @override
+  String? middleStringAtIndex(int index) {
+    if (index < 0 || index > 11) return null;
+    final month = index + 1;
+    return month.toString().padLeft(2, '0');
+  }
+
+  @override
+  String? rightStringAtIndex(int index) => '';
+
+  @override
+  List<int> layoutProportions() => [2, 2, 0];
+
+  @override
+  String leftDivider() => '/';
+
+  @override
+  String rightDivider() => '';
+
+  @override
+  DateTime finalTime() {
+    final year = minTime.year + currentLeftIndex();
+    final month = currentMiddleIndex() + 1;
+    return DateTime(year, month, 1);
   }
 }

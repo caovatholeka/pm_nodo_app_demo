@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/total_project.dart';
+import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/total_project.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 

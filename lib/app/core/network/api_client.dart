@@ -306,18 +306,15 @@ abstract class ApiClient {
     @Body() LeaveRejectParam body,
   );
 
-
   //Duyệt đơn OT
   @POST("/overtime/overtime/approve")
   Future<CommonResponse> approveOT(@Body() OtApproveParam body);
-
 
   @POST("/overtime/overtime/{id}/cancel")
   Future<CommonResponse> cancelOT(
     @Path("id") int id,
     @Body() CancelOtParam body,
   );
-
 
   //Duyệt đơn công tác
   @POST('/going_on_business/going_on_business/approve')
@@ -327,27 +324,29 @@ abstract class ApiClient {
   @POST('/going_on_business/going_on_business/{id}/cancel')
   Future<CommonResponse> cancelOB(
     @Path("id") int id,
-    @Body() CancelObParam body
+    @Body() CancelObParam body,
   );
 
   //Duyệt đơn M/S
   @POST('/attendance_exception/attendance_exception/approve')
-  Future<CommonResponse> approveJustification(@Body() JustificationApproveParam body);
+  Future<CommonResponse> approveJustification(
+    @Body() JustificationApproveParam body,
+  );
 
   //Hủy đơn M/S
   @POST('/attendance_exception/attendance_exception/{id}/cancel')
   Future<CommonResponse> cancelJustification(
     @Path("id") int id,
-    @Body() JustificationCancelParam body
+    @Body() JustificationCancelParam body,
   );
 
   // danh gia cong viec
   @GET("/evaluation/evaluation_list")
   Future<CommonResponse> getListEvaluation(
-  @Query("date_from") String? dateFrom,
-  @Query("date_to") String? dateTo,
-  @Query("limit") int? limit,
-  @Query("page") int? page,
+    @Query("date_from") String? dateFrom,
+    @Query("date_to") String? dateTo,
+    @Query("limit") int? limit,
+    @Query("page") int? page,
   );
 
   @GET("/evaluation/evaluation_detail/{id}")
@@ -355,11 +354,11 @@ abstract class ApiClient {
 
   @POST("/evaluation/evaluation_create")
   Future<CommonResponse> createEvaluation(@Body() EvaluationEntity body);
-  
+
   @PUT("/evaluation/evaluation_update/{id}")
   Future<dynamic> updateEvaluation(
     @Path("id") int id,
-    @Body() EvaluationEntity body,
+    @Body() Map<String, dynamic> body,
   );
 
   // thống kê đơn từ
@@ -368,17 +367,17 @@ abstract class ApiClient {
   // thống kê chất lượng công việc
   @GET('/dashboard/work_quality')
   Future<WorkQualityEntity> getWorkQuality(
-      @Query("month") int? month,
-      @Query("year") int? year,
-      );
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
 
   // chi tiết chất lượng công việc
   @GET('/dashboard/work_quality_detail')
   Future<WorkQualityEntity> getWorkQualityDetail(
-      @Query("month") int? month,
-      @Query("year") int? year
-      );
-  
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
+
   //Thống kê dữ liệu chấm công
   @GET('/dashboard/timesheet_data')
   Future<dynamic> getTimeSheetData(
@@ -388,9 +387,7 @@ abstract class ApiClient {
 
   // thống kê sinh nhật trong tháng
   @GET('/dashboard/birthdays_this_month')
-  Future<dynamic> getBirthdaysThisMonth(
-    @Query("month") int? month,
-  );
+  Future<dynamic> getBirthdaysThisMonth(@Query("month") int? month);
 
   //Thống kê nề nếp
   @GET('/dashboard/discipline_evaluation')
@@ -406,11 +403,9 @@ abstract class ApiClient {
     @Query("year") int? year,
   );
 
-  //Lấy chi tiết dự án 
+  //Lấy chi tiết dự án
   @GET('/dashboard/project_tasks')
-  Future<dynamic> getProjectTasks(
-    @Query("project_id") int? projectId,
-  );
+  Future<dynamic> getProjectTasks(@Query("project_id") int? projectId);
 
   //Lấy dự án
   @GET('/dashboard/projects')

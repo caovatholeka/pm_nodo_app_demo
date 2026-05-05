@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/data/models/entities/items_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data_item.dart';
+import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/attendance_data_item.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 class AttendanceData extends StatelessWidget {

@@ -2,13 +2,12 @@ part of 'apprasial_form_cubit.dart';
 
 class ApprasialFormState extends Equatable {
   final LoadStatus loadDataStatus;
+  final List<EvaluationEntity>? listEvaluations;
+  final EvaluationEntity? detailEvaluation;
+  final String? startDateFilter;
+  final String? endDateFilter;
 
-  List<EvaluationEntity>? listEvaluations; // danh sách đánh giá
-  EvaluationEntity? detailEvaluation; // chi tiết đánh giá
-  String? startDateFilter;
-  String? endDateFilter;
-
-  ApprasialFormState({
+  const ApprasialFormState({
     this.loadDataStatus = LoadStatus.INITIAL,
     this.listEvaluations,
     this.detailEvaluation,
@@ -28,7 +27,7 @@ class ApprasialFormState extends Equatable {
       listEvaluations: listEvaluations ?? this.listEvaluations,
       detailEvaluation: detailEvaluation ?? this.detailEvaluation,
       startDateFilter: startDateFilter ?? this.startDateFilter,
-      endDateFilter: startDateFilter ?? this.endDateFilter,
+      endDateFilter: endDateFilter ?? this.endDateFilter,
     );
   }
 
@@ -37,8 +36,7 @@ class ApprasialFormState extends Equatable {
     loadDataStatus,
     listEvaluations,
     detailEvaluation,
-    startDateFilter, 
+    startDateFilter,
     endDateFilter,
   ];
-
 }

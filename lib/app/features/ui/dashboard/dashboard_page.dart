@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/birthday_list_detail.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_form.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/discipline_evaluation_detail.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/projects_detail.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/timesheet_data_detail.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/attendance_data.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/birthday_card.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/rating_line_chart.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/summary_rating_card.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/total_project.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_status_card.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/work_quality_detail.dart';
+import 'package:pm_app/app/features/ui/dashboard/birthday_list_detail.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/detail_appraisal_form.dart';
+import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
+import 'package:pm_app/app/features/ui/dashboard/discipline_evaluation_detail.dart';
+import 'package:pm_app/app/features/ui/dashboard/projects_detail.dart';
+import 'package:pm_app/app/features/ui/dashboard/timesheet_data_detail.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/attendance_data.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/birthday_card.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/rating_line_chart.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/summary_rating_card.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/total_project.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/work_status_card.dart';
+import 'package:pm_app/app/features/ui/dashboard/work_quality_detail.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -37,11 +37,11 @@ class _DashboardPageState extends State<DashboardPage> {
     _cubit.getBirthdaysThisMonth(DateTime.now().month);
   }
 
-  void _createAppraisalForm() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const CreateAppraisalForm()));
-  }
+  // void _createAppraisalForm() {
+  //   Navigator.of(
+  //     context,
+  //   ).push(MaterialPageRoute(builder: (_) => const CreateAppraisalForm()));
+  // }
 
   void _goWorkQuality() {
     Navigator.of(
@@ -92,10 +92,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: MyAppBar(
                       titleAppbar: s.appraisal_work_quality_title,
-                      haveBackButton: true,
+                      haveBackButton: false,
                       haveActionButton: false,
                       iconPathAsset: AppAssets.icFlush,
-                      actionCallBack: _createAppraisalForm,
                     ),
                   ),
                   Expanded(

@@ -1,8 +1,9 @@
-part of 'create_apprasial_cubit.dart';
+part of 'detail_apprasial_cubit.dart';
 
 class CreateAppraisalState extends Equatable {
   final LoadStatus? loadDetail;
-  final bool? isCreate;
+  final LoadStatus updateStatus;
+  final bool? isEdit;
   final bool? isDetail;
   final DateTime? fromDate;
   final DateTime? toDate;
@@ -10,8 +11,9 @@ class CreateAppraisalState extends Equatable {
   final Map<int, double?> hours;
   final Map<int, String?> formTypes;
   final bool isSubmitting;
-  final List<EvaluationEntity>? listEvaluations; 
+  final List<EvaluationEntity>? listEvaluations;
   final EvaluationEntity? detailEvaluation;
+  final String? errMsg;
 
   final int currentTabIndex;
   final MasterDataItem? currentTabItem;
@@ -20,7 +22,8 @@ class CreateAppraisalState extends Equatable {
     this.listEvaluations,
     this.detailEvaluation,
     this.loadDetail,
-    this.isCreate,
+    this.updateStatus = LoadStatus.INITIAL,
+    this.isEdit,
     this.isDetail,
     this.fromDate,
     this.toDate,
@@ -28,6 +31,7 @@ class CreateAppraisalState extends Equatable {
     this.hours = const {},
     this.formTypes = const {},
     this.isSubmitting = false,
+    this.errMsg,
     this.currentTabIndex = 0,
     this.currentTabItem,
   });
@@ -39,7 +43,8 @@ class CreateAppraisalState extends Equatable {
     EvaluationEntity? detailEvaluation,
     List<EvaluationEntity>? listEvaluations,
     LoadStatus? loadDetail,
-    bool? isCreate,
+    LoadStatus? updateStatus,
+    bool? isEdit,
     bool? isDetail,
     DateTime? fromDate,
     DateTime? toDate,
@@ -47,7 +52,10 @@ class CreateAppraisalState extends Equatable {
     Map<int, double?>? hours,
     Map<int, String?>? formTypes,
     bool? isSubmitting,
+    String? errMsg,
     bool resetLines = false,
+    bool clearFromDate = false,
+    bool clearToDate = false,
     int? currentTabIndex,
     MasterDataItem? currentTabItem,
   }) {
@@ -55,14 +63,16 @@ class CreateAppraisalState extends Equatable {
       detailEvaluation: detailEvaluation ?? this.detailEvaluation,
       listEvaluations: listEvaluations ?? this.listEvaluations,
       loadDetail: loadDetail ?? this.loadDetail,
-      isCreate: isCreate ?? this.isCreate,
+      updateStatus: updateStatus ?? this.updateStatus,
+      isEdit: isEdit ?? this.isEdit,
       isDetail: isDetail ?? this.isDetail,
-      fromDate: fromDate ?? this.fromDate,
-      toDate: toDate ?? this.toDate,
+      fromDate: clearFromDate ? null : (fromDate ?? this.fromDate),
+      toDate: clearToDate ? null : (toDate ?? this.toDate),
       note: note ?? this.note,
       hours: resetLines ? {} : (hours ?? this.hours),
       formTypes: resetLines ? {} : (formTypes ?? this.formTypes),
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      errMsg: errMsg ?? this.errMsg,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       currentTabItem: currentTabItem ?? this.currentTabItem,
     );
@@ -77,10 +87,12 @@ class CreateAppraisalState extends Equatable {
     hours,
     formTypes,
     isSubmitting,
-    isCreate,
+    updateStatus,
+    isEdit,
     isDetail,
     listEvaluations,
     detailEvaluation,
+    errMsg,
     currentTabIndex,
     currentTabItem,
   ];

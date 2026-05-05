@@ -10,18 +10,18 @@ import '../widgets/dot_devider_painter.dart';
 
 class AppraisalStepResponsibility extends StatelessWidget {
   final List<ResponsiveIdEntity> responses;
-  final List<int> ratings;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
   final bool isLeaderReview;
+  final bool readOnly;
 
   const AppraisalStepResponsibility({
     super.key,
     required this.responses,
-    required this.ratings,
     required this.evidences,
     required this.onRate,
     this.isLeaderReview = false,
+    this.readOnly = false,
   });
 
   int _toInt(dynamic value) {
@@ -31,8 +31,6 @@ class AppraisalStepResponsibility extends StatelessWidget {
   }
 
   int _responseRating(ResponsiveIdEntity item, int index) {
-    final currentRating = index < ratings.length ? ratings[index] : 0;
-    if (currentRating > 0) return currentRating;
     return _toInt(isLeaderReview ? item.parentRatePoint : item.ratePoint);
   }
 
@@ -194,15 +192,20 @@ class AppraisalStepResponsibility extends StatelessWidget {
                                   final filled = j < _responseRating(item, i);
 
                                   return InkWell(
-                                    onTap: () => onRate(i, j + 1),
+                                    onTap:
+                                        readOnly
+                                            ? null
+                                            : () => onRate(i, j + 1),
                                     child: SvgPicture.asset(
                                       AppAssets.icStar,
                                       width: 28,
                                       height: 28,
-                                      color:
-                                          filled
-                                              ? const Color(0xFFFFB800)
-                                              : const Color(0xFF64748B),
+                                      colorFilter: ColorFilter.mode(
+                                        filled
+                                            ? const Color(0xFFFFB800)
+                                            : const Color(0xFF64748B),
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                   );
                                 }),
@@ -215,7 +218,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
                               controller: _responseEvidence(item, i),
                               maxLine: 3,
                               isRequiredField: true,
-                              readOnly: true,
+                              readOnly: readOnly,
                               fillBgColor: Colors.white.withValues(alpha: 0.65),
                             ),
                             if (i != responses.length - 1)

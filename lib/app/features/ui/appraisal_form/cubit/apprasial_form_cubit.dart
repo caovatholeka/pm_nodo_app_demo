@@ -15,61 +15,61 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
 
   ApprasialFormCubit({required this.repository}) : super(ApprasialFormState());
 
-  getListEvaluation({String? dateFrom, String? dateTo, int limit = 10, int page = 1}) async {
-  emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
+  Future<void> getListEvaluation({
+    String? dateFrom,
+    String? dateTo,
+    int limit = 10,
+    int page = 1,
+  }) async {
+    emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
 
-  try {
-    String? apiStart;
-    String? apiEnd;
+    try {
+      String? apiStart;
+      String? apiEnd;
 
-    if (dateFrom != null && dateFrom.isNotEmpty) {
-      final d = DateFormat('dd/MM/yyyy').parse(dateFrom);
-      apiStart = DateFormat('yyyy-MM-dd').format(d);
-    }
+      if (dateFrom != null && dateFrom.isNotEmpty) {
+        final d = DateFormat('dd/MM/yyyy').parse(dateFrom);
+        apiStart = DateFormat('yyyy-MM-dd').format(d);
+      }
 
-    if (dateTo != null && dateTo.isNotEmpty) {
-      final d = DateFormat('dd/MM/yyyy').parse(dateTo);
-      apiEnd = DateFormat('yyyy-MM-dd').format(d);
-    }
+      if (dateTo != null && dateTo.isNotEmpty) {
+        final d = DateFormat('dd/MM/yyyy').parse(dateTo);
+        apiEnd = DateFormat('yyyy-MM-dd').format(d);
+      }
 
-    final res = await repository.getListEvaluation(
-      apiStart,
-      apiEnd,
-      limit,
-      page,
-    );
+      final res = await repository.getListEvaluation(
+        apiStart,
+        apiEnd,
+        limit,
+        page,
+      );
 
-    List<EvaluationEntity>? listEvaluations;
+      List<EvaluationEntity>? listEvaluations;
 
-    if (res.data != null) {
-      listEvaluations = mapList<EvaluationEntity>(
-        res.data,
-        EvaluationEntity.fromJson,
+      if (res.data != null) {
+        listEvaluations = mapList<EvaluationEntity>(
+          res.data,
+          EvaluationEntity.fromJson,
+        );
+      }
+
+      emit(
+        state.copyWith(
+          loadDataStatus: LoadStatus.SUCCESS,
+          listEvaluations: listEvaluations ?? [],
+        ),
+      );
+    } catch (e, s) {
+      logger.d(e);
+      logger.d(s);
+
+      emit(
+        state.copyWith(loadDataStatus: LoadStatus.FAILURE, listEvaluations: []),
       );
     }
-
-    emit(
-      state.copyWith(
-        loadDataStatus: LoadStatus.SUCCESS,
-        listEvaluations: listEvaluations ?? [],
-      ),
-    );
-
-  } catch (e, s) {
-
-    logger.d(e);
-    logger.d(s);
-
-    emit(
-      state.copyWith(
-        loadDataStatus: LoadStatus.FAILURE,
-        listEvaluations: [],
-      ),
-    );
-  }
   }
 
-  getEvaluationDetails(int id) async{
+  getEvaluationDetails(int id) async {
     if (id == 0) {
       return;
     }
@@ -78,21 +78,23 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
     try {
       EvaluationEntity? entity = await repository.getDetailEvaluation(id);
       emit(
-        state.copyWith(loadDataStatus: LoadStatus.SUCCESS, detailEvaluation: entity),
+        state.copyWith(
+          loadDataStatus: LoadStatus.SUCCESS,
+          detailEvaluation: entity,
+        ),
       );
     } catch (e) {
       logger.d(e);
-      emit(state.copyWith(loadDataStatus: LoadStatus.FAILURE, detailEvaluation: null));
+      emit(
+        state.copyWith(
+          loadDataStatus: LoadStatus.FAILURE,
+          detailEvaluation: null,
+        ),
+      );
     }
   }
 
   void onChangeDateFilter(String start, String end) {
-  emit(
-    state.copyWith(
-      startDateFilter: start,
-      endDateFilter: end,
-    ),
-  );
-}
-
+    emit(state.copyWith(startDateFilter: start, endDateFilter: end));
+  }
 }

@@ -8,18 +8,18 @@ import 'package:pm_app/generated/l10n.dart';
 
 class AppraisalStepSkill extends StatelessWidget {
   final List<SkillIdEntity> skills;
-  final List<int> ratings;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
   final bool isLeaderReview;
+  final bool readOnly;
 
   const AppraisalStepSkill({
     super.key,
     required this.skills,
-    required this.ratings,
     required this.evidences,
     required this.onRate,
     this.isLeaderReview = false,
+    this.readOnly = false,
   });
 
   int _toInt(dynamic value) {
@@ -29,8 +29,6 @@ class AppraisalStepSkill extends StatelessWidget {
   }
 
   int _skillRating(SkillIdEntity skill, int index) {
-    final currentRating = index < ratings.length ? ratings[index] : 0;
-    if (currentRating > 0) return currentRating;
     return _toInt(isLeaderReview ? skill.parentRatePoint : skill.ratePoint);
   }
 
@@ -180,7 +178,8 @@ class AppraisalStepSkill extends StatelessWidget {
                                           ),
                                         ),
                                         TextSpan(
-                                          text: ' - ${s.appraisal_coefficient} 1',
+                                          text:
+                                              ' - ${s.appraisal_coefficient} 1',
                                           style: const TextStyle(
                                             color: Color(0xFF0B6FDF),
                                           ),
@@ -217,15 +216,20 @@ class AppraisalStepSkill extends StatelessWidget {
                                   final filled = j < _skillRating(skill, i);
 
                                   return InkWell(
-                                    onTap: () => onRate(i, j + 1),
+                                    onTap:
+                                        readOnly
+                                            ? null
+                                            : () => onRate(i, j + 1),
                                     child: SvgPicture.asset(
                                       AppAssets.icStar,
                                       width: 28,
                                       height: 28,
-                                      color:
-                                          filled
-                                              ? const Color(0xFFFFB800)
-                                              : const Color(0xFF94A3B8),
+                                      colorFilter: ColorFilter.mode(
+                                        filled
+                                            ? const Color(0xFFFFB800)
+                                            : const Color(0xFF94A3B8),
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                   );
                                 }),
@@ -238,7 +242,7 @@ class AppraisalStepSkill extends StatelessWidget {
                               controller: _skillEvidence(skill, i),
                               maxLine: 3,
                               isRequiredField: true,
-                              readOnly: true,
+                              readOnly: readOnly,
                               fillBgColor: Colors.white.withValues(alpha: 0.65),
                             ),
                             if (i != skills.length - 1) ...[

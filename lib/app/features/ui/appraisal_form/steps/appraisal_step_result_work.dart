@@ -10,13 +10,13 @@ import '../../../../data/models/entities/task_line_id_entity.dart';
 import '../widgets/dot_devider_painter.dart';
 
 class AppraisalStepResultWork extends StatelessWidget {
-  final List<int> ratings;
-  final void Function(int index, int value) onRate;
-
-  final TextEditingController jobCtrl;
-  final TextEditingController weightCtrl;
-  final TextEditingController evidenceCtrl;
   final List<TaskLineIdEntity>? listTask;
+  final List<TextEditingController> nameControllers;
+  final List<TextEditingController> rateControllers;
+  final List<TextEditingController> evidenceControllers;
+  final void Function(int taskIndex, int ratingIndex, int value) onRate;
+  final void Function(int taskIndex, String value) onNameChanged;
+  final void Function(int taskIndex, String value) onTaskRateChanged;
 
   final bool readOnly;
   final bool isLeaderReview;
@@ -24,11 +24,12 @@ class AppraisalStepResultWork extends StatelessWidget {
   const AppraisalStepResultWork({
     super.key,
     this.listTask,
-    required this.ratings,
+    required this.nameControllers,
+    required this.rateControllers,
+    required this.evidenceControllers,
     required this.onRate,
-    required this.jobCtrl,
-    required this.weightCtrl,
-    required this.evidenceCtrl,
+    required this.onNameChanged,
+    required this.onTaskRateChanged,
     this.readOnly = false,
     this.isLeaderReview = false,
   });
@@ -77,6 +78,40 @@ class AppraisalStepResultWork extends StatelessWidget {
     }
 
     return task.note ?? "";
+  }
+
+  TextEditingController _controllerAt(
+    List<TextEditingController> controllers,
+    int index,
+  ) {
+    while (controllers.length <= index) {
+      controllers.add(TextEditingController());
+    }
+    return controllers[index];
+  }
+
+  TextEditingController _evidenceController(TaskLineIdEntity task, int index) {
+    final controller = _controllerAt(evidenceControllers, index);
+    if (controller.text.isEmpty) {
+      controller.text = _taskEvidence(task);
+    }
+    return controller;
+  }
+
+  TextEditingController _nameController(TaskLineIdEntity task, int index) {
+    final controller = _controllerAt(nameControllers, index);
+    if (controller.text.isEmpty) {
+      controller.text = task.name ?? "";
+    }
+    return controller;
+  }
+
+  TextEditingController _rateController(TaskLineIdEntity task, int index) {
+    final controller = _controllerAt(rateControllers, index);
+    if (controller.text.isEmpty) {
+      controller.text = (task.rate ?? 0).toString();
+    }
+    return controller;
   }
 
   @override
@@ -176,109 +211,111 @@ class AppraisalStepResultWork extends StatelessWidget {
               ),
             ),
             Column(
-              children: List.generate((listTask ?? []).length, (i) {
-                final task = (listTask ?? [])[i];
+              children:
+                  List.generate((listTask ?? []).length, (i) {
+                    final task = (listTask ?? [])[i];
 
-                return Column(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color:
-                            isLeaderReview
-                                ? const Color(0xFFE5E0F0)
-                                : const Color(0xFFF7FFF6),
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(16),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InputTextField(
-                              title: s.appraisal_task_done,
-                              hintText: s.appraisal_task_done_hint,
-                              controller: TextEditingController(text: task.name),
-                              readOnly: readOnly,
-                              isRequiredField: true,
-                              fillBgColor: Colors.transparent,
-                            ),
-                            const SizedBox(height: 12),
-                            InputTextField(
-                              title: s.appraisal_weight_percent,
-                              hintText: s.appraisal_weight_percent_hint,
-                              controller: TextEditingController(
-                                text: (task.rate ?? 0).toString(),
-                              ),
-                              readOnly: readOnly,
-                              isRequiredField: true,
-                              fillBgColor: Colors.transparent,
-                            ),
-                            const SizedBox(height: 16),
-                            _rating(
-                              s.appraisal_metric_volume_numbered,
-                              0,
-                              _taskRating(task, 0),
-                            ),
-                            _rating(
-                              s.appraisal_metric_quality_numbered,
-                              1,
-                              _taskRating(task, 1),
-                            ),
-                            _rating(
-                              s.appraisal_metric_progress_numbered,
-                              2,
-                              _taskRating(task, 2),
-                            ),
-                            const SizedBox(height: 12),
-                            isLeaderReview
-                                ? InputTextField(
-                                  title: s.appraisal_adjustment_feedback,
-                                  hintText: '',
-                                  controller: TextEditingController(
-                                    text: _taskEvidence(task),
-                                  ),
-                                  readOnly: readOnly,
-                                  isRequiredField: true,
-                                  fillBgColor: Colors.transparent,
-                                )
-                                : InputTextField(
-                                  title: s.appraisal_evidence,
-                                  hintText: s.appraisal_evidence_hint,
-                                  controller: TextEditingController(
-                                    text: _taskEvidence(task),
-                                  ),
-                                  readOnly: readOnly,
-                                  isRequiredField: true,
-                                  fillBgColor: Colors.transparent,
-                                ),
-                            const SizedBox(height: 12),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (i != (listTask ?? []).length - 1)
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: 8,
-                          left: 8,
-                          right: 8,
-                        ),
-                        child: CustomPaint(
-                          size: const Size(double.infinity, 1),
-                          painter: DotDividerPainter(
+                    return Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
                             color:
                                 isLeaderReview
                                     ? const Color(0xFFE5E0F0)
-                                    : const Color(0xFFD1FAE5),
+                                    : const Color(0xFFF7FFF6),
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                InputTextField(
+                                  title: s.appraisal_task_done,
+                                  hintText: s.appraisal_task_done_hint,
+                                  controller: _nameController(task, i),
+                                  readOnly: readOnly,
+                                  onChange: (value) => onNameChanged(i, value),
+                                  isRequiredField: true,
+                                  fillBgColor: Colors.transparent,
+                                ),
+                                const SizedBox(height: 12),
+                                InputTextField(
+                                  title: s.appraisal_weight_percent,
+                                  hintText: s.appraisal_weight_percent_hint,
+                                  controller: _rateController(task, i),
+                                  readOnly: readOnly,
+                                  inputType: TextInputType.number,
+                                  onChange:
+                                      (value) => onTaskRateChanged(i, value),
+                                  isRequiredField: true,
+                                  fillBgColor: Colors.transparent,
+                                ),
+                                const SizedBox(height: 16),
+                                _rating(
+                                  s.appraisal_metric_volume_numbered,
+                                  i,
+                                  0,
+                                  _taskRating(task, 0),
+                                ),
+                                _rating(
+                                  s.appraisal_metric_quality_numbered,
+                                  i,
+                                  1,
+                                  _taskRating(task, 1),
+                                ),
+                                _rating(
+                                  s.appraisal_metric_progress_numbered,
+                                  i,
+                                  2,
+                                  _taskRating(task, 2),
+                                ),
+                                const SizedBox(height: 12),
+                                isLeaderReview
+                                    ? InputTextField(
+                                      title: s.appraisal_adjustment_feedback,
+                                      hintText: '',
+                                      controller: _evidenceController(task, i),
+                                      readOnly: readOnly,
+                                      isRequiredField: true,
+                                      fillBgColor: Colors.transparent,
+                                    )
+                                    : InputTextField(
+                                      title: s.appraisal_evidence,
+                                      hintText: s.appraisal_evidence_hint,
+                                      controller: _evidenceController(task, i),
+                                      readOnly: readOnly,
+                                      isRequiredField: true,
+                                      fillBgColor: Colors.transparent,
+                                    ),
+                                const SizedBox(height: 12),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                  ],
-                ).paddingOnly(bottom: 16);
-              }).toList(),
+                        const SizedBox(height: 8),
+                        if (i != (listTask ?? []).length - 1)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8,
+                              left: 8,
+                              right: 8,
+                            ),
+                            child: CustomPaint(
+                              size: const Size(double.infinity, 1),
+                              painter: DotDividerPainter(
+                                color:
+                                    isLeaderReview
+                                        ? const Color(0xFFE5E0F0)
+                                        : const Color(0xFFD1FAE5),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ).paddingOnly(bottom: 16);
+                  }).toList(),
             ),
           ],
         ),
@@ -286,16 +323,11 @@ class AppraisalStepResultWork extends StatelessWidget {
     );
   }
 
-  Widget _rating(String title, int index, int value) {
+  Widget _rating(String title, int taskIndex, int ratingIndex, int value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
         const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,
@@ -306,15 +338,18 @@ class AppraisalStepResultWork extends StatelessWidget {
               final filled = i < value;
 
               return InkWell(
-                onTap: readOnly ? null : () => onRate(index, i + 1),
+                onTap:
+                    readOnly
+                        ? null
+                        : () => onRate(taskIndex, ratingIndex, i + 1),
                 child: SvgPicture.asset(
                   AppAssets.icStar,
                   width: 30,
                   height: 30,
-                  color:
-                      filled
-                          ? const Color(0xFFFFCB45)
-                          : const Color(0xFF64748B),
+                  colorFilter: ColorFilter.mode(
+                    filled ? const Color(0xFFFFCB45) : const Color(0xFF64748B),
+                    BlendMode.srcIn,
+                  ),
                 ),
               );
             }),

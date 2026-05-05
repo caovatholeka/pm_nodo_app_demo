@@ -11,6 +11,7 @@ class AppraisalStepOpinion extends StatefulWidget {
   final List<TextEditingController> controllers;
   final bool isLeaderReview;
   final String? evaluationState;
+  final bool readOnly;
 
   const AppraisalStepOpinion({
     super.key,
@@ -18,6 +19,7 @@ class AppraisalStepOpinion extends StatefulWidget {
     required this.controllers,
     this.isLeaderReview = false,
     this.evaluationState,
+    this.readOnly = false,
   });
 
   @override
@@ -157,11 +159,13 @@ class _AppraisalStepOpinionState extends State<AppraisalStepOpinion> {
                             isRequiredField: false,
                             readOnly: true,
                             callback:
-                                () => _openSuggestionDialog(
-                                  context,
-                                  item,
-                                  controller,
-                                ),
+                                widget.readOnly
+                                    ? null
+                                    : () => _openSuggestionDialog(
+                                      context,
+                                      item,
+                                      controller,
+                                    ),
                             fillBgColor: const Color(0xFFEFF8EF),
                           ),
                         ],

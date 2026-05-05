@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/birthdays_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
+import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/widgets/app_cached_image.dart';
 import 'package:pm_app/generated/l10n.dart';
 

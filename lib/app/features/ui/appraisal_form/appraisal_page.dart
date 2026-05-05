@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_form.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/detail_appraisal_form.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_list_item.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -38,10 +39,16 @@ class _AppraisalPageState extends State<AppraisalPage> {
   Future<void> _onRefresh() async {
     final state = _cubit.state;
 
-    _cubit.getListEvaluation(
+    await _cubit.getListEvaluation(
       dateFrom: state.startDateFilter,
       dateTo: state.endDateFilter,
     );
+  }
+
+  Future<void> _refreshAfterMutation() async {
+    await _onRefresh();
+    await Future.delayed(const Duration(milliseconds: 600));
+    await _onRefresh();
   }
 
   Future<void> _openCalendar() async {
@@ -98,6 +105,38 @@ class _AppraisalPageState extends State<AppraisalPage> {
     );
   }
 
+  Future<void> _openCreateAppraisal() async {
+    final created = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const DetailAppraisalForm()),
+    );
+    if (created == true) {
+      await _refreshAfterMutation();
+    }
+  }
+
+  Future<void> _openDetailAppraisal(int id) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailAppraisalForm(isDetail: true, evaluationId: id),
+      ),
+    );
+    _onRefresh();
+  }
+
+  Future<void> _openEditAppraisal(int id) async {
+    final updated = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailAppraisalForm(isEdit: true, evaluationId: id),
+      ),
+    );
+    if (updated == true) {
+      await _refreshAfterMutation();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -145,6 +184,19 @@ class _AppraisalPageState extends State<AppraisalPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: _openCreateAppraisal,
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.mainPrimaryColor6,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.add, color: Colors.white),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -177,22 +229,34 @@ class _AppraisalPageState extends State<AppraisalPage> {
                       itemCount: state.listEvaluations!.length,
                       itemBuilder: (_, i) {
                         final e = state.listEvaluations![i];
-                        return AppraisalListItem(
+                        final card = AppraisalListItem(
                           entity: e,
                           onTap: (entity) {
                             if (entity.id == null) return;
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (_) => CreateAppraisalForm(
-                                      isDetail: true,
-                                      evaluationId: entity.id,
-                                    ),
-                              ),
-                            );
+                            _openDetailAppraisal(entity.id!);
                           },
+                        );
+
+                        if (e.id == null || e.state != 'draft') {
+                          return card;
+                        }
+
+                        return Slidable(
+                          key: ValueKey(e.id),
+                          endActionPane: ActionPane(
+                            motion: const ScrollMotion(),
+                            extentRatio: 0.35,
+                            children: [
+                              SlidableAction(
+                                onPressed: (_) => _openEditAppraisal(e.id!),
+                                backgroundColor: AppColors.mainPrimaryColor6,
+                                foregroundColor: Colors.white,
+                                icon: Icons.edit,
+                                label: s.day_off_btn_edit,
+                              ),
+                            ],
+                          ),
+                          child: card,
                         );
                       },
                     ),

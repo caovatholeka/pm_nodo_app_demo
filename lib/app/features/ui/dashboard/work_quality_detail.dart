@@ -7,10 +7,10 @@ import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/task_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_quality_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/dashboard_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_quality_chart_card.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_quality_suggestion_card.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/work_quality_task_card.dart';
+import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/work_quality_chart_card.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/work_quality_suggestion_card.dart';
+import 'package:pm_app/app/features/ui/dashboard/widgets/work_quality_task_card.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/generated/l10n.dart';
 

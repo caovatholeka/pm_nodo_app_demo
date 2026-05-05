@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/cubit/create_apprasial_cubit.dart';
+import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
+import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
+import 'package:pm_app/app/data/models/entities/suggest_id_entity.dart';
+import 'package:pm_app/app/data/models/entities/task_line_id_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/cubit/detail_apprasial_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_opinion.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_responsibility.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_result_work.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_skill.dart';
+import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/generated/l10n.dart';
-
-import '../../../data/models/entities/task_line_id_entity.dart';
 
 class ApprasisalProgressPage extends StatefulWidget {
   const ApprasisalProgressPage({super.key});
@@ -23,140 +27,114 @@ class ApprasisalProgressPage extends StatefulWidget {
 
 class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   int _currentStep = 0;
-  bool _initDetail = false;
+  bool _didHydrateDetail = false;
 
-  final List<List<int>> _ratingsPerStep = [
-    [0, 0, 0],
-    [],
-    [],
-  ];
+  List<TaskLineIdEntity> _taskItems = [];
+  List<ResponsiveIdEntity> _responseItems = [];
+  List<SkillIdEntity> _skillItems = [];
+  List<SuggestIdEntity> _suggestItems = [];
 
-  final TextEditingController _jobCtrl = TextEditingController();
-  final TextEditingController _coefCtrl = TextEditingController();
-  final TextEditingController _evidenceCtrl = TextEditingController();
-  List<TaskLineIdEntity> listTasks = [];
-
-  final List<List<TextEditingController>> _evidencesPerStep = [
-    [TextEditingController(), TextEditingController(), TextEditingController()],
-    [],
-    [],
-  ];
-
+  final List<TextEditingController> _taskEvidenceControllers = [];
+  final List<TextEditingController> _taskNameControllers = [];
+  final List<TextEditingController> _taskRateControllers = [];
+  final List<TextEditingController> _leaderTaskEvidenceControllers = [];
+  final List<TextEditingController> _responseEvidenceControllers = [];
+  final List<TextEditingController> _leaderResponseEvidenceControllers = [];
+  final List<TextEditingController> _skillEvidenceControllers = [];
+  final List<TextEditingController> _leaderSkillEvidenceControllers = [];
   final List<TextEditingController> _suggestControllers = [];
 
+  final TextEditingController _coefCtrl = TextEditingController();
   final TextEditingController _totalCtrl = TextEditingController();
-  final TextEditingController _summaryCtrl = TextEditingController();
-
-  int _toInt(dynamic v) {
-    if (v == null) return 0;
-
-    if (v is bool) {
-      return v ? 1 : 0;
-    }
-
-    return int.tryParse(v.toString()) ?? 0;
-  }
-
-  String _toDisplayText(dynamic value) {
-    if (value == null) return "";
-    return value.toString();
-  }
 
   int _totalTaskRate(List<TaskLineIdEntity> tasks) {
     return tasks.fold<int>(0, (sum, task) => sum + (task.rate ?? 0));
   }
 
-  void _resetStepRatings(int stepIndex) {
-    for (int i = 0; i < _ratingsPerStep[stepIndex].length; i++) {
-      _ratingsPerStep[stepIndex][i] = 0;
+  String _employeeTaskEvidence(TaskLineIdEntity task) {
+    if ((task.jiraKey ?? '').isNotEmpty) {
+      return task.jiraKey ?? '';
+    }
+    return task.note ?? '';
+  }
+
+  void _disposeControllers(List<TextEditingController> controllers) {
+    for (final controller in controllers) {
+      controller.dispose();
+    }
+    controllers.clear();
+  }
+
+  void _replaceControllers(
+    List<TextEditingController> target,
+    List<String> values,
+  ) {
+    _disposeControllers(target);
+    for (final value in values) {
+      target.add(TextEditingController(text: value));
     }
   }
 
-  void _ensureStepCapacity(int stepIndex, int length) {
-    while (_ratingsPerStep[stepIndex].length < length) {
-      _ratingsPerStep[stepIndex].add(0);
-    }
-    while (_evidencesPerStep[stepIndex].length < length) {
-      _evidencesPerStep[stepIndex].add(TextEditingController());
-    }
-  }
+  void _hydrateDetail(CreateAppraisalState state) {
+    final detail = state.detailEvaluation;
+    if (detail == null) return;
 
-  void _resetStepEvidences(int stepIndex) {
-    for (final controller in _evidencesPerStep[stepIndex]) {
-      controller.clear();
-    }
-  }
+    _taskItems = [
+      for (final item in detail.taskLineIds ?? <TaskLineIdEntity>[])
+        item.copyWith(),
+    ];
+    _responseItems = [
+      for (final item in detail.responseIds ?? <ResponsiveIdEntity>[])
+        item.copyWith(),
+    ];
+    _skillItems = [
+      for (final item in detail.skillIds ?? <SkillIdEntity>[]) item.copyWith(),
+    ];
+    _suggestItems = [
+      for (final item in detail.suggestIds ?? <SuggestIdEntity>[])
+        item.copyWith(),
+    ];
 
-  void _fillDetailStep1(CreateAppraisalState state) {
-    listTasks = state.detailEvaluation?.taskLineIds ?? [];
-    final task = listTasks.firstOrNull;
+    _replaceControllers(
+      _taskNameControllers,
+      _taskItems.map((item) => item.name ?? '').toList(),
+    );
+    _replaceControllers(
+      _taskRateControllers,
+      _taskItems.map((item) => (item.rate ?? 0).toString()).toList(),
+    );
+    _replaceControllers(
+      _taskEvidenceControllers,
+      _taskItems.map(_employeeTaskEvidence).toList(),
+    );
+    _replaceControllers(
+      _leaderTaskEvidenceControllers,
+      _taskItems.map((item) => item.parentNote ?? '').toList(),
+    );
+    _replaceControllers(
+      _responseEvidenceControllers,
+      _responseItems.map((item) => item.note ?? '').toList(),
+    );
+    _replaceControllers(
+      _leaderResponseEvidenceControllers,
+      _responseItems.map((item) => item.parentNote ?? '').toList(),
+    );
+    _replaceControllers(
+      _skillEvidenceControllers,
+      _skillItems.map((item) => item.note ?? '').toList(),
+    );
+    _replaceControllers(
+      _leaderSkillEvidenceControllers,
+      _skillItems.map((item) => item.parentNote ?? '').toList(),
+    );
+    _replaceControllers(
+      _suggestControllers,
+      _suggestItems.map((item) => item.note ?? '').toList(),
+    );
 
-    if (task == null) {
-      _jobCtrl.clear();
-      _coefCtrl.clear();
-      return;
-    }
-
-    _jobCtrl.text = task.name ?? "";
-    _coefCtrl.text = _totalTaskRate(listTasks).toString();
-  }
-
-  void _fillDetailStep2(
-    CreateAppraisalState state, {
-    required bool isLeaderReview,
-  }) {
-    final responses = state.detailEvaluation?.responseIds;
-
-    _ensureStepCapacity(1, responses?.length ?? 0);
-    _resetStepRatings(1);
-    _resetStepEvidences(1);
-
-    if (responses == null || responses.isEmpty) return;
-
-    for (int i = 0; i < responses.length; i++) {
-      final r = responses[i];
-      _ratingsPerStep[1][i] = _toInt(
-        isLeaderReview ? r.parentRatePoint : r.ratePoint,
-      );
-      _evidencesPerStep[1][i].text =
-          isLeaderReview ? (r.parentNote ?? "") : (r.note ?? "");
-    }
-  }
-
-  void _fillDetailStep3(
-    CreateAppraisalState state, {
-    required bool isLeaderReview,
-  }) {
-    final skills = state.detailEvaluation?.skillIds;
-
-    _ensureStepCapacity(2, skills?.length ?? 0);
-    _resetStepRatings(2);
-    _resetStepEvidences(2);
-
-    if (skills == null || skills.isEmpty) return;
-
-    for (int i = 0; i < skills.length; i++) {
-      final skill = skills[i];
-
-      _ratingsPerStep[2][i] = _toInt(
-        isLeaderReview ? skill.parentRatePoint : skill.ratePoint,
-      );
-
-      _evidencesPerStep[2][i].text =
-          isLeaderReview ? (skill.parentNote ?? "") : (skill.note ?? "");
-    }
-  }
-
-  void _fillDetailStep4(CreateAppraisalState state) {
-    final suggests = state.detailEvaluation?.suggestIds;
-
-    _suggestControllers.clear();
-
-    if (suggests == null || suggests.isEmpty) return;
-
-    for (final item in suggests) {
-      _suggestControllers.add(TextEditingController(text: item.note ?? ""));
-    }
+    _coefCtrl.text = _totalTaskRate(_taskItems).toString();
+    _fillTotalByStep(state, isLeaderReview: state.currentTabIndex == 1);
+    _didHydrateDetail = true;
   }
 
   void _fillTotalByStep(
@@ -170,45 +148,236 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     }
 
     if (_currentStep == 0) {
-      _totalCtrl.text = _toDisplayText(
-        isLeaderReview ? detail.totalParentTaskScore : detail.totalTaskScore,
-      );
+      _totalCtrl.text =
+          (isLeaderReview ? detail.totalParentTaskScore : detail.totalTaskScore)
+              ?.toString() ??
+          '';
       return;
     }
 
     if (_currentStep == 1) {
-      _totalCtrl.text = _toDisplayText(
-        isLeaderReview
-            ? detail.responseParentTotalScore
-            : detail.responseTotalScore,
-      );
+      _totalCtrl.text =
+          (isLeaderReview
+                  ? detail.responseParentTotalScore
+                  : detail.responseTotalScore)
+              ?.toString() ??
+          '';
       return;
     }
 
     if (_currentStep == 2) {
-      _totalCtrl.text = _toDisplayText(
-        isLeaderReview ? detail.skillParentTotalScore : detail.skillTotalScore,
-      );
+      _totalCtrl.text =
+          (isLeaderReview
+                  ? detail.skillParentTotalScore
+                  : detail.skillTotalScore)
+              ?.toString() ??
+          '';
       return;
     }
 
     _totalCtrl.clear();
   }
 
+  List<TextEditingController> _taskControllersForTab(bool isLeaderReview) {
+    return isLeaderReview
+        ? _leaderTaskEvidenceControllers
+        : _taskEvidenceControllers;
+  }
+
+  List<TextEditingController> _responseControllersForTab(bool isLeaderReview) {
+    return isLeaderReview
+        ? _leaderResponseEvidenceControllers
+        : _responseEvidenceControllers;
+  }
+
+  List<TextEditingController> _skillControllersForTab(bool isLeaderReview) {
+    return isLeaderReview
+        ? _leaderSkillEvidenceControllers
+        : _skillEvidenceControllers;
+  }
+
+  void _updateTaskRating(
+    bool isLeaderReview,
+    int taskIndex,
+    int ratingIndex,
+    int value,
+  ) {
+    final current = _taskItems[taskIndex];
+    TaskLineIdEntity updated;
+
+    if (isLeaderReview) {
+      switch (ratingIndex) {
+        case 0:
+          updated = current.copyWith(parentVolume: value);
+          break;
+        case 1:
+          updated = current.copyWith(parentQuality: value);
+          break;
+        default:
+          updated = current.copyWith(parentProgress: value);
+      }
+    } else {
+      switch (ratingIndex) {
+        case 0:
+          updated = current.copyWith(volume: value);
+          break;
+        case 1:
+          updated = current.copyWith(quality: value);
+          break;
+        default:
+          updated = current.copyWith(progress: value);
+      }
+    }
+
+    setState(() {
+      _taskItems[taskIndex] = updated;
+    });
+  }
+
+  void _updateTaskName(int index, String value) {
+    final current = _taskItems[index];
+    setState(() {
+      _taskItems[index] = current.copyWith(name: value);
+    });
+  }
+
+  void _updateTaskRate(int index, String value) {
+    final parsed = int.tryParse(value.trim());
+    final current = _taskItems[index];
+    setState(() {
+      _taskItems[index] = current.copyWith(rate: parsed ?? current.rate);
+      _coefCtrl.text = _totalTaskRate(_taskItems).toString();
+    });
+  }
+
+  void _updateResponseRating(bool isLeaderReview, int index, int value) {
+    final current = _responseItems[index];
+    setState(() {
+      _responseItems[index] =
+          isLeaderReview
+              ? current.copyWith(parentRatePoint: value)
+              : current.copyWith(ratePoint: value);
+    });
+  }
+
+  void _updateSkillRating(bool isLeaderReview, int index, int value) {
+    final current = _skillItems[index];
+    setState(() {
+      _skillItems[index] =
+          isLeaderReview
+              ? current.copyWith(parentRatePoint: value)
+              : current.copyWith(ratePoint: value);
+    });
+  }
+
+  String _textAt(List<TextEditingController> controllers, int index) {
+    if (index < 0 || index >= controllers.length) return '';
+    return controllers[index].text.trim();
+  }
+
+  String? _nullableTextAt(List<TextEditingController> controllers, int index) {
+    final value = _textAt(controllers, index);
+    return value.isEmpty ? null : value;
+  }
+
+  Map<String, dynamic>? _buildUpdatePayload(CreateAppraisalState state) {
+    final detail = state.detailEvaluation;
+    if (detail == null) return null;
+
+    final taskLineIds = List.generate(_taskItems.length, (index) {
+      final item = _taskItems[index];
+      return <String, dynamic>{
+        "name": item.name,
+        "rate": item.rate,
+        "volume": item.volume,
+        "quality": item.quality,
+        "progress": item.progress,
+        "note": _nullableTextAt(_taskEvidenceControllers, index),
+        "parent_volume": item.parentVolume,
+        "parent_quality": item.parentQuality,
+        "parent_progress": item.parentProgress,
+        "parent_note": _nullableTextAt(_leaderTaskEvidenceControllers, index),
+      };
+    });
+
+    final responseIds = List.generate(_responseItems.length, (index) {
+      final item = _responseItems[index];
+      return <String, dynamic>{
+        "id": item.id,
+        "code": item.code,
+        "name": item.name,
+        "rate_point": item.ratePoint,
+        "parent_rate_point": item.parentRatePoint,
+        "note": _nullableTextAt(_responseEvidenceControllers, index),
+        "parent_note": _nullableTextAt(
+          _leaderResponseEvidenceControllers,
+          index,
+        ),
+      };
+    });
+
+    final skillIds = List.generate(_skillItems.length, (index) {
+      final item = _skillItems[index];
+      return <String, dynamic>{
+        "code": item.code,
+        "name": item.name,
+        "rate_point": item.ratePoint,
+        "parent_rate_point": item.parentRatePoint,
+        "note": _nullableTextAt(_skillEvidenceControllers, index),
+        "parent_note": _nullableTextAt(_leaderSkillEvidenceControllers, index),
+      };
+    });
+
+    final suggestIds = List.generate(_suggestItems.length, (index) {
+      final item = _suggestItems[index];
+      return <String, dynamic>{
+        "code": item.code,
+        "name": item.name,
+        "note": _nullableTextAt(_suggestControllers, index),
+      };
+    });
+
+    return <String, dynamic>{
+      "employee_id": detail.employeeId,
+      "date_from": detail.dateFrom,
+      "date_to": detail.dateTo,
+      "task_line_ids": taskLineIds,
+      "response_ids": responseIds,
+      "skill_ids": skillIds,
+      "suggest_ids": suggestIds,
+    };
+  }
+
+  void _submitUpdate(CreateAppraisalState state) {
+    final id = state.detailEvaluation?.id ?? 0;
+    final payload = _buildUpdatePayload(state);
+    if (id == 0 || payload == null) return;
+    context.read<CreateAppraisalCubit>().updateEvaluation(id, payload);
+  }
+
+  void _closeFlow(bool updated) {
+    Navigator.pop(context);
+    Navigator.pop(context, updated);
+  }
+
   void _next() {
     final cubit = context.read<CreateAppraisalCubit>();
+    final state = cubit.state;
+
     if (_currentStep < 3) {
       setState(() {
         _currentStep++;
-        _fillTotalByStep(
-          cubit.state,
-          isLeaderReview: cubit.state.currentTabIndex == 1,
-        );
+        _fillTotalByStep(state, isLeaderReview: state.currentTabIndex == 1);
       });
-    } else {
-      Navigator.pop(context);
-      Navigator.pop(context, true);
+      return;
     }
+
+    if (state.isEdit == true) {
+      _submitUpdate(state);
+      return;
+    }
+
+    _closeFlow(false);
   }
 
   void _back() {
@@ -225,8 +394,6 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       Navigator.pop(context);
     }
   }
-
-  bool get _canNext => true;
 
   Widget _buildStepper() {
     const circleSize = 26.0;
@@ -384,21 +551,8 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   Widget _buildHeaderByStep(S s) {
     if (_currentStep == 0) return _headerProgress(s);
-    if (_currentStep == 1) return _secondHeader(s);
-    if (_currentStep == 2) return _secondHeader(s);
-
+    if (_currentStep == 1 || _currentStep == 2) return _secondHeader(s);
     return const SizedBox.shrink();
-  }
-
-  void _syncTabData(
-    CreateAppraisalState state, {
-    required bool isLeaderReview,
-  }) {
-    _fillDetailStep1(state);
-    _fillDetailStep2(state, isLeaderReview: isLeaderReview);
-    _fillDetailStep3(state, isLeaderReview: isLeaderReview);
-    _fillDetailStep4(state);
-    _fillTotalByStep(state, isLeaderReview: isLeaderReview);
   }
 
   Widget _buildStepContent(
@@ -409,29 +563,30 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     if (_currentStep == 0) {
       return AppraisalStepResultWork(
         isLeaderReview: isLeaderReview,
-        listTask: listTasks,
-        ratings: _ratingsPerStep[0],
-        jobCtrl: _jobCtrl,
-        weightCtrl: _coefCtrl,
-        evidenceCtrl: _evidenceCtrl,
+        listTask: _taskItems,
+        nameControllers: _taskNameControllers,
+        rateControllers: _taskRateControllers,
+        evidenceControllers: _taskControllersForTab(isLeaderReview),
         readOnly: isDetail,
-        onRate: (i, v) {
-          setState(() {
-            _ratingsPerStep[0][i] = v;
-          });
-        },
+        onNameChanged: _updateTaskName,
+        onTaskRateChanged: _updateTaskRate,
+        onRate:
+            (taskIndex, ratingIndex, value) => _updateTaskRating(
+              isLeaderReview,
+              taskIndex,
+              ratingIndex,
+              value,
+            ),
       );
     }
 
     if (_currentStep == 1) {
       return AppraisalStepResponsibility(
-        responses: state.detailEvaluation?.responseIds ?? [],
-        ratings: _ratingsPerStep[1],
-        evidences: _evidencesPerStep[1],
-        onRate: (i, v) {
-          setState(() {
-            _ratingsPerStep[1][i] = v;
-          });
+        responses: _responseItems,
+        evidences: _responseControllersForTab(isLeaderReview),
+        readOnly: isDetail,
+        onRate: (index, value) {
+          _updateResponseRating(isLeaderReview, index, value);
         },
         isLeaderReview: isLeaderReview,
       );
@@ -439,131 +594,153 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
     if (_currentStep == 2) {
       return AppraisalStepSkill(
-        skills: state.detailEvaluation?.skillIds ?? [],
-        ratings: _ratingsPerStep[2],
-        evidences: _evidencesPerStep[2],
-        onRate: (i, v) {
-          setState(() {
-            _ratingsPerStep[2][i] = v;
-          });
+        skills: _skillItems,
+        evidences: _skillControllersForTab(isLeaderReview),
+        readOnly: isDetail,
+        onRate: (index, value) {
+          _updateSkillRating(isLeaderReview, index, value);
         },
         isLeaderReview: isLeaderReview,
       );
     }
 
     return AppraisalStepOpinion(
-      suggests: state.detailEvaluation?.suggestIds ?? [],
+      suggests: _suggestItems,
       controllers: _suggestControllers,
       isLeaderReview: isLeaderReview,
+      readOnly: isDetail,
       evaluationState: state.detailEvaluation?.state,
     );
+  }
+
+  @override
+  void dispose() {
+    _coefCtrl.dispose();
+    _totalCtrl.dispose();
+    _disposeControllers(_taskNameControllers);
+    _disposeControllers(_taskRateControllers);
+    _disposeControllers(_taskEvidenceControllers);
+    _disposeControllers(_leaderTaskEvidenceControllers);
+    _disposeControllers(_responseEvidenceControllers);
+    _disposeControllers(_leaderResponseEvidenceControllers);
+    _disposeControllers(_skillEvidenceControllers);
+    _disposeControllers(_leaderSkillEvidenceControllers);
+    _disposeControllers(_suggestControllers);
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
 
-    return BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
-      builder: (context, state) {
-        final isDetail = state.isDetail == true;
-
-        if (!_initDetail && state.detailEvaluation != null) {
-          _initDetail = true;
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _syncTabData(state, isLeaderReview: state.currentTabIndex == 1);
-            setState(() {});
-          });
+    return BlocListener<CreateAppraisalCubit, CreateAppraisalState>(
+      listenWhen: (prev, cur) => prev.updateStatus != cur.updateStatus,
+      listener: (context, state) {
+        if (state.updateStatus == LoadStatus.SUCCESS) {
+          AppSnackBar.showInfo(
+            title: s.success,
+            message: state.errMsg?.isNotEmpty == true ? state.errMsg : s.save,
+          );
+          context.read<CreateAppraisalCubit>().resetUpdateStatus();
+          _closeFlow(true);
+          return;
         }
 
-        final actionText = _currentStep < 3 ? s.appraisal_next : s.confirm;
+        if (state.updateStatus == LoadStatus.FAILURE) {
+          AppSnackBar.showError(
+            title: s.warning,
+            message:
+                state.errMsg?.isNotEmpty == true
+                    ? state.errMsg
+                    : s.to_do_failed,
+          );
+          context.read<CreateAppraisalCubit>().resetUpdateStatus();
+        }
+      },
+      child: BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
+        builder: (context, state) {
+          final isDetail = state.isDetail == true;
+          final isLeaderReview = state.currentTabIndex == 1;
 
-        return Scaffold(
-          appBar: MyAppBar(
-            titleAppbar: s.appraisal_form_title,
-            haveBackButton: true,
-            haveActionButton: true,
-            iconPathAsset: AppAssets.icNotificationBell,
-            actionCallBack: () {},
-          ),
-          body: Stack(
-            children: [
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 8),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16),
-                      _buildTabBar(s),
-                      const SizedBox(height: 8),
-                      BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
-                        buildWhen:
-                            (prev, cur) =>
-                                prev.currentTabIndex != cur.currentTabIndex ||
-                                prev.currentTabItem != cur.currentTabItem,
-                        builder: (context, state) {
-                          return state.currentTabIndex == 0
-                              ? Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      _buildStepper(),
-                                      const SizedBox(height: 8),
-                                      _buildHeaderByStep(s),
-                                      _buildStepContent(isDetail, state, false),
-                                    ],
-                                  ),
-                                ),
-                              )
-                              : Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      _buildStepperLeaderReview(),
-                                      const SizedBox(height: 8),
-                                      _buildHeaderByStep(s),
-                                      _buildStepContent(isDetail, state, true),
-                                    ],
-                                  ),
-                                ),
-                              );
-                        },
-                      ),
-                      SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: PrimaryButton(
-                                  mainText: s.appraisal_back,
-                                  enable: true,
-                                  isLoading: false,
-                                  type: PrimaryButtonType.secondary,
-                                  callback: _back,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: PrimaryButton(
-                                  mainText: actionText,
-                                  enable: _canNext,
-                                  isLoading: false,
-                                  callback: _next,
-                                ),
-                              ),
-                            ],
-                          ),
+          if (!_didHydrateDetail && state.detailEvaluation != null) {
+            _hydrateDetail(state);
+          }
+
+          final actionText =
+              _currentStep < 3
+                  ? s.appraisal_next
+                  : state.isEdit == true
+                  ? s.save
+                  : s.confirm;
+
+          return Scaffold(
+            appBar: MyAppBar(
+              titleAppbar: s.appraisal_form_title,
+              haveBackButton: true,
+              haveActionButton: true,
+              iconPathAsset: AppAssets.icNotificationBell,
+              actionCallBack: () {},
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    _buildTabBar(s),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            isLeaderReview
+                                ? _buildStepperLeaderReview()
+                                : _buildStepper(),
+                            const SizedBox(height: 8),
+                            _buildHeaderByStep(s),
+                            _buildStepContent(isDetail, state, isLeaderReview),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: PrimaryButton(
+                                mainText: s.appraisal_back,
+                                enable: true,
+                                isLoading: false,
+                                type: PrimaryButtonType.secondary,
+                                callback: _back,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: PrimaryButton(
+                                mainText: actionText,
+                                enable:
+                                    state.updateStatus != LoadStatus.LOADING,
+                                isLoading:
+                                    state.isEdit == true &&
+                                    _currentStep == 3 &&
+                                    state.updateStatus == LoadStatus.LOADING,
+                                callback: _next,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -572,6 +749,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       MasterDataItem(text: s.appraisal_tab_form, id: 0),
       MasterDataItem(text: s.appraisal_tab_direct_manager, id: 1),
     ];
+
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
@@ -606,8 +784,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                       if (index != cubit.state.currentTabIndex) {
                         cubit.onChangeTab(index);
                         cubit.onChangeCurrentTabItem(item);
-                        _syncTabData(cubit.state, isLeaderReview: index == 1);
-                        setState(() {});
+                        setState(() {
+                          _fillTotalByStep(
+                            cubit.state,
+                            isLeaderReview: index == 1,
+                          );
+                        });
                       }
                     },
                     child: AnimatedContainer(
@@ -621,7 +803,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                         borderRadius: BorderRadius.circular(13),
                       ),
                       child: Text(
-                        item.text ?? "",
+                        item.text ?? '',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,

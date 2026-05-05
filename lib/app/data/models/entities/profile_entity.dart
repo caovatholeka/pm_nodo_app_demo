@@ -28,7 +28,7 @@ class ProfileEntity {
 
   @JsonKey()
   DepartmentEntity? department;
-
+ 
   @JsonKey(name: "remain_leave")
   double? remainLeave;
 
