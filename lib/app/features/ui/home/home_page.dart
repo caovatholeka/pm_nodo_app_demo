@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
+import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/application/application_page.dart';
@@ -20,6 +21,7 @@ import 'package:pm_app/generated/l10n.dart';
 import '../../../core/commons/app_assets.dart';
 import '../../../core/commons/app_colors.dart';
 import '../../widgets/attendance_status_card.dart';
+import '../../widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import '../attendance/attendance_data_page.dart';
 import '../notification/noti_page.dart';
@@ -59,9 +61,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
-
-
   void _openStaffPage() {
     Navigator.push(
       context,
@@ -76,11 +75,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openCheckIn() {
-    Navigator.push(
+  Future<void> _openCheckIn() async {
+    final attendance = await Navigator.push<CheckInOutEntity?>(
       context,
       MaterialPageRoute(builder: (_) => CheckInPage(isFromHome: true)),
     );
+
+    if (attendance != null && mounted) {
+      await _cubit.handleAttendanceSubmitted(attendance);
+    }
   }
 
   void _openOnLeave() {
@@ -127,68 +130,86 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final headerHeight = context.sh(0.30);
 
-    return Scaffold(
-      backgroundColor: AppColors.bgGray,
-      body: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(context.sw(0.05)),
-              bottomRight: Radius.circular(context.sw(0.05)),
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: headerHeight,
-              child: SvgPicture.asset(AppAssets.homeBG, fit: BoxFit.cover),
-            ),
-          ),
+    return BlocListener<HomeCubit, HomeState>(
+      bloc: _cubit,
+      listenWhen:
+          (prev, cur) =>
+              prev.attendanceActionStatus != cur.attendanceActionStatus,
+      listener: (context, state) {
+        if (state.attendanceActionStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+          return;
+        }
 
-          SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.sw(0.04),
-                    vertical: context.sh(0.015),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _header(context),
-                      SizedBox(height: context.sh(0.02)),
-                      _attendanceCard(context),
-                    ],
-                  ),
-                ),
+        LoadingOverlay.hide(context);
 
-                Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: _onRefresh,
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.sw(0.04),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: context.sh(0.002)),
-                          _utilitiesTitle(context),
-                          SizedBox(height: context.sh(0.015)),
-                          _utilitiesGrid(context),
-                          SizedBox(height: context.sh(0.03)),
-                          _taskTitle(context),
-                          SizedBox(height: context.sh(0.01)),
-                          _taskList(context),
-                          SizedBox(height: context.sh(0.03)),
-                        ],
+        if (state.attendanceActionStatus != LoadStatus.INITIAL) {
+          _cubit.resetAttendanceActionStatus();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.bgGray,
+        body: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(context.sw(0.05)),
+                bottomRight: Radius.circular(context.sw(0.05)),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: headerHeight,
+                child: SvgPicture.asset(AppAssets.homeBG, fit: BoxFit.cover),
+              ),
+            ),
+
+            SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.sw(0.04),
+                      vertical: context.sh(0.015),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _header(context),
+                        SizedBox(height: context.sh(0.02)),
+                        _attendanceCard(context),
+                      ],
+                    ),
+                  ),
+
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: _onRefresh,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.sw(0.04),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: context.sh(0.002)),
+                            _utilitiesTitle(context),
+                            SizedBox(height: context.sh(0.015)),
+                            _utilitiesGrid(context),
+                            SizedBox(height: context.sh(0.03)),
+                            _taskTitle(context),
+                            SizedBox(height: context.sh(0.01)),
+                            _taskList(context),
+                            SizedBox(height: context.sh(0.03)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

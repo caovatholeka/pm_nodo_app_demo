@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
@@ -28,6 +31,12 @@ class ApprasisalProgressPage extends StatefulWidget {
 class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   int _currentStep = 0;
   bool _didHydrateDetail = false;
+  bool _didInitializeCreate = false;
+  bool _showCoefError = false;
+
+  bool get _showLegacyCoefError => false;
+  static const List<double> _responseCoefficients = [2, 2, 1.5, 2, 0.5];
+  static const List<double> _skillCoefficients = [1, 1, 0.5, 0.5, 1];
 
   List<TaskLineIdEntity> _taskItems = [];
   List<ResponsiveIdEntity> _responseItems = [];
@@ -49,6 +58,87 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   int _totalTaskRate(List<TaskLineIdEntity> tasks) {
     return tasks.fold<int>(0, (sum, task) => sum + (task.rate ?? 0));
+  }
+
+  bool _hasValidTaskRateTotal() => _totalTaskRate(_taskItems) == 100;
+
+  double _toDouble(dynamic value) {
+    if (value == null) return 0;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0;
+  }
+
+  double _taskAverage(TaskLineIdEntity task, bool isLeaderReview) {
+    final volume = _toDouble(isLeaderReview ? task.parentVolume : task.volume);
+    final quality = _toDouble(
+      isLeaderReview ? task.parentQuality : task.quality,
+    );
+    final progress = _toDouble(
+      isLeaderReview ? task.parentProgress : task.progress,
+    );
+    return (volume + quality + progress) / 3;
+  }
+
+  double _responseCoefficientAt(int index) {
+    if (index < _responseCoefficients.length) {
+      return _responseCoefficients[index];
+    }
+    return 2;
+  }
+
+  double _skillCoefficientAt(int index) {
+    if (index < _skillCoefficients.length) {
+      return _skillCoefficients[index];
+    }
+    return 1;
+  }
+
+  double _computeTaskTotalScore(bool isLeaderReview) {
+    final weightedAverage = _taskItems.fold<double>(0, (sum, task) {
+      final rate = _toDouble(task.rate);
+      return sum + (_taskAverage(task, isLeaderReview) * rate / 100);
+    });
+    return weightedAverage * 14;
+  }
+
+  double _computeResponseTotalScore(bool isLeaderReview) {
+    double total = 0;
+    for (int index = 0; index < _responseItems.length; index++) {
+      final item = _responseItems[index];
+      final rate = _toDouble(
+        isLeaderReview ? item.parentRatePoint : item.ratePoint,
+      );
+      total += rate * _responseCoefficientAt(index);
+    }
+    return total / 2;
+  }
+
+  double _computeSkillTotalScore(bool isLeaderReview) {
+    double total = 0;
+    for (int index = 0; index < _skillItems.length; index++) {
+      final item = _skillItems[index];
+      final rate = _toDouble(
+        isLeaderReview ? item.parentRatePoint : item.ratePoint,
+      );
+      total += rate * _skillCoefficientAt(index);
+    }
+    return total / 2;
+  }
+
+  String _formatScore(double value) {
+    final normalized = (value * 10).roundToDouble() / 10;
+    if (normalized == normalized.truncateToDouble()) {
+      return normalized.toStringAsFixed(0);
+    }
+    return normalized.toStringAsFixed(1);
+  }
+
+  void _refreshHeaderTotals() {
+    final state = context.read<CreateAppraisalCubit>().state;
+    final isCreate = state.isDetail != true && state.isEdit != true;
+    final isLeaderReview = !isCreate && state.currentTabIndex == 1;
+    _coefCtrl.text = _totalTaskRate(_taskItems).toString();
+    _fillTotalByStep(state, isLeaderReview: isLeaderReview);
   }
 
   String _employeeTaskEvidence(TaskLineIdEntity task) {
@@ -137,11 +227,139 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     _didHydrateDetail = true;
   }
 
+  void _initializeCreateDefaults() {
+    _taskItems = [TaskLineIdEntity()];
+    _responseItems = [
+      ResponsiveIdEntity(
+        code: 'TN01',
+        name: 'Trách nhiệm, thấu đáo trong công việc',
+      ),
+      ResponsiveIdEntity(
+        code: 'TN02',
+        name: 'Chấp hành nội quy, quy định chung của Công ty',
+      ),
+      ResponsiveIdEntity(
+        code: 'TN03',
+        name: 'Bảo mật thông tin, bảo vệ uy tín Công ty',
+      ),
+      ResponsiveIdEntity(code: 'TN04', name: 'Tinh thần, thái độ làm việc'),
+      ResponsiveIdEntity(
+        code: 'TN05',
+        name: 'Săn xuất và phân phối công cụ làm việc',
+      ),
+    ];
+    _skillItems = [
+      SkillIdEntity(code: 'KN01', name: 'Phối hợp nội bộ'),
+      SkillIdEntity(code: 'KN02', name: 'Phối hợp bên ngoài'),
+      SkillIdEntity(code: 'KN03', name: 'Thủ tục hành chính, tài chính'),
+      SkillIdEntity(code: 'KN04', name: 'Quản lý sắp xếp công việc'),
+      SkillIdEntity(
+        code: 'KN05',
+        name: 'Các kỹ năng khác theo chuyên môn nghiệp vụ',
+      ),
+    ];
+    _suggestItems = [
+      SuggestIdEntity(
+        code: 'DG01',
+        name: 'Ý kiến - Đề xuất của người được đánh giá',
+      ),
+    ];
+
+    _responseItems = [
+      ResponsiveIdEntity(
+        code: 'TN01',
+        name: 'Trách nhiệm, thấu đáo trong công việc',
+      ),
+      ResponsiveIdEntity(
+        code: 'TN02',
+        name: 'Chấp hành nội quy, quy định chung của Công ty',
+      ),
+      ResponsiveIdEntity(
+        code: 'TN03',
+        name: 'Bảo mật thông tin, bảo vệ uy tín Công ty',
+      ),
+      ResponsiveIdEntity(code: 'TN04', name: 'Tinh thần, thái độ làm việc'),
+      ResponsiveIdEntity(
+        code: 'TN05',
+        name: 'Sản xuất và phân phối công cụ làm việc',
+      ),
+    ];
+    _skillItems = [
+      SkillIdEntity(code: 'KN01', name: 'Phối hợp nội bộ'),
+      SkillIdEntity(code: 'KN02', name: 'Phối hợp bên ngoài'),
+      SkillIdEntity(code: 'KN03', name: 'Thủ tục hành chính, tài chính'),
+      SkillIdEntity(code: 'KN04', name: 'Quản lý sắp xếp công việc'),
+      SkillIdEntity(
+        code: 'KN05',
+        name: 'Các kỹ năng khác theo chuyên môn nghiệp vụ',
+      ),
+    ];
+    _suggestItems = [
+      SuggestIdEntity(
+        code: 'DG01',
+        name: 'Ý kiến - Đề xuất của người được đánh giá',
+      ),
+    ];
+
+    _replaceControllers(_taskNameControllers, const ['']);
+    _replaceControllers(_taskRateControllers, const ['']);
+    _replaceControllers(_taskEvidenceControllers, const ['']);
+    _replaceControllers(_leaderTaskEvidenceControllers, const ['']);
+    _replaceControllers(
+      _responseEvidenceControllers,
+      List.filled(_responseItems.length, ''),
+    );
+    _replaceControllers(
+      _leaderResponseEvidenceControllers,
+      List.filled(_responseItems.length, ''),
+    );
+    _replaceControllers(
+      _skillEvidenceControllers,
+      List.filled(_skillItems.length, ''),
+    );
+    _replaceControllers(
+      _leaderSkillEvidenceControllers,
+      List.filled(_skillItems.length, ''),
+    );
+    _replaceControllers(
+      _suggestControllers,
+      List.filled(_suggestItems.length, ''),
+    );
+
+    _coefCtrl.clear();
+    _totalCtrl.clear();
+    _didInitializeCreate = true;
+  }
+
   void _fillTotalByStep(
     CreateAppraisalState state, {
     required bool isLeaderReview,
   }) {
     final detail = state.detailEvaluation;
+    final useLocalScore = state.isDetail != true;
+
+    if (useLocalScore) {
+      if (_currentStep == 0) {
+        _totalCtrl.text = _formatScore(_computeTaskTotalScore(isLeaderReview));
+        return;
+      }
+
+      if (_currentStep == 1) {
+        _totalCtrl.text = _formatScore(
+          _computeResponseTotalScore(isLeaderReview),
+        );
+        return;
+      }
+
+      if (_currentStep == 2) {
+        _totalCtrl.text = _formatScore(_computeSkillTotalScore(isLeaderReview));
+        return;
+      }
+
+      _totalCtrl.clear();
+      return;
+    }
+
     if (detail == null) {
       _totalCtrl.clear();
       return;
@@ -231,6 +449,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
     setState(() {
       _taskItems[taskIndex] = updated;
+      _refreshHeaderTotals();
     });
   }
 
@@ -246,7 +465,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     final current = _taskItems[index];
     setState(() {
       _taskItems[index] = current.copyWith(rate: parsed ?? current.rate);
-      _coefCtrl.text = _totalTaskRate(_taskItems).toString();
+      _refreshHeaderTotals();
+      if (_showCoefError && _hasValidTaskRateTotal()) {
+        _showCoefError = false;
+      }
     });
   }
 
@@ -257,6 +479,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           isLeaderReview
               ? current.copyWith(parentRatePoint: value)
               : current.copyWith(ratePoint: value);
+      _refreshHeaderTotals();
     });
   }
 
@@ -267,6 +490,33 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           isLeaderReview
               ? current.copyWith(parentRatePoint: value)
               : current.copyWith(ratePoint: value);
+      _refreshHeaderTotals();
+    });
+  }
+
+  void _addTaskCriteria() {
+    setState(() {
+      _taskItems = [..._taskItems, TaskLineIdEntity()];
+      _taskNameControllers.add(TextEditingController());
+      _taskRateControllers.add(TextEditingController());
+      _taskEvidenceControllers.add(TextEditingController());
+      _leaderTaskEvidenceControllers.add(TextEditingController());
+      _refreshHeaderTotals();
+    });
+  }
+
+  // ignore: unused_element
+  void _addResponseCriteria() {
+    final nextNumber = _responseItems.length + 1;
+    final code = 'TN${nextNumber.toString().padLeft(2, '0')}';
+
+    setState(() {
+      _responseItems = [
+        ..._responseItems,
+        ResponsiveIdEntity(code: code, name: 'Tiêu chí bổ sung $nextNumber'),
+      ];
+      _responseEvidenceControllers.add(TextEditingController());
+      _leaderResponseEvidenceControllers.add(TextEditingController());
     });
   }
 
@@ -348,6 +598,58 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     };
   }
 
+  EvaluationEntity? _buildCreatePayload(CreateAppraisalState state) {
+    final employeeId = GlobalData.instance.userProfile?.employeeId;
+    final fromDate = state.fromDate;
+    final toDate = state.toDate;
+
+    if (employeeId == null || fromDate == null || toDate == null) {
+      return null;
+    }
+
+    final formatter = DateFormat('yyyy-MM-dd');
+
+    final taskLineIds = List.generate(_taskItems.length, (index) {
+      final item = _taskItems[index];
+      return item.copyWith(
+        note: _nullableTextAt(_taskEvidenceControllers, index),
+        parentNote: _nullableTextAt(_leaderTaskEvidenceControllers, index),
+      );
+    });
+
+    final responseIds = List.generate(_responseItems.length, (index) {
+      final item = _responseItems[index];
+      return item.copyWith(
+        note: _nullableTextAt(_responseEvidenceControllers, index),
+        parentNote: _nullableTextAt(_leaderResponseEvidenceControllers, index),
+      );
+    });
+
+    final skillIds = List.generate(_skillItems.length, (index) {
+      final item = _skillItems[index];
+      return item.copyWith(
+        note: _nullableTextAt(_skillEvidenceControllers, index),
+        parentNote: _nullableTextAt(_leaderSkillEvidenceControllers, index),
+      );
+    });
+
+    final suggestIds = List.generate(_suggestItems.length, (index) {
+      final item = _suggestItems[index];
+      return item.copyWith(note: _nullableTextAt(_suggestControllers, index));
+    });
+
+    return EvaluationEntity(
+      employeeId: employeeId,
+      dateFrom: formatter.format(fromDate),
+      dateTo: formatter.format(toDate),
+      note: state.note,
+      taskLineIds: taskLineIds,
+      responseIds: responseIds,
+      skillIds: skillIds,
+      suggestIds: suggestIds,
+    );
+  }
+
   void _submitUpdate(CreateAppraisalState state) {
     final id = state.detailEvaluation?.id ?? 0;
     final payload = _buildUpdatePayload(state);
@@ -355,18 +657,38 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     context.read<CreateAppraisalCubit>().updateEvaluation(id, payload);
   }
 
-  void _closeFlow(bool updated) {
+  void _submitCreate(CreateAppraisalState state) {
+    final payload = _buildCreatePayload(state);
+    if (payload == null) return;
+    context.read<CreateAppraisalCubit>().createEvaluation(payload);
+  }
+
+  void _closeFlow(EvaluationEntity? updatedEvaluation) {
     Navigator.pop(context);
-    Navigator.pop(context, updated);
+    Navigator.pop(context, updatedEvaluation);
   }
 
   void _next() {
     final cubit = context.read<CreateAppraisalCubit>();
     final state = cubit.state;
+    final isDetail = state.isDetail == true;
+    final isCreate = !isDetail && state.isEdit != true;
+    final isLeaderReview = !isCreate && state.currentTabIndex == 1;
+
+    if (!isDetail &&
+        !isLeaderReview &&
+        _currentStep == 0 &&
+        !_hasValidTaskRateTotal()) {
+      setState(() {
+        _showCoefError = true;
+      });
+      return;
+    }
 
     if (_currentStep < 3) {
       setState(() {
         _currentStep++;
+        _showCoefError = false;
         _fillTotalByStep(state, isLeaderReview: state.currentTabIndex == 1);
       });
       return;
@@ -377,7 +699,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       return;
     }
 
-    _closeFlow(false);
+    if (state.isDetail == true) {
+      _closeFlow(null);
+      return;
+    }
+
+    _submitCreate(state);
   }
 
   void _back() {
@@ -511,14 +838,53 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: InputTextField(
-              title: '',
-              hintText: s.appraisal_coefficient,
-              controller: _coefCtrl,
-              readOnly: true,
-              isRequiredField: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InputTextField(
+                  title: '',
+                  hintText: s.appraisal_coefficient,
+                  controller: _coefCtrl,
+                  readOnly: true,
+                  isRequiredField: false,
+                ),
+                const SizedBox(height: 6),
+                SizedBox(
+                  height: 16,
+                  child:
+                      _showCoefError
+                          ? const Padding(
+                            padding: EdgeInsets.only(left: 4),
+                            child: Text(
+                              'Tổng hệ số phải bằng 100%',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+                ),
+                if (_showLegacyCoefError && _showCoefError) ...[
+                  const SizedBox(height: 6),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4),
+                    child: Text(
+                      'Tổng hệ số phải bằng 100%',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           const SizedBox(width: 12),
@@ -568,6 +934,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         rateControllers: _taskRateControllers,
         evidenceControllers: _taskControllersForTab(isLeaderReview),
         readOnly: isDetail,
+        onAddCriteria: (!isDetail && !isLeaderReview) ? _addTaskCriteria : null,
         onNameChanged: _updateTaskName,
         onTaskRateChanged: _updateTaskRate,
         onRate:
@@ -642,7 +1009,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
             message: state.errMsg?.isNotEmpty == true ? state.errMsg : s.save,
           );
           context.read<CreateAppraisalCubit>().resetUpdateStatus();
-          _closeFlow(true);
+          _closeFlow(
+            state.detailEvaluation ??
+                (state.isEdit == true || state.isDetail == true
+                    ? null
+                    : _buildCreatePayload(state)),
+          );
           return;
         }
 
@@ -660,10 +1032,16 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       child: BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
         builder: (context, state) {
           final isDetail = state.isDetail == true;
-          final isLeaderReview = state.currentTabIndex == 1;
+          final isCreate = !isDetail && state.isEdit != true;
+          final isLeaderReview = !isCreate && state.currentTabIndex == 1;
 
           if (!_didHydrateDetail && state.detailEvaluation != null) {
             _hydrateDetail(state);
+          }
+
+          if (isCreate && !_didInitializeCreate) {
+            _initializeCreateDefaults();
+            _fillTotalByStep(state, isLeaderReview: false);
           }
 
           final actionText =
@@ -687,8 +1065,10 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    _buildTabBar(s),
-                    const SizedBox(height: 8),
+                    if (!isCreate) ...[
+                      _buildTabBar(s),
+                      const SizedBox(height: 8),
+                    ],
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(

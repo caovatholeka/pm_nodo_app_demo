@@ -13,6 +13,9 @@ class EvaluationEntity {
   @JsonKey()
   String? name;
 
+  @JsonKey(name:"experience_ids")
+  List<int>? experienceIds;
+
   @JsonKey(name: "employee_id")
   int? employeeId;
 

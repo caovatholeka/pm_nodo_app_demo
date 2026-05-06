@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -17,6 +18,7 @@ class AppraisalStepResultWork extends StatelessWidget {
   final void Function(int taskIndex, int ratingIndex, int value) onRate;
   final void Function(int taskIndex, String value) onNameChanged;
   final void Function(int taskIndex, String value) onTaskRateChanged;
+  final VoidCallback? onAddCriteria;
 
   final bool readOnly;
   final bool isLeaderReview;
@@ -30,6 +32,7 @@ class AppraisalStepResultWork extends StatelessWidget {
     required this.onRate,
     required this.onNameChanged,
     required this.onTaskRateChanged,
+    this.onAddCriteria,
     this.readOnly = false,
     this.isLeaderReview = false,
   });
@@ -108,8 +111,8 @@ class AppraisalStepResultWork extends StatelessWidget {
 
   TextEditingController _rateController(TaskLineIdEntity task, int index) {
     final controller = _controllerAt(rateControllers, index);
-    if (controller.text.isEmpty) {
-      controller.text = (task.rate ?? 0).toString();
+    if (controller.text.isEmpty && task.rate != null) {
+      controller.text = task.rate.toString();
     }
     return controller;
   }
@@ -317,6 +320,41 @@ class AppraisalStepResultWork extends StatelessWidget {
                     ).paddingOnly(bottom: 16);
                   }).toList(),
             ),
+            if (onAddCriteria != null) ...[
+              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 14),
+                child: DashedBorderBox(
+                  radius: 14,
+                  color: const Color(0xFF2E87FF),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: onAddCriteria,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add, color: Color(0xFF2E87FF), size: 22),
+                            SizedBox(width: 8),
+                            Text(
+                              'Thêm tiêu chí',
+                              style: TextStyle(
+                                color: Color(0xFF2E87FF),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

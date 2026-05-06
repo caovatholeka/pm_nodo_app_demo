@@ -9,6 +9,7 @@ import 'package:pm_app/generated/l10n.dart';
 import '../widgets/dot_devider_painter.dart';
 
 class AppraisalStepResponsibility extends StatelessWidget {
+  static const List<double> _coefficients = [2, 2, 1.5, 2, 0.5];
   final List<ResponsiveIdEntity> responses;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
@@ -30,8 +31,22 @@ class AppraisalStepResponsibility extends StatelessWidget {
     return int.tryParse(value.toString()) ?? 0;
   }
 
-  int _responseRating(ResponsiveIdEntity item, int index) {
+  int _responseRating(ResponsiveIdEntity item) {
     return _toInt(isLeaderReview ? item.parentRatePoint : item.ratePoint);
+  }
+
+  double _coefficientAt(int index) {
+    if (index < _coefficients.length) {
+      return _coefficients[index];
+    }
+    return 2;
+  }
+
+  String _formatCoefficient(double value) {
+    if (value == value.truncateToDouble()) {
+      return value.toStringAsFixed(0);
+    }
+    return value.toString();
   }
 
   TextEditingController _responseEvidence(ResponsiveIdEntity item, int index) {
@@ -165,7 +180,8 @@ class AppraisalStepResponsibility extends StatelessWidget {
                                   ),
                                   TextSpan(text: ' - ${item.name ?? ''}'),
                                   TextSpan(
-                                    text: ' - ${s.appraisal_coefficient} 2',
+                                    text:
+                                        ' - ${s.appraisal_coefficient} ${_formatCoefficient(_coefficientAt(i))}',
                                     style: const TextStyle(
                                       color: Color(0xFF2563EB),
                                       fontWeight: FontWeight.w600,
@@ -189,7 +205,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
                                 alignment: WrapAlignment.center,
                                 spacing: 26,
                                 children: List.generate(5, (j) {
-                                  final filled = j < _responseRating(item, i);
+                                  final filled = j < _responseRating(item);
 
                                   return InkWell(
                                     onTap:

@@ -49,7 +49,7 @@ class AppCubit extends Cubit<AppState> {
   }
 
   Future<ProfileEntity?> getProfile({bool forceRefresh = false}) async {
-    final cachedProfile = GlobalData.instance.userProfile ?? state.userProfile;
+    final cachedProfile = GlobalData.instance.userProfile;
     if (!forceRefresh && cachedProfile != null) {
       if (state.userProfile != cachedProfile) {
         emit(state.copyWith(userProfile: cachedProfile));
@@ -82,6 +82,17 @@ class AppCubit extends Cubit<AppState> {
     }
 
     return GlobalData.instance.userProfile ?? state.userProfile;
+  }
+
+  void clearSessionData() {
+    emit(
+      AppState(
+        locale: state.locale,
+        totalUnread: 0,
+        isLoggedIn: false,
+        tokenExpired: false,
+      ),
+    );
   }
 
   Future<void> getListWorkFlowStages() async {

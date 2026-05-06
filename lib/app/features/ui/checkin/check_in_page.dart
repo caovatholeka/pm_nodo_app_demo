@@ -10,6 +10,7 @@ import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:pm_app/app/core/utils/widget_to_marker.dart';
 import 'package:pm_app/app/data/models/entities/check_in_info_entity.dart';
+import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
 import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
 import 'package:pm_app/app/features/ui/checkin/widget/my_map_marker.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
@@ -45,6 +46,7 @@ class CheckInPage extends StatefulWidget {
 class _CheckInPageState extends State<CheckInPage> {
   final _cubit = GetIt.I.get<CheckInCubit>();
   final _appCubit = GetIt.I.get<AppCubit>();
+  CheckInOutEntity? _pendingAttendanceResult;
 
   String actionCheckIn = "";
 
@@ -213,6 +215,14 @@ class _CheckInPageState extends State<CheckInPage> {
     return false;
   }
 
+  void _finishAttendanceFlow() {
+    if (!(widget.isFromHome ?? false) || !mounted) {
+      return;
+    }
+
+    Navigator.pop(context, _pendingAttendanceResult);
+  }
+
   Future _initMarkers(List<CheckInInfoEntity> listCheckins) async {
     _markers.clear();
     final markerFutures =
@@ -372,6 +382,7 @@ class _CheckInPageState extends State<CheckInPage> {
       listener: (context, state) async {
         if (state.checkInStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
+          _pendingAttendanceResult = state.checkInOutResponse;
 
           AppSnackBar.showInfo(
             title: s.check_in_success,
@@ -388,7 +399,11 @@ class _CheckInPageState extends State<CheckInPage> {
                 reason,
                 state.checkInOutResponse?.id ?? 0,
               );
+            } else {
+              _finishAttendanceFlow();
             }
+          } else {
+            _finishAttendanceFlow();
           }
         } else if (state.updateExplain == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
@@ -399,6 +414,7 @@ class _CheckInPageState extends State<CheckInPage> {
           );
 
           _cubit.onResetState();
+          _finishAttendanceFlow();
         } else if (state.checkInStatus == LoadStatus.FAILURE ||
             state.checkOutStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);

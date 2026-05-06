@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -5,6 +7,8 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_page.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/detail_appraisal_form.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_list_item.dart';
@@ -43,12 +47,6 @@ class _AppraisalPageState extends State<AppraisalPage> {
       dateFrom: state.startDateFilter,
       dateTo: state.endDateFilter,
     );
-  }
-
-  Future<void> _refreshAfterMutation() async {
-    await _onRefresh();
-    await Future.delayed(const Duration(milliseconds: 600));
-    await _onRefresh();
   }
 
   Future<void> _openCalendar() async {
@@ -106,12 +104,17 @@ class _AppraisalPageState extends State<AppraisalPage> {
   }
 
   Future<void> _openCreateAppraisal() async {
-    final created = await Navigator.push<bool>(
+    final created = await Navigator.push<EvaluationEntity?>(
       context,
-      MaterialPageRoute(builder: (_) => const DetailAppraisalForm()),
+      MaterialPageRoute(builder: (_) => const CreateAppraisalPage()),
     );
-    if (created == true) {
-      await _refreshAfterMutation();
+    if (created != null) {
+      if (created.id != null) {
+        _cubit.upsertEvaluation(created);
+        unawaited(_cubit.refreshEvaluationById(created.id!));
+      } else {
+        await _onRefresh();
+      }
     }
   }
 
@@ -122,18 +125,20 @@ class _AppraisalPageState extends State<AppraisalPage> {
         builder: (_) => DetailAppraisalForm(isDetail: true, evaluationId: id),
       ),
     );
-    _onRefresh();
   }
 
   Future<void> _openEditAppraisal(int id) async {
-    final updated = await Navigator.push<bool>(
+    final updated = await Navigator.push<EvaluationEntity?>(
       context,
       MaterialPageRoute(
         builder: (_) => DetailAppraisalForm(isEdit: true, evaluationId: id),
       ),
     );
-    if (updated == true) {
-      await _refreshAfterMutation();
+    if (updated != null) {
+      _cubit.upsertEvaluation(updated);
+      if (updated.id != null) {
+        unawaited(_cubit.refreshEvaluationById(updated.id!));
+      }
     }
   }
 

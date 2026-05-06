@@ -39,10 +39,7 @@ class LogInCubit extends Cubit<LoginState> {
       final fcmToken = identifiers['fcm_token'] ?? '';
       final deviceType = identifiers['device_type'] ?? '';
 
-      final param = {
-        "login": username,
-        "password": password,
-      };
+      final param = {"login": username, "password": password};
 
       if (deviceId.isNotEmpty) {
         param["device_id"] = deviceId;
@@ -110,7 +107,7 @@ class LogInCubit extends Cubit<LoginState> {
         }
 
         final appCubit = GetIt.I<AppCubit>();
-        await appCubit.getProfile();
+        await appCubit.getProfile(forceRefresh: true);
 
         emit(
           state.copyWith(loginStatus: LoadStatus.SUCCESS, tokenEntity: entity),

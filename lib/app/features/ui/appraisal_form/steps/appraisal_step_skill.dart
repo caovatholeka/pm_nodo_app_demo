@@ -7,6 +7,7 @@ import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 class AppraisalStepSkill extends StatelessWidget {
+  static const List<double> _coefficients = [1, 1, 0.5, 0.5, 1];
   final List<SkillIdEntity> skills;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
@@ -30,6 +31,20 @@ class AppraisalStepSkill extends StatelessWidget {
 
   int _skillRating(SkillIdEntity skill, int index) {
     return _toInt(isLeaderReview ? skill.parentRatePoint : skill.ratePoint);
+  }
+
+  double _coefficientAt(int index) {
+    if (index < _coefficients.length) {
+      return _coefficients[index];
+    }
+    return 1;
+  }
+
+  String _formatCoefficient(double value) {
+    if (value == value.truncateToDouble()) {
+      return value.toStringAsFixed(0);
+    }
+    return value.toString();
   }
 
   TextEditingController _skillEvidence(SkillIdEntity skill, int index) {
@@ -179,7 +194,7 @@ class AppraisalStepSkill extends StatelessWidget {
                                         ),
                                         TextSpan(
                                           text:
-                                              ' - ${s.appraisal_coefficient} 1',
+                                              ' - ${s.appraisal_coefficient} ${_formatCoefficient(_coefficientAt(i))}',
                                           style: const TextStyle(
                                             color: Color(0xFF0B6FDF),
                                           ),

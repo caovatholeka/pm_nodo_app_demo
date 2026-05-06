@@ -50,7 +50,15 @@ class CreateAppraisalCubit extends Cubit<CreateAppraisalState> {
   }
 
   void initCreate() {
-    emit(state.copyWith(isEdit: false, isDetail: false));
+    emit(
+      state.copyWith(
+        isEdit: false,
+        isDetail: false,
+        detailEvaluation: null,
+        currentTabIndex: 0,
+        currentTabItem: null,
+      ),
+    );
   }
 
   void initEdit() {
@@ -106,11 +114,60 @@ class CreateAppraisalCubit extends Cubit<CreateAppraisalState> {
         } catch (_) {}
       }
 
+      EvaluationEntity? updatedDetail = state.detailEvaluation;
+      if (!isError) {
+        try {
+          updatedDetail = await repository.getDetailEvaluation(id);
+        } catch (e, s) {
+          logger.d(e);
+          logger.d(s);
+        }
+      }
+
       emit(
         state.copyWith(
           updateStatus: isError ? LoadStatus.FAILURE : LoadStatus.SUCCESS,
           errMsg: message,
-          detailEvaluation: state.detailEvaluation,
+          detailEvaluation: updatedDetail,
+        ),
+      );
+    } catch (e, s) {
+      logger.d(e);
+      logger.d(s);
+      emit(
+        state.copyWith(updateStatus: LoadStatus.FAILURE, errMsg: e.toString()),
+      );
+    }
+  }
+
+  Future<void> createEvaluation(EvaluationEntity body) async {
+    emit(state.copyWith(updateStatus: LoadStatus.LOADING, errMsg: ""));
+
+    try {
+      logger.d("createEvaluation payload: ${body.toJson()}");
+      final res = await repository.createEvaluation(body);
+      logger.d("createEvaluation response: ${res.toJson()}");
+
+      final isError = res.error == true;
+      final message = res.message?.toString();
+
+      EvaluationEntity? createdDetail = state.detailEvaluation;
+      final createdId = _extractEvaluationId(res.data);
+
+      if (!isError && createdId != null && createdId > 0) {
+        try {
+          createdDetail = await repository.getDetailEvaluation(createdId);
+        } catch (e, s) {
+          logger.d(e);
+          logger.d(s);
+        }
+      }
+
+      emit(
+        state.copyWith(
+          updateStatus: isError ? LoadStatus.FAILURE : LoadStatus.SUCCESS,
+          errMsg: message,
+          detailEvaluation: createdDetail,
         ),
       );
     } catch (e, s) {
@@ -132,5 +189,27 @@ class CreateAppraisalCubit extends Cubit<CreateAppraisalState> {
 
   void onChangeCurrentTabItem(MasterDataItem item) {
     emit(state.copyWith(currentTabItem: item));
+  }
+
+  int? _extractEvaluationId(dynamic data) {
+    if (data == null) return null;
+
+    if (data is int) return data;
+    if (data is String) return int.tryParse(data);
+
+    if (data is Map<String, dynamic>) {
+      final directId = data["id"] ?? data["evaluation_id"];
+      if (directId is int) return directId;
+      if (directId is String) return int.tryParse(directId);
+
+      final nestedData = data["data"];
+      if (nestedData is Map<String, dynamic>) {
+        final nestedId = nestedData["id"] ?? nestedData["evaluation_id"];
+        if (nestedId is int) return nestedId;
+        if (nestedId is String) return int.tryParse(nestedId);
+      }
+    }
+
+    return null;
   }
 }

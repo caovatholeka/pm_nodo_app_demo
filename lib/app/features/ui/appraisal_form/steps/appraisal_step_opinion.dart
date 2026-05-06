@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/data/models/entities/suggest_id_entity.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_dialog.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
 
-class AppraisalStepOpinion extends StatefulWidget {
+class AppraisalStepOpinion extends StatelessWidget {
   final List<SuggestIdEntity> suggests;
   final List<TextEditingController> controllers;
   final bool isLeaderReview;
@@ -22,36 +21,12 @@ class AppraisalStepOpinion extends StatefulWidget {
     this.readOnly = false,
   });
 
-  @override
-  State<AppraisalStepOpinion> createState() => _AppraisalStepOpinionState();
-}
-
-class _AppraisalStepOpinionState extends State<AppraisalStepOpinion> {
   Color get _sectionBg =>
-      widget.isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
+      isLeaderReview ? const Color(0xFFE5E0F0) : const Color(0xFFF7FFF6);
   Color get _accent =>
-      widget.isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
+      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF10B981);
   Color get _titleColor =>
-      widget.isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
-
-  Future<void> _openSuggestionDialog(
-    BuildContext context,
-    SuggestIdEntity item,
-    TextEditingController controller,
-  ) async {
-    final result = await AppraisalDialog.show(
-      context,
-      suggestId: item.id,
-      departmentName: item.name ?? '',
-      initialNote: controller.text,
-    );
-
-    if (result == null || result.note.trim().isEmpty) return;
-
-    controller.text = result.note;
-    item.note = result.note;
-    setState(() {});
-  }
+      isLeaderReview ? const Color(0xFF7030A0) : const Color(0xFF0B6F2F);
 
   @override
   Widget build(BuildContext context) {
@@ -96,13 +71,13 @@ class _AppraisalStepOpinionState extends State<AppraisalStepOpinion> {
                 ),
               ),
               child: Column(
-                children: List.generate(widget.suggests.length, (i) {
-                  final item = widget.suggests[i];
-                  final controller = widget.controllers[i];
+                children: List.generate(suggests.length, (i) {
+                  final item = suggests[i];
+                  final controller = controllers[i];
 
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: i == widget.suggests.length - 1 ? 0 : 14,
+                      bottom: i == suggests.length - 1 ? 0 : 14,
                     ),
                     child: Container(
                       padding: const EdgeInsets.all(10),
@@ -157,16 +132,9 @@ class _AppraisalStepOpinionState extends State<AppraisalStepOpinion> {
                             controller: controller,
                             maxLine: 4,
                             isRequiredField: false,
-                            readOnly: true,
-                            callback:
-                                widget.readOnly
-                                    ? null
-                                    : () => _openSuggestionDialog(
-                                      context,
-                                      item,
-                                      controller,
-                                    ),
+                            readOnly: readOnly,
                             fillBgColor: const Color(0xFFEFF8EF),
+                            onChange: (value) => item.note = value,
                           ),
                         ],
                       ),

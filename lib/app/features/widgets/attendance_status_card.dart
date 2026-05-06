@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 class AttendanceStatusCard extends StatelessWidget {
@@ -7,7 +8,6 @@ class AttendanceStatusCard extends StatelessWidget {
   final String checkOutTime;
   final String checkInStatus;
   final String checkOutStatus;
-
   final VoidCallback? onCheckOutTap;
 
   const AttendanceStatusCard({
@@ -21,24 +21,27 @@ class AttendanceStatusCard extends StatelessWidget {
   });
 
   bool _isDone(String status) {
-    final s = status.toLowerCase().trim();
-    return s != "not yet" && s != "chưa chấm";
+    final normalized = status.toLowerCase().trim();
+    return normalized != 'not yet' &&
+        normalized != 'chua cham' &&
+        normalized != 'chưa chấm';
   }
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
     final s = S.of(context);
+
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -49,24 +52,24 @@ class AttendanceStatusCard extends StatelessWidget {
             s.attendance_card1,
             style: TextStyle(
               color: Colors.grey[600],
-              fontSize: w * 0.035,
+              fontSize: width * 0.035,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             dateText,
             style: TextStyle(
-              fontSize: w * 0.055,
+              fontSize: width * 0.055,
               fontWeight: FontWeight.w700,
               color: Colors.black,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Container(
-            padding: EdgeInsets.symmetric(vertical: 18, horizontal: 14),
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 14),
             decoration: BoxDecoration(
-              color: Color(0xFFF3F4F6),
+              color: const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -84,8 +87,8 @@ class AttendanceStatusCard extends StatelessWidget {
                 Container(
                   width: 1,
                   height: 60,
-                  color: Colors.grey.withOpacity(0.4),
-                  margin: EdgeInsets.symmetric(horizontal: 12),
+                  color: Colors.grey.withValues(alpha: 0.4),
+                  margin: const EdgeInsets.symmetric(horizontal: 12),
                 ),
                 Expanded(
                   child: _buildItem(
@@ -111,6 +114,12 @@ class AttendanceStatusCard extends StatelessWidget {
     required bool isDone,
     VoidCallback? onTap,
   }) {
+    final backgroundColor =
+        isDone ? Colors.white : AppColors.themePrimaryDefault;
+    final borderColor =
+        isDone ? Colors.transparent : AppColors.themePrimaryDefault;
+    final textColor = isDone ? Colors.green : Colors.white;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -124,7 +133,7 @@ class AttendanceStatusCard extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           time,
           style: const TextStyle(
@@ -134,33 +143,47 @@ class AttendanceStatusCard extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 10),
-        GestureDetector(
-          onTap: isDone ? null : onTap,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-            decoration: BoxDecoration(
-              color: isDone ? Colors.white : Colors.blue,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow:
-                  isDone
-                      ? [
-                        BoxShadow(
-                          color: Colors.green.withOpacity(0.15),
-                          blurRadius: 8,
-                          offset: Offset(0, 3),
-                        ),
-                      ]
-                      : [],
-            ),
-            child: Text(
-              status,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isDone ? Colors.green : Colors.white,
+        const SizedBox(height: 10),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: isDone ? null : onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: borderColor),
+                boxShadow:
+                    isDone
+                        ? [
+                          BoxShadow(
+                            color: Colors.green.withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ]
+                        : [
+                          BoxShadow(
+                            color: AppColors.themePrimaryDefault.withValues(
+                              alpha: 0.22,
+                            ),
+                            blurRadius: 14,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
               ),
-              textAlign: TextAlign.center,
+              child: Text(
+                status,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ),

@@ -39,10 +39,7 @@ class AccountCubit extends Cubit<AccountState> {
 
       if (response.data != null) {
         final profile = ProfileEntity.fromJson(response.data);
-        emit(state.copyWith(
-          loadStatus: LoadStatus.SUCCESS,
-          profile: profile,
-        ));
+        emit(state.copyWith(loadStatus: LoadStatus.SUCCESS, profile: profile));
       } else {
         emit(state.copyWith(loadStatus: LoadStatus.FAILURE));
       }
@@ -84,6 +81,6 @@ class AccountCubit extends Cubit<AccountState> {
     globalData.userProfile = null;
     globalData.bottomNavIndex.value = 0;
 
-    sl<AppCubit>().clearUnreadNoti();
+    sl<AppCubit>().clearSessionData();
   }
 }

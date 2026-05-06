@@ -69,6 +69,36 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
     }
   }
 
+  Future<void> refreshEvaluationById(int id) async {
+    if (id == 0) return;
+
+    try {
+      final entity = await repository.getDetailEvaluation(id);
+      upsertEvaluation(entity);
+    } catch (e, s) {
+      logger.d(e);
+      logger.d(s);
+    }
+  }
+
+  void upsertEvaluation(EvaluationEntity entity) {
+    final entityId = entity.id;
+    if (entityId == null || entityId == 0) return;
+
+    final currentList = List<EvaluationEntity>.from(
+      state.listEvaluations ?? [],
+    );
+    final index = currentList.indexWhere((item) => item.id == entityId);
+
+    if (index >= 0) {
+      currentList[index] = entity;
+    } else {
+      currentList.insert(0, entity);
+    }
+
+    emit(state.copyWith(listEvaluations: currentList));
+  }
+
   getEvaluationDetails(int id) async {
     if (id == 0) {
       return;

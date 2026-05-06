@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
+import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
@@ -16,80 +18,34 @@ import '../../../data/repositories/user_repository.dart';
 
 part 'home_state.dart';
 
+class _AttendanceTodayData {
+  final List<ExplanationEntity> listAttendanceToday;
+  final String? checkInToday;
+  final String? checkOutToday;
+  final AttendanceAction attendanceAction;
+
+  const _AttendanceTodayData({
+    required this.listAttendanceToday,
+    required this.checkInToday,
+    required this.checkOutToday,
+    required this.attendanceAction,
+  });
+}
+
 class HomeCubit extends Cubit<HomeState> {
   UserRepository userRepository;
   TaskRepository taskRepository;
 
-  HomeCubit({required this.userRepository, required this.taskRepository}) : super(HomeState());
+  HomeCubit({required this.userRepository, required this.taskRepository})
+    : super(HomeState());
 
   Future<void> getListAttendanceToday() async {
-    final todayStr = DateFormat("yyyy-MM-dd").format(DateTime.now());
-
     try {
-      final res = await userRepository.getListAttendanceToday(
-        todayStr,
-        todayStr,
-      );
-
-      List<ExplanationEntity> list = [];
-
-      if (res.data != null) {
-        list = mapList(res.data, ExplanationEntity.fromJson);
-      }
-
-      // Lọc đúng ngày hôm nay
-      final todayList = list.where((e) => e.date == todayStr).toList();
-
-      if (todayList.isEmpty) {
-        emit(
-          state.copyWith(
-            listAttendanceToday: [],
-            checkInToday: null,
-            checkOutToday: null,
-            attendanceAction: AttendanceAction.checkIn,
-          ),
-        );
-        return;
-      }
-
-      todayList.sort(
-        (a, b) =>
-            DateTime.parse(a.datetime!).compareTo(DateTime.parse(b.datetime!)),
-      );
-
-      String? checkIn;
-      String? checkOut;
-
-      for (final e in todayList) {
-        if (e.action == 'check_in') {
-          checkIn = e.datetime;
-        } else if (e.action == 'check_out') {
-          checkOut = e.datetime;
-        }
-      }
-
-      AttendanceAction action;
-      if (checkIn == null) {
-        action = AttendanceAction.checkIn;
-      } else if (checkOut == null) {
-        action = AttendanceAction.checkOut;
-      } else {
-        action = AttendanceAction.none;
-      }
-
-      emit(
-        state.copyWith(
-          listAttendanceToday: todayList,
-          checkInToday: checkIn,
-          checkOutToday: checkOut,
-          attendanceAction: action,
-        ),
-      );
+      final data = await _fetchAttendanceTodayData();
+      _emitAttendanceData(data);
     } catch (e, s) {
       logger.e(e);
       logger.e(s);
-
-      // Lỗi → coi như chưa chấm gì
       emit(
         state.copyWith(
           listAttendanceToday: [],
@@ -101,6 +57,89 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
+  Future<void> handleAttendanceSubmitted(CheckInOutEntity attendance) async {
+    final action = (attendance.action ?? '').trim().toLowerCase();
+    final submittedAt = attendance.datetime?.trim();
+
+    if (submittedAt == null || submittedAt.isEmpty) {
+      await getListAttendanceToday();
+      return;
+    }
+
+    final optimisticList = List<ExplanationEntity>.from(
+      state.listAttendanceToday ?? const <ExplanationEntity>[],
+    );
+
+    final optimisticEntity = ExplanationEntity(
+      date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
+      action: action,
+      datetime: submittedAt,
+    );
+
+    final existingIndex = optimisticList.indexWhere(
+      (item) => (item.action ?? '').trim().toLowerCase() == action,
+    );
+
+    if (existingIndex >= 0) {
+      optimisticList[existingIndex] = optimisticEntity;
+    } else {
+      optimisticList.add(optimisticEntity);
+    }
+
+    optimisticList.sort((a, b) {
+      final aDate = AppDateUtils.parseFlexibleDate(a.datetime);
+      final bDate = AppDateUtils.parseFlexibleDate(b.datetime);
+      if (aDate == null && bDate == null) return 0;
+      if (aDate == null) return -1;
+      if (bDate == null) return 1;
+      return aDate.compareTo(bDate);
+    });
+
+    emit(
+      state.copyWith(
+        listAttendanceToday: optimisticList,
+        checkInToday:
+            _isCheckInAction(action) ? submittedAt : state.checkInToday,
+        checkOutToday:
+            _isCheckOutAction(action) ? submittedAt : state.checkOutToday,
+        attendanceAction:
+            _isCheckInAction(action)
+                ? AttendanceAction.checkOut
+                : AttendanceAction.none,
+        attendanceActionStatus: LoadStatus.LOADING,
+      ),
+    );
+
+    try {
+      var isSynced = false;
+
+      for (var attempt = 0; attempt < 6; attempt++) {
+        final data = await _fetchAttendanceTodayData();
+        if (_matchesAttendance(data, attendance)) {
+          _emitAttendanceData(data, attendanceActionStatus: LoadStatus.SUCCESS);
+          isSynced = true;
+          break;
+        }
+
+        if (attempt < 5) {
+          await Future.delayed(const Duration(milliseconds: 900));
+        }
+      }
+
+      if (!isSynced) {
+        emit(state.copyWith(attendanceActionStatus: LoadStatus.FAILURE));
+      }
+    } catch (e, s) {
+      logger.e(e);
+      logger.e(s);
+      emit(state.copyWith(attendanceActionStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void resetAttendanceActionStatus() {
+    emit(state.copyWith(attendanceActionStatus: LoadStatus.INITIAL));
+  }
+
   Future<void> getProfile() async {
     emit(state.copyWith(loadProfile: LoadStatus.LOADING));
     if (GlobalData.instance.userId == null) {
@@ -109,7 +148,7 @@ class HomeCubit extends Cubit<HomeState> {
     }
 
     if (GlobalData.instance.userId == null) {
-      logger.e("Không có user_id để gọi API getUserProfile");
+      logger.e("KhÃ´ng cÃ³ user_id Ä‘á»ƒ gá»i API getUserProfile");
       return;
     }
 
@@ -120,7 +159,6 @@ class HomeCubit extends Cubit<HomeState> {
       if (user.data != null) {
         final userEntity = mapObject(user.data, ProfileEntity.fromJson);
         GlobalData.instance.userProfile = userEntity;
-        // emit(state.copyWith(userProfile: userEntity));
         emit(state.copyWith(loadProfile: LoadStatus.SUCCESS));
       }
     } catch (error) {
@@ -129,8 +167,7 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  // lấy danh sách việc cần làm
-  getListNewTasks() async {
+  Future<void> getListNewTasks() async {
     emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
     String? name;
     int stagId = 1;
@@ -163,7 +200,119 @@ class HomeCubit extends Cubit<HomeState> {
       );
     }
   }
-  
 
-  
+  Future<_AttendanceTodayData> _fetchAttendanceTodayData() async {
+    final todayStr = DateFormat("yyyy-MM-dd").format(DateTime.now());
+    final res = await userRepository.getListAttendanceToday(todayStr, todayStr);
+
+    List<ExplanationEntity> list = [];
+    if (res.data != null) {
+      list = mapList(res.data, ExplanationEntity.fromJson);
+    }
+
+    final todayList = list.where((e) => e.date == todayStr).toList();
+
+    if (todayList.isEmpty) {
+      return const _AttendanceTodayData(
+        listAttendanceToday: [],
+        checkInToday: null,
+        checkOutToday: null,
+        attendanceAction: AttendanceAction.checkIn,
+      );
+    }
+
+    todayList.sort((a, b) {
+      final aDate = AppDateUtils.parseFlexibleDate(a.datetime);
+      final bDate = AppDateUtils.parseFlexibleDate(b.datetime);
+      if (aDate == null && bDate == null) return 0;
+      if (aDate == null) return -1;
+      if (bDate == null) return 1;
+      return aDate.compareTo(bDate);
+    });
+
+    String? checkIn;
+    String? checkOut;
+
+    for (final e in todayList) {
+      if (_isCheckInAction(e.action)) {
+        checkIn = e.datetime;
+      } else if (_isCheckOutAction(e.action)) {
+        checkOut = e.datetime;
+      }
+    }
+
+    final action =
+        checkIn == null
+            ? AttendanceAction.checkIn
+            : checkOut == null
+            ? AttendanceAction.checkOut
+            : AttendanceAction.none;
+
+    return _AttendanceTodayData(
+      listAttendanceToday: todayList,
+      checkInToday: checkIn,
+      checkOutToday: checkOut,
+      attendanceAction: action,
+    );
+  }
+
+  void _emitAttendanceData(
+    _AttendanceTodayData data, {
+    LoadStatus? attendanceActionStatus,
+  }) {
+    emit(
+      state.copyWith(
+        listAttendanceToday: data.listAttendanceToday,
+        checkInToday: data.checkInToday,
+        checkOutToday: data.checkOutToday,
+        attendanceAction: data.attendanceAction,
+        attendanceActionStatus:
+            attendanceActionStatus ?? state.attendanceActionStatus,
+      ),
+    );
+  }
+
+  bool _matchesAttendance(
+    _AttendanceTodayData data,
+    CheckInOutEntity attendance,
+  ) {
+    final action = (attendance.action ?? '').trim().toLowerCase();
+    final submittedAt = attendance.datetime;
+
+    if (_isCheckInAction(action)) {
+      return _sameMoment(data.checkInToday, submittedAt);
+    }
+
+    if (_isCheckOutAction(action)) {
+      return _sameMoment(data.checkOutToday, submittedAt);
+    }
+
+    return _sameMoment(data.checkInToday, submittedAt) ||
+        _sameMoment(data.checkOutToday, submittedAt);
+  }
+
+  bool _sameMoment(String? left, String? right) {
+    if ((left ?? '').trim().isEmpty || (right ?? '').trim().isEmpty) {
+      return false;
+    }
+
+    final leftDate = AppDateUtils.parseFlexibleDate(left);
+    final rightDate = AppDateUtils.parseFlexibleDate(right);
+
+    if (leftDate != null && rightDate != null) {
+      return leftDate.difference(rightDate).inSeconds.abs() <= 1;
+    }
+
+    return left == right;
+  }
+
+  bool _isCheckInAction(String? action) {
+    final normalized = (action ?? '').trim().toLowerCase();
+    return normalized == 'check_in' || normalized == 'checkin';
+  }
+
+  bool _isCheckOutAction(String? action) {
+    final normalized = (action ?? '').trim().toLowerCase();
+    return normalized == 'check_out' || normalized == 'checkout';
+  }
 }
