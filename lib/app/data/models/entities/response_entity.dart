@@ -22,6 +22,8 @@ class ResponseEntity {
   @JsonKey(name: "parent_note")
   String? parentNote;
 
+
+
   ResponseEntity({
     this.code,
     this.name,

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +7,7 @@ import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
+import '../../../core/utils/utils.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../widgets/expenable_section.dart';
 import '../../widgets/info_box_special.dart';
@@ -333,31 +332,24 @@ Widget _buildSafeAvatar(String? avatar) {
     );
   }
 
-  try {
-    final cleaned =
-        avatar.contains(',') ? avatar.split(',').last : avatar;
-    final bytes = base64Decode(cleaned);
-
-    if (bytes.isEmpty) {
-      return Image.asset(AppAssets.img_df_avatar, fit: BoxFit.cover);
-    }
-
-    return Image.memory(
-      bytes,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) {
-        return Image.asset(
-          AppAssets.img_df_avatar,
-          fit: BoxFit.cover,
-        );
-      },
-    );
-  } catch (e) {
+  final bytes = Utils().decodeBase64(avatar);
+  if (bytes == null || bytes.isEmpty) {
     return Image.asset(
       AppAssets.img_df_avatar,
       fit: BoxFit.cover,
     );
   }
+
+  return Image.memory(
+    bytes,
+    fit: BoxFit.cover,
+    errorBuilder: (_, __, ___) {
+      return Image.asset(
+        AppAssets.img_df_avatar,
+        fit: BoxFit.cover,
+      );
+    },
+  );
 }
 
 

@@ -15,24 +15,30 @@ class SuggestIdEntity {
   @JsonKey()
   String? note;
 
+  @JsonKey(name:"is_checked")
+  bool?isChecked;
+
   SuggestIdEntity({
     this.id,
     this.code,
     this.name,
-    this.note
+    this.note,
+    this.isChecked,
   });
 
   SuggestIdEntity copyWith({
     int? id,
     String? code,
     String? name,
-    String? note
+    String? note,
+    bool? isChecked,
   }) {
     return SuggestIdEntity(
       id: id ?? this.id,
       code: code ?? this.code,
       name: name ?? this.name,
       note: note ?? this.note,
+      isChecked: isChecked ?? this.isChecked,
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pm_app/app/data/models/entities/experience_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/suggest_id_entity.dart';
@@ -12,9 +13,6 @@ class EvaluationEntity {
 
   @JsonKey()
   String? name;
-
-  @JsonKey(name:"experience_ids")
-  List<int>? experienceIds;
 
   @JsonKey(name: "employee_id")
   int? employeeId;
@@ -73,6 +71,9 @@ class EvaluationEntity {
   @JsonKey(name: "suggest_ids")
   List<SuggestIdEntity>? suggestIds;
 
+  @JsonKey(name: "experience_ids")
+  List<ExperienceIdEntity>? experienceIds;
+  
 
   EvaluationEntity({
     this.id,
@@ -95,7 +96,8 @@ class EvaluationEntity {
     this.taskLineIds,
     this.responseIds,
     this.skillIds,
-    this.suggestIds
+    this.suggestIds,
+    this.experienceIds,
   });
 
   EvaluationEntity copyWith({
@@ -119,7 +121,8 @@ class EvaluationEntity {
     List<TaskLineIdEntity>? taskLineIds,
     List<ResponsiveIdEntity>? responseIds,
     List<SkillIdEntity>? skillIds,
-    List<SuggestIdEntity>? suggestIds
+    List<SuggestIdEntity>? suggestIds,
+    List<ExperienceIdEntity>? experienceIds,
   }) {
     return EvaluationEntity(
         id: id ?? this.id,
@@ -144,7 +147,8 @@ class EvaluationEntity {
         taskLineIds: taskLineIds ?? this.taskLineIds,
         responseIds: responseIds ?? this.responseIds,
         skillIds: skillIds ?? this.skillIds,
-        suggestIds: suggestIds ?? this.suggestIds
+        suggestIds: suggestIds ?? this.suggestIds,
+        experienceIds: experienceIds ?? this.experienceIds
     );
   }
 

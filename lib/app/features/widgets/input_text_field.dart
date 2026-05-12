@@ -61,7 +61,7 @@ class InputTextField extends StatefulWidget {
     this.isObscured,
     this.onSuffixAction,
     this.isPasswordField = false,
-    this.fillBgColor
+    this.fillBgColor,
   });
 
   @override
@@ -70,11 +70,46 @@ class InputTextField extends StatefulWidget {
 
 class _InputTextFieldState extends State<InputTextField> {
   bool _obscure = false;
+  TextEditingController? _internalController;
+
+  TextEditingController? get _effectiveController =>
+      widget.controller ?? _internalController;
 
   @override
   void initState() {
     super.initState();
     _obscure = widget.isPasswordField ? true : (widget.isObscured ?? false);
+    if (widget.controller == null) {
+      _internalController = TextEditingController(text: widget.initialValue);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant InputTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.controller != oldWidget.controller) {
+      if (oldWidget.controller == null) {
+        _internalController?.dispose();
+        _internalController = null;
+      }
+
+      if (widget.controller == null) {
+        _internalController = TextEditingController(text: widget.initialValue);
+      }
+    }
+
+    if (widget.controller == null &&
+        oldWidget.initialValue != widget.initialValue &&
+        _internalController?.text != (widget.initialValue ?? '')) {
+      _internalController?.text = widget.initialValue ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _internalController?.dispose();
+    super.dispose();
   }
 
   @override
@@ -127,7 +162,13 @@ class _InputTextFieldState extends State<InputTextField> {
               ),
               const SizedBox(width: 4),
               if (widget.isRequiredField)
-                SvgPicture.asset(AppAssets.starRating, color: Colors.red,),
+                SvgPicture.asset(
+                  AppAssets.starRating,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.red,
+                    BlendMode.srcIn,
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 4),
@@ -135,10 +176,9 @@ class _InputTextFieldState extends State<InputTextField> {
         ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),
           child: TextFormField(
-            controller: widget.controller,
+            controller: _effectiveController,
             focusNode: widget.focusNode,
-            initialValue:
-                widget.controller == null ? widget.initialValue : null,
+            initialValue: null,
             enabled: widget.enable,
             validator: widget.validator,
             keyboardType: widget.inputType,

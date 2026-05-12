@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
+import 'package:pm_app/app/data/models/entities/experience_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
@@ -11,11 +13,14 @@ import 'package:pm_app/app/data/models/entities/suggest_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/task_line_id_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/detail_apprasial_cubit.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_experience.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_opinion.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_responsibility.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_result_work.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/steps/appraisal_step_skill.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/widgets/hr_dialog.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
+import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
@@ -29,10 +34,15 @@ class ApprasisalProgressPage extends StatefulWidget {
 }
 
 class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
+  static const int _totalSteps = 5;
+  static const int _lastStepIndex = _totalSteps - 1;
+
   int _currentStep = 0;
   bool _didHydrateDetail = false;
   bool _didInitializeCreate = false;
   bool _showCoefError = false;
+  bool _isHrAssessFlow = false;
+  bool _isManagerAssessFlow = false;
 
   bool get _showLegacyCoefError => false;
   static const List<double> _responseCoefficients = [2, 2, 1.5, 2, 0.5];
@@ -41,6 +51,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   List<TaskLineIdEntity> _taskItems = [];
   List<ResponsiveIdEntity> _responseItems = [];
   List<SkillIdEntity> _skillItems = [];
+  List<ExperienceIdEntity> _experienceItems = [];
   List<SuggestIdEntity> _suggestItems = [];
 
   final List<TextEditingController> _taskEvidenceControllers = [];
@@ -51,10 +62,33 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   final List<TextEditingController> _leaderResponseEvidenceControllers = [];
   final List<TextEditingController> _skillEvidenceControllers = [];
   final List<TextEditingController> _leaderSkillEvidenceControllers = [];
+  final List<TextEditingController> _experienceProjectControllers = [];
+  final List<TextEditingController> _experienceFromDateControllers = [];
+  final List<TextEditingController> _experienceToDateControllers = [];
+  final List<TextEditingController> _experienceTechniqueControllers = [];
+  final List<TextEditingController> _experienceNumberPeopleControllers = [];
+  final List<TextEditingController> _experienceNoteControllers = [];
   final List<TextEditingController> _suggestControllers = [];
+  final Map<int, bool> _taskHrChecked = {};
+  final Map<int, bool> _responseHrChecked = {};
+  final Map<int, bool> _skillHrChecked = {};
+  final Map<int, bool> _suggestHrChecked = {};
+  final Map<int, String> _taskHrNotes = {};
+  final Map<int, String> _responseHrNotes = {};
+  final Map<int, String> _skillHrNotes = {};
+  final Map<int, String> _suggestHrNotes = {};
 
   final TextEditingController _coefCtrl = TextEditingController();
   final TextEditingController _totalCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<CreateAppraisalCubit>();
+      cubit.getListJob();
+    });
+  }
 
   int _totalTaskRate(List<TaskLineIdEntity> tasks) {
     return tasks.fold<int>(0, (sum, task) => sum + (task.rate ?? 0));
@@ -66,6 +100,24 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     if (value == null) return 0;
     if (value is num) return value.toDouble();
     return double.tryParse(value.toString()) ?? 0;
+  }
+
+  int _toInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString()) ?? 0;
+  }
+
+  bool get _isHrReviewer {
+    final profile = GlobalData.instance.userProfile;
+    final jobTitle = profile?.jobTitle?.toLowerCase() ?? '';
+    final departmentName = profile?.department?.name?.toLowerCase() ?? '';
+
+    return jobTitle.contains('hr') ||
+        jobTitle.contains('nhân sự') ||
+        jobTitle.contains('hành chính nhân sự') ||
+        departmentName.contains('nhân sự') ||
+        departmentName.contains('hành chính nhân sự');
   }
 
   double _taskAverage(TaskLineIdEntity task, bool isLeaderReview) {
@@ -133,11 +185,41 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     return normalized.toStringAsFixed(1);
   }
 
+  String _displayExperienceDate(String? raw) {
+    return AppDateUtils.formatFlexibleDateForDisplay(
+      raw,
+      datePattern: 'MM/yyyy',
+    );
+  }
+
+  int _totalTaskRateExcept(int excludedIndex) {
+    var total = 0;
+    for (int index = 0; index < _taskItems.length; index++) {
+      if (index == excludedIndex) continue;
+      total += _taskItems[index].rate ?? 0;
+    }
+    return total;
+  }
+
+  void _syncTaskRateController(int index, String text) {
+    if (index < 0 || index >= _taskRateControllers.length) return;
+
+    final controller = _taskRateControllers[index];
+    if (controller.text == text) return;
+
+    controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
   void _refreshHeaderTotals() {
     final state = context.read<CreateAppraisalCubit>().state;
     final isCreate = state.isDetail != true && state.isEdit != true;
     final isLeaderReview = !isCreate && state.currentTabIndex == 1;
-    _coefCtrl.text = _totalTaskRate(_taskItems).toString();
+    final totalRate = _totalTaskRate(_taskItems);
+    _coefCtrl.text = (totalRate > 100 ? 100 : totalRate).toString();
+    _showCoefError = _currentStep == 0 && !isLeaderReview && totalRate != 100;
     _fillTotalByStep(state, isLeaderReview: isLeaderReview);
   }
 
@@ -165,6 +247,33 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     }
   }
 
+  List<SuggestIdEntity> _normalizeSuggestItems(List<SuggestIdEntity> items) {
+    final normalized = [for (final item in items) item.copyWith()];
+
+    final hasDg01 = normalized.any(
+      (item) => item.code?.trim().toUpperCase() == 'DG01',
+    );
+    final hasDg02 = normalized.any(
+      (item) => item.code?.trim().toUpperCase() == 'DG02',
+    );
+
+    if (!hasDg01) {
+      normalized.insert(
+        0,
+        SuggestIdEntity(
+          code: 'DG01',
+          name: 'Ý kiến - Đề xuất của người được đánh giá',
+        ),
+      );
+    }
+
+    if (!hasDg02) {
+      normalized.add(SuggestIdEntity(code: 'DG02', name: 'Cấp trên đánh giá'));
+    }
+
+    return normalized;
+  }
+
   void _hydrateDetail(CreateAppraisalState state) {
     final detail = state.detailEvaluation;
     if (detail == null) return;
@@ -180,10 +289,13 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     _skillItems = [
       for (final item in detail.skillIds ?? <SkillIdEntity>[]) item.copyWith(),
     ];
-    _suggestItems = [
-      for (final item in detail.suggestIds ?? <SuggestIdEntity>[])
+    _experienceItems = [
+      for (final item in detail.experienceIds ?? <ExperienceIdEntity>[])
         item.copyWith(),
     ];
+    _suggestItems = _normalizeSuggestItems(
+      detail.suggestIds ?? <SuggestIdEntity>[],
+    );
 
     _replaceControllers(
       _taskNameControllers,
@@ -218,6 +330,34 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       _skillItems.map((item) => item.parentNote ?? '').toList(),
     );
     _replaceControllers(
+      _experienceProjectControllers,
+      _experienceItems.map((item) => item.name ?? '').toList(),
+    );
+    _replaceControllers(
+      _experienceFromDateControllers,
+      _experienceItems
+          .map((item) => _displayExperienceDate(item.dateFrom))
+          .toList(),
+    );
+    _replaceControllers(
+      _experienceToDateControllers,
+      _experienceItems
+          .map((item) => _displayExperienceDate(item.dateTo))
+          .toList(),
+    );
+    _replaceControllers(
+      _experienceTechniqueControllers,
+      _experienceItems.map((item) => item.techniqueName ?? '').toList(),
+    );
+    _replaceControllers(
+      _experienceNumberPeopleControllers,
+      _experienceItems.map((item) => item.numberPeople ?? '').toList(),
+    );
+    _replaceControllers(
+      _experienceNoteControllers,
+      _experienceItems.map((item) => item.note ?? '').toList(),
+    );
+    _replaceControllers(
       _suggestControllers,
       _suggestItems.map((item) => item.note ?? '').toList(),
     );
@@ -229,6 +369,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   void _initializeCreateDefaults() {
     _taskItems = [TaskLineIdEntity()];
+    _experienceItems = [ExperienceIdEntity()];
     _responseItems = [
       ResponsiveIdEntity(
         code: 'TN01',
@@ -258,7 +399,9 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         name: 'Các kỹ năng khác theo chuyên môn nghiệp vụ',
       ),
     ];
-    _suggestItems = [
+    _suggestItems = _normalizeSuggestItems(const []);
+    /*
+
       SuggestIdEntity(
         code: 'DG01',
         name: 'Ý kiến - Đề xuất của người được đánh giá',
@@ -301,6 +444,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       ),
     ];
 
+    */
     _replaceControllers(_taskNameControllers, const ['']);
     _replaceControllers(_taskRateControllers, const ['']);
     _replaceControllers(_taskEvidenceControllers, const ['']);
@@ -321,6 +465,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       _leaderSkillEvidenceControllers,
       List.filled(_skillItems.length, ''),
     );
+    _replaceControllers(_experienceFromDateControllers, const ['']);
+    _replaceControllers(_experienceToDateControllers, const ['']);
+    _replaceControllers(_experienceProjectControllers, const ['']);
+    _replaceControllers(_experienceTechniqueControllers, const ['']);
+    _replaceControllers(_experienceNumberPeopleControllers, const ['']);
+    _replaceControllers(_experienceNoteControllers, const ['']);
     _replaceControllers(
       _suggestControllers,
       List.filled(_suggestItems.length, ''),
@@ -414,6 +564,14 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         : _skillEvidenceControllers;
   }
 
+  bool _isSelfReviewLocked(CreateAppraisalState state, bool isLeaderReview) {
+    if (state.isDetail == true || isLeaderReview) return false;
+
+    final evaluationState = state.detailEvaluation?.state?.trim();
+    return evaluationState == 'director_confirm' ||
+        evaluationState == 'approved';
+  }
+
   void _updateTaskRating(
     bool isLeaderReview,
     int taskIndex,
@@ -460,11 +618,48 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     });
   }
 
+  TaskLineIdEntity _taskWithRate(TaskLineIdEntity current, int? rate) {
+    return TaskLineIdEntity(
+      id: current.id,
+      name: current.name,
+      jiraKey: current.jiraKey,
+      rate: rate,
+      volume: current.volume,
+      quality: current.quality,
+      progress: current.progress,
+      note: current.note,
+      parentVolume: current.parentVolume,
+      parentQuality: current.parentQuality,
+      parentProgress: current.parentProgress,
+      parentNote: current.parentNote,
+      weight: current.weight,
+      totalScore: current.totalScore,
+      parentTotalScore: current.parentTotalScore,
+    );
+  }
+
   void _updateTaskRate(int index, String value) {
-    final parsed = int.tryParse(value.trim());
+    final trimmed = value.trim();
     final current = _taskItems[index];
+
+    if (trimmed.isEmpty) {
+      _syncTaskRateController(index, '');
+      setState(() {
+        _taskItems[index] = _taskWithRate(current, null);
+        _refreshHeaderTotals();
+      });
+      return;
+    }
+
+    final parsed = int.tryParse(trimmed) ?? 0;
+    final normalized = parsed < 0 ? 0 : parsed;
+    final maxAllowed = 100 - _totalTaskRateExcept(index);
+    final clampedRate = normalized > maxAllowed ? maxAllowed : normalized;
+
+    _syncTaskRateController(index, clampedRate.toString());
+
     setState(() {
-      _taskItems[index] = current.copyWith(rate: parsed ?? current.rate);
+      _taskItems[index] = _taskWithRate(current, clampedRate);
       _refreshHeaderTotals();
       if (_showCoefError && _hasValidTaskRateTotal()) {
         _showCoefError = false;
@@ -494,6 +689,102 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     });
   }
 
+  void _updateTaskEvidence(bool isLeaderReview, int index, String value) {
+    final current = _taskItems[index];
+    setState(() {
+      _taskItems[index] =
+          isLeaderReview
+              ? current.copyWith(parentNote: value)
+              : current.copyWith(note: value);
+    });
+  }
+
+  void _updateResponseEvidence(bool isLeaderReview, int index, String value) {
+    final current = _responseItems[index];
+    setState(() {
+      _responseItems[index] =
+          isLeaderReview
+              ? current.copyWith(parentNote: value)
+              : current.copyWith(note: value);
+    });
+  }
+
+  void _updateSkillEvidence(bool isLeaderReview, int index, String value) {
+    final current = _skillItems[index];
+    setState(() {
+      _skillItems[index] =
+          isLeaderReview
+              ? current.copyWith(parentNote: value)
+              : current.copyWith(note: value);
+    });
+  }
+
+  void _updateExperienceProject(int index, String value) {
+    final current = _experienceItems[index];
+    setState(() {
+      _experienceItems[index] = current.copyWith(name: value);
+    });
+  }
+
+  void _updateExperienceTechnique(int index, String value) {
+    final current = _experienceItems[index];
+    setState(() {
+      _experienceItems[index] = current.copyWith(techniqueName: value);
+    });
+  }
+
+  void _updateExperienceNumberPeople(int index, String value) {
+    final current = _experienceItems[index];
+    setState(() {
+      _experienceItems[index] = current.copyWith(numberPeople: value);
+    });
+  }
+
+  void _updateExperienceNote(int index, String value) {
+    final current = _experienceItems[index];
+    setState(() {
+      _experienceItems[index] = current.copyWith(note: value);
+    });
+  }
+
+  void _updateSuggestNote(int index, String value) {
+    final current = _suggestItems[index];
+    setState(() {
+      _suggestItems[index] = current.copyWith(note: value);
+    });
+  }
+
+  void _updateExperiencePosition(int index, int? positionId) {
+    final current = _experienceItems[index];
+    setState(() {
+      _experienceItems[index] = current.copyWith(positionId: positionId);
+    });
+  }
+
+  void _updateExperienceDateFrom(int index, DateTime value) {
+    final current = _experienceItems[index];
+    _experienceFromDateControllers[index].text = DateFormat(
+      'MM/yyyy',
+    ).format(value);
+    setState(() {
+      _experienceItems[index] = current.copyWith(
+        dateFrom: DateFormat('MM/yyyy').format(value),
+      );
+    });
+  }
+
+  void _updateExperienceDateTo(int index, DateTime value) {
+    final current = _experienceItems[index];
+    _experienceToDateControllers[index].text = DateFormat(
+      'MM/yyyy',
+    ).format(value);
+    setState(() {
+      _experienceItems[index] = current.copyWith(
+        dateTo: DateFormat('MM/yyyy').format(value),
+      );
+    });
+  }
+
   void _addTaskCriteria() {
     setState(() {
       _taskItems = [..._taskItems, TaskLineIdEntity()];
@@ -502,6 +793,32 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       _taskEvidenceControllers.add(TextEditingController());
       _leaderTaskEvidenceControllers.add(TextEditingController());
       _refreshHeaderTotals();
+    });
+  }
+
+  void _addExperienceCriteria() {
+    setState(() {
+      _experienceItems = [..._experienceItems, ExperienceIdEntity()];
+      _experienceProjectControllers.add(TextEditingController());
+      _experienceFromDateControllers.add(TextEditingController());
+      _experienceToDateControllers.add(TextEditingController());
+      _experienceTechniqueControllers.add(TextEditingController());
+      _experienceNumberPeopleControllers.add(TextEditingController());
+      _experienceNoteControllers.add(TextEditingController());
+    });
+  }
+
+  void _removeExperienceCriteria(int index) {
+    if (_experienceItems.length <= 1) return;
+
+    setState(() {
+      _experienceItems.removeAt(index);
+      _experienceProjectControllers.removeAt(index).dispose();
+      _experienceFromDateControllers.removeAt(index).dispose();
+      _experienceToDateControllers.removeAt(index).dispose();
+      _experienceTechniqueControllers.removeAt(index).dispose();
+      _experienceNumberPeopleControllers.removeAt(index).dispose();
+      _experienceNoteControllers.removeAt(index).dispose();
     });
   }
 
@@ -578,6 +895,25 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       };
     });
 
+    final experienceIds = List.generate(_experienceItems.length, (index) {
+      final item = _experienceItems[index];
+      return <String, dynamic>{
+        "name": _nullableTextAt(_experienceProjectControllers, index),
+        "position_id": item.positionId,
+        "date_from": item.dateFrom,
+        "date_to": item.dateTo,
+        "technique_name": _nullableTextAt(
+          _experienceTechniqueControllers,
+          index,
+        ),
+        "number_people": _nullableTextAt(
+          _experienceNumberPeopleControllers,
+          index,
+        ),
+        "note": _nullableTextAt(_experienceNoteControllers, index),
+      };
+    });
+
     final suggestIds = List.generate(_suggestItems.length, (index) {
       final item = _suggestItems[index];
       return <String, dynamic>{
@@ -594,6 +930,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       "task_line_ids": taskLineIds,
       "response_ids": responseIds,
       "skill_ids": skillIds,
+      "experience_ids": experienceIds,
       "suggest_ids": suggestIds,
     };
   }
@@ -633,6 +970,19 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       );
     });
 
+    final experienceIds = List.generate(_experienceItems.length, (index) {
+      final item = _experienceItems[index];
+      return item.copyWith(
+        name: _nullableTextAt(_experienceProjectControllers, index),
+        techniqueName: _nullableTextAt(_experienceTechniqueControllers, index),
+        numberPeople: _nullableTextAt(
+          _experienceNumberPeopleControllers,
+          index,
+        ),
+        note: _nullableTextAt(_experienceNoteControllers, index),
+      );
+    });
+
     final suggestIds = List.generate(_suggestItems.length, (index) {
       final item = _suggestItems[index];
       return item.copyWith(note: _nullableTextAt(_suggestControllers, index));
@@ -646,6 +996,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       taskLineIds: taskLineIds,
       responseIds: responseIds,
       skillIds: skillIds,
+      experienceIds: experienceIds,
       suggestIds: suggestIds,
     );
   }
@@ -655,6 +1006,399 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     final payload = _buildUpdatePayload(state);
     if (id == 0 || payload == null) return;
     context.read<CreateAppraisalCubit>().updateEvaluation(id, payload);
+  }
+
+  bool _isTaskAssessmentMatched(TaskLineIdEntity item) {
+    return _toInt(item.parentVolume) == _toInt(item.volume) &&
+        _toInt(item.parentQuality) == _toInt(item.quality) &&
+        _toInt(item.parentProgress) == _toInt(item.progress);
+  }
+
+  bool _isResponseAssessmentMatched(ResponsiveIdEntity item) {
+    return _toInt(item.parentRatePoint) == _toInt(item.ratePoint);
+  }
+
+  bool _isSkillAssessmentMatched(SkillIdEntity item) {
+    return _toInt(item.parentRatePoint) == _toInt(item.ratePoint);
+  }
+
+  Map<String, dynamic>? _buildManagerAssessPayload(CreateAppraisalState state) {
+    final id = state.detailEvaluation?.id ?? 0;
+    if (id == 0) return null;
+
+    final taskLineIds = <Map<String, dynamic>>[];
+    for (int index = 0; index < _taskItems.length; index++) {
+      final item = _taskItems[index];
+      if (item.id == null) continue;
+
+      taskLineIds.add(<String, dynamic>{
+        "id": item.id,
+        "parent_volume": _toInt(item.parentVolume),
+        "parent_quality": _toInt(item.parentQuality),
+        "parent_progress": _toInt(item.parentProgress),
+        "parent_note": _nullableTextAt(_leaderTaskEvidenceControllers, index),
+        "is_checked": _isTaskAssessmentMatched(item),
+      });
+    }
+
+    final responseIds = <Map<String, dynamic>>[];
+    for (int index = 0; index < _responseItems.length; index++) {
+      final item = _responseItems[index];
+      if (item.id == null) continue;
+
+      responseIds.add(<String, dynamic>{
+        "id": item.id,
+        "parent_rate_point": _toInt(item.parentRatePoint),
+        "parent_note": _nullableTextAt(
+          _leaderResponseEvidenceControllers,
+          index,
+        ),
+        "is_checked": _isResponseAssessmentMatched(item),
+      });
+    }
+
+    final skillIds = <Map<String, dynamic>>[];
+    for (int index = 0; index < _skillItems.length; index++) {
+      final item = _skillItems[index];
+      if (item.id == null) continue;
+
+      skillIds.add(<String, dynamic>{
+        "id": item.id,
+        "parent_rate_point": _toInt(item.parentRatePoint),
+        "parent_note": _nullableTextAt(_leaderSkillEvidenceControllers, index),
+        "is_checked": _isSkillAssessmentMatched(item),
+      });
+    }
+
+    final suggestIds = <Map<String, dynamic>>[];
+    for (int index = 0; index < _suggestItems.length; index++) {
+      final item = _suggestItems[index];
+      final code = item.code?.trim().toUpperCase();
+      if (code != 'DG02' || item.id == null) continue;
+
+      suggestIds.add(<String, dynamic>{
+        "id": item.id,
+        "note": _nullableTextAt(_suggestControllers, index),
+        "is_checked": true,
+      });
+    }
+
+    return <String, dynamic>{
+      "task_line_ids": taskLineIds,
+      "response_ids": responseIds,
+      "skill_ids": skillIds,
+      "suggest_ids": suggestIds,
+    };
+  }
+
+  bool _checkedValueAt(Map<int, bool> values, int index) {
+    return values[index] ?? true;
+  }
+
+  String _hrNoteAt(Map<int, String> values, int index) {
+    return values[index] ?? '';
+  }
+
+  String _hrStatusTextAt(Map<int, bool> values, int index) {
+    if (!values.containsKey(index)) return '';
+    return _checkedValueAt(values, index) ? 'Đồng ý' : 'Từ chối';
+  }
+
+  bool _hasText(String? value) => value?.trim().isNotEmpty == true;
+
+  bool _isTaskLineValid(int index, {required bool isLeaderReview}) {
+    final item = _taskItems[index];
+    final hasName =
+        _hasText(item.name) || _hasText(_textAt(_taskNameControllers, index));
+    final hasRate = (item.rate ?? 0) > 0;
+    final hasEvidence = _hasText(
+      _textAt(_taskControllersForTab(isLeaderReview), index),
+    );
+
+    final volume = _toInt(isLeaderReview ? item.parentVolume : item.volume);
+    final quality = _toInt(isLeaderReview ? item.parentQuality : item.quality);
+    final progress = _toInt(isLeaderReview ? item.parentProgress : item.progress);
+
+    return hasName &&
+        hasRate &&
+        hasEvidence &&
+        volume > 0 &&
+        quality > 0 &&
+        progress > 0;
+  }
+
+  bool _isResponseLineValid(int index, {required bool isLeaderReview}) {
+    final item = _responseItems[index];
+    final rate = _toInt(isLeaderReview ? item.parentRatePoint : item.ratePoint);
+    final hasEvidence = _hasText(
+      _textAt(_responseControllersForTab(isLeaderReview), index),
+    );
+    return rate > 0 && hasEvidence;
+  }
+
+  bool _isSkillLineValid(int index, {required bool isLeaderReview}) {
+    final item = _skillItems[index];
+    final rate = _toInt(isLeaderReview ? item.parentRatePoint : item.ratePoint);
+    final hasEvidence = _hasText(
+      _textAt(_skillControllersForTab(isLeaderReview), index),
+    );
+    return rate > 0 && hasEvidence;
+  }
+
+  bool _isExperienceLineValid(int index) {
+    final item = _experienceItems[index];
+    return _hasText(_textAt(_experienceProjectControllers, index)) &&
+        item.positionId != null &&
+        _hasText(item.dateFrom) &&
+        _hasText(item.dateTo) &&
+        _hasText(_textAt(_experienceTechniqueControllers, index)) &&
+        _hasText(_textAt(_experienceNumberPeopleControllers, index)) &&
+        _hasText(_textAt(_experienceNoteControllers, index));
+  }
+
+  List<int> _visibleSuggestIndexes({
+    required bool isLeaderReview,
+    required bool isHrReviewFlow,
+  }) {
+    final filtered = <int>[];
+
+    for (int index = 0; index < _suggestItems.length; index++) {
+      final code = _suggestItems[index].code?.trim().toUpperCase();
+      if (isHrReviewFlow) {
+        if (code == 'DG03') {
+          filtered.add(index);
+        }
+        continue;
+      }
+
+      if (isLeaderReview) {
+        if (code == 'DG02') {
+          filtered.add(index);
+        }
+        continue;
+      }
+
+      if (code != 'DG02' && code != 'DG03') {
+        filtered.add(index);
+      }
+    }
+
+    return filtered.isNotEmpty
+        ? filtered
+        : List<int>.generate(_suggestItems.length, (index) => index);
+  }
+
+  bool _isSuggestLineValid(int index) {
+    return _hasText(_textAt(_suggestControllers, index));
+  }
+
+  bool _canProceed({
+    required bool isDetail,
+    required bool isLeaderReview,
+    required bool isHrReviewFlow,
+    required bool isSelfReviewLocked,
+  }) {
+    if (isDetail || isSelfReviewLocked || isHrReviewFlow) {
+      return true;
+    }
+
+    switch (_currentStep) {
+      case 0:
+        return _taskItems.length >= 3 &&
+            _hasValidTaskRateTotal() &&
+            _taskItems.isNotEmpty &&
+            List<bool>.generate(
+              _taskItems.length,
+              (index) => _isTaskLineValid(index, isLeaderReview: isLeaderReview),
+            ).every((value) => value);
+      case 1:
+        return _responseItems.isNotEmpty &&
+            List<bool>.generate(
+              _responseItems.length,
+              (index) =>
+                  _isResponseLineValid(index, isLeaderReview: isLeaderReview),
+            ).every((value) => value);
+      case 2:
+        return _skillItems.isNotEmpty &&
+            List<bool>.generate(
+              _skillItems.length,
+              (index) => _isSkillLineValid(index, isLeaderReview: isLeaderReview),
+            ).every((value) => value);
+      case 3:
+        return _experienceItems.isNotEmpty &&
+            List<bool>.generate(
+              _experienceItems.length,
+              _isExperienceLineValid,
+            ).every((value) => value);
+      case 4:
+        final visibleIndexes = _visibleSuggestIndexes(
+          isLeaderReview: isLeaderReview,
+          isHrReviewFlow: isHrReviewFlow,
+        );
+        return visibleIndexes.isNotEmpty &&
+            visibleIndexes.map(_isSuggestLineValid).every((value) => value);
+      default:
+        return true;
+    }
+  }
+
+  Future<HrDialogResult?> _showHrItemDialog(String? initialNote) {
+    return HrDialog.show(context, initialNote: initialNote);
+  }
+
+  Future<void> _onHrTaskTap(int index) async {
+    final initialNote = _taskHrNotes[index] ?? _taskItems[index].parentNote;
+    final result = await _showHrItemDialog(initialNote);
+    if (result == null || !mounted) return;
+
+    setState(() {
+      _taskHrNotes[index] = result.note;
+      _taskHrChecked[index] = result.isApproved;
+    });
+  }
+
+  Future<void> _onHrResponseTap(int index) async {
+    final initialNote =
+        _responseHrNotes[index] ?? _responseItems[index].parentNote;
+    final result = await _showHrItemDialog(initialNote);
+    if (result == null || !mounted) return;
+
+    setState(() {
+      _responseHrNotes[index] = result.note;
+      _responseHrChecked[index] = result.isApproved;
+    });
+  }
+
+  Future<void> _onHrSkillTap(int index) async {
+    final initialNote = _skillHrNotes[index] ?? _skillItems[index].parentNote;
+    final result = await _showHrItemDialog(initialNote);
+    if (result == null || !mounted) return;
+
+    setState(() {
+      _skillHrNotes[index] = result.note;
+      _skillHrChecked[index] = result.isApproved;
+    });
+  }
+
+  Future<void> _onHrSuggestTap(int index) async {
+    final initialNote = _suggestHrNotes[index] ?? _suggestItems[index].note;
+    final result = await _showHrItemDialog(initialNote);
+    if (result == null || !mounted) return;
+
+    setState(() {
+      _suggestHrNotes[index] = result.note;
+      _suggestHrChecked[index] = result.isApproved;
+    });
+  }
+
+  Map<String, dynamic>? _buildHrAssessPayload(CreateAppraisalState state) {
+    final id = state.detailEvaluation?.id ?? 0;
+    if (id == 0) return null;
+
+    final taskLineIds =
+        _taskItems.map((item) => item.id).contains(null)
+            ? <Map<String, dynamic>>[]
+            : List.generate(_taskItems.length, (index) {
+              final item = _taskItems[index];
+              return <String, dynamic>{
+                "id": item.id,
+                "parent_volume": _toInt(item.parentVolume),
+                "parent_quality": _toInt(item.parentQuality),
+                "parent_progress": _toInt(item.parentProgress),
+                "parent_note": _hrNoteAt(_taskHrNotes, index),
+                "is_checked": _checkedValueAt(_taskHrChecked, index),
+              };
+            });
+
+    final responseIds =
+        _responseItems.map((item) => item.id).contains(null)
+            ? <Map<String, dynamic>>[]
+            : List.generate(_responseItems.length, (index) {
+              final item = _responseItems[index];
+              return <String, dynamic>{
+                "id": item.id,
+                "parent_rate_point": _toInt(item.parentRatePoint),
+                "parent_note": _hrNoteAt(_responseHrNotes, index),
+                "is_checked": _checkedValueAt(_responseHrChecked, index),
+              };
+            });
+
+    final skillIds =
+        _skillItems.map((item) => item.id).contains(null)
+            ? <Map<String, dynamic>>[]
+            : List.generate(_skillItems.length, (index) {
+              final item = _skillItems[index];
+              return <String, dynamic>{
+                "id": item.id,
+                "parent_rate_point": _toInt(item.parentRatePoint),
+                "parent_note": _hrNoteAt(_skillHrNotes, index),
+                "is_checked": _checkedValueAt(_skillHrChecked, index),
+              };
+            });
+
+    final suggestIds =
+        _suggestItems.map((item) => item.id).contains(null)
+            ? <Map<String, dynamic>>[]
+            : List.generate(_suggestItems.length, (index) {
+              final item = _suggestItems[index];
+              return <String, dynamic>{
+                "id": item.id,
+                "note": _hrNoteAt(_suggestHrNotes, index),
+                "is_checked": _checkedValueAt(_suggestHrChecked, index),
+              };
+            });
+
+    return <String, dynamic>{
+      "task_line_ids": taskLineIds,
+      "response_ids": responseIds,
+      "skill_ids": skillIds,
+      "suggest_ids": suggestIds,
+    };
+  }
+
+  void _submitHrAssessment(CreateAppraisalState state) {
+    final id = state.detailEvaluation?.id ?? 0;
+    final payload = _buildHrAssessPayload(state);
+    if (id == 0 || payload == null) return;
+
+    _isHrAssessFlow = true;
+    context.read<CreateAppraisalCubit>().assessEvaluation(id, payload);
+  }
+
+  void _submitManagerAssessment(CreateAppraisalState state) {
+    final id = state.detailEvaluation?.id ?? 0;
+    final payload = _buildManagerAssessPayload(state);
+    if (id == 0 || payload == null) return;
+
+    _isManagerAssessFlow = true;
+    context.read<CreateAppraisalCubit>().assessEvaluation(id, payload);
+  }
+
+  void _showSaveDialog(CreateAppraisalState state) {
+    final isManagerAssessFlow = state.isManagerAssess == true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (_) => CustomDialog(
+            title: 'Xác nhận',
+            content: 'Bạn có chắc muốn lưu phiếu đánh giá này không?',
+            confirmText: 'Đồng ý',
+            cancelText: 'Hủy',
+            onConfirm: () {
+              Navigator.pop(context);
+              if (isManagerAssessFlow) {
+                _submitManagerAssessment(state);
+                return;
+              }
+              _submitUpdate(state);
+            },
+            onCancel: () {
+              Navigator.pop(context);
+            },
+          ),
+    );
   }
 
   void _submitCreate(CreateAppraisalState state) {
@@ -673,9 +1417,33 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     final state = cubit.state;
     final isDetail = state.isDetail == true;
     final isCreate = !isDetail && state.isEdit != true;
-    final isLeaderReview = !isCreate && state.currentTabIndex == 1;
+    final isManagerAssessFlow = state.isManagerAssess == true;
+    final isHrReviewFlow =
+        !isManagerAssessFlow &&
+        (state.isHRReview == true ||
+            (state.isEdit == true &&
+                _isHrReviewer &&
+                state.currentTabIndex == 1));
+    final isLeaderReview =
+        state.currentTabIndex == 1 &&
+        (isManagerAssessFlow || (!isHrReviewFlow && !isCreate));
+    final isSelfReviewLocked = _isSelfReviewLocked(state, isLeaderReview);
+    final canProceed = _canProceed(
+      isDetail: isDetail,
+      isLeaderReview: isLeaderReview,
+      isHrReviewFlow: isHrReviewFlow,
+      isSelfReviewLocked: isSelfReviewLocked,
+    );
+
+    if (!canProceed) {
+      setState(() {
+        _showCoefError = _currentStep == 0 && !_hasValidTaskRateTotal();
+      });
+      return;
+    }
 
     if (!isDetail &&
+        !isSelfReviewLocked &&
         !isLeaderReview &&
         _currentStep == 0 &&
         !_hasValidTaskRateTotal()) {
@@ -685,7 +1453,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       return;
     }
 
-    if (_currentStep < 3) {
+    if (_currentStep < _lastStepIndex) {
       setState(() {
         _currentStep++;
         _showCoefError = false;
@@ -694,12 +1462,22 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       return;
     }
 
-    if (state.isEdit == true) {
-      _submitUpdate(state);
+    if (isHrReviewFlow) {
+      _submitHrAssessment(state);
       return;
     }
 
-    if (state.isDetail == true) {
+    if (isManagerAssessFlow) {
+      _showSaveDialog(state);
+      return;
+    }
+
+    if (state.isEdit == true && !isSelfReviewLocked) {
+      _showSaveDialog(state);
+      return;
+    }
+
+    if (state.isDetail == true || isSelfReviewLocked) {
       _closeFlow(null);
       return;
     }
@@ -724,13 +1502,13 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   Widget _buildStepper() {
     const circleSize = 26.0;
-    const lineWidth = 60.0;
+    const lineWidth = 40.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(4, (index) {
+        children: List.generate(_totalSteps, (index) {
           final isActive = index == _currentStep;
           final isCompleted = index < _currentStep;
 
@@ -761,7 +1539,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                   ),
                 ),
               ),
-              if (index < 3)
+              if (index < _totalSteps - 1)
                 Container(
                   width: lineWidth,
                   height: 2,
@@ -780,13 +1558,13 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   Widget _buildStepperLeaderReview() {
     const circleSize = 26.0;
-    const lineWidth = 60.0;
+    const lineWidth = 40.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(4, (index) {
+        children: List.generate(_totalSteps, (index) {
           final isActive = index == _currentStep;
           final isCompleted = index < _currentStep;
 
@@ -817,7 +1595,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                   ),
                 ),
               ),
-              if (index < 3)
+              if (index < _totalSteps - 1)
                 Container(
                   width: lineWidth,
                   height: 2,
@@ -926,6 +1704,17 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     CreateAppraisalState state,
     bool isLeaderReview,
   ) {
+    final isCreate = state.isDetail != true && state.isEdit != true;
+    final isManagerAssessFlow = state.isManagerAssess == true;
+    final isHrReviewFlow =
+        !isManagerAssessFlow &&
+        (state.isHRReview == true ||
+            (state.isEdit == true &&
+                _isHrReviewer &&
+                state.currentTabIndex == 1));
+    final isSelfReviewLocked = _isSelfReviewLocked(state, isLeaderReview);
+    final readOnly = isDetail || isSelfReviewLocked || isHrReviewFlow;
+
     if (_currentStep == 0) {
       return AppraisalStepResultWork(
         isLeaderReview: isLeaderReview,
@@ -933,10 +1722,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         nameControllers: _taskNameControllers,
         rateControllers: _taskRateControllers,
         evidenceControllers: _taskControllersForTab(isLeaderReview),
-        readOnly: isDetail,
-        onAddCriteria: (!isDetail && !isLeaderReview) ? _addTaskCriteria : null,
+        readOnly: readOnly,
+        onAddCriteria: (!readOnly && !isLeaderReview) ? _addTaskCriteria : null,
         onNameChanged: _updateTaskName,
         onTaskRateChanged: _updateTaskRate,
+        onEvidenceChanged:
+            (index, value) => _updateTaskEvidence(isLeaderReview, index, value),
         onRate:
             (taskIndex, ratingIndex, value) => _updateTaskRating(
               isLeaderReview,
@@ -944,6 +1735,14 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
               ratingIndex,
               value,
             ),
+        onItemTap: isHrReviewFlow ? _onHrTaskTap : null,
+        hrNoteText:
+            isHrReviewFlow ? (index) => _hrNoteAt(_taskHrNotes, index) : null,
+        hrStatusText:
+            isHrReviewFlow
+                ? (index) => _hrStatusTextAt(_taskHrChecked, index)
+                : null,
+        autoShowHelp: isCreate,
       );
     }
 
@@ -951,11 +1750,24 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       return AppraisalStepResponsibility(
         responses: _responseItems,
         evidences: _responseControllersForTab(isLeaderReview),
-        readOnly: isDetail,
+        readOnly: readOnly,
         onRate: (index, value) {
           _updateResponseRating(isLeaderReview, index, value);
         },
+        onEvidenceChanged:
+            (index, value) =>
+                _updateResponseEvidence(isLeaderReview, index, value),
         isLeaderReview: isLeaderReview,
+        onItemTap: isHrReviewFlow ? _onHrResponseTap : null,
+        hrNoteText:
+            isHrReviewFlow
+                ? (index) => _hrNoteAt(_responseHrNotes, index)
+                : null,
+        hrStatusText:
+            isHrReviewFlow
+                ? (index) => _hrStatusTextAt(_responseHrChecked, index)
+                : null,
+        autoShowHelp: isCreate,
       );
     }
 
@@ -963,11 +1775,48 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       return AppraisalStepSkill(
         skills: _skillItems,
         evidences: _skillControllersForTab(isLeaderReview),
-        readOnly: isDetail,
+        readOnly: readOnly,
         onRate: (index, value) {
           _updateSkillRating(isLeaderReview, index, value);
         },
+        onEvidenceChanged:
+            (index, value) => _updateSkillEvidence(isLeaderReview, index, value),
         isLeaderReview: isLeaderReview,
+        onItemTap: isHrReviewFlow ? _onHrSkillTap : null,
+        hrNoteText:
+            isHrReviewFlow ? (index) => _hrNoteAt(_skillHrNotes, index) : null,
+        hrStatusText:
+            isHrReviewFlow
+                ? (index) => _hrStatusTextAt(_skillHrChecked, index)
+                : null,
+        autoShowHelp: isCreate,
+      );
+    }
+
+    if (_currentStep == 3) {
+      return AppraisalStepExperience(
+        experiences: _experienceItems,
+        jobTitles: state.jobTitles ?? const [],
+        projectControllers: _experienceProjectControllers,
+        fromDateControllers: _experienceFromDateControllers,
+        toDateControllers: _experienceToDateControllers,
+        techniqueControllers: _experienceTechniqueControllers,
+        numberPeopleControllers: _experienceNumberPeopleControllers,
+        noteControllers: _experienceNoteControllers,
+        isLeaderReview: isLeaderReview,
+        readOnly: readOnly || isLeaderReview,
+        onAddCriteria:
+            (!readOnly && !isLeaderReview) ? _addExperienceCriteria : null,
+        onRemoveItem:
+            (!readOnly && !isLeaderReview) ? _removeExperienceCriteria : null,
+        onProjectChanged: _updateExperienceProject,
+        onTechniqueChanged: _updateExperienceTechnique,
+        onNumberPeopleChanged: _updateExperienceNumberPeople,
+        onNoteChanged: _updateExperienceNote,
+        onPositionChanged: _updateExperiencePosition,
+        onDateFromChanged: _updateExperienceDateFrom,
+        onDateToChanged: _updateExperienceDateTo,
+        autoShowHelp: isCreate,
       );
     }
 
@@ -975,8 +1824,18 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       suggests: _suggestItems,
       controllers: _suggestControllers,
       isLeaderReview: isLeaderReview,
-      readOnly: isDetail,
+      isHrReview: isHrReviewFlow,
+      readOnly: readOnly,
+      onNoteChanged: _updateSuggestNote,
       evaluationState: state.detailEvaluation?.state,
+      onItemTap: isHrReviewFlow ? _onHrSuggestTap : null,
+      hrNoteText:
+          isHrReviewFlow ? (index) => _hrNoteAt(_suggestHrNotes, index) : null,
+      hrStatusText:
+          isHrReviewFlow
+              ? (index) => _hrStatusTextAt(_suggestHrChecked, index)
+              : null,
+      autoShowHelp: isCreate,
     );
   }
 
@@ -992,6 +1851,12 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     _disposeControllers(_leaderResponseEvidenceControllers);
     _disposeControllers(_skillEvidenceControllers);
     _disposeControllers(_leaderSkillEvidenceControllers);
+    _disposeControllers(_experienceProjectControllers);
+    _disposeControllers(_experienceFromDateControllers);
+    _disposeControllers(_experienceToDateControllers);
+    _disposeControllers(_experienceTechniqueControllers);
+    _disposeControllers(_experienceNumberPeopleControllers);
+    _disposeControllers(_experienceNoteControllers);
     _disposeControllers(_suggestControllers);
     super.dispose();
   }
@@ -1004,6 +1869,34 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       listenWhen: (prev, cur) => prev.updateStatus != cur.updateStatus,
       listener: (context, state) {
         if (state.updateStatus == LoadStatus.SUCCESS) {
+          if (_isManagerAssessFlow) {
+            AppSnackBar.showInfo(
+              title: s.success,
+              message:
+                  state.errMsg?.isNotEmpty == true
+                      ? state.errMsg
+                      : 'Đánh giá thành công',
+            );
+            context.read<CreateAppraisalCubit>().resetUpdateStatus();
+            _isManagerAssessFlow = false;
+            _closeFlow(state.detailEvaluation);
+            return;
+          }
+
+          if (_isHrAssessFlow) {
+            AppSnackBar.showInfo(
+              title: s.success,
+              message:
+                  state.errMsg?.isNotEmpty == true
+                      ? state.errMsg
+                      : 'Đánh giá HR thành công',
+            );
+            context.read<CreateAppraisalCubit>().resetUpdateStatus();
+            _isHrAssessFlow = false;
+            _closeFlow(state.detailEvaluation);
+            return;
+          }
+
           AppSnackBar.showInfo(
             title: s.success,
             message: state.errMsg?.isNotEmpty == true ? state.errMsg : s.save,
@@ -1019,6 +1912,8 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         }
 
         if (state.updateStatus == LoadStatus.FAILURE) {
+          _isManagerAssessFlow = false;
+          _isHrAssessFlow = false;
           AppSnackBar.showError(
             title: s.warning,
             message:
@@ -1033,7 +1928,23 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         builder: (context, state) {
           final isDetail = state.isDetail == true;
           final isCreate = !isDetail && state.isEdit != true;
-          final isLeaderReview = !isCreate && state.currentTabIndex == 1;
+          final isManagerAssessFlow = state.isManagerAssess == true;
+          final isHrReviewFlow =
+              !isManagerAssessFlow &&
+              (state.isHRReview == true ||
+                  (state.isEdit == true &&
+                      _isHrReviewer &&
+                      state.currentTabIndex == 1));
+          final isLeaderReview =
+              state.currentTabIndex == 1 &&
+              (isManagerAssessFlow || (!isHrReviewFlow && !isCreate));
+          final isSelfReviewLocked = _isSelfReviewLocked(state, isLeaderReview);
+          final canProceed = _canProceed(
+            isDetail: isDetail,
+            isLeaderReview: isLeaderReview,
+            isHrReviewFlow: isHrReviewFlow,
+            isSelfReviewLocked: isSelfReviewLocked,
+          );
 
           if (!_didHydrateDetail && state.detailEvaluation != null) {
             _hydrateDetail(state);
@@ -1045,9 +1956,11 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           }
 
           final actionText =
-              _currentStep < 3
+              _currentStep < _lastStepIndex
                   ? s.appraisal_next
-                  : state.isEdit == true
+                  : (isManagerAssessFlow || isHrReviewFlow)
+                  ? s.save
+                  : state.isEdit == true && !isSelfReviewLocked
                   ? s.save
                   : s.confirm;
 
@@ -1065,7 +1978,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 16),
-                    if (!isCreate) ...[
+                    if (!isCreate && !isHrReviewFlow) ...[
                       _buildTabBar(s),
                       const SizedBox(height: 8),
                     ],
@@ -1102,10 +2015,11 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
                               child: PrimaryButton(
                                 mainText: actionText,
                                 enable:
-                                    state.updateStatus != LoadStatus.LOADING,
+                                    state.updateStatus != LoadStatus.LOADING &&
+                                    canProceed,
                                 isLoading:
                                     state.isEdit == true &&
-                                    _currentStep == 3 &&
+                                    _currentStep == _lastStepIndex &&
                                     state.updateStatus == LoadStatus.LOADING,
                                 callback: _next,
                               ),

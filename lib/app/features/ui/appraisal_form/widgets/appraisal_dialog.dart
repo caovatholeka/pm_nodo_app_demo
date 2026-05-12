@@ -58,26 +58,20 @@ class AppraisalDialog extends StatefulWidget {
     String? initialNote,
     bool barrierDismissible = true,
   }) async {
-    final controller = TextEditingController(text: initialNote ?? '');
-
-    try {
-      return await showDialog<AppraisalDialogResult>(
-        context: context,
-        barrierDismissible: barrierDismissible,
-        builder:
-            (_) => AppraisalDialog(
-              suggestId: suggestId,
-              departmentName: departmentName,
-              title: fixedTitle,
-              hintText: fixedHintText,
-              confirmText: fixedConfirmText,
-              cancelText: fixedCancelText,
-              controller: controller,
-            ),
-      );
-    } finally {
-      controller.dispose();
-    }
+    return showDialog<AppraisalDialogResult>(
+      context: context,
+      barrierDismissible: barrierDismissible,
+      builder:
+          (_) => AppraisalDialog(
+            suggestId: suggestId,
+            departmentName: departmentName,
+            title: fixedTitle,
+            hintText: fixedHintText,
+            confirmText: fixedConfirmText,
+            cancelText: fixedCancelText,
+            initialNote: initialNote,
+          ),
+    );
   }
 
   @override

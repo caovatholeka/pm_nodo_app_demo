@@ -22,6 +22,9 @@ class SkillEntity {
   @JsonKey(name: "parent_note")
   String? parentNote;
 
+  @JsonKey(name: "is_checked")
+  bool? isChecked;
+
   SkillEntity({
     this.code,
     this.name,
@@ -29,6 +32,7 @@ class SkillEntity {
     this.parentRatePoint,
     this.note,
     this.parentNote,
+    this.isChecked,
   });
 
   SkillEntity copyWith({
@@ -38,6 +42,7 @@ class SkillEntity {
     dynamic parentRatePoint,
     String? note,
     String? parentNote,
+    bool? isChecked,
   }) {
     return SkillEntity(
       code: code ?? this.code,
@@ -46,6 +51,7 @@ class SkillEntity {
       parentRatePoint: parentRatePoint ?? this.parentRatePoint,
       note: note ?? this.note,
       parentNote: parentNote ?? this.parentNote,
+      isChecked: isChecked ?? this.isChecked,
     );
   } 
 

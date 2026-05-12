@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/rendering.dart';
@@ -6,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/utils/utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 
 import 'package:pm_app/app/features/widgets/expenable_section.dart';
@@ -51,16 +51,10 @@ class _EmployeeDetailViewState extends State<_EmployeeDetailView> {
       return AssetImage(AppAssets.img_df_avatar);
     }
 
-    try {
-      final cleaned = base64String.contains(',')
-          ? base64String.split(',').last
-          : base64String;
-      final bytes = base64Decode(cleaned);
-      if (bytes.isEmpty) return AssetImage(AppAssets.img_df_avatar);
-      return MemoryImage(bytes);
-    } catch (_) {
-      return AssetImage(AppAssets.img_df_avatar);
-    }
+    return Utils().providerFromBase64OrAsset(
+      base64String,
+      fallbackAssetPath: AppAssets.img_df_avatar,
+    );
   }
 
   @override

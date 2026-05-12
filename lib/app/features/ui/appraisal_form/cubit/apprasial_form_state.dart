@@ -1,6 +1,7 @@
 part of 'apprasial_form_cubit.dart';
 
 class ApprasialFormState extends Equatable {
+  final LoadStatus loadSubmitStatus;
   final LoadStatus loadDataStatus;
   final List<EvaluationEntity>? listEvaluations;
   final EvaluationEntity? detailEvaluation;
@@ -8,6 +9,7 @@ class ApprasialFormState extends Equatable {
   final String? endDateFilter;
 
   const ApprasialFormState({
+    this.loadSubmitStatus = LoadStatus.INITIAL,
     this.loadDataStatus = LoadStatus.INITIAL,
     this.listEvaluations,
     this.detailEvaluation,
@@ -16,6 +18,7 @@ class ApprasialFormState extends Equatable {
   });
 
   ApprasialFormState copyWith({
+    LoadStatus? loadSubmitStatus,
     LoadStatus? loadDataStatus,
     List<EvaluationEntity>? listEvaluations,
     EvaluationEntity? detailEvaluation,
@@ -23,6 +26,7 @@ class ApprasialFormState extends Equatable {
     String? endDateFilter,
   }) {
     return ApprasialFormState(
+      loadSubmitStatus: loadSubmitStatus ?? this.loadSubmitStatus,
       loadDataStatus: loadDataStatus ?? this.loadDataStatus,
       listEvaluations: listEvaluations ?? this.listEvaluations,
       detailEvaluation: detailEvaluation ?? this.detailEvaluation,
@@ -33,6 +37,7 @@ class ApprasialFormState extends Equatable {
 
   @override
   List<Object?> get props => [
+    loadSubmitStatus,
     loadDataStatus,
     listEvaluations,
     detailEvaluation,

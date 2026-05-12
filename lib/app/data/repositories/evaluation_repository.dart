@@ -1,3 +1,5 @@
+import 'package:pm_app/app/data/models/entities/evaluation_asess_entity.dart';
+
 import '../../core/network/api_client.dart';
 import '../../core/network/api_util.dart';
 import '../models/entities/evaluation_entity.dart';
@@ -13,6 +15,10 @@ abstract class EvaluationRepository {
   Future<EvaluationEntity> getDetailEvaluation(int id);
   Future<CommonResponse> createEvaluation(EvaluationEntity body);
   Future<dynamic> updateEvaluation(int id, Map<String, dynamic> body);
+  Future<CommonResponse> submitEvaluation(int id);
+  Future<EvaluationAsessEntity> assessEvaluation(int id, Map<String, dynamic> body);
+  Future<CommonResponse> approvedEvaluation(int id);
+  Future<CommonResponse> getListJob(int limit, int offset);
 }
 
 class EvaluationRepositoryImpl extends EvaluationRepository {
@@ -41,5 +47,25 @@ class EvaluationRepositoryImpl extends EvaluationRepository {
   @override
   Future<dynamic> updateEvaluation(int id, Map<String, dynamic> body) async {
     return await _apiClient.updateEvaluation(id, body);
+  }
+
+  @override
+  Future<CommonResponse> submitEvaluation(int id) async {
+    return await _apiClient.submitEvaluation(id);
+  }
+
+  @override
+  Future<EvaluationAsessEntity> assessEvaluation(int id, Map<String, dynamic> body) async {
+    return await _apiClient.assessEvaluation(id, body);
+  }
+
+  @override
+  Future<CommonResponse> approvedEvaluation(int id) async {
+    return await _apiClient.approvedEvaluation(id);
+  }
+
+  @override
+  Future<CommonResponse> getListJob(int limit, int offset) async {
+    return await _apiClient.getListJobs(limit, offset);
   }
 }

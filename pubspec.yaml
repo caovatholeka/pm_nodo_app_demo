@@ -95,6 +95,7 @@ dependencies:
   package_info_plus: ^9.0.0
   flutter_slidable: ^4.0.3
   go_router: ^17.1.0
+  super_tooltip: ^2.1.1
 
 #  package_info_plus: ^9.0.0
 #  camerawesome: ^2.5.0

@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_help_tooltip.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -18,10 +19,15 @@ class AppraisalStepResultWork extends StatelessWidget {
   final void Function(int taskIndex, int ratingIndex, int value) onRate;
   final void Function(int taskIndex, String value) onNameChanged;
   final void Function(int taskIndex, String value) onTaskRateChanged;
+  final void Function(int taskIndex, String value)? onEvidenceChanged;
   final VoidCallback? onAddCriteria;
+  final Future<void> Function(int index)? onItemTap;
+  final String Function(int index)? hrNoteText;
+  final String Function(int index)? hrStatusText;
 
   final bool readOnly;
   final bool isLeaderReview;
+  final bool autoShowHelp;
 
   const AppraisalStepResultWork({
     super.key,
@@ -32,9 +38,14 @@ class AppraisalStepResultWork extends StatelessWidget {
     required this.onRate,
     required this.onNameChanged,
     required this.onTaskRateChanged,
+    this.onEvidenceChanged,
     this.onAddCriteria,
+    this.onItemTap,
+    this.hrNoteText,
+    this.hrStatusText,
     this.readOnly = false,
     this.isLeaderReview = false,
+    this.autoShowHelp = false,
   });
 
   int _toInt(dynamic v) {
@@ -144,7 +155,10 @@ class AppraisalStepResultWork extends StatelessWidget {
                       color: Color(0xFF374151),
                     ),
                   ),
-                  SvgPicture.asset(AppAssets.icQuestion, width: 20),
+                  AppraisalHelpTooltip(
+                    message: 'Hãy viết rõ ràng đầu mục công việc của bạn tự đánh giá khối lượng, chất lượng và tiến độ công việc đó như thế nào. Bắt buộc phải có ít nhất 3 đầu việc trong mục này.',
+                    autoShow: autoShowHelp,
+                  ),
                 ],
               ),
             ),
@@ -218,7 +232,7 @@ class AppraisalStepResultWork extends StatelessWidget {
                   List.generate((listTask ?? []).length, (i) {
                     final task = (listTask ?? [])[i];
 
-                    return Column(
+                    final itemContent = Column(
                       children: [
                         Container(
                           decoration: BoxDecoration(
@@ -284,6 +298,11 @@ class AppraisalStepResultWork extends StatelessWidget {
                                       readOnly: readOnly,
                                       isRequiredField: true,
                                       fillBgColor: Colors.transparent,
+                                      onChange:
+                                          onEvidenceChanged == null
+                                              ? null
+                                              : (value) =>
+                                                  onEvidenceChanged!(i, value),
                                     )
                                     : InputTextField(
                                       title: s.appraisal_evidence,
@@ -292,7 +311,46 @@ class AppraisalStepResultWork extends StatelessWidget {
                                       readOnly: readOnly,
                                       isRequiredField: true,
                                       fillBgColor: Colors.transparent,
+                                      onChange:
+                                          onEvidenceChanged == null
+                                              ? null
+                                              : (value) =>
+                                                  onEvidenceChanged!(i, value),
                                     ),
+                                if (hrNoteText != null &&
+                                    hrStatusText != null) ...[
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    height: 1,
+                                    color: const Color(
+                                      0xFFD1D5DB,
+                                    ).withValues(alpha: 0.7),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  InputTextField(
+                                    title: 'Ý kiến HR',
+                                    hintText: '',
+                                    initialValue: hrNoteText!(i),
+                                    readOnly: true,
+                                    enable: false,
+                                    isRequiredField: false,
+                                    fillBgColor: Colors.white.withValues(
+                                      alpha: 0.55,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  InputTextField(
+                                    title: 'Trạng thái',
+                                    hintText: '',
+                                    initialValue: hrStatusText!(i),
+                                    readOnly: true,
+                                    enable: false,
+                                    isRequiredField: false,
+                                    fillBgColor: Colors.white.withValues(
+                                      alpha: 0.55,
+                                    ),
+                                  ),
+                                ],
                                 const SizedBox(height: 12),
                               ],
                             ),
@@ -318,6 +376,22 @@ class AppraisalStepResultWork extends StatelessWidget {
                           ),
                       ],
                     ).paddingOnly(bottom: 16);
+
+                    if (onItemTap == null) {
+                      return itemContent;
+                    }
+
+                    return Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () => onItemTap!(i),
+                        child: IgnorePointer(
+                          ignoring: true,
+                          child: itemContent,
+                        ),
+                      ),
+                    );
                   }).toList(),
             ),
             if (onAddCriteria != null) ...[

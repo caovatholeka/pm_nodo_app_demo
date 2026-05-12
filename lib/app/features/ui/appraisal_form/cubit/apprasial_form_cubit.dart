@@ -127,4 +127,28 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
   void onChangeDateFilter(String start, String end) {
     emit(state.copyWith(startDateFilter: start, endDateFilter: end));
   }
+
+  void sendforConfirm(int id) async {
+    emit(state.copyWith(loadSubmitStatus: LoadStatus.LOADING));
+    try {
+      await repository.submitEvaluation(id);
+      emit(state.copyWith(loadSubmitStatus: LoadStatus.SUCCESS));
+    } catch (e, s) {
+      logger.d(s);
+      logger.e(e);
+      emit(state.copyWith(loadSubmitStatus: LoadStatus.FAILURE));
+    }
+  }
+
+  void approveEvaluation(int id) async {
+    emit(state.copyWith(loadSubmitStatus: LoadStatus.LOADING));
+    try {
+      await repository.approvedEvaluation(id);
+      emit(state.copyWith(loadSubmitStatus: LoadStatus.SUCCESS));
+    } catch (e, s) {
+      logger.d(s);
+      logger.e(e);
+      emit(state.copyWith(loadSubmitStatus: LoadStatus.FAILURE));
+    }
+  }
 }

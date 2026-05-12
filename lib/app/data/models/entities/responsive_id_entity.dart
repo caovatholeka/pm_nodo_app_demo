@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 part 'responsive_id_entity.g.dart';
+
 @JsonSerializable()
 class ResponsiveIdEntity {
   @JsonKey()
@@ -24,6 +25,9 @@ class ResponsiveIdEntity {
   @JsonKey(name: "parent_note")
   String? parentNote;
 
+  @JsonKey(name: "is_checked")
+  bool? isChecked;
+
   ResponsiveIdEntity({
     this.id,
     this.code,
@@ -31,7 +35,8 @@ class ResponsiveIdEntity {
     this.note,
     this.ratePoint,
     this.parentRatePoint,
-    this.parentNote
+    this.parentNote,
+    this.isChecked,
   });
 
   ResponsiveIdEntity copyWith({
@@ -41,16 +46,18 @@ class ResponsiveIdEntity {
     String? note,
     dynamic ratePoint,
     dynamic parentRatePoint,
-    String? parentNote
+    String? parentNote,
+    bool? isChecked,
   }) {
     return ResponsiveIdEntity(
-        id: id ?? this.id,
-        code: code ?? this.code,
-        name: name ?? this.name,
-        note: note ?? this.note,
-        ratePoint: ratePoint ?? this.ratePoint,
-        parentRatePoint: parentRatePoint ?? this.parentRatePoint,
-        parentNote: parentNote ?? this.parentNote
+      id: id ?? this.id,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      note: note ?? this.note,
+      ratePoint: ratePoint ?? this.ratePoint,
+      parentRatePoint: parentRatePoint ?? this.parentRatePoint,
+      parentNote: parentNote ?? this.parentNote,
+      isChecked: isChecked ?? this.isChecked,
     );
   }
 

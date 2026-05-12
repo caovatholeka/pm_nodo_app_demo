@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/ui/dashboard/birthday_list_detail.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/detail_appraisal_form.dart';
 import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/dashboard/discipline_evaluation_detail.dart';
 import 'package:pm_app/app/features/ui/dashboard/projects_detail.dart';
@@ -92,7 +91,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: MyAppBar(
                       titleAppbar: s.appraisal_work_quality_title,
-                      haveBackButton: false,
+                      haveBackButton: true,
                       haveActionButton: false,
                       iconPathAsset: AppAssets.icFlush,
                     ),

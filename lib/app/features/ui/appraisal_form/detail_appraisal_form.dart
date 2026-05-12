@@ -20,12 +20,16 @@ import 'package:pm_app/generated/l10n.dart';
 class DetailAppraisalForm extends StatefulWidget {
   final bool isDetail;
   final bool isEdit;
+  final bool isHrReview;
+  final bool isManagerAssess;
   final int? evaluationId;
 
   const DetailAppraisalForm({
     super.key,
     this.isDetail = false,
     this.isEdit = false,
+    this.isHrReview = false,
+    this.isManagerAssess = false,
     this.evaluationId,
   });
 
@@ -88,14 +92,30 @@ class _DetailAppraisalFormState extends State<DetailAppraisalForm> {
 
     _cubit = CreateAppraisalCubit(repository: GetIt.I<EvaluationRepository>());
 
-    if (widget.isDetail) {
+    if (widget.isManagerAssess) {
+      _cubit.initManagerAssess();
+      _fillProfileDefaults();
+
+      if (widget.evaluationId != null) {
+        _cubit.getEvaluationDetails(widget.evaluationId!);
+      }
+    } else if (widget.isHrReview) {
+      _cubit.initHrReview();
+      _fillProfileDefaults();
+
+      if (widget.evaluationId != null) {
+        _cubit.getEvaluationDetails(widget.evaluationId!);
+      }
+    } else if (widget.isDetail) {
       _cubit.initDetail();
+      _fillProfileDefaults();
 
       if (widget.evaluationId != null) {
         _cubit.getEvaluationDetails(widget.evaluationId!);
       }
     } else if (widget.isEdit) {
       _cubit.initEdit();
+      _fillProfileDefaults();
 
       if (widget.evaluationId != null) {
         _cubit.getEvaluationDetails(widget.evaluationId!);
@@ -161,6 +181,24 @@ class _DetailAppraisalFormState extends State<DetailAppraisalForm> {
     );
   }
 
+  void _fillProfileDefaults() {
+    final userProfile = GlobalData.instance.userProfile;
+    if (userProfile == null) return;
+
+    if (_employeeCodeCtrl.text.trim().isEmpty) {
+      _employeeCodeCtrl.text = userProfile.employeeCode ?? "";
+    }
+    if (_employeeNameCtrl.text.trim().isEmpty) {
+      _employeeNameCtrl.text = userProfile.name ?? "";
+    }
+    if (_deprtmentCtrl.text.trim().isEmpty) {
+      _deprtmentCtrl.text = userProfile.department?.name ?? "";
+    }
+    if (_managerNameCtrl.text.trim().isEmpty) {
+      _managerNameCtrl.text = userProfile.manager?.name ?? "";
+    }
+  }
+
   void _progressNext() {
     Navigator.push(
       context,
@@ -178,9 +216,18 @@ class _DetailAppraisalFormState extends State<DetailAppraisalForm> {
     final e = state.detailEvaluation;
     if (e == null) return;
 
-    _employeeCodeCtrl.text = e.employeeCode ?? "";
-    _employeeNameCtrl.text = e.employeeName ?? "";
-    _deprtmentCtrl.text = e.departmentName ?? "";
+    _employeeCodeCtrl.text =
+        (e.employeeCode?.trim().isNotEmpty ?? false)
+            ? e.employeeCode!
+            : (GlobalData.instance.userProfile?.employeeCode ?? "");
+    _employeeNameCtrl.text =
+        (e.employeeName?.trim().isNotEmpty ?? false)
+            ? e.employeeName!
+            : (GlobalData.instance.userProfile?.name ?? "");
+    _deprtmentCtrl.text =
+        (e.departmentName?.trim().isNotEmpty ?? false)
+            ? e.departmentName!
+            : (GlobalData.instance.userProfile?.department?.name ?? "");
 
     _managerNameCtrl.text =
         GlobalData.instance.userProfile?.manager?.name ?? "";
@@ -226,6 +273,13 @@ class _DetailAppraisalFormState extends State<DetailAppraisalForm> {
         },
         child: BlocBuilder<CreateAppraisalCubit, CreateAppraisalState>(
           builder: (context, state) {
+            if (!_didFillDetail && state.detailEvaluation != null) {
+              _fillDetail(state);
+              _didFillDetail = true;
+            } else if (widget.isDetail || widget.isEdit) {
+              _fillProfileDefaults();
+            }
+
             return Stack(
               children: [
                 Positioned.fill(
@@ -238,9 +292,9 @@ class _DetailAppraisalFormState extends State<DetailAppraisalForm> {
                     child: MyAppBar(
                       titleAppbar:
                           widget.isDetail == true
-                              ? s.appraisal_form_title
-                              : widget.isEdit
-                              ? s.bt_updateTitle
+                              ? "Chi tiết phiếu đánh giá"
+                              : (widget.isManagerAssess || widget.isEdit)
+                              ? "Cấp trên đánh giá"
                               : s.appraisal_create_title,
                       haveBackButton: true,
                       haveActionButton: true,
@@ -315,6 +369,25 @@ class _DetailAppraisalFormState extends State<DetailAppraisalForm> {
                               ),
                             ],
                           ),
+                          if (state.fromDate != null &&
+                              state.toDate != null &&
+                              !state.isDateRangeValid) ...[
+                            const SizedBox(height: 8),
+                            const Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Text(
+                                  'Từ ngày không được lớn hơn đến ngày',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 16),
                           // InputTextField(
                           //   title: s.appraisal_direct_manager,

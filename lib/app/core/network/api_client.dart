@@ -3,6 +3,7 @@ import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
 import 'package:pm_app/app/data/models/entities/discipline_evaluation_detail_entity.dart';
 import 'package:pm_app/app/data/models/entities/discipline_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/data/models/entities/evaluation_asess_entity.dart';
 import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
@@ -414,4 +415,19 @@ abstract class ApiClient {
   //Đề xuất cải thiện
   @POST('/dashboard/improvement_suggestion')
   Future<CommonResponse> submitImprovemnt(@Body() SendSuggestionParam body);
+
+  //Gửi duyệt QLTT
+  @POST('/evaluation/evaluation_submit/{id}')
+  Future<CommonResponse> submitEvaluation(@Path("id") int id);
+
+  //Gửi duyệt HR
+  @POST('/evaluation/evaluation_assess/{id}')
+  Future<EvaluationAsessEntity> assessEvaluation(
+    @Path("id") int id,
+    @Body() Map<String, dynamic> body,
+  );
+
+  //HR duyệt hoàn thành
+  @POST('/evaluation/evaluation_approve/{id}')
+  Future<CommonResponse> approvedEvaluation(@Path("id") int id,);
 }

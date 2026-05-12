@@ -33,6 +33,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   final _cubit = GetIt.I.get<FaceScanCubit>();
 
   CameraController? _cam;
+  bool _isCameraInitializing = false;
+  int _cameraSession = 0;
 
   bool _scanStarted = false;
 
@@ -44,20 +46,20 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   static const int _stableNeeded = 2;
   int _stableCount = 0;
   bool _isCapturing = false;
-  static const double _minCoverage = 0.22;
-  static const double _maxCoverage = 0.85;
-  static const double _insetPx = 12;
+  // static const double _minCoverage = 0.22;
+  // static const double _maxCoverage = 0.85;
+  // static const double _insetPx = 12;
 
   static const double _yawMax = 12; // quay trái/phải (Y)
   static const double _pitchMax = 12; // gật (X)
   static const double _rollMax = 12; // nghiêng (Z)
   bool _canManualCapture = false;
 
-  final Rect _guideRect = Rect.zero;
+  // final Rect _guideRect = Rect.zero;
 
   // ===== Anti-spoofing =====
   final bool _livenessReady = false;
-  static const double _livenessThreshold = 0.80;
+  // static const double _livenessThreshold = 0.80;
   DateTime? _lastSpoofWarnAt;
 
   // Comment ::: FaceAntiSpoofingDetector
@@ -149,17 +151,24 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_cam == null || !_cam!.value.isInitialized) return;
-    if (state == AppLifecycleState.inactive) {
-      _cam?.stopImageStream();
-      _cam?.dispose();
-    } else if (state == AppLifecycleState.resumed) {
-      _initCamera();
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (widget.stillImage != null) return;
+
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      await _stopCamera();
+    } else if (state == AppLifecycleState.resumed && mounted) {
+      await _initCamera();
     }
   }
 
   Future<void> _initCamera() async {
+    if (_isCameraInitializing) return;
+    if (_cam != null) return;
+
+    _isCameraInitializing = true;
+    final session = ++_cameraSession;
     try {
       final cams = await availableCameras();
       final front = cams.firstWhere(
@@ -167,7 +176,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         orElse: () => cams.first,
       );
 
-      _cam = CameraController(
+      final controller = CameraController(
         front,
         ResolutionPreset.medium,
         enableAudio: false,
@@ -177,12 +186,20 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                 : ImageFormatGroup.bgra8888,
       );
 
-      await _cam!.initialize();
-      await _cam!.setZoomLevel(1.0);
-      await _cam!.setFlashMode(FlashMode.off);
-      await _cam!.lockCaptureOrientation(DeviceOrientation.portraitUp);
+      await controller.initialize();
+      await controller.setZoomLevel(1.0);
+      await controller.setFlashMode(FlashMode.off);
+      await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
 
-      if (mounted) setState(() => _initialized = true);
+      if (!mounted || session != _cameraSession) {
+        await _disposeController(controller);
+        return;
+      }
+
+      _cam = controller;
+      if (mounted) {
+        setState(() => _initialized = true);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -191,24 +208,52 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
           ),
         );
       }
+    } finally {
+      _isCameraInitializing = false;
     }
   }
 
-  Future<void> _stopCamera() async {
+  Future<void> _disposeController(CameraController controller) async {
     try {
-      await _cam?.stopImageStream();
+      await controller.stopImageStream();
     } catch (_) {}
     try {
-      await _cam?.dispose();
+      await controller.dispose();
+    } catch (_) {}
+  }
+
+  Future<void> _stopCamera() async {
+    final controller = _cam;
+    _cam = null;
+    _cameraSession++;
+
+    _scanStarted = false;
+    _initialized = false;
+    _isCapturing = false;
+    _isBusy = false;
+    _stableCount = 0;
+    _canManualCapture = false;
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    if (controller == null) return;
+
+    try {
+      await _disposeController(controller);
     } catch (_) {}
   }
 
   Future<void> _onTapShutter() async {
-    if (_scanStarted || _cam == null || !_cam!.value.isInitialized) return;
+    final controller = _cam;
+    if (_scanStarted || controller == null || !controller.value.isInitialized) {
+      return;
+    }
     setState(() => _scanStarted = true);
 
     try {
-      await _cam!.startImageStream(_processFrame);
+      await controller.startImageStream(_processFrame);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -281,12 +326,15 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   }
 
   Future<void> _captureOnceAndReturn() async {
+    final controller = _cam;
+    if (controller == null) return;
+
     try {
-      await _cam?.setFlashMode(FlashMode.off);
-      await _cam?.stopImageStream();
+      await controller.setFlashMode(FlashMode.off);
+      await controller.stopImageStream();
       await Future.delayed(const Duration(milliseconds: 120));
 
-      final file = await _cam!.takePicture();
+      final file = await controller.takePicture();
       final bytes = await File(file.path).readAsBytes();
       final base64 = base64Encode(bytes);
       logger.d("base64 image ::: $base64");
@@ -307,7 +355,10 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
           SnackBar(content: Text('${S.of(context).check_in_cameraFailed}: $e')),
         );
         try {
-          await _cam?.startImageStream(_processFrame);
+          final restartController = _cam;
+          if (restartController != null && restartController.value.isInitialized) {
+            await restartController.startImageStream(_processFrame);
+          }
         } catch (_) {}
         _isCapturing = false;
         _canManualCapture = false;

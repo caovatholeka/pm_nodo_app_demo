@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/data/models/entities/responsive_id_entity.dart';
+import 'package:pm_app/app/features/ui/appraisal_form/widgets/appraisal_help_tooltip.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -13,16 +14,26 @@ class AppraisalStepResponsibility extends StatelessWidget {
   final List<ResponsiveIdEntity> responses;
   final List<TextEditingController> evidences;
   final void Function(int index, int value) onRate;
+  final void Function(int index, String value)? onEvidenceChanged;
   final bool isLeaderReview;
   final bool readOnly;
+  final Future<void> Function(int index)? onItemTap;
+  final String Function(int index)? hrNoteText;
+  final String Function(int index)? hrStatusText;
+  final bool autoShowHelp;
 
   const AppraisalStepResponsibility({
     super.key,
     required this.responses,
     required this.evidences,
     required this.onRate,
+    this.onEvidenceChanged,
     this.isLeaderReview = false,
     this.readOnly = false,
+    this.onItemTap,
+    this.hrNoteText,
+    this.hrStatusText,
+    this.autoShowHelp = false,
   });
 
   int _toInt(dynamic value) {
@@ -94,7 +105,10 @@ class AppraisalStepResponsibility extends StatelessWidget {
                       color: Color(0xFF374151),
                     ),
                   ),
-                  SvgPicture.asset(AppAssets.icQuestion, width: 20),
+                  AppraisalHelpTooltip(
+                    message: 'Tự đánh giá mình theo các đầu mục, ghi rõ những gì được, chưa được',
+                    autoShow: autoShowHelp,
+                  ),
                 ],
               ),
             ),
@@ -150,7 +164,7 @@ class AppraisalStepResponsibility extends StatelessWidget {
                     children: List.generate(responses.length, (i) {
                       final item = responses[i];
 
-                      return Padding(
+                      final itemContent = Padding(
                         padding: EdgeInsets.only(
                           bottom: i == responses.length - 1 ? 0 : 16,
                         ),
@@ -229,14 +243,57 @@ class AppraisalStepResponsibility extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             InputTextField(
-                              title: s.appraisal_comment_detail,
-                              hintText: s.appraisal_evidence_hint,
+                              title:
+                                  isLeaderReview
+                                      ? 'Góp ý điều chỉnh với các điểm chưa được'
+                                      : "Ghi rõ những gì được, chưa được",
+                              hintText:
+                                  isLeaderReview
+                                      ? 'Góp ý điều chỉnh đối với các điểm chưa được'
+                                      : "Nhập dẫn chứng",
                               controller: _responseEvidence(item, i),
                               maxLine: 3,
                               isRequiredField: true,
                               readOnly: readOnly,
                               fillBgColor: Colors.white.withValues(alpha: 0.65),
+                              onChange:
+                                  onEvidenceChanged == null
+                                      ? null
+                                      : (value) => onEvidenceChanged!(i, value),
                             ),
+                            if (hrNoteText != null && hrStatusText != null) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                height: 1,
+                                color: const Color(
+                                  0xFFD1D5DB,
+                                ).withValues(alpha: 0.7),
+                              ),
+                              const SizedBox(height: 12),
+                              InputTextField(
+                                title: 'Ý kiến HR',
+                                hintText: '',
+                                initialValue: hrNoteText!(i),
+                                readOnly: true,
+                                enable: false,
+                                isRequiredField: false,
+                                fillBgColor: Colors.white.withValues(
+                                  alpha: 0.55,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              InputTextField(
+                                title: 'Trạng thái',
+                                hintText: '',
+                                initialValue: hrStatusText!(i),
+                                readOnly: true,
+                                enable: false,
+                                isRequiredField: false,
+                                fillBgColor: Colors.white.withValues(
+                                  alpha: 0.55,
+                                ),
+                              ),
+                            ],
                             if (i != responses.length - 1)
                               Padding(
                                 padding: const EdgeInsets.only(top: 16),
@@ -248,6 +305,22 @@ class AppraisalStepResponsibility extends StatelessWidget {
                                 ),
                               ),
                           ],
+                        ),
+                      );
+
+                      if (onItemTap == null) {
+                        return itemContent;
+                      }
+
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => onItemTap!(i),
+                          child: IgnorePointer(
+                            ignoring: true,
+                            child: itemContent,
+                          ),
                         ),
                       );
                     }),
