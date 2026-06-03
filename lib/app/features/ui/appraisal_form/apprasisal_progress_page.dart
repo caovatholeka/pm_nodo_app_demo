@@ -277,17 +277,25 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
   void _hydrateDetail(CreateAppraisalState state) {
     final detail = state.detailEvaluation;
     if (detail == null) return;
+    final shouldMirrorLeaderReview = _shouldMirrorLeaderReview(state);
 
     _taskItems = [
       for (final item in detail.taskLineIds ?? <TaskLineIdEntity>[])
-        item.copyWith(),
+        shouldMirrorLeaderReview
+            ? _copyTaskSelfReviewToLeaderReview(item)
+            : item.copyWith(),
     ];
     _responseItems = [
       for (final item in detail.responseIds ?? <ResponsiveIdEntity>[])
-        item.copyWith(),
+        shouldMirrorLeaderReview
+            ? _copyResponseSelfReviewToLeaderReview(item)
+            : item.copyWith(),
     ];
     _skillItems = [
-      for (final item in detail.skillIds ?? <SkillIdEntity>[]) item.copyWith(),
+      for (final item in detail.skillIds ?? <SkillIdEntity>[])
+        shouldMirrorLeaderReview
+            ? _copySkillSelfReviewToLeaderReview(item)
+            : item.copyWith(),
     ];
     _experienceItems = [
       for (final item in detail.experienceIds ?? <ExperienceIdEntity>[])
@@ -365,6 +373,60 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     _coefCtrl.text = _totalTaskRate(_taskItems).toString();
     _fillTotalByStep(state, isLeaderReview: state.currentTabIndex == 1);
     _didHydrateDetail = true;
+  }
+
+  bool _shouldMirrorLeaderReview(CreateAppraisalState state) {
+    return state.isEdit == true &&
+        state.isManagerAssess != true &&
+        state.isHRReview != true &&
+        state.detailEvaluation?.state?.trim() == 'draft';
+  }
+
+  TaskLineIdEntity _copyTaskSelfReviewToLeaderReview(TaskLineIdEntity item) {
+    return TaskLineIdEntity(
+      id: item.id,
+      name: item.name,
+      jiraKey: item.jiraKey,
+      rate: item.rate,
+      volume: item.volume,
+      quality: item.quality,
+      progress: item.progress,
+      note: item.note,
+      parentVolume: item.volume,
+      parentQuality: item.quality,
+      parentProgress: item.progress,
+      parentNote: item.parentNote,
+      weight: item.weight,
+      totalScore: item.totalScore,
+      parentTotalScore: item.parentTotalScore,
+    );
+  }
+
+  ResponsiveIdEntity _copyResponseSelfReviewToLeaderReview(
+    ResponsiveIdEntity item,
+  ) {
+    return ResponsiveIdEntity(
+      id: item.id,
+      code: item.code,
+      name: item.name,
+      note: item.note,
+      ratePoint: item.ratePoint,
+      parentRatePoint: item.ratePoint,
+      parentNote: item.parentNote,
+      isChecked: item.isChecked,
+    );
+  }
+
+  SkillIdEntity _copySkillSelfReviewToLeaderReview(SkillIdEntity item) {
+    return SkillIdEntity(
+      id: item.id,
+      code: item.code,
+      name: item.name,
+      note: item.note,
+      ratePoint: item.ratePoint,
+      parentRatePoint: item.ratePoint,
+      parentNote: item.parentNote,
+    );
   }
 
   void _initializeCreateDefaults() {
@@ -595,13 +657,37 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
     } else {
       switch (ratingIndex) {
         case 0:
-          updated = current.copyWith(volume: value);
+          updated = current.copyWith(
+            volume: value,
+            parentVolume:
+                _shouldMirrorLeaderReview(
+                      context.read<CreateAppraisalCubit>().state,
+                    )
+                    ? value
+                    : null,
+          );
           break;
         case 1:
-          updated = current.copyWith(quality: value);
+          updated = current.copyWith(
+            quality: value,
+            parentQuality:
+                _shouldMirrorLeaderReview(
+                      context.read<CreateAppraisalCubit>().state,
+                    )
+                    ? value
+                    : null,
+          );
           break;
         default:
-          updated = current.copyWith(progress: value);
+          updated = current.copyWith(
+            progress: value,
+            parentProgress:
+                _shouldMirrorLeaderReview(
+                      context.read<CreateAppraisalCubit>().state,
+                    )
+                    ? value
+                    : null,
+          );
       }
     }
 
@@ -673,7 +759,15 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       _responseItems[index] =
           isLeaderReview
               ? current.copyWith(parentRatePoint: value)
-              : current.copyWith(ratePoint: value);
+              : current.copyWith(
+                ratePoint: value,
+                parentRatePoint:
+                    _shouldMirrorLeaderReview(
+                          context.read<CreateAppraisalCubit>().state,
+                        )
+                        ? value
+                        : null,
+              );
       _refreshHeaderTotals();
     });
   }
@@ -684,7 +778,15 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
       _skillItems[index] =
           isLeaderReview
               ? current.copyWith(parentRatePoint: value)
-              : current.copyWith(ratePoint: value);
+              : current.copyWith(
+                ratePoint: value,
+                parentRatePoint:
+                    _shouldMirrorLeaderReview(
+                          context.read<CreateAppraisalCubit>().state,
+                        )
+                        ? value
+                        : null,
+              );
       _refreshHeaderTotals();
     });
   }
@@ -1117,7 +1219,9 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
     final volume = _toInt(isLeaderReview ? item.parentVolume : item.volume);
     final quality = _toInt(isLeaderReview ? item.parentQuality : item.quality);
-    final progress = _toInt(isLeaderReview ? item.parentProgress : item.progress);
+    final progress = _toInt(
+      isLeaderReview ? item.parentProgress : item.progress,
+    );
 
     return hasName &&
         hasRate &&
@@ -1209,7 +1313,8 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
             _taskItems.isNotEmpty &&
             List<bool>.generate(
               _taskItems.length,
-              (index) => _isTaskLineValid(index, isLeaderReview: isLeaderReview),
+              (index) =>
+                  _isTaskLineValid(index, isLeaderReview: isLeaderReview),
             ).every((value) => value);
       case 1:
         return _responseItems.isNotEmpty &&
@@ -1222,7 +1327,8 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
         return _skillItems.isNotEmpty &&
             List<bool>.generate(
               _skillItems.length,
-              (index) => _isSkillLineValid(index, isLeaderReview: isLeaderReview),
+              (index) =>
+                  _isSkillLineValid(index, isLeaderReview: isLeaderReview),
             ).every((value) => value);
       case 3:
         return _experienceItems.isNotEmpty &&
@@ -1780,7 +1886,8 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
           _updateSkillRating(isLeaderReview, index, value);
         },
         onEvidenceChanged:
-            (index, value) => _updateSkillEvidence(isLeaderReview, index, value),
+            (index, value) =>
+                _updateSkillEvidence(isLeaderReview, index, value),
         isLeaderReview: isLeaderReview,
         onItemTap: isHrReviewFlow ? _onHrSkillTap : null,
         hrNoteText:

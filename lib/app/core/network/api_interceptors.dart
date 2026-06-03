@@ -7,11 +7,11 @@ import '../commons/global_data.dart';
 import '../logger/logger.dart';
 
 class ApiInterceptors extends InterceptorsWrapper {
-  bool _isShowingServerBusy = false;
-
   @override
   void onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final method = options.method;
     final uri = options.uri;
     final data = options.data;
@@ -29,14 +29,17 @@ class ApiInterceptors extends InterceptorsWrapper {
 
     if (method == 'GET') {
       logger.long(
-          "✈️ REQUEST[$method] => PATH: $uri \n Token: ${options.headers}");
+        "✈️ REQUEST[$method] => PATH: $uri \n Token: ${options.headers}",
+      );
     } else {
       try {
         logger.long(
-            "✈️ REQUEST[$method] => PATH: $uri \n Token: ${GlobalData.instance.token?.accessToken} \n DATA: ${jsonEncode(data)}");
+          "✈️ REQUEST[$method] => PATH: $uri \n Token: ${GlobalData.instance.token?.accessToken} \n DATA: ${jsonEncode(data)}",
+        );
       } catch (e) {
         logger.long(
-            "✈️ REQUEST[$method] => PATH: $uri \n Token: ${GlobalData.instance.token?.accessToken} \n DATA: $data");
+          "✈️ REQUEST[$method] => PATH: $uri \n Token: ${GlobalData.instance.token?.accessToken} \n DATA: $data",
+        );
       }
     }
     return super.onRequest(options, handler);
@@ -62,18 +65,6 @@ class ApiInterceptors extends InterceptorsWrapper {
     final uri = err.requestOptions.path;
     logger.long("⚠️ ERROR[$statusCode] => PATH: $uri");
 
-    final isServerBusyError =
-        statusCode == 404 || statusCode == 500;
-
-    if (isServerBusyError && !_isShowingServerBusy) {
-      _isShowingServerBusy = true;
-      AppEvent.instance.onServerBusy.add(true);
-    }
-
     super.onError(err, handler);
-  }
-
-  void resetServerBusyFlag() {
-    _isShowingServerBusy = false;
   }
 }

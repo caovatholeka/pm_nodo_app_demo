@@ -561,15 +561,15 @@ class _LoginPageState extends State<LoginPage> {
               text: S.of(context).smallHint,
               style: const TextStyle(fontSize: 12, color: Color(0xFFB5BBC6)),
               children: [
-                TextSpan(
-                  text: AppConfig.nameEnv ?? '',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.neutral400,
-                  ),
-                  recognizer:
-                      TapGestureRecognizer()..onTap = () => showEnv(context),
-                ),
+                // TextSpan(
+                //   text: AppConfig.nameEnv ?? '',
+                //   style: const TextStyle(
+                //     fontSize: 11,
+                //     color: AppColors.neutral400,
+                //   ),
+                //   recognizer:
+                //       TapGestureRecognizer()..onTap = () => showEnv(context),
+                // ),
               ],
             ),
           ),

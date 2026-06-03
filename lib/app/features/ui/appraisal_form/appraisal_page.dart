@@ -148,6 +148,22 @@ class _AppraisalPageState extends State<AppraisalPage> {
     );
   }
 
+  Future<void> _openEditAppraisal(int id) async {
+    final updated = await Navigator.push<EvaluationEntity?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailAppraisalForm(isEdit: true, evaluationId: id),
+      ),
+    );
+
+    if (updated == null) return;
+
+    _cubit.upsertEvaluation(updated);
+    if (updated.id != null) {
+      unawaited(_cubit.refreshEvaluationById(updated.id!));
+    }
+  }
+
   Future<void> _openManagerAssessAppraisal(int id) async {
     final updated = await Navigator.push<EvaluationEntity?>(
       context,
@@ -365,8 +381,16 @@ class _AppraisalPageState extends State<AppraisalPage> {
                           key: ValueKey(e.id),
                           endActionPane: ActionPane(
                             motion: const ScrollMotion(),
-                            extentRatio: 0.24,
+                            extentRatio: canSlideDraft ? 0.48 : 0.24,
                             children: [
+                              if (canSlideDraft)
+                                SlidableAction(
+                                  onPressed: (_) => _openEditAppraisal(e.id!),
+                                  backgroundColor: const Color(0xFF0A84FF),
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.edit_rounded,
+                                  label: 'Sửa',
+                                ),
                               if (canSlideDraft)
                                 SlidableAction(
                                   onPressed: (_) => _showSubmitDialog(e.id!),

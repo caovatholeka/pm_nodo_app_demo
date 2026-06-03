@@ -63,9 +63,8 @@ class LogInCubit extends Cubit<LoginState> {
       final raw = result.data;
 
       if (raw is Map<String, dynamic> && raw["error"] == true) {
-        final message = _extractServerMessage(
-          raw,
-          fallback: result.message ?? "Đăng nhập thất bại",
+        final message = _normalizeLoginMessage(
+          _extractServerMessage(raw, fallback: result.message ?? ""),
         );
 
         emit(state.copyWith(loginStatus: LoadStatus.FAILURE, errMsg: message));
@@ -140,12 +139,19 @@ class LogInCubit extends Cubit<LoginState> {
 
       final serverMessage = _extractServerMessage(res);
 
-      if (serverMessage.isNotEmpty) {
-        message = serverMessage;
-      } else if (e.response?.statusCode == 401) {
-        message = "Tài khoản hoặc mật khẩu không đúng";
-      } else if (e.type == DioExceptionType.connectionError) {
+      if (e.type == DioExceptionType.connectionError) {
         message = "Không thể kết nối đến máy chủ, kiểm tra mạng của bạn";
+      } else if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        message = "Kết nối quá hạn, vui lòng thử lại";
+      } else if (_isLoginCredentialError(
+        e.response?.statusCode,
+        serverMessage,
+      )) {
+        message = _wrongCredentialsMessage;
+      } else if (serverMessage.isNotEmpty) {
+        message = serverMessage;
       }
 
       emit(state.copyWith(loginStatus: LoadStatus.FAILURE, errMsg: message));
@@ -183,6 +189,35 @@ class LogInCubit extends Cubit<LoginState> {
     final message = _findMessage(data);
     if (message.isNotEmpty) return message;
     return fallback;
+  }
+
+  static const String _wrongCredentialsMessage =
+      "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.";
+
+  String _normalizeLoginMessage(String message) {
+    final text = message.trim();
+    if (text.isEmpty || _isUnclearServerMessage(text)) {
+      return _wrongCredentialsMessage;
+    }
+    return text;
+  }
+
+  bool _isLoginCredentialError(int? statusCode, String serverMessage) {
+    if (_isUnclearServerMessage(serverMessage)) return true;
+
+    return statusCode == 400 ||
+        statusCode == 401 ||
+        statusCode == 403 ||
+        statusCode == 404 ||
+        statusCode == 422;
+  }
+
+  bool _isUnclearServerMessage(String message) {
+    final text = message.trim().toLowerCase();
+    return text.isEmpty ||
+        text == "internal server error" ||
+        text == "server error" ||
+        text.contains("internal server error");
   }
 
   String _findMessage(dynamic data) {

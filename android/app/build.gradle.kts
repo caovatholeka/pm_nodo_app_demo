@@ -40,21 +40,20 @@ android {
         jvmTarget = "17"
     }
 
-    // comment khi develop
-    //   signingConfigs {
-    //       create("release") {
-    //           keyAlias = keystoreProperties.getProperty("keyAlias")
-    //           keyPassword = keystoreProperties.getProperty("keyPassword")
-    //           storeFile = file(keystoreProperties.getProperty("storeFile"))
-    //           storePassword = keystoreProperties.getProperty("storePassword")
-    //           storeType = "JKS"
-    //       }
-    //   }
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
+            storeType = "JKS"
+        }
+    }
 
     // debug : develop , release : build abb file
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug") // release/debug
+            signingConfig = signingConfigs.getByName("release") // release/debug
         }
     }
 }
