@@ -325,6 +325,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context, state) {
         String checkInStatus;
         String checkOutStatus;
+        String checkOutTime = "18:00";
 
         // String formatTime(String datetime) {
         //   try {
@@ -349,6 +350,7 @@ class _HomePageState extends State<HomePage> {
           checkOutStatus = AppDateUtils().formatTimeAmPm(
             state.checkOutToday ?? "",
           );
+          checkOutTime = checkOutStatus;
         }
 
         return Center(
@@ -359,7 +361,7 @@ class _HomePageState extends State<HomePage> {
                 Localizations.localeOf(context).languageCode,
               ).format(DateTime.now()),
               checkInTime: "08:30",
-              checkOutTime: "18:00",
+              checkOutTime: checkOutTime,
               checkInStatus: checkInStatus,
               checkOutStatus: checkOutStatus,
               onCheckOutTap: _openCheckIn,

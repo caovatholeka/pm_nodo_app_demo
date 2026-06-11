@@ -395,14 +395,14 @@ class _AppraisalPageState extends State<AppraisalPage> {
                                 SlidableAction(
                                   onPressed: (_) => _showSubmitDialog(e.id!),
                                   backgroundColor: AppColors.colorCompliant,
-                                  foregroundColor: Colors.white,
+                                  foregroundColor: Colors.white,    
                                   icon: Icons.send_rounded,
                                   label: 'Gửi',
                                 ),
                               if (canSlideManagerAssess)
                                 SlidableAction(
                                   onPressed:
-                                      (_) => _openManagerAssessAppraisal(e.id!),
+                                       (_) => _openManagerAssessAppraisal(e.id!),
                                   backgroundColor: const Color(0xFF0A84FF),
                                   foregroundColor: Colors.white,
                                   icon: Icons.fact_check_rounded,
