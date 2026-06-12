@@ -271,11 +271,11 @@ class _CheckInPageState extends State<CheckInPage> {
 
     if (Platform.isIOS) {
       locationSettings = AppleSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        activityType: ActivityType.automotiveNavigation,
-        distanceFilter: 5, //0,
-        pauseLocationUpdatesAutomatically: false,
-        showBackgroundLocationIndicator: true,
+        accuracy: LocationAccuracy.high,
+        activityType: ActivityType.other,
+        distanceFilter: 10,
+        pauseLocationUpdatesAutomatically: true,
+        showBackgroundLocationIndicator: false,
       );
     } else {
       // Giữ nguyên cho Android như cũ

@@ -38,12 +38,13 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Ứng dụng cần quyền truy cập Camera để chụp ảnh tài liệu/avatar...</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Ứng dụng cần quyền truy cập vị trí của bạn để hiển thị vị trí chấm công.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ điểm chấm công.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Ứng dụng cần quyền truy cập vị trí để hiển thị bản đồ điểm chấm công.</string>
+	<string>Ứng dụng cần quyền truy cập vị trí khi chấm công và hiển thị bản đồ điểm chấm công.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>PreciseLocation</key>
+		<string>Ứng dụng cần vị trí chính xác để xác định bạn đang ở gần điểm chấm công.</string>
+	</dict>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Ứng dụng cần quyền lưu ảnh/video vào Thư viện của bạn khi xuất hoặc tải về.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -53,7 +54,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
-		<string>location</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
