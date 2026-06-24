@@ -40,23 +40,6 @@ class _AppraisalPageState extends State<AppraisalPage> {
 
   DateTimeRange? selectedRange;
 
-  bool get _isDirector {
-    final jobTitle = context.read<AppCubit>().state.userProfile?.jobTitle ?? '';
-    return jobTitle.toLowerCase().contains('giám đốc');
-  }
-
-  bool get _isHr {
-    final profile = context.read<AppCubit>().state.userProfile;
-    final jobTitle = profile?.jobTitle?.toLowerCase() ?? '';
-    final departmentName = profile?.department?.name?.toLowerCase() ?? '';
-
-    return jobTitle.contains('hr') ||
-        jobTitle.contains('nhân sự') ||
-        jobTitle.contains('hành chính nhân sự') ||
-        departmentName.contains('nhân sự') ||
-        departmentName.contains('hành chính nhân sự');
-  }
-
   @override
   void initState() {
     super.initState();
@@ -333,6 +316,17 @@ class _AppraisalPageState extends State<AppraisalPage> {
                         p.loadDataStatus != c.loadDataStatus ||
                         p.listEvaluations != c.listEvaluations,
                 builder: (context, state) {
+                  final isDirector =
+                      context.read<AppCubit>().state.userProfile?.isDirector ==
+                      true;
+                  final isHrDirector =
+                      context
+                          .read<AppCubit>()
+                          .state
+                          .userProfile
+                          ?.isHrDirector ==
+                      true;
+
                   if (state.loadDataStatus == LoadStatus.LOADING) {
                     return const Center(
                       child: CircularProgressIndicator(
@@ -359,9 +353,11 @@ class _AppraisalPageState extends State<AppraisalPage> {
                         final canSlideManagerAssess =
                             e.id != null &&
                             e.state == 'director_confirm' &&
-                            _isDirector;
+                            isDirector;
                         final canSlideHrApprove =
-                            e.id != null && e.state == 'hr_confirm' && _isHr;
+                            e.id != null &&
+                            e.state == 'hr_confirm' &&
+                            isHrDirector;
 
                         final card = AppraisalListItem(
                           entity: e,
@@ -395,14 +391,14 @@ class _AppraisalPageState extends State<AppraisalPage> {
                                 SlidableAction(
                                   onPressed: (_) => _showSubmitDialog(e.id!),
                                   backgroundColor: AppColors.colorCompliant,
-                                  foregroundColor: Colors.white,    
+                                  foregroundColor: Colors.white,
                                   icon: Icons.send_rounded,
                                   label: 'Gửi',
                                 ),
                               if (canSlideManagerAssess)
                                 SlidableAction(
                                   onPressed:
-                                       (_) => _openManagerAssessAppraisal(e.id!),
+                                      (_) => _openManagerAssessAppraisal(e.id!),
                                   backgroundColor: const Color(0xFF0A84FF),
                                   foregroundColor: Colors.white,
                                   icon: Icons.fact_check_rounded,

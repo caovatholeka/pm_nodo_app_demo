@@ -106,7 +106,8 @@ class AppraisalStepResponsibility extends StatelessWidget {
                     ),
                   ),
                   AppraisalHelpTooltip(
-                    message: 'Tự đánh giá mình theo các đầu mục, ghi rõ những gì được, chưa được',
+                    message:
+                        'Tự đánh giá mình theo các đầu mục, ghi rõ những gì được, chưa được',
                     autoShow: autoShowHelp,
                   ),
                 ],

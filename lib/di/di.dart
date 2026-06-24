@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/data/repositories/attendance_repository.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
+import 'package:pm_app/app/data/repositories/checkpoint_repository.dart';
 import 'package:pm_app/app/data/repositories/dashboard_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
@@ -23,6 +24,7 @@ import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/login/login_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/otp_confirm/otp_verify_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
+import 'package:pm_app/app/features/ui/checkpoint/cubit/checkpoint_cubit.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/bloc/justification_cubit.dart';
 import 'package:pm_app/app/features/ui/justification/bloc/justification_detail_cubit.dart';
@@ -133,6 +135,9 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
   sl.registerLazySingleton<OnLeaveRepository>(() => OnLeaveRepositoryImpl());
   sl.registerLazySingleton<CheckInRepository>(() => CheckInRepositoryImpl());
+  sl.registerLazySingleton<CheckpointRepository>(
+    () => CheckpointRepositoryImpl(),
+  );
   sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl());
   sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepositoryImpl());
   sl.registerLazySingleton<UploadRepository>(() => UploadRepositoryImpl());
@@ -195,6 +200,9 @@ Future<void> init() async {
   sl.registerLazySingleton<OvertimeCubit>(() => OvertimeCubit());
   sl.registerLazySingleton<OvertimeDetailCubit>(() => OvertimeDetailCubit());
   sl.registerLazySingleton<OvertimeRepository>(() => OvertimeRepositoryImpl());
+  sl.registerLazySingleton<CheckpointCubit>(
+    () => CheckpointCubit(repository: sl()),
+  );
   sl.registerLazySingleton<ApprasialFormCubit>(
     () => ApprasialFormCubit(repository: sl()),
   );

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/appraisal_page.dart';
+import 'package:pm_app/app/features/ui/checkpoint/checkpoint_page.dart';
 import 'package:pm_app/app/features/ui/dashboard/dashboard_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
@@ -86,6 +87,13 @@ class _ApplicationPageState extends State<ApplicationPage> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => AppraisalPage()));
   }
 
+  void _openCheckpoint() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CheckpointPage()),
+    );
+  }
+
   void _openBusinessTrip() {
     Navigator.push(context, MaterialPageRoute(builder: (_) => WorkTripPage()));
   }
@@ -93,6 +101,7 @@ class _ApplicationPageState extends State<ApplicationPage> {
   void openDashborad() {
     Navigator.push(context, MaterialPageRoute(builder: (_) => DashboardPage()));
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,11 +162,16 @@ class _ApplicationPageState extends State<ApplicationPage> {
         "onTap": () => _openBusinessTrip(),
       },
 
-      // {
-      //   "icon": AppAssets.ic_paper2,
-      //   "title": s.app_until4,
-      //   "onTap": () => _openAppraisalForm(),
-      // },
+      {
+        "icon": AppAssets.ic_paper2,
+        "title": s.app_until4,
+        "onTap": () => _openAppraisalForm(),
+      },
+      {
+        "icon": AppAssets.ic_paper2,
+        "title": "Checkpoint",
+        "onTap": () => _openCheckpoint(),
+      },
       {
         "icon": AppAssets.ic_paper2,
         "title": "Dashboard",

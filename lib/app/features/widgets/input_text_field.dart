@@ -147,16 +147,19 @@ class _InputTextFieldState extends State<InputTextField> {
       children: [
         if (showTitle) ...[
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Text(
-                  widget.title!,
-                  style: const TextStyle(
-                    fontFamily: AppConfig.fontFamily,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.gray,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text(
+                    widget.title!,
+                    style: const TextStyle(
+                      fontFamily: AppConfig.fontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.gray,
+                    ),
                   ),
                 ),
               ),

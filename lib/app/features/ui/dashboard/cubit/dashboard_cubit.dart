@@ -25,6 +25,12 @@ class DashboardCubit extends Cubit<DashboardState> {
     : _repository = repository,
       super(const DashboardState());
 
+  @override
+  void emit(DashboardState state) {
+    if (isClosed) return;
+    super.emit(state);
+  }
+
   Map<String, dynamic>? _asMap(dynamic value) {
     if (value is Map<String, dynamic>) {
       return value;
@@ -56,7 +62,10 @@ class DashboardCubit extends Cubit<DashboardState> {
     return mapList(rawProjects, ProjectsParam.fromJson);
   }
 
-  ProjectsParam? _findProjectById(List<ProjectsParam> projects, int? projectId) {
+  ProjectsParam? _findProjectById(
+    List<ProjectsParam> projects,
+    int? projectId,
+  ) {
     if (projectId == null) {
       return null;
     }
@@ -121,7 +130,9 @@ class DashboardCubit extends Cubit<DashboardState> {
       }
     }
 
-    throw FormatException('Invalid period format. Expected yyyy-MM, got: $period');
+    throw FormatException(
+      'Invalid period format. Expected yyyy-MM, got: $period',
+    );
   }
 
   Future<void> getRequestSummaries() async {
@@ -273,7 +284,9 @@ class DashboardCubit extends Cubit<DashboardState> {
     try {
       emit(state.copyWith(taskStatus: LoadStatus.LOADING));
       final selectedProject = await _resolveProjectSelection();
-      final entity = await _loadProjectTasks(_requireProjectId(selectedProject));
+      final entity = await _loadProjectTasks(
+        _requireProjectId(selectedProject),
+      );
       emit(
         state.copyWith(
           taskStatus: LoadStatus.SUCCESS,
@@ -294,7 +307,9 @@ class DashboardCubit extends Cubit<DashboardState> {
       final selectedProject = await _resolveProjectSelection(
         projectId: projectId,
       );
-      final entity = await _loadProjectTasks(_requireProjectId(selectedProject));
+      final entity = await _loadProjectTasks(
+        _requireProjectId(selectedProject),
+      );
       emit(
         state.copyWith(
           projectStatus: LoadStatus.SUCCESS,
@@ -318,7 +333,9 @@ class DashboardCubit extends Cubit<DashboardState> {
       emit(state.copyWith(projectStatus: LoadStatus.LOADING));
 
       final selectedProject = await _resolveProjectSelection();
-      final entity = await _loadProjectTasks(_requireProjectId(selectedProject));
+      final entity = await _loadProjectTasks(
+        _requireProjectId(selectedProject),
+      );
       emit(
         state.copyWith(
           projectStatus: LoadStatus.SUCCESS,
