@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
-import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui_v2/notification/noti_page_v2.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
@@ -152,7 +152,7 @@ class _HomePageV2State extends State<HomePageV2> {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const NotificationPage())),
+              MaterialPageRoute(builder: (_) => const NotificationPageV2())),
           child: Stack(clipBehavior: Clip.none, children: [
             Container(
               width: 40,

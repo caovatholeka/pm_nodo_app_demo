@@ -14,7 +14,7 @@ import 'package:pm_app/app/features/ui/account/change_languge/change_languge_pag
 import 'package:pm_app/app/features/ui/account/changepassword/change_password_page.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_info_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
-import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui_v2/notification/noti_page_v2.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -43,7 +43,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
         MaterialPageRoute(
           builder: (_) => BlocProvider(
             create: (_) => GetIt.I<NotiCubit>()..loadNotifications('all'),
-            child: const NotificationPage(),
+            child: const NotificationPageV2(),
           ),
         ),
       );
