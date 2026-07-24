@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pm_app/app/core/commons/app_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -98,6 +99,11 @@ void main() {
 
       final appEnv = await SharedPrefsHelper.getAppEnv();
       AppConfig.setEnvironment(appEnv);
+
+      // Nạp tài khoản đăng nhập gần nhất để splash/login biết ngay nên hiện
+      // giao diện nào (lúc này chưa có profile từ server).
+      final lastEmail = await SharedPrefsHelper.getLastLoginEmail();
+      AppFlags.cachedLoginEmail = lastEmail.isEmpty ? null : lastEmail;
 
       final GoogleMapsFlutterPlatform mapsImplementation = GoogleMapsFlutterPlatform.instance;
       if (mapsImplementation is GoogleMapsFlutterAndroid) {
