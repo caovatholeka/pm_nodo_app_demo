@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:pm_app/app/core/commons/app_flags.dart';
+import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -65,7 +67,11 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Tài khoản đang dùng giao diện mới thì splash cũng nền tối, tránh chớp
+    // trắng giữa native splash và màn kế tiếp. Tài khoản khác giữ nguyên như cũ.
+    final dark = AppFlags.isBetaUiActive();
     return Scaffold(
+      backgroundColor: dark ? AppTokensV2.bgDeep : null,
       body: SizedBox(
         width: double.infinity,
         height: double.infinity,
