@@ -13,7 +13,7 @@ import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
-import 'package:pm_app/app/features/ui/on_leave/on_leave_detail_page.dart';
+import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_detail_page_v2.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
@@ -207,7 +207,8 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
       context,
       MaterialPageRoute(
         builder:
-            (_) => OnLeaveDetailPage(detailEntity: entity, detailId: entity.id),
+            (_) =>
+                OnLeaveDetailPageV2(detailEntity: entity, detailId: entity.id),
       ),
     );
 
