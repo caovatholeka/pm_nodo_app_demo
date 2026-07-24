@@ -51,7 +51,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
   final _df = DateFormat('dd/MM/yyyy');
 
   /// true = lịch tháng, false = danh sách dọc (mặc định, giữ nguyên hành vi cũ).
-  bool _isCalendarView = false;
+  bool _isCalendarView = true;
   DateTime _focusedDay = _dayOnly(DateTime.now());
   DateTime _selectedDay = _dayOnly(DateTime.now());
 
@@ -63,8 +63,9 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
   @override
   void initState() {
     super.initState();
-    _cubit.onChangeDateFilter("", "");
-    _cubit.getListOnLeaveTimes();
+    // Mặc định mở ở chế độ lịch tháng hiện tại -> nạp đúng dữ liệu tháng đó,
+    // nếu để không lọc thì danh sách phân trang sẽ làm lịch thiếu marker.
+    _applyMonthFilter(_focusedDay);
     filterController.clear();
     controller.addListener(_onScroll);
   }
@@ -75,6 +76,21 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
     controller.dispose();
     filterController.dispose();
     super.dispose();
+  }
+
+  /// Nạp danh sách đơn nghỉ của đúng tháng chứa [month] (dùng cho chế độ lịch).
+  void _applyMonthFilter(DateTime month) {
+    final first = DateTime(month.year, month.month, 1);
+    final last = DateTime(month.year, month.month + 1, 0);
+    _cubit.onChangeDateFilter(_df.format(first), _df.format(last));
+    _cubit.getListOnLeaveTimes();
+  }
+
+  /// Bỏ lọc theo tháng (chế độ danh sách xem toàn bộ như trước).
+  void _clearMonthFilter() {
+    filterController.clear();
+    _cubit.onChangeDateFilter("", "");
+    _cubit.getListOnLeaveTimes();
   }
 
   void _onScroll() {
@@ -421,6 +437,11 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
           onTap: () {
             HapticFeedback.selectionClick();
             setState(() => _isCalendarView = !_isCalendarView);
+            if (_isCalendarView) {
+              _applyMonthFilter(_focusedDay);
+            } else {
+              _clearMonthFilter();
+            }
           },
           child: Container(
             width: 40,
@@ -892,6 +913,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
       },
       onPageChanged: (focusedDay) {
         _focusedDay = focusedDay;
+        _applyMonthFilter(focusedDay);
       },
       headerStyle: HeaderStyle(
         formatButtonVisible: false,
