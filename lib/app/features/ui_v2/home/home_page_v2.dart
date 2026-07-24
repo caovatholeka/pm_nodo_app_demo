@@ -16,13 +16,13 @@ import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_fx_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
-import 'package:pm_app/app/features/ui/application/application_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
+import 'package:pm_app/app/features/ui_v2/application/application_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/attendance/attendance_data_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/home/work_time_v2.dart';
-import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
-import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
+import 'package:pm_app/app/features/ui_v2/task/task_manage_page_v2.dart';
 
 class HomePageV2 extends StatefulWidget {
   const HomePageV2({super.key});
@@ -386,8 +386,8 @@ class _HomePageV2State extends State<HomePageV2> {
       (
         Icons.description_outlined,
         'Dữ liệu công',
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (_) => AttendanceDataPage())),
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const AttendanceDataPageV2())),
       ),
       (
         Icons.event_available_outlined,
@@ -403,14 +403,14 @@ class _HomePageV2State extends State<HomePageV2> {
       (
         Icons.checklist_rounded,
         'Việc cần làm',
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (_) => TaskManagePage())),
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const TaskManagePageV2())),
       ),
       (
         Icons.assignment_outlined,
         'Đơn từ',
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (_) => ApplicationPage())),
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const ApplicationPageV2())),
       ),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
