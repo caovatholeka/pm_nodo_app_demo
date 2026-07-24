@@ -22,6 +22,8 @@ class AppTokensV2 {
   static const Color accent2 = Color(0xFF5E6AD2);
   static const Color glow = Color(0x590A84FF); // rgba(10,132,255,.35)
   static const Color success = Color(0xFF30D158);
+  /// Màu cảnh báo/nguy hiểm (huỷ, đăng xuất, badge chưa đọc).
+  static const Color danger = Color(0xFFFF453A);
   static const Color warn = Color(0xFFFFD60A);
 
   static const double radius = 20;

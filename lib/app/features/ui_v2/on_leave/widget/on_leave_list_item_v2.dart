@@ -57,7 +57,7 @@ class OnLeaveListItemV2 extends StatelessWidget {
     }
   }
 
-  static const Color _cancelColor = Color(0xFFFF453A);
+  static const Color _cancelColor = AppTokensV2.danger;
 
   String _statusTitle(int id, BuildContext context) {
     final s = S.of(context);

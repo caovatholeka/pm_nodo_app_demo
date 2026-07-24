@@ -174,7 +174,7 @@ class _HomePageV2State extends State<HomePageV2> {
                   constraints:
                       const BoxConstraints(minWidth: 18, minHeight: 18),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF453A),
+                    color: AppTokensV2.danger,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppTokensV2.bgDeep, width: 2),
                   ),

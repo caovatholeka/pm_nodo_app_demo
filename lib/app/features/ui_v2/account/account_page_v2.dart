@@ -271,7 +271,7 @@ class _MenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const dangerColor = Color(0xFFFF453A);
+    const dangerColor = AppTokensV2.danger;
     final tint = danger ? dangerColor : AppTokensV2.accent;
     return InkWell(
       onTap: () {
