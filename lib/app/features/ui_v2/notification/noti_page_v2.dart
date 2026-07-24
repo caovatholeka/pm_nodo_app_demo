@@ -34,6 +34,27 @@ class NotificationPageV2 extends StatefulWidget {
 
 class _NotificationPageV2State extends State<NotificationPageV2> {
   int selectedTab = 0;
+  final ScrollController _scroll = ScrollController();
+
+  /// Loại thông báo tương ứng tab đang chọn (khớp mapping khi đổi tab).
+  String get _currentType => switch (selectedTab) {
+        0 => "all",
+        1 => "general",
+        2 => "current_user",
+        3 => "unseen",
+        _ => "all",
+      };
+
+  void _onScroll() {
+    if (!_scroll.hasClients) return;
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 100) {
+      final cubit = context.read<NotiCubit>();
+      if (cubit.state.canLoadMore) {
+        cubit.loadMore(_currentType);
+      }
+    }
+  }
+
   late List<String> tabs;
 
   @override
@@ -53,6 +74,13 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
   void initState() {
     super.initState();
     context.read<NotiCubit>().loadNotifications("all");
+    _scroll.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
   }
 
   void _onMarkAllRead(BuildContext context) {
@@ -252,6 +280,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
     }
 
     return ListView(
+      controller: _scroll,
       padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
       children: [
         if (grouped["today"]!.isNotEmpty) ...[
