@@ -17,7 +17,7 @@ import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/entities/check_in_info_entity.dart';
 import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/check_in_cubit.dart';
-import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
+import 'package:pm_app/app/features/ui_v2/checkin/face_attendance_page_v2.dart';
 import 'package:pm_app/app/features/ui/checkin/widget/my_map_marker.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
@@ -1631,7 +1631,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
           // validate khuôn mặt
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
+            MaterialPageRoute(builder: (_) => const FaceAttendancePageV2()),
           );
 
           if (result != null && result.toString().isNotEmpty) {
