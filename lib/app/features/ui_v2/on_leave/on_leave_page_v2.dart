@@ -18,7 +18,9 @@ import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:table_calendar/table_calendar.dart';
 
+import '../../../core/utils/date_utils.dart';
 import '../../../data/models/entities/on_leave_entity.dart';
 import '../../../data/models/enums/load_status.dart';
 import '../../ui/on_leave/bloc/on_leave_cubit.dart';
@@ -47,6 +49,16 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
 
   DateTimeRange selectedWeek = _weekOf(DateTime.now());
   final _df = DateFormat('dd/MM/yyyy');
+
+  /// true = lịch tháng, false = danh sách dọc (mặc định, giữ nguyên hành vi cũ).
+  bool _isCalendarView = false;
+  DateTime _focusedDay = _dayOnly(DateTime.now());
+  DateTime _selectedDay = _dayOnly(DateTime.now());
+
+  /// Cache map ngày -> danh sách đơn nghỉ giao với ngày đó, tính lại chỉ khi
+  /// tham chiếu `listLeaveEntities` đổi (tránh tính lại mỗi lần build).
+  List<OnLeaveEntity>? _eventsSourceList;
+  Map<DateTime, List<OnLeaveEntity>> _eventsByDay = const {};
 
   @override
   void initState() {
@@ -98,6 +110,34 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
   bool get isDirector {
     final jobTitle = context.read<AppCubit>().state.userProfile?.jobTitle ?? "";
     return jobTitle.toLowerCase().contains("giám đốc");
+  }
+
+  static DateTime _dayOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  /// Tính lại map ngày -> danh sách đơn (chỉ khi list đổi tham chiếu).
+  /// Một đơn kéo dài dateFrom..dateTo được gán vào MỌI ngày trong khoảng
+  /// (bao gồm hai đầu mút), so sánh theo ngày (bỏ giờ/phút).
+  void _rebuildEventsMapIfNeeded(List<OnLeaveEntity> list) {
+    if (identical(list, _eventsSourceList)) return;
+    _eventsSourceList = list;
+
+    final map = <DateTime, List<OnLeaveEntity>>{};
+    for (final e in list) {
+      final from = AppDateUtils.parseFlexibleDate(e.dateFrom);
+      if (from == null) continue;
+      final to = AppDateUtils.parseFlexibleDate(e.dateTo) ?? from;
+
+      var cursor = _dayOnly(from);
+      final end = _dayOnly(to);
+      // Giới hạn số ngày lặp để tránh dữ liệu bất thường làm treo UI.
+      var guard = 0;
+      while (!cursor.isAfter(end) && guard < 366) {
+        map.putIfAbsent(cursor, () => <OnLeaveEntity>[]).add(e);
+        cursor = cursor.add(const Duration(days: 1));
+        guard++;
+      }
+    }
+    _eventsByDay = map;
   }
 
   static DateTime _mondayOf(DateTime d) {
@@ -332,15 +372,16 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: StaggerRevealV2(index: 1, child: _filterWidget),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
-                  child: _bulkActionWidget,
-                ),
+                if (!_isCalendarView)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
+                    child: _bulkActionWidget,
+                  ),
                 const SizedBox(height: 6),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: _listWidget,
+                    child: _isCalendarView ? _calendarViewWidget : _listWidget,
                   ),
                 ),
               ],
@@ -373,6 +414,31 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
             style: AppTokensV2.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            HapticFeedback.selectionClick();
+            setState(() => _isCalendarView = !_isCalendarView);
+          },
+          child: Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              color: AppTokensV2.surfaceStrong,
+              border: Border.all(color: AppTokensV2.border),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(
+              _isCalendarView
+                  ? Icons.view_list_rounded
+                  : Icons.calendar_month_rounded,
+              size: 20,
+              color: AppTokensV2.fgSoft,
+            ),
           ),
         ),
         GestureDetector(
@@ -721,6 +787,196 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
           ),
         );
       },
+    );
+  }
+
+  /// Chế độ Lịch: lịch tháng ở trên + danh sách đơn giao với ngày đang chọn.
+  /// Vẫn dùng chung `OnLeaveCubit`/dữ liệu với chế độ Danh sách.
+  Widget get _calendarViewWidget {
+    return BlocBuilder<OnLeaveCubit, OnLeaveState>(
+      bloc: _cubit,
+      buildWhen:
+          (p, c) =>
+              p.loadStatus != c.loadStatus ||
+              p.listLeaveEntities != c.listLeaveEntities,
+      builder: (context, state) {
+        if (state.loadStatus == LoadStatus.LOADING) {
+          return const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2.2,
+              color: AppTokensV2.accent,
+            ),
+          );
+        }
+
+        final list = state.listLeaveEntities ?? [];
+        _rebuildEventsMapIfNeeded(list);
+        final dayEvents = _eventsByDay[_selectedDay] ?? const <OnLeaveEntity>[];
+
+        return RefreshIndicator(
+          onRefresh: _onRefresh,
+          color: AppTokensV2.accent,
+          backgroundColor: AppTokensV2.bgTop,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 4, bottom: 120),
+            children: [
+              GlassCardV2(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 8,
+                ),
+                radius: 18,
+                child: _buildTableCalendar(),
+              ),
+              const SizedBox(height: 16),
+              if (dayEvents.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 36),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.event_busy_rounded,
+                          size: 38,
+                          color: AppTokensV2.fgMuted,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "Không có đơn nghỉ ngày này",
+                          style: AppTokensV2.captionStrong,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                ...List.generate(dayEvents.length, (i) {
+                  final e = dayEvents[i];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: StaggerRevealV2(
+                      index: i < 6 ? i : 0,
+                      child: OnLeaveListItemV2(
+                        entity: e,
+                        isDirector: isDirector,
+                        isChecked: false,
+                        showCheckbox: false,
+                        onShowDetail: () => _openDetail(e),
+                      ),
+                    ),
+                  );
+                }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTableCalendar() {
+    return TableCalendar<OnLeaveEntity>(
+      locale: Localizations.localeOf(context).languageCode,
+      firstDay: DateTime(2015, 1, 1),
+      lastDay: DateTime(2035, 12, 31),
+      focusedDay: _focusedDay,
+      startingDayOfWeek: StartingDayOfWeek.monday,
+      selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
+      eventLoader: (day) => _eventsByDay[_dayOnly(day)] ?? const [],
+      onDaySelected: (selectedDay, focusedDay) {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _selectedDay = _dayOnly(selectedDay);
+          _focusedDay = focusedDay;
+        });
+      },
+      onPageChanged: (focusedDay) {
+        _focusedDay = focusedDay;
+      },
+      headerStyle: HeaderStyle(
+        formatButtonVisible: false,
+        titleCentered: true,
+        titleTextStyle: AppTokensV2.section,
+        leftChevronIcon: const Icon(
+          Icons.chevron_left_rounded,
+          color: AppTokensV2.fgSoft,
+        ),
+        rightChevronIcon: const Icon(
+          Icons.chevron_right_rounded,
+          color: AppTokensV2.fgSoft,
+        ),
+        decoration: const BoxDecoration(),
+      ),
+      daysOfWeekStyle: DaysOfWeekStyle(
+        weekdayStyle: AppTokensV2.caption,
+        weekendStyle: AppTokensV2.caption.copyWith(
+          color: AppTokensV2.danger.withValues(alpha: 0.75),
+        ),
+      ),
+      calendarStyle: CalendarStyle(
+        outsideDaysVisible: false,
+        defaultTextStyle: AppTokensV2.body.copyWith(
+          fontWeight: FontWeight.w500,
+        ),
+        weekendTextStyle: AppTokensV2.body.copyWith(
+          fontWeight: FontWeight.w500,
+          color: AppTokensV2.fgSoft,
+        ),
+        todayDecoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: AppTokensV2.accent, width: 1.4),
+        ),
+        todayTextStyle: AppTokensV2.body.copyWith(
+          color: AppTokensV2.accent,
+          fontWeight: FontWeight.w700,
+        ),
+        selectedDecoration: const BoxDecoration(
+          gradient: AppTokensV2.accentGradient,
+          shape: BoxShape.circle,
+        ),
+        selectedTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+        ),
+        markerDecoration: const BoxDecoration(),
+        markersMaxCount: 4,
+        markerMargin: const EdgeInsets.only(top: 2),
+        cellMargin: const EdgeInsets.all(4),
+      ),
+      calendarBuilders: CalendarBuilders<OnLeaveEntity>(
+        markerBuilder: (context, day, events) {
+          if (events.isEmpty) return null;
+          final colors =
+              events
+                  .map(
+                    (e) =>
+                        OnLeaveListItemV2.statusColorFor(e.leaveStage?.id ?? 0),
+                  )
+                  .toSet()
+                  .take(4)
+                  .toList();
+          return Positioned(
+            bottom: 3,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children:
+                  colors
+                      .map(
+                        (c) => Container(
+                          width: 5,
+                          height: 5,
+                          margin: const EdgeInsets.symmetric(horizontal: 1.2),
+                          decoration: BoxDecoration(
+                            color: c,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      )
+                      .toList(),
+            ),
+          );
+        },
+      ),
     );
   }
 }

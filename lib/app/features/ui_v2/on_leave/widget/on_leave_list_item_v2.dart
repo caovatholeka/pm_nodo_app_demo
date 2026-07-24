@@ -35,7 +35,11 @@ class OnLeaveListItemV2 extends StatelessWidget {
   /// Ánh xạ trạng thái -> màu, giữ nguyên Ý NGHĨA màu bản cũ
   /// (nháp/xám, đã duyệt/xanh dương, hoàn thành/xanh lá, huỷ/đỏ)
   /// nhưng dùng bảng màu tối v2.
-  Color _statusColor(int id) {
+  Color _statusColor(int id) => statusColorFor(id);
+
+  /// Bản `static` để các widget khác (vd. marker trên lịch) dùng chung
+  /// đúng bảng màu trạng thái, không phải định nghĩa lại.
+  static Color statusColorFor(int id) {
     switch (id) {
       case 1:
       case 6:
