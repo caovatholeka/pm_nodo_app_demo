@@ -6,10 +6,10 @@ import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
-import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/attendance_tab/attendance_tab.dart';
-import 'package:pm_app/app/features/ui/attendance/attendance_data_tab/explanation_tab/explanation_tab.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui_v2/attendance/tabs/attendance_tab_v2.dart';
+import 'package:pm_app/app/features/ui_v2/attendance/tabs/explanation_tab_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Dữ liệu công — giao diện tối (v2).
@@ -18,13 +18,9 @@ import 'package:pm_app/generated/l10n.dart';
 /// `AppTokensV2`/nền tối, hành vi (2 tab, cubit, điều hướng thông báo) giữ
 /// nguyên như [AttendanceDataPage] bản cũ.
 ///
-/// LƯU Ý PHẠM VI: nội dung 2 tab con — [AttendanceTab] (lịch tháng, số ngày
-/// phép, hoạt động chấm công) và [ExplanationTab] (danh sách giải trình công)
-/// — vẫn dùng nguyên UI **sáng** của bản cũ. Hai tab này chứa lịch tháng tự vẽ
-/// (`MonthView`), bottom sheet chọn năm/tháng riêng, thẻ số ngày phép, danh
-/// sách hoạt động và trang gửi giải trình — việc restyle toàn bộ sang v2 sẽ
-/// vượt phạm vi hợp lý của task này. Nếu cần bản tối đầy đủ cho 2 tab, cần
-/// một task riêng.
+/// Nội dung 2 tab con dùng bản tối [AttendanceTabV2] (lịch tháng, số ngày
+/// phép, hoạt động chấm công) và [ExplanationTabV2] (danh sách giải trình
+/// công) — cùng cubit/hành vi như bản cũ, chỉ đổi trình bày sang tối.
 class AttendanceDataPageV2 extends StatefulWidget {
   const AttendanceDataPageV2({super.key});
 
@@ -83,15 +79,12 @@ class _AttendanceDataPageV2State extends State<AttendanceDataPageV2>
                 child: StaggerRevealV2(index: 1, child: _tabBar(s)),
               ),
               const SizedBox(height: 12),
-              // Nội dung 2 tab con giữ nguyên UI sáng của bản cũ (xem ghi chú
-              // phạm vi ở đầu file). Bọc trong khối nền trắng bo góc để tránh
-              // vùng chữ tối trên nền tối bị lẫn.
               Expanded(
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(18, 0, 18, 0),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F6F8),
+                    color: AppTokensV2.surface,
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(AppTokensV2.radius),
                     ),
@@ -99,8 +92,8 @@ class _AttendanceDataPageV2State extends State<AttendanceDataPageV2>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      AttendanceTab(cubit: _cubit),
-                      const ExplanationTab(),
+                      AttendanceTabV2(cubit: _cubit),
+                      const ExplanationTabV2(),
                     ],
                   ),
                 ),
