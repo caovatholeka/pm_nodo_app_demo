@@ -7,7 +7,12 @@ import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
+import 'package:pm_app/app/features/ui/application/application_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
+import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
+import 'package:pm_app/app/features/ui/staff/staff_page.dart';
+import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
+import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 
 class HomePageV2 extends StatefulWidget {
   const HomePageV2({super.key});
@@ -22,6 +27,7 @@ class _HomePageV2State extends State<HomePageV2> {
   void initState() {
     super.initState();
     _cubit.getListAttendanceToday();
+    _cubit.getListNewTasks();
   }
 
   String get _name => GlobalData.instance.userProfile?.name ?? '';
@@ -164,13 +170,42 @@ class _HomePageV2State extends State<HomePageV2> {
   }
 
   Widget _utilities() {
-    final items = <(IconData, String, int)>[
-      (Icons.people_alt_outlined, 'Nhân viên', 1),
-      (Icons.description_outlined, 'Dữ liệu công', 3),
-      (Icons.event_available_outlined, 'Nghỉ phép', 3),
-      (Icons.fingerprint, 'Chấm công', 2),
-      (Icons.checklist_rounded, 'Việc cần làm', 0),
-      (Icons.assignment_outlined, 'Đơn từ', 3),
+    final items = <(IconData, String, VoidCallback)>[
+      (
+        Icons.people_alt_outlined,
+        'Nhân viên',
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true))),
+      ),
+      (
+        Icons.description_outlined,
+        'Dữ liệu công',
+        () => Navigator.push(
+            context, MaterialPageRoute(builder: (_) => AttendanceDataPage())),
+      ),
+      (
+        Icons.event_available_outlined,
+        'Nghỉ phép',
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => OnLeavePage(isFromHome: true))),
+      ),
+      (
+        Icons.fingerprint,
+        'Chấm công',
+        () => GlobalData.instance.bottomNavIndex.value = 2,
+      ),
+      (
+        Icons.checklist_rounded,
+        'Việc cần làm',
+        () => Navigator.push(
+            context, MaterialPageRoute(builder: (_) => TaskManagePage())),
+      ),
+      (
+        Icons.assignment_outlined,
+        'Đơn từ',
+        () => Navigator.push(
+            context, MaterialPageRoute(builder: (_) => ApplicationPage())),
+      ),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       const Text('Tiện ích', style: AppTokensV2.section),
@@ -187,9 +222,9 @@ class _HomePageV2State extends State<HomePageV2> {
     ]);
   }
 
-  Widget _utilTile(IconData icon, String label, int navIndex) {
+  Widget _utilTile(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
-      onTap: () => GlobalData.instance.bottomNavIndex.value = navIndex,
+      onTap: onTap,
       child: Column(children: [
         Container(
           width: 54,
@@ -203,7 +238,7 @@ class _HomePageV2State extends State<HomePageV2> {
         ),
         const SizedBox(height: 7),
         Text(label,
-            style: AppTokensV2.caption.copyWith(color: const Color(0xFFCDD3E0)),
+            style: AppTokensV2.caption.copyWith(color: AppTokensV2.fgSoft),
             textAlign: TextAlign.center),
       ]),
     );

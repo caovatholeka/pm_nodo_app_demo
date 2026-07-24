@@ -13,6 +13,7 @@ class AppTokensV2 {
   // Chữ
   static const Color fg = Color(0xFFEDEDEF);
   static const Color fgMuted = Color(0xFF8A8F98);
+  static const Color fgSoft = Color(0xFFCDD3E0);
 
   // Accent
   static const Color accent = Color(0xFF0A84FF);
