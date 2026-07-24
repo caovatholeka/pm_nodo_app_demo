@@ -14,7 +14,7 @@ import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_detail_page.dart';
-import 'package:pm_app/app/features/widgets/advanced_filter_sheet.dart';
+import 'package:pm_app/app/features/ui_v2/widgets/advanced_filter_sheet_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Nhân viên — giao diện tối (v2).
@@ -107,11 +107,11 @@ class _StaffPageV2State extends State<StaffPageV2> {
     final result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: AppTokensV2.bgTop,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => AdvancedFilterSheet(
+      builder: (_) => AdvancedFilterSheetV2(
         departments: departments,
         jobTitles: jobTitles,
         statuses: statuses,
