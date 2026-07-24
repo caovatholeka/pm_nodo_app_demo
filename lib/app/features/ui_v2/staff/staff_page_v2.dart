@@ -13,7 +13,7 @@ import 'package:pm_app/app/data/models/entities/employee_entity.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
-import 'package:pm_app/app/features/ui/staff/staff_detail_page.dart';
+import 'package:pm_app/app/features/ui_v2/staff/staff_detail_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/widgets/advanced_filter_sheet_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
 
@@ -365,7 +365,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => StaffDetailPage(employeeId: emp.id ?? 0),
+            builder: (_) => StaffDetailPageV2(employeeId: emp.id ?? 0),
           ),
         );
       },
