@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +19,7 @@ import 'package:pm_app/app/features/ui/application/application_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/staff/staff_page.dart';
+import 'package:pm_app/app/features/ui_v2/home/work_time_v2.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 
@@ -29,11 +32,23 @@ class HomePageV2 extends StatefulWidget {
 class _HomePageV2State extends State<HomePageV2> {
   final HomeCubit _cubit = GetIt.I.get<HomeCubit>();
 
+  Timer? _ticker;
+
   @override
   void initState() {
     super.initState();
     _cubit.getListAttendanceToday();
     _cubit.getListNewTasks();
+    // Đếm ngược "còn bao lâu đủ giờ" cập nhật mỗi phút.
+    _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
   }
 
   /// "2026-07-24 08:02:15" -> "08:02"; không parse được -> "--:--"
@@ -230,6 +245,7 @@ class _HomePageV2State extends State<HomePageV2> {
                         checkOut != '--:--' ? 'Đã chấm' : 'Chưa chấm',
                         checkOut != '--:--')),
               ]),
+              _workProgress(state),
               const SizedBox(height: 15),
               PrimaryButtonV2(
                 label: checkedIn ? 'Chấm công ra' : 'Chấm công vào',
@@ -241,6 +257,69 @@ class _HomePageV2State extends State<HomePageV2> {
           const Positioned.fill(child: ShimmerSweepV2()),
         ]),
       ),
+    );
+  }
+
+  /// Tiến độ 8 tiếng làm việc: thanh tiến độ + "còn bao lâu nữa đủ giờ".
+  Widget _workProgress(HomeState state) {
+    final p = computeWorkProgressV2(
+      checkIn: AppDateUtils.parseFlexibleDate(state.checkInToday),
+      checkOut: AppDateUtils.parseFlexibleDate(state.checkOutToday),
+      now: DateTime.now(),
+    );
+    if (p == null) return const SizedBox.shrink();
+
+    final ratio = (p.worked.inMinutes / WorkRuleV2.requiredWork.inMinutes)
+        .clamp(0.0, 1.0)
+        .toDouble();
+    final outAt = DateFormat('HH:mm').format(p.earliestOut);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Stack(children: [
+            Container(height: 6, color: AppTokensV2.border),
+            AnimatedFractionallySizedBox(
+              duration: AppTokensV2.dBase,
+              curve: AppTokensV2.easeExpo,
+              widthFactor: ratio,
+              child: Container(
+                height: 6,
+                decoration: BoxDecoration(
+                  gradient: p.done
+                      ? const LinearGradient(
+                          colors: [AppTokensV2.success, AppTokensV2.success])
+                      : AppTokensV2.accentGradient,
+                ),
+              ),
+            ),
+          ]),
+        ),
+        const SizedBox(height: 7),
+        Row(children: [
+          Icon(p.done ? Icons.check_circle_rounded : Icons.timelapse_rounded,
+              size: 13,
+              color: p.done ? AppTokensV2.success : AppTokensV2.accent),
+          const SizedBox(width: 5),
+          Expanded(
+            child: Text(
+              p.done
+                  ? 'Đã đủ 8 tiếng — có thể chấm công ra'
+                  : 'Còn ${formatDurationShortV2(p.remaining)} nữa đủ giờ',
+              style: TextStyle(
+                color: p.done ? AppTokensV2.success : AppTokensV2.fg,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text('Ra lúc $outAt', style: AppTokensV2.caption),
+        ]),
+      ]),
     );
   }
 
