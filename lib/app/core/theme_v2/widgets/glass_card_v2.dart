@@ -2,12 +2,21 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../app_tokens_v2.dart';
 
-/// Thẻ kính mờ (frosted glass) với viền hairline. Nếu có [gradient] thì dùng làm nền đặc.
+/// Thẻ kiểu kính với viền hairline.
+///
+/// HIỆU NĂNG: [BackdropFilter] rất tốn GPU — mỗi thẻ là một lượt blur toàn vùng.
+/// Nhiều thẻ cùng lúc sẽ làm máy nóng và tụt pin. Vì vậy mặc định [blur] = false:
+/// dùng nền bán trong suốt (trông vẫn "kính" vì lộ nền gradient/blob phía sau)
+/// mà gần như không tốn gì. Chỉ bật [blur] = true ở 1–2 chỗ thật cần
+/// (ví dụ thanh nav nổi trên nội dung cuộn).
+///
+/// Nếu truyền [gradient] thì thẻ dùng nền đặc (không blur).
 class GlassCardV2 extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double radius;
   final Gradient? gradient;
+  final bool blur;
 
   const GlassCardV2({
     super.key,
@@ -15,6 +24,7 @@ class GlassCardV2 extends StatelessWidget {
     this.padding = const EdgeInsets.all(18),
     this.radius = AppTokensV2.radius,
     this.gradient,
+    this.blur = false,
   });
 
   @override
@@ -24,16 +34,25 @@ class GlassCardV2 extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         gradient: gradient,
-        color: gradient == null ? AppTokensV2.surface : null,
+        // Không blur thì tăng nhẹ độ đục để vẫn đọc rõ trên nền tối.
+        color: gradient == null
+            ? (blur ? AppTokensV2.surface : AppTokensV2.surfaceStrong)
+            : null,
         borderRadius: r,
         border: Border.all(color: AppTokensV2.border, width: 1),
         boxShadow: gradient != null
-            ? [BoxShadow(color: AppTokensV2.glow, blurRadius: 26, offset: const Offset(0, 12))]
+            ? [
+                BoxShadow(
+                    color: AppTokensV2.glow,
+                    blurRadius: 26,
+                    offset: const Offset(0, 12))
+              ]
             : null,
       ),
       child: child,
     );
-    if (gradient != null) {
+
+    if (gradient != null || !blur) {
       return ClipRRect(borderRadius: r, child: content);
     }
     return ClipRRect(

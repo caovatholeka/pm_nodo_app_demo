@@ -8,6 +8,8 @@ class AppTokensV2 {
   static const Color bgDeep = Color(0xFF020203);
   static const Color bgTop = Color(0xFF0D0D14);
   static const Color surface = Color(0x0DFFFFFF); // rgba(255,255,255,.05)
+  /// Nền thẻ khi KHÔNG dùng BackdropFilter (đục hơn chút để vẫn đọc rõ).
+  static const Color surfaceStrong = Color(0x17FFFFFF); // ~9%
   static const Color border = Color(0x17FFFFFF);  // rgba(255,255,255,.09)
 
   // Chữ

@@ -26,7 +26,8 @@ class _ShimmerSweepV2State extends State<ShimmerSweepV2>
     if (MediaQuery.of(context).disableAnimations) {
       return const SizedBox.shrink();
     }
-    return IgnorePointer(
+    return RepaintBoundary(
+      child: IgnorePointer(
       child: LayoutBuilder(
         builder: (_, c) {
           final w = c.maxWidth;
@@ -63,7 +64,7 @@ class _ShimmerSweepV2State extends State<ShimmerSweepV2>
           );
         },
       ),
-    );
+    ));
   }
 }
 
