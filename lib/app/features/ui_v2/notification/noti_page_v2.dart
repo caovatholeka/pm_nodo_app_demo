@@ -13,10 +13,10 @@ import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
-import 'package:pm_app/app/features/ui/overtime/overtime_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
-import 'package:pm_app/app/features/ui/work_trip/work_trip_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/app/features/ui_v2/overtime/overtime_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/work_trip/work_trip_page_v2.dart';
 
 import 'package:pm_app/app/data/models/entities/notification_entity.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -161,7 +161,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
         break;
       case "Đơn tăng ca":
         Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const OvertimePage(isFromHome: true)));
+            MaterialPageRoute(builder: (_) => const OvertimePageV2(isFromHome: true)));
         break;
       case "Đơn muộn sớm":
         Navigator.push(context,
@@ -169,7 +169,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
         break;
       case "Đơn công tác":
         Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const WorkTripPage(isFromHome: true)));
+            MaterialPageRoute(builder: (_) => const WorkTripPageV2(isFromHome: true)));
         break;
       case "Giải trình công không hợp lệ":
         Navigator.push(

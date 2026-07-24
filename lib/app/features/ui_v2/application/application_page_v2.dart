@@ -11,8 +11,8 @@ import 'package:pm_app/app/features/ui/dashboard/dashboard_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
-import 'package:pm_app/app/features/ui/overtime/overtime_page.dart';
-import 'package:pm_app/app/features/ui/work_trip/work_trip_page.dart';
+import 'package:pm_app/app/features/ui_v2/overtime/overtime_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/work_trip/work_trip_page_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Đơn từ — giao diện tối (v2). Lưới tiện ích giữ nguyên 4 mục của bản cũ
@@ -52,7 +52,7 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
     HapticFeedback.selectionClick();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => OvertimePage(isFromHome: true)),
+      MaterialPageRoute(builder: (_) => OvertimePageV2(isFromHome: true)),
     );
   }
 
@@ -64,7 +64,7 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
 
   void _openBusinessTrip() {
     HapticFeedback.selectionClick();
-    Navigator.push(context, MaterialPageRoute(builder: (_) => WorkTripPage()));
+    Navigator.push(context, MaterialPageRoute(builder: (_) => WorkTripPageV2()));
   }
 
   void _openDashboard() {
