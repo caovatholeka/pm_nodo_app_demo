@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../features/navigation/bottom_navigation.dart';
 import '../../features/ui/auth/login/login_page.dart';
 import '../../features/ui/splash/splash_page.dart';
+import '../../features/ui_v2/auth/login_page_v2.dart';
+import '../commons/app_flags.dart';
 
 Handler notHandler = Handler(
   handlerFunc: (BuildContext? context, Map<String, List<String>> params) =>
@@ -21,7 +23,7 @@ Handler splashHandler = Handler(
 
 Handler loginHandler = Handler(
   handlerFunc: (BuildContext? context, Map<String, List<String>> params) =>
-      LoginPage(),
+      AppFlags.isBetaUiActive() ? const LoginPageV2() : LoginPage(),
 );
 
 Handler bottomNavHandler = Handler(
