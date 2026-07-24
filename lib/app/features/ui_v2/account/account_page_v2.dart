@@ -10,10 +10,10 @@ import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/account/account_cubit.dart';
 import 'package:pm_app/app/features/ui/account/account_state.dart';
-import 'package:pm_app/app/features/ui/account/change_languge/change_languge_page.dart';
-import 'package:pm_app/app/features/ui/account/changepassword/change_password_page.dart';
-import 'package:pm_app/app/features/ui/account/personal_info/personal_info_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui_v2/account/change_language_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/account/change_password_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/account/personal_info_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/notification/noti_page_v2.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -35,8 +35,8 @@ class _AccountPageV2State extends State<AccountPageV2> {
     _cubit.fetchUserProfile();
   }
 
-  void _goInfo() => Navigator.push(
-      context, MaterialPageRoute(builder: (_) => const PersonalInfoPage()));
+  void _goInfo() => Navigator.push(context,
+      MaterialPageRoute(builder: (_) => const PersonalInfoPageV2()));
 
   void _goNotification() => Navigator.push(
         context,
@@ -48,11 +48,11 @@ class _AccountPageV2State extends State<AccountPageV2> {
         ),
       );
 
-  void _goPassword() => Navigator.push(
-      context, MaterialPageRoute(builder: (_) => const ChangePasswordPage()));
+  void _goPassword() => Navigator.push(context,
+      MaterialPageRoute(builder: (_) => const ChangePasswordPageV2()));
 
-  void _goLanguage() => Navigator.push(
-      context, MaterialPageRoute(builder: (_) => const ChangeLanguagePage()));
+  void _goLanguage() => Navigator.push(context,
+      MaterialPageRoute(builder: (_) => const ChangeLanguagePageV2()));
 
   void _logout() {
     if (_cubit.state.logoutStatus == LoadStatus.LOADING) return;
