@@ -8,17 +8,20 @@ import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
+import 'package:pm_app/app/data/local/master_data.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
+import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/ui/staff/staff_detail_page.dart';
 import 'package:pm_app/app/features/widgets/advanced_filter_sheet.dart';
-import 'package:pm_app/app/data/local/master_data.dart';
 import 'package:pm_app/generated/l10n.dart';
 
-/// Màn Nhân viên — giao diện tối (v2). Nội dung giữ nguyên bản cũ:
-/// tìm kiếm, lọc nâng cao, danh sách nhân viên (avatar/tên/phòng ban/chức danh/mã),
-/// cuộn xuống tải thêm, chạm để mở chi tiết. Tái dùng [StaffCubit].
+/// Màn Nhân viên — giao diện tối (v2).
+///
+/// Trình bày dạng **lưới 2 cột** (dễ quét bằng mắt hơn danh sách dọc) kèm hàng
+/// **badge lọc nhanh theo phòng ban**. Chức năng giữ nguyên bản cũ: tìm kiếm,
+/// lọc nâng cao, cuộn tải thêm, chạm mở chi tiết. Tái dùng [StaffCubit].
 class StaffPageV2 extends StatefulWidget {
   final bool? isFromHome;
   const StaffPageV2({super.key, this.isFromHome});
@@ -34,6 +37,12 @@ class _StaffPageV2State extends State<StaffPageV2> {
 
   EmployeeFilterParam? _activeFilter;
 
+  /// Phòng ban cho badge lọc nhanh; null = chưa tải xong.
+  List<MasterDataItem>? _departments;
+
+  /// Phòng ban đang chọn ở badge; null = "Tất cả".
+  int? _selectedDeptId;
+
   @override
   void initState() {
     super.initState();
@@ -42,10 +51,12 @@ class _StaffPageV2State extends State<StaffPageV2> {
     _search.addListener(() {
       if (_search.text.trim().isEmpty) {
         _activeFilter = null;
+        _selectedDeptId = null;
         _cubit.getListEmployees();
         setState(() {});
       }
     });
+    _loadDepartments();
   }
 
   @override
@@ -55,9 +66,19 @@ class _StaffPageV2State extends State<StaffPageV2> {
     super.dispose();
   }
 
+  Future<void> _loadDepartments() async {
+    try {
+      final list = await MasterData.getDepartmentsFromApi();
+      if (!mounted) return;
+      setState(() => _departments = list);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _departments = const []);
+    }
+  }
+
   void _onScroll() {
-    if (_scroll.position.pixels >=
-        _scroll.position.maxScrollExtent - 100) {
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 100) {
       _cubit.onLoadMore();
     }
   }
@@ -65,6 +86,16 @@ class _StaffPageV2State extends State<StaffPageV2> {
   void _submitSearch() {
     FocusScope.of(context).unfocus();
     _cubit.getListEmployees(query: _search.text.trim());
+  }
+
+  /// Chọn badge phòng ban: null = tất cả.
+  void _selectDepartment(int? id) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedDeptId = id;
+      _activeFilter = id == null ? null : EmployeeFilterParam(departmentId: id);
+    });
+    _cubit.getListEmployees(filter: _activeFilter);
   }
 
   Future<void> _openFilter() async {
@@ -89,12 +120,19 @@ class _StaffPageV2State extends State<StaffPageV2> {
     );
 
     if (result == 'clear_filter') {
-      setState(() => _activeFilter = null);
+      setState(() {
+        _activeFilter = null;
+        _selectedDeptId = null;
+      });
       _cubit.getListEmployees(filter: null);
       return;
     }
     if (result is EmployeeFilterParam) {
-      setState(() => _activeFilter = result);
+      setState(() {
+        _activeFilter = result;
+        // Badge chỉ sáng khi bộ lọc đúng là "lọc theo 1 phòng ban".
+        _selectedDeptId = result.departmentId;
+      });
       _cubit.getListEmployees(filter: result);
     }
   }
@@ -117,11 +155,13 @@ class _StaffPageV2State extends State<StaffPageV2> {
               padding: const EdgeInsets.symmetric(horizontal: 18),
               child: StaggerRevealV2(index: 1, child: _searchBar(s)),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
+            StaggerRevealV2(index: 2, child: _departmentBadges()),
+            const SizedBox(height: 4),
             Expanded(
               child: BlocBuilder<StaffCubit, StaffState>(
                 bloc: _cubit,
-                builder: (context, state) => _list(state),
+                builder: (context, state) => _grid(state),
               ),
             ),
           ]),
@@ -144,7 +184,9 @@ class _StaffPageV2State extends State<StaffPageV2> {
       ],
       Expanded(
         child: Text(s.employee_title,
-            style: AppTokensV2.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+            style: AppTokensV2.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
       ),
     ]);
   }
@@ -215,7 +257,66 @@ class _StaffPageV2State extends State<StaffPageV2> {
     ]);
   }
 
-  Widget _list(StaffState state) {
+  /// Hàng badge lọc nhanh theo phòng ban (cuộn ngang).
+  Widget _departmentBadges() {
+    final depts = _departments;
+    if (depts == null) {
+      return const SizedBox(height: 38); // giữ chỗ trong lúc tải
+    }
+    if (depts.isEmpty) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 38,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        itemCount: depts.length + 1,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          if (i == 0) {
+            return _badge('Tất cả', _selectedDeptId == null,
+                () => _selectDepartment(null));
+          }
+          final d = depts[i - 1];
+          final label = (d.name ?? d.text ?? '').trim();
+          if (label.isEmpty) return const SizedBox.shrink();
+          return _badge(label, _selectedDeptId == d.id,
+              () => _selectDepartment(d.id));
+        },
+      ),
+    );
+  }
+
+  Widget _badge(String label, bool selected, VoidCallback onTap) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: AppTokensV2.dFast,
+        curve: AppTokensV2.easeExpo,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected
+              ? AppTokensV2.accent.withValues(alpha: 0.22)
+              : AppTokensV2.surfaceStrong,
+          border: Border.all(
+              color: selected ? AppTokensV2.accent : AppTokensV2.border),
+          borderRadius: BorderRadius.circular(19),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? AppTokensV2.accent : AppTokensV2.fgSoft,
+            fontSize: 12,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _grid(StaffState state) {
     final list = state.listEmployees ?? const <EmployeeEntity>[];
 
     if (state.loadStatus == LoadStatus.LOADING && list.isEmpty) {
@@ -238,19 +339,25 @@ class _StaffPageV2State extends State<StaffPageV2> {
       );
     }
 
-    return ListView.separated(
+    return GridView.builder(
       controller: _scroll,
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 120),
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 120),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 0.82,
+      ),
       itemCount: list.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (_, i) => _employeeCard(list[i]),
+      itemBuilder: (_, i) => _employeeTile(list[i]),
     );
   }
 
-  Widget _employeeCard(EmployeeEntity emp) {
+  Widget _employeeTile(EmployeeEntity emp) {
     final s = S.of(context);
-    final dept = emp.department ?? '-';
-    final job = emp.jobTitle ?? '';
+    final dept = (emp.department ?? '').trim();
+    final job = (emp.jobTitle ?? '').trim();
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -263,49 +370,53 @@ class _StaffPageV2State extends State<StaffPageV2> {
         );
       },
       child: GlassCardV2(
-        padding: const EdgeInsets.all(12),
-        radius: 17,
-        child: Row(children: [
-          _avatar(emp.avatarUrl, emp.name ?? '-'),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(emp.name ?? '-',
-                    style: AppTokensV2.body.copyWith(fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 3),
-                Text('${s.employee_card_department}: $dept',
-                    style: AppTokensV2.captionStrong,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-                if (job.isNotEmpty)
-                  Text(job,
-                      style: AppTokensV2.caption,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-              ],
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+        radius: 18,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _avatar(emp.avatarUrl, emp.name ?? '-'),
+            const SizedBox(height: 10),
+            Text(
+              emp.name ?? '-',
+              style: AppTokensV2.body.copyWith(fontSize: 13.5),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          if (emp.code != null) ...[
-            const SizedBox(width: 8),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTokensV2.accent.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(20),
+            if (job.isNotEmpty) ...[
+              const SizedBox(height: 3),
+              Text(job,
+                  style: AppTokensV2.caption,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+            ],
+            const Spacer(),
+            if (dept.isNotEmpty)
+              Text('${s.employee_card_department}: $dept',
+                  style: AppTokensV2.captionStrong.copyWith(fontSize: 10.5),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+            if (emp.code != null) ...[
+              const SizedBox(height: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppTokensV2.accent.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text('${s.employee_card_id}:${emp.code}',
+                    style: AppTokensV2.caption.copyWith(
+                        color: AppTokensV2.accent,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700)),
               ),
-              child: Text('${s.employee_card_id}:${emp.code}',
-                  style: AppTokensV2.caption.copyWith(
-                      color: AppTokensV2.accent,
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700)),
-            ),
+            ],
           ],
-        ]),
+        ),
       ),
     );
   }
@@ -325,15 +436,15 @@ class _StaffPageV2State extends State<StaffPageV2> {
                 .toUpperCase();
       }
       return Container(
-        width: 48,
-        height: 48,
+        width: 62,
+        height: 62,
         alignment: Alignment.center,
         decoration: const BoxDecoration(
             gradient: AppTokensV2.accentGradient, shape: BoxShape.circle),
         child: Text(initials,
             style: const TextStyle(
                 color: Colors.white,
-                fontSize: 15,
+                fontSize: 19,
                 fontWeight: FontWeight.w800)),
       );
     }
@@ -342,8 +453,8 @@ class _StaffPageV2State extends State<StaffPageV2> {
       child: valid
           ? CachedNetworkImage(
               imageUrl: raw!,
-              width: 48,
-              height: 48,
+              width: 62,
+              height: 62,
               fit: BoxFit.cover,
               placeholder: (_, __) => fallback(),
               errorWidget: (_, __, ___) => fallback(),
