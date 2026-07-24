@@ -2,11 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../core/commons/global_data.dart';
-import '../../../core/logger/logger.dart';
 import '../../../core/router/application.dart';
 import '../../../core/router/routers.dart';
 import 'splash_cubit.dart';
@@ -27,17 +24,17 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     _initData();
     _navigationSubscription = _cubit.navigatorController.stream.listen((event) {
-      Future.delayed(const Duration(seconds: 1), () {
-        FlutterNativeSplash.remove();
-        switch (event) {
-          case SplashNavigator.OPEN_HOME:
-            showHome();
-            break;
-          case SplashNavigator.OPEN_LOG_IN:
-            showLogIn();
-            break;
-        }
-      });
+      // Trước đây chờ cứng 1 giây ở đây — chỉ làm app vào chậm thêm 1s mà không
+      // đem lại gì. Điều hướng ngay khi biết trạng thái đăng nhập.
+      FlutterNativeSplash.remove();
+      switch (event) {
+        case SplashNavigator.OPEN_HOME:
+          showHome();
+          break;
+        case SplashNavigator.OPEN_LOG_IN:
+          showLogIn();
+          break;
+      }
     });
   }
 
@@ -64,29 +61,6 @@ class _SplashPageState extends State<SplashPage> {
 
   void showHome() {
     Application.router.navigateTo(context, Routes.home, clearStack: true);
-  }
-
-  getUserLocation() async {
-    try {
-      Position currentLocation = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      GlobalData.instance.currentLocation = currentLocation;
-      logger.d("currentLocation $currentLocation");
-    } catch (e) {
-      logger.e("location $e");
-      GlobalData.instance.currentLocation =  Position(
-        longitude: 0.0,
-        latitude: 0.0,
-        timestamp: DateTime.timestamp(),
-        accuracy: 0,
-        altitude: 0,
-        altitudeAccuracy: 0,
-        heading: 0,
-        headingAccuracy: 0,
-        speed: 0,
-        speedAccuracy: 0,
-      );
-    }
   }
 
   @override

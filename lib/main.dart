@@ -35,11 +35,13 @@ void main() {
 
       await FirebaseAnalysticService.initialize();
       await LocalNotificationService.initialize();
-      try {
-        await FirebaseMessagingService.initializeFCM();
-      } catch (_) {
-        logger.d("initilize fcm");
-      }
+      // FCM không cần xong trước khi hiện UI: lấy APNs/FCM token là việc qua
+      // mạng, có thể mất vài giây. Chạy nền để không chặn màn hình đầu tiên.
+      unawaited(
+        FirebaseMessagingService.initializeFCM().catchError((Object e) {
+          logger.d("initilize fcm: $e");
+        }),
+      );
   
       await di.init();
 
