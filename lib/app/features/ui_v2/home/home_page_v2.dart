@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/service/local_notification_service.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui_v2/notification/noti_page_v2.dart';
@@ -51,6 +52,34 @@ class _HomePageV2State extends State<HomePageV2> {
     super.dispose();
   }
 
+  /// Thời điểm đang hẹn nhắc, để không đặt lại lịch trùng lặp mỗi lần state đổi.
+  DateTime? _scheduledReminderAt;
+
+  /// Đặt hoặc huỷ lịch nhắc chấm công ra theo trạng thái chấm công hôm nay.
+  Future<void> _syncCheckOutReminder(HomeState state) async {
+    final at = checkOutReminderAtV2(
+      checkIn: AppDateUtils.parseFlexibleDate(state.checkInToday),
+      checkOut: AppDateUtils.parseFlexibleDate(state.checkOutToday),
+      now: DateTime.now(),
+    );
+
+    if (at == null) {
+      if (_scheduledReminderAt != null) {
+        _scheduledReminderAt = null;
+        await LocalNotificationService.cancelCheckOutReminder();
+      }
+      return;
+    }
+
+    if (_scheduledReminderAt == at) return; // đã hẹn đúng giờ này rồi
+    _scheduledReminderAt = at;
+    await LocalNotificationService.scheduleCheckOutReminder(
+      at: at,
+      title: 'Đã đủ 8 tiếng làm việc',
+      body: 'Bấm để mở app và chấm công ra.',
+    );
+  }
+
   /// "2026-07-24 08:02:15" -> "08:02"; không parse được -> "--:--"
   String _fmtTime(String? raw) {
     final d = AppDateUtils.parseFlexibleDate(raw);
@@ -83,7 +112,11 @@ class _HomePageV2State extends State<HomePageV2> {
         body: AmbientBackgroundV2(
           child: SafeArea(
             bottom: false,
-            child: BlocBuilder<HomeCubit, HomeState>(
+            child: BlocConsumer<HomeCubit, HomeState>(
+              listenWhen: (p, c) =>
+                  p.checkInToday != c.checkInToday ||
+                  p.checkOutToday != c.checkOutToday,
+              listener: (_, state) => _syncCheckOutReminder(state),
               builder: (context, state) {
                 return ListView(
                   padding: const EdgeInsets.fromLTRB(18, 8, 18, 120),

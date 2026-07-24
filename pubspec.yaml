@@ -67,6 +67,7 @@ dependencies:
   # pull_to_refresh: ^2.0.0
   # linked_scroll_controller: ^0.2.0
   flutter_local_notifications: ^19.0.0
+  timezone: ^0.10.1
   url_launcher: ^6.3.2
   # firebase_remote_config: ^4.4.7
   syncfusion_flutter_calendar: ^31.1.19

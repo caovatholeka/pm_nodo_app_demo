@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'firebase_messaging_service.dart';
 
@@ -12,6 +14,67 @@ class LocalNotificationService {
   static const String _channelId = 'high_importance_channel';
   static const String _channelName = 'High Importance Notifications';
   static const String _channelDescription = 'Used for important notifications.';
+
+  /// Id cố định cho thông báo nhắc chấm công ra (đặt lại sẽ ghi đè, không nhân bản).
+  static const int checkOutReminderId = 8801;
+
+  static bool _tzReady = false;
+
+  /// Khởi tạo timezone kiểu lazy — chỉ chạy khi thật sự cần hẹn giờ, để không
+  /// làm chậm lúc mở app.
+  static void _ensureTimeZone() {
+    if (_tzReady) return;
+    tzdata.initializeTimeZones();
+    // App dùng nội bộ tại Việt Nam.
+    tz.setLocalLocation(tz.getLocation('Asia/Ho_Chi_Minh'));
+    _tzReady = true;
+  }
+
+  /// Hẹn thông báo nhắc chấm công ra vào thời điểm [at].
+  /// Gọi lại sẽ ghi đè lịch cũ (cùng id).
+  static Future<void> scheduleCheckOutReminder({
+    required DateTime at,
+    required String title,
+    required String body,
+  }) async {
+    if (!at.isAfter(DateTime.now())) return;
+    try {
+      _ensureTimeZone();
+      await _plugin.zonedSchedule(
+        checkOutReminderId,
+        title,
+        body,
+        tz.TZDateTime.from(at, tz.local),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            _channelId,
+            _channelName,
+            channelDescription: _channelDescription,
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+      logger.d('Đã hẹn nhắc chấm công ra lúc $at');
+    } catch (e) {
+      logger.e('Hẹn nhắc chấm công ra thất bại: $e');
+    }
+  }
+
+  /// Huỷ lịch nhắc chấm công ra (đã chấm ra, hoặc không còn cần).
+  static Future<void> cancelCheckOutReminder() async {
+    try {
+      await _plugin.cancel(checkOutReminderId);
+    } catch (e) {
+      logger.e('Huỷ nhắc chấm công ra thất bại: $e');
+    }
+  }
 
   static Future<void> initialize() async {
     const AndroidInitializationSettings androidInit =

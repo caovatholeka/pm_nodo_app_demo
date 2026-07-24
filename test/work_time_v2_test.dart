@@ -72,4 +72,36 @@ void main() {
       expect(formatDurationShortV2(Duration.zero), '0p');
     });
   });
+
+  group('checkOutReminderAtV2', () {
+    test('vào 08:30, chưa chấm ra -> nhắc lúc 18:00', () {
+      final at = checkOutReminderAtV2(
+          checkIn: _t(8, 30), checkOut: null, now: _t(9, 0));
+      expect(at, _t(18, 0));
+    });
+
+    test('chưa chấm vào -> không nhắc', () {
+      expect(
+          checkOutReminderAtV2(checkIn: null, checkOut: null, now: _t(9, 0)),
+          isNull);
+    });
+
+    test('đã chấm ra -> không nhắc', () {
+      final at = checkOutReminderAtV2(
+          checkIn: _t(8, 30), checkOut: _t(17, 0), now: _t(17, 5));
+      expect(at, isNull);
+    });
+
+    test('đã qua giờ đủ công -> không hẹn (màn hình đã báo rồi)', () {
+      final at = checkOutReminderAtV2(
+          checkIn: _t(8, 30), checkOut: null, now: _t(18, 30));
+      expect(at, isNull);
+    });
+
+    test('vào muộn 10:00 -> nhắc lúc 19:30 (8h + 1h30 nghỉ trưa)', () {
+      final at = checkOutReminderAtV2(
+          checkIn: _t(10, 0), checkOut: null, now: _t(10, 5));
+      expect(at, _t(19, 30));
+    });
+  });
 }

@@ -87,6 +87,24 @@ WorkProgressV2? computeWorkProgressV2({
   );
 }
 
+/// Thời điểm nên bắn thông báo nhắc chấm công ra; `null` nghĩa là không nhắc.
+///
+/// Không nhắc khi: chưa chấm vào, đã chấm ra, hoặc thời điểm đủ giờ đã trôi qua
+/// (lúc đó màn hình đã hiển thị "đã đủ giờ" rồi).
+DateTime? checkOutReminderAtV2({
+  required DateTime? checkIn,
+  required DateTime? checkOut,
+  required DateTime now,
+}) {
+  if (checkIn == null) return null;
+  if (checkOut != null) return null;
+
+  final p = computeWorkProgressV2(checkIn: checkIn, now: now);
+  if (p == null) return null;
+  if (!p.earliestOut.isAfter(now)) return null;
+  return p.earliestOut;
+}
+
 /// "2h15p" / "45p" / "0p"
 String formatDurationShortV2(Duration d) {
   final total = d.inMinutes;
