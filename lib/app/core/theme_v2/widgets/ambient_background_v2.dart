@@ -13,10 +13,13 @@ class AmbientBackgroundV2 extends StatefulWidget {
 class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(seconds: 18))..repeat(reverse: true);
+      AnimationController(vsync: this, duration: const Duration(seconds: 26))..repeat(reverse: true);
 
   @override
   void dispose() { _c.dispose(); super.dispose(); }
+
+  /// Giá trị đã làm mượt (ease-in-out) để chuyển động "thở" nhẹ nhàng.
+  double get _cv => Curves.easeInOutSine.transform(_c.value);
 
   Widget _blob(double size, Color color, double dx, double dy) {
     return ImageFiltered(
@@ -40,8 +43,11 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
           child: AnimatedBuilder(
             animation: _c,
             builder: (_, child) {
-              final t = reduce ? 0.0 : _c.value;
-              return Transform.translate(offset: Offset(24 * t, 30 * t), child: child);
+              final t = reduce ? 0.0 : _cv;
+              return Transform.translate(
+                offset: Offset(38 * t, 46 * t),
+                child: Transform.scale(scale: 1 + 0.10 * t, child: child),
+              );
             },
             child: _blob(220, AppTokensV2.accent, 0, 0),
           ),
@@ -51,8 +57,11 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
           child: AnimatedBuilder(
             animation: _c,
             builder: (_, child) {
-              final t = reduce ? 0.0 : _c.value;
-              return Transform.translate(offset: Offset(-28 * t, 24 * t), child: child);
+              final t = reduce ? 0.0 : _cv;
+              return Transform.translate(
+                offset: Offset(-44 * t, 38 * t),
+                child: Transform.scale(scale: 1 + 0.12 * t, child: child),
+              );
             },
             child: _blob(200, AppTokensV2.accent2, 0, 0),
           ),
@@ -62,8 +71,11 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
           child: AnimatedBuilder(
             animation: _c,
             builder: (_, child) {
-              final t = reduce ? 0.0 : _c.value;
-              return Transform.translate(offset: Offset(18 * t, -26 * t), child: child);
+              final t = reduce ? 0.0 : _cv;
+              return Transform.translate(
+                offset: Offset(30 * t, -40 * t),
+                child: Transform.scale(scale: 1 + 0.10 * t, child: child),
+              );
             },
             child: _blob(200, AppTokensV2.accent, 0, 0),
           ),

@@ -1,7 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/utils/date_utils.dart';
+import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
+import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
@@ -29,6 +34,20 @@ class _HomePageV2State extends State<HomePageV2> {
     super.initState();
     _cubit.getListAttendanceToday();
     _cubit.getListNewTasks();
+  }
+
+  /// "2026-07-24 08:02:15" -> "08:02"; không parse được -> "--:--"
+  String _fmtTime(String? raw) {
+    final d = AppDateUtils.parseFlexibleDate(raw);
+    if (d == null) return '--:--';
+    return DateFormat('HH:mm').format(d);
+  }
+
+  /// Ngày hôm nay dạng gọn: "T5, 24/07"
+  String _todayShort() {
+    final n = DateTime.now();
+    const wd = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    return '${wd[n.weekday - 1]}, ${DateFormat('dd/MM').format(n)}';
   }
 
   String get _name => GlobalData.instance.userProfile?.name ?? '';
@@ -71,26 +90,98 @@ class _HomePageV2State extends State<HomePageV2> {
     );
   }
 
-  Widget _header() {
-    return Row(children: [
-      Container(
+  Widget _initialsBox() {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        gradient: AppTokensV2.accentGradient,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+              color: AppTokensV2.glow,
+              blurRadius: 18,
+              offset: const Offset(0, 6))
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Text(_initials,
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w800)),
+    );
+  }
+
+  Widget _avatar() {
+    final raw = GlobalData.instance.userProfile?.avatarUrl?.trim();
+    final uri = (raw == null || raw.isEmpty) ? null : Uri.tryParse(raw);
+    final valid = uri != null && uri.hasScheme && uri.host.isNotEmpty;
+    if (!valid) return _initialsBox();
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: CachedNetworkImage(
+        imageUrl: raw!,
         width: 44,
         height: 44,
-        decoration: BoxDecoration(
-          gradient: AppTokensV2.accentGradient,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-                color: AppTokensV2.glow,
-                blurRadius: 18,
-                offset: const Offset(0, 6))
-          ],
-        ),
-        alignment: Alignment.center,
-        child: Text(_initials,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w800)),
+        fit: BoxFit.cover,
+        placeholder: (_, __) => _initialsBox(),
+        errorWidget: (_, __, ___) => _initialsBox(),
       ),
+    );
+  }
+
+  Widget _bell() {
+    return BlocBuilder<NotiCubit, NotiState>(
+      buildWhen: (p, c) => p.totalUnread != c.totalUnread,
+      builder: (context, s) {
+        final unread = s.totalUnread;
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const NotificationPage())),
+          child: Stack(clipBehavior: Clip.none, children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                border: Border.all(color: AppTokensV2.border),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: const Icon(Icons.notifications_none_rounded,
+                  color: AppTokensV2.fg, size: 20),
+            ),
+            if (unread > 0)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                  constraints:
+                      const BoxConstraints(minWidth: 18, minHeight: 18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF453A),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTokensV2.bgDeep, width: 2),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    unread > 99 ? '99+' : '$unread',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+          ]),
+        );
+      },
+    );
+  }
+
+  Widget _header() {
+    return Row(children: [
+      _avatar(),
       const SizedBox(width: 12),
       Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -101,26 +192,13 @@ class _HomePageV2State extends State<HomePageV2> {
         const SizedBox(height: 1),
         const Text('Cố gắng hết mình hôm nay nhé!', style: AppTokensV2.caption),
       ])),
-      Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          border: Border.all(color: AppTokensV2.border),
-          borderRadius: BorderRadius.circular(13),
-        ),
-        child: const Icon(Icons.notifications_none_rounded,
-            color: AppTokensV2.fg, size: 20),
-      ),
+      _bell(),
     ]);
   }
 
   Widget _hero(HomeState state) {
-    final checkIn = (state.checkInToday?.isNotEmpty ?? false)
-        ? state.checkInToday!
-        : '--:--';
-    final checkOut = (state.checkOutToday?.isNotEmpty ?? false)
-        ? state.checkOutToday!
-        : '--:--';
+    final checkIn = _fmtTime(state.checkInToday);
+    final checkOut = _fmtTime(state.checkOutToday);
     final checkedIn = checkIn != '--:--';
     return Container(
       decoration: BoxDecoration(
@@ -137,7 +215,7 @@ class _HomePageV2State extends State<HomePageV2> {
         child: Stack(children: [
           GlassCardV2(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Hôm nay', style: AppTokensV2.caption),
+              Text('Hôm nay · ${_todayShort()}', style: AppTokensV2.caption),
               const SizedBox(height: 12),
               Row(children: [
                 Expanded(
