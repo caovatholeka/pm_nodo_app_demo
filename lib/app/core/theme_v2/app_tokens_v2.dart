@@ -54,6 +54,10 @@ class AppTokensV2 {
       TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w600);
   static const TextStyle caption =
       TextStyle(color: fgMuted, fontSize: 11.5, fontWeight: FontWeight.w500);
+
+  /// Chữ phụ trên nền kính/tối — sáng hơn [caption] để dễ đọc.
+  static const TextStyle captionStrong =
+      TextStyle(color: fgSoft, fontSize: 11.5, fontWeight: FontWeight.w600);
   static const TextStyle number = TextStyle(
       color: fg, fontSize: 23, fontWeight: FontWeight.w800,
       letterSpacing: -0.5, fontFeatures: [FontFeature.tabularFigures()]);

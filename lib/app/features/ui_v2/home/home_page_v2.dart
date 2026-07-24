@@ -205,7 +205,8 @@ class _HomePageV2State extends State<HomePageV2> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
         const SizedBox(height: 1),
-        const Text('Cố gắng hết mình hôm nay nhé!', style: AppTokensV2.caption),
+        const TypewriterTextV2('Cố gắng hết mình hôm nay nhé!',
+            style: AppTokensV2.caption),
       ])),
       _bell(),
     ]);
@@ -230,7 +231,7 @@ class _HomePageV2State extends State<HomePageV2> {
         child: Stack(children: [
           GlassCardV2(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Hôm nay · ${_todayShort()}', style: AppTokensV2.caption),
+              Text('Hôm nay · ${_todayShort()}', style: AppTokensV2.captionStrong),
               const SizedBox(height: 12),
               Row(children: [
                 Expanded(
@@ -317,7 +318,7 @@ class _HomePageV2State extends State<HomePageV2> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text('Ra lúc $outAt', style: AppTokensV2.caption),
+          Text('Ra lúc $outAt', style: AppTokensV2.captionStrong),
         ]),
       ]),
     );
@@ -325,16 +326,16 @@ class _HomePageV2State extends State<HomePageV2> {
 
   Widget _timeCol(String label, String time, String status, bool ok) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: AppTokensV2.caption.copyWith(fontSize: 10.5)),
+      Text(label, style: AppTokensV2.captionStrong.copyWith(fontSize: 10.5)),
       Text(time, style: AppTokensV2.number),
       Row(children: [
         ok
             ? const PulseDotV2(color: AppTokensV2.success, size: 8)
-            : const Icon(Icons.schedule, size: 12, color: AppTokensV2.fgMuted),
+            : const Icon(Icons.schedule, size: 12, color: AppTokensV2.fgSoft),
         const SizedBox(width: 5),
         Text(status,
             style: TextStyle(
-                color: ok ? AppTokensV2.success : AppTokensV2.fgMuted,
+                color: ok ? AppTokensV2.success : AppTokensV2.fgSoft,
                 fontSize: 10,
                 fontWeight: FontWeight.w700)),
       ]),
