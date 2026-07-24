@@ -14,16 +14,16 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
-import 'package:pm_app/app/features/ui/task/create_new_task.dart';
-import 'package:pm_app/app/features/ui/task/task_detail_page.dart';
+import 'package:pm_app/app/features/ui_v2/task/create_new_task_v2.dart';
+import 'package:pm_app/app/features/ui_v2/task/task_detail_page_v2.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Việc cần làm — giao diện tối (v2). Giữ nguyên hành vi bản cũ
 /// [TaskManagePage]: nạp danh sách giai đoạn (`getListStages`) rồi danh sách
 /// việc theo tab/từ khoá, đổi trạng thái qua bottom sheet, tạo mới, xem chi
-/// tiết. Tái dùng nguyên [TaskCubit] qua GetIt. Trang tạo/xem chi tiết
-/// ([CreateNewTask], [TaskDetailPage]) chưa có bản v2 nên vẫn mở UI sáng gốc.
+/// tiết. Tái dùng nguyên [TaskCubit] qua GetIt. Trang tạo/xem chi tiết mở
+/// bản tối ([CreateNewTaskV2], [TaskDetailPageV2]).
 class TaskManagePageV2 extends StatefulWidget {
   final bool? isFromHome;
   const TaskManagePageV2({super.key, this.isFromHome});
@@ -66,7 +66,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
     HapticFeedback.selectionClick();
     final bool? result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CreateNewTask()),
+      MaterialPageRoute(builder: (context) => CreateNewTaskV2()),
     );
 
     if (result != null && result) {
@@ -80,7 +80,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            TaskDetailPage(taskEntity: entity, taskId: entity.id),
+            TaskDetailPageV2(taskEntity: entity, taskId: entity.id),
       ),
     );
 

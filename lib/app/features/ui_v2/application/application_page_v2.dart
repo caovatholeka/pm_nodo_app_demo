@@ -7,18 +7,20 @@ import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/appraisal_page.dart';
-import 'package:pm_app/app/features/ui/dashboard/dashboard_page.dart';
 import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui_v2/dashboard/dashboard_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/overtime/overtime_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/work_trip/work_trip_page_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Đơn từ — giao diện tối (v2). Lưới tiện ích giữ nguyên 4 mục của bản cũ
 /// [ApplicationPage] (Đi muộn/Về sớm, OT, Đơn công tác, Dashboard) và điều
-/// hướng y hệt sang các trang gốc (chưa có bản v2 tương ứng nên vẫn mở UI
-/// sáng — đúng tinh thần "chỉ đổi trình bày, không đổi nghiệp vụ").
+/// hướng y hệt sang các trang gốc. Dashboard mở bản tối [DashboardPageV2]
+/// (chỉ khung ngoài đổi màu — xem ghi chú phạm vi trong file đó); các mục
+/// còn lại chưa có bản v2 tương ứng nên vẫn mở UI sáng gốc — đúng tinh thần
+/// "chỉ đổi trình bày, không đổi nghiệp vụ".
 class ApplicationPageV2 extends StatefulWidget {
   const ApplicationPageV2({super.key});
 
@@ -69,7 +71,8 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
 
   void _openDashboard() {
     HapticFeedback.selectionClick();
-    Navigator.push(context, MaterialPageRoute(builder: (_) => DashboardPage()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const DashboardPageV2()));
   }
 
   @override
