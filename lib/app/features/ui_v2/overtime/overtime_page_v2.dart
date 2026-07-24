@@ -13,9 +13,9 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
-import 'package:pm_app/app/features/ui/overtime/create_overtime.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/overtime_cubit.dart';
-import 'package:pm_app/app/features/ui/overtime/overtime_detail.dart';
+import 'package:pm_app/app/features/ui_v2/overtime/create_overtime_v2.dart';
+import 'package:pm_app/app/features/ui_v2/overtime/overtime_detail_v2.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
@@ -374,7 +374,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
             HapticFeedback.selectionClick();
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const CreateOTPage()),
+              MaterialPageRoute(builder: (_) => const CreateOTPageV2()),
             );
             _refreshList();
           },
@@ -572,7 +572,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => OvertimeDetail(id: item.id),
+                      builder: (_) => OvertimeDetailV2(id: item.id),
                     ),
                   );
                   _refreshList();

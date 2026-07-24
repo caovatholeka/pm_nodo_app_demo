@@ -13,16 +13,16 @@ import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
-import 'package:pm_app/app/features/ui/work_trip/request_new_trip_page.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
-import 'package:pm_app/app/features/ui/work_trip/work_trip_detail_page.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
 
+import 'request_new_trip_page_v2.dart';
 import 'widget/work_trip_list_item_v2.dart';
+import 'work_trip_detail_page_v2.dart';
 
 /// Màn Công tác — phiên bản giao diện tối (v2). Nội dung/hành vi giữ nguyên
 /// bản cũ [WorkTripPage]: lọc theo tuần/khoảng ngày, tạo phiếu, duyệt hàng
@@ -88,7 +88,8 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
       context,
       MaterialPageRoute(
         builder:
-            (_) => WorkTripDetailPage(workEntity: entity, workId: entity.id),
+            (_) =>
+                WorkTripDetailPageV2(workEntity: entity, workId: entity.id),
       ),
     );
 
@@ -101,7 +102,7 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
     HapticFeedback.selectionClick();
     final bool? result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => RequestNewTripPage()),
+      MaterialPageRoute(builder: (_) => RequestNewTripPageV2()),
     );
 
     if (result == true) {
