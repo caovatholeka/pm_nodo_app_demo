@@ -57,6 +57,17 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
             child: _blob(200, AppTokensV2.accent2, 0, 0),
           ),
         ),
+        Positioned(
+          bottom: 40, left: 10,
+          child: AnimatedBuilder(
+            animation: _c,
+            builder: (_, child) {
+              final t = reduce ? 0.0 : _c.value;
+              return Transform.translate(offset: Offset(18 * t, -26 * t), child: child);
+            },
+            child: _blob(200, AppTokensV2.accent, 0, 0),
+          ),
+        ),
         widget.child,
       ]),
     );

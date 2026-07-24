@@ -5,6 +5,7 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/glass_fx_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/features/ui/application/application_page.dart';
@@ -121,48 +122,62 @@ class _HomePageV2State extends State<HomePageV2> {
         ? state.checkOutToday!
         : '--:--';
     final checkedIn = checkIn != '--:--';
-    return GlassCardV2(
-      gradient: AppTokensV2.accentGradient,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('Hôm nay',
-            style: TextStyle(
-                color: Colors.white70,
-                fontSize: 11.5,
-                fontWeight: FontWeight.w500)),
-        const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
-              child: _timeCol('Chấm Công Vào', checkIn,
-                  checkedIn ? 'Đã chấm' : 'Chưa chấm', checkedIn)),
-          Container(width: 1, height: 40, color: Colors.white24),
-          const SizedBox(width: 12),
-          Expanded(
-              child: _timeCol(
-                  'Chấm Công Ra',
-                  checkOut,
-                  checkOut != '--:--' ? 'Đã chấm' : 'Chưa chấm',
-                  checkOut != '--:--')),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppTokensV2.radius),
+        boxShadow: [
+          BoxShadow(
+              color: AppTokensV2.glow,
+              blurRadius: 30,
+              offset: const Offset(0, 14)),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppTokensV2.radius),
+        child: Stack(children: [
+          GlassCardV2(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Hôm nay', style: AppTokensV2.caption),
+              const SizedBox(height: 12),
+              Row(children: [
+                Expanded(
+                    child: _timeCol('Chấm Công Vào', checkIn,
+                        checkedIn ? 'Đã chấm' : 'Chưa chấm', checkedIn)),
+                Container(width: 1, height: 40, color: AppTokensV2.border),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: _timeCol(
+                        'Chấm Công Ra',
+                        checkOut,
+                        checkOut != '--:--' ? 'Đã chấm' : 'Chưa chấm',
+                        checkOut != '--:--')),
+              ]),
+              const SizedBox(height: 15),
+              PrimaryButtonV2(
+                label: checkedIn ? 'Chấm công ra' : 'Chấm công vào',
+                onTap: () =>
+                    GlobalData.instance.bottomNavIndex.value = 2, // tab Chấm công
+              ),
+            ]),
+          ),
+          const Positioned.fill(child: ShimmerSweepV2()),
         ]),
-        const SizedBox(height: 15),
-        PrimaryButtonV2(
-          label: checkedIn ? 'Chấm công ra' : 'Chấm công vào',
-          onTap: () => GlobalData.instance.bottomNavIndex.value = 2, // tab Chấm công
-        ),
-      ]),
+      ),
     );
   }
 
   Widget _timeCol(String label, String time, String status, bool ok) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(label, style: const TextStyle(color: Colors.white70, fontSize: 10.5)),
-      Text(time, style: AppTokensV2.number.copyWith(color: Colors.white)),
+      Text(label, style: AppTokensV2.caption.copyWith(fontSize: 10.5)),
+      Text(time, style: AppTokensV2.number),
       Row(children: [
-        Icon(ok ? Icons.check_circle : Icons.schedule,
-            size: 12, color: ok ? AppTokensV2.success : Colors.white54),
-        const SizedBox(width: 4),
+        ok
+            ? const PulseDotV2(color: AppTokensV2.success, size: 8)
+            : const Icon(Icons.schedule, size: 12, color: AppTokensV2.fgMuted),
+        const SizedBox(width: 5),
         Text(status,
             style: TextStyle(
-                color: ok ? AppTokensV2.success : Colors.white54,
+                color: ok ? AppTokensV2.success : AppTokensV2.fgMuted,
                 fontSize: 10,
                 fontWeight: FontWeight.w700)),
       ]),
@@ -226,15 +241,14 @@ class _HomePageV2State extends State<HomePageV2> {
     return GestureDetector(
       onTap: onTap,
       child: Column(children: [
-        Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(
-            color: AppTokensV2.surface,
-            border: Border.all(color: AppTokensV2.border),
-            borderRadius: BorderRadius.circular(17),
+        GlassCardV2(
+          padding: EdgeInsets.zero,
+          radius: 17,
+          child: SizedBox(
+            width: 54,
+            height: 54,
+            child: Icon(icon, color: AppTokensV2.accent, size: 24),
           ),
-          child: Icon(icon, color: AppTokensV2.accent, size: 24),
         ),
         const SizedBox(height: 7),
         Text(label,
