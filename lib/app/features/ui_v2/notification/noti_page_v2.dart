@@ -10,12 +10,12 @@ import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
-import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
 import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/ui_v2/overtime/overtime_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/justification/justification_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/work_trip/work_trip_page_v2.dart';
 
 import 'package:pm_app/app/data/models/entities/notification_entity.dart';
@@ -165,7 +165,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
         break;
       case "Đơn muộn sớm":
         Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const JustificationPage(isFromHome: true)));
+            MaterialPageRoute(builder: (_) => const JustificationPageV2(isFromHome: true)));
         break;
       case "Đơn công tác":
         Navigator.push(context,

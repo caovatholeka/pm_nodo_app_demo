@@ -6,11 +6,11 @@ import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/appraisal_page.dart';
-import 'package:pm_app/app/features/ui/justification/justification_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui_v2/appraisal_form/appraisal_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/dashboard/dashboard_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/justification/justification_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/overtime/overtime_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/work_trip/work_trip_page_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -46,7 +46,7 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
     HapticFeedback.selectionClick();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => JustificationPage(isFromHome: true)),
+      MaterialPageRoute(builder: (_) => JustificationPageV2(isFromHome: true)),
     );
   }
 
@@ -61,7 +61,7 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
   // ignore: unused_element
   void _openAppraisalForm() {
     HapticFeedback.selectionClick();
-    Navigator.push(context, MaterialPageRoute(builder: (_) => AppraisalPage()));
+    Navigator.push(context, MaterialPageRoute(builder: (_) => AppraisalPageV2()));
   }
 
   void _openBusinessTrip() {
