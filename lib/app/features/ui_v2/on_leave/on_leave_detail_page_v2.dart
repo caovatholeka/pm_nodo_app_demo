@@ -12,8 +12,8 @@ import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/on_leave/bloc/detail_on_leave_cubit.dart';
-import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
 import 'package:pm_app/app/features/ui/on_leave/widget/reject_reason_dialog.dart';
+import 'package:pm_app/app/features/ui_v2/on_leave/create_new_leave_page_v2.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
@@ -150,7 +150,7 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
       context,
       MaterialPageRoute(
         builder:
-            (context) => CreateNewLeavePage(
+            (context) => CreateNewLeavePageV2(
               isEdit: true,
               detailEntity: _cubit.state.detailEntity,
             ),

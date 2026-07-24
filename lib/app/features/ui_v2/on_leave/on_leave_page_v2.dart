@@ -12,7 +12,7 @@ import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
-import 'package:pm_app/app/features/ui/on_leave/create_new_leave_page.dart';
+import 'package:pm_app/app/features/ui_v2/on_leave/create_new_leave_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_detail_page_v2.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
@@ -261,7 +261,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
     HapticFeedback.selectionClick();
     final bool? result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => CreateNewLeavePage()),
+      MaterialPageRoute(builder: (_) => CreateNewLeavePageV2()),
     );
 
     if (result == true) {
