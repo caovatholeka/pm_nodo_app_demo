@@ -9,11 +9,11 @@ import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
-import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
-import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
-import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
+import 'package:pm_app/app/features/ui_v2/attendance/attendance_data_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/task/task_manage_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/overtime/overtime_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/justification/justification_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/work_trip/work_trip_page_v2.dart';
@@ -153,11 +153,11 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
     switch (title) {
       case "Đơn nghỉ phép":
         Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const OnLeavePage(isFromHome: true)));
+            MaterialPageRoute(builder: (_) => const OnLeavePageV2(isFromHome: true)));
         break;
       case "Phân công công việc":
         Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const TaskManagePage(isFromHome: true)));
+            MaterialPageRoute(builder: (_) => const TaskManagePageV2(isFromHome: true)));
         break;
       case "Đơn tăng ca":
         Navigator.push(context,
@@ -173,7 +173,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
         break;
       case "Giải trình công không hợp lệ":
         Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const AttendanceDataPage()));
+            context, MaterialPageRoute(builder: (_) => const AttendanceDataPageV2()));
         break;
       default:
         debugPrint("⚠️ Chưa map notification title: $title");

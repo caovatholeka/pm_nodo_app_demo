@@ -17,11 +17,11 @@ import 'package:pm_app/app/core/theme_v2/widgets/glass_fx_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
-import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
-import 'package:pm_app/app/features/ui/staff/staff_page.dart';
 import 'package:pm_app/app/features/ui_v2/application/application_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/attendance/attendance_data_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/home/work_time_v2.dart';
+import 'package:pm_app/app/features/ui_v2/staff/staff_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/task/task_manage_page_v2.dart';
 
 class HomePageV2 extends StatefulWidget {
@@ -381,7 +381,7 @@ class _HomePageV2State extends State<HomePageV2> {
         Icons.people_alt_outlined,
         'Nhân viên',
         () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true))),
+            MaterialPageRoute(builder: (_) => const StaffPageV2(isFromHome: true))),
       ),
       (
         Icons.description_outlined,
@@ -393,7 +393,7 @@ class _HomePageV2State extends State<HomePageV2> {
         Icons.event_available_outlined,
         'Nghỉ phép',
         () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => OnLeavePage(isFromHome: true))),
+            MaterialPageRoute(builder: (_) => const OnLeavePageV2(isFromHome: true))),
       ),
       (
         Icons.fingerprint,
