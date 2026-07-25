@@ -5,18 +5,18 @@ import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
-import 'package:pm_app/app/features/ui/dashboard/birthday_list_detail.dart';
 import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
-import 'package:pm_app/app/features/ui/dashboard/discipline_evaluation_detail.dart';
-import 'package:pm_app/app/features/ui/dashboard/projects_detail.dart';
-import 'package:pm_app/app/features/ui/dashboard/timesheet_data_detail.dart';
 import 'package:pm_app/app/features/ui/dashboard/widgets/attendance_data.dart';
 import 'package:pm_app/app/features/ui/dashboard/widgets/birthday_card.dart';
 import 'package:pm_app/app/features/ui/dashboard/widgets/rating_line_chart.dart';
 import 'package:pm_app/app/features/ui/dashboard/widgets/summary_rating_card.dart';
 import 'package:pm_app/app/features/ui/dashboard/widgets/total_project.dart';
 import 'package:pm_app/app/features/ui/dashboard/widgets/work_status_card.dart';
-import 'package:pm_app/app/features/ui/dashboard/work_quality_detail.dart';
+import 'package:pm_app/app/features/ui_v2/dashboard/birthday_list_detail_v2.dart';
+import 'package:pm_app/app/features/ui_v2/dashboard/discipline_evaluation_detail_v2.dart';
+import 'package:pm_app/app/features/ui_v2/dashboard/projects_detail_v2.dart';
+import 'package:pm_app/app/features/ui_v2/dashboard/timesheet_data_detail_v2.dart';
+import 'package:pm_app/app/features/ui_v2/dashboard/work_quality_detail_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Dashboard (đánh giá công việc) — phiên bản giao diện tối (v2).
@@ -66,13 +66,13 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
     HapticFeedback.selectionClick();
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const WorkQualityDetail()));
+    ).push(MaterialPageRoute(builder: (_) => const WorkQualityDetailV2()));
   }
 
   void _goDisciplineEvaluationDetail() {
     HapticFeedback.selectionClick();
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const DisciplineEvaluationDetail()),
+      MaterialPageRoute(builder: (_) => const DisciplineEvaluationDetailV2()),
     );
   }
 
@@ -80,21 +80,21 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
     HapticFeedback.selectionClick();
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const ProjectsDetail()));
+    ).push(MaterialPageRoute(builder: (_) => const ProjectsDetailV2()));
   }
 
   void _goBirthdayList() {
     HapticFeedback.selectionClick();
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const BirthdayListDetail()));
+    ).push(MaterialPageRoute(builder: (_) => const BirthdayListDetailV2()));
   }
 
   void _goTimeSheetData() {
     HapticFeedback.selectionClick();
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (_) => const TimesheetDataDetail()));
+    ).push(MaterialPageRoute(builder: (_) => const TimesheetDataDetailV2()));
   }
 
   @override
