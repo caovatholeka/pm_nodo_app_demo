@@ -12,8 +12,6 @@ import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
-import 'package:pm_app/app/features/ui/justification/create_justification_page.dart';
-import 'package:pm_app/app/features/ui/justification/justification_detail.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
@@ -21,6 +19,8 @@ import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import '../../ui/justification/bloc/justification_cubit.dart';
+import 'create_justification_page_v2.dart';
+import 'justification_detail_v2.dart';
 import 'widget/justification_list_item_v2.dart';
 
 /// Màn Đơn muộn/sớm — phiên bản giao diện tối (v2). Nội dung/hành vi giữ
@@ -29,9 +29,9 @@ import 'widget/justification_list_item_v2.dart';
 /// [JustificationCubit] y hệt bản cũ (khởi tạo trực tiếp, không qua GetIt —
 /// đúng cách bản cũ đang làm).
 ///
-/// Màn Tạo đơn ([CreateJustificationPage]) và Chi tiết đơn
-/// ([JustificationDetailPage]) chưa có bản v2 tương ứng nên vẫn mở UI sáng
-/// gốc — đúng tinh thần "chỉ đổi trình bày, không đổi nghiệp vụ".
+/// Màn Tạo đơn ([CreateJustificationPageV2]) và Chi tiết đơn
+/// ([JustificationDetailV2]) đã có bản v2 riêng — chỉ đổi trình bày, giữ
+/// nguyên nghiệp vụ so với bản gốc.
 class JustificationPageV2 extends StatefulWidget {
   final bool? isFromHome;
   const JustificationPageV2({super.key, this.isFromHome});
@@ -175,7 +175,7 @@ class _JustificationPageV2State extends State<JustificationPageV2> {
     HapticFeedback.selectionClick();
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const CreateJustificationPage()),
+      MaterialPageRoute(builder: (_) => const CreateJustificationPageV2()),
     );
     _refreshList();
   }
@@ -577,7 +577,7 @@ class _JustificationPageV2State extends State<JustificationPageV2> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => JustificationDetailPage(id: item.id),
+                      builder: (_) => JustificationDetailV2(id: item.id),
                     ),
                   );
                   _refreshList();
