@@ -249,11 +249,15 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
   }
 
   void _finishAttendanceFlow() {
-    if (!(widget.isFromHome ?? false) || !mounted) {
-      return;
-    }
+    if (!mounted) return;
 
-    Navigator.pop(context, _pendingAttendanceResult);
+    if (widget.isFromHome ?? false) {
+      // Được mở dạng push từ Home -> trả kết quả về màn trước.
+      Navigator.pop(context, _pendingAttendanceResult);
+    } else {
+      // Đang là tab trong shell -> chấm công xong tự nhảy về tab Trang chủ.
+      GlobalData.instance.bottomNavIndex.value = 0;
+    }
   }
 
   Future _initMarkers(List<CheckInInfoEntity> listCheckins) async {
