@@ -14,28 +14,26 @@ import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/entities/evaluation_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/create_appraisal_page.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/apprasial_form_cubit.dart';
-import 'package:pm_app/app/features/ui/appraisal_form/detail_appraisal_form.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui_v2/appraisal_form/detail_appraisal_form_v2.dart';
 import 'package:pm_app/app/features/widgets/custom_calendar_range_sheet.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import 'widget/appraisal_list_item_v2.dart';
 
-/// Màn Đánh giá — phiên bản giao diện tối (v2). Chỉ chuyển đổi màn danh sách
-/// (entry) sang v2, giữ nguyên nội dung/hành vi bản cũ [AppraisalPage]: lọc
-/// theo khoảng ngày, tạo phiếu, gửi/duyệt/đánh giá theo trạng thái + quyền
-/// (Giám đốc/HR), mở chi tiết. Tái dùng [ApprasialFormCubit] qua GetIt y hệt
-/// bản cũ (không tạo mới, không đóng).
+/// Màn Đánh giá — phiên bản giao diện tối (v2). Giữ nguyên nội dung/hành vi
+/// bản cũ [AppraisalPage]: lọc theo khoảng ngày, tạo phiếu, gửi/duyệt/đánh
+/// giá theo trạng thái + quyền (Giám đốc/HR), mở chi tiết. Tái dùng
+/// [ApprasialFormCubit] qua GetIt y hệt bản cũ (không tạo mới, không đóng).
 ///
-/// PHẠM VI: [CreateAppraisalPage] và [DetailAppraisalForm] (cùng các bước
-/// con dưới `ui/appraisal_form/steps` và `.../widgets`) KHÔNG được chuyển
-/// đổi — nằm ngoài phạm vi task này. Màn này vẫn điều hướng sang các trang
-/// gốc (giao diện sáng) khi tạo/sửa/xem chi tiết/đánh giá — đúng tinh thần
-/// "chỉ đổi trình bày, không đổi nghiệp vụ".
+/// Điều hướng tạo/sửa/xem chi tiết/đánh giá đã được nối sang
+/// [DetailAppraisalFormV2] (bản tối, thay cho `CreateAppraisalPage`/
+/// `DetailAppraisalForm` gốc) — `CreateAppraisalPage` gốc chỉ là wrapper trả
+/// về `DetailAppraisalForm()` nên được thay trực tiếp bằng
+/// `const DetailAppraisalFormV2()`.
 class AppraisalPageV2 extends StatefulWidget {
   final bool? isFromHome;
 
@@ -150,7 +148,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
     HapticFeedback.selectionClick();
     final created = await Navigator.push<EvaluationEntity?>(
       context,
-      MaterialPageRoute(builder: (_) => const CreateAppraisalPage()),
+      MaterialPageRoute(builder: (_) => const DetailAppraisalFormV2()),
     );
     if (created != null) {
       if (created.id != null) {
@@ -166,7 +164,8 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => DetailAppraisalForm(isDetail: true, evaluationId: id),
+        builder:
+            (_) => DetailAppraisalFormV2(isDetail: true, evaluationId: id),
       ),
     );
   }
@@ -175,7 +174,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
     final updated = await Navigator.push<EvaluationEntity?>(
       context,
       MaterialPageRoute(
-        builder: (_) => DetailAppraisalForm(isEdit: true, evaluationId: id),
+        builder: (_) => DetailAppraisalFormV2(isEdit: true, evaluationId: id),
       ),
     );
 
@@ -192,7 +191,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
       context,
       MaterialPageRoute(
         builder:
-            (_) => DetailAppraisalForm(
+            (_) => DetailAppraisalFormV2(
               isEdit: true,
               isManagerAssess: true,
               evaluationId: id,
