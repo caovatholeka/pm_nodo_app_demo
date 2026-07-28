@@ -724,60 +724,23 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
     final box = _faceBoxImg;
     if (box == null || _frameImgW == 0 || _frameImgH == 0) return null;
 
-    final q = switch (_inputImageRotation()) {
-      InputImageRotation.rotation90deg => 1,
-      InputImageRotation.rotation180deg => 2,
-      InputImageRotation.rotation270deg => 3,
-      _ => 0,
-    };
-
+    // Trên thiết bị (iOS, cam trước) CameraImage đã ở chiều DỌC (vd 480x640) và
+    // boundingBox của ML Kit khớp trực tiếp toạ độ đó — KHÔNG cần xoay, KHÔNG
+    // mirror. Chỉ cover-fit như CameraCoverPreview (Transform.scale). Đã kiểm
+    // chứng bằng số thực tế: dx tính ra trùng offset của preview.
     final iw = _frameImgW.toDouble();
     final ih = _frameImgH.toDouble();
 
-    Rect r;
-    double rw, rh;
-    switch (q) {
-      case 1: // xoay 90°
-        rw = ih;
-        rh = iw;
-        r = Rect.fromLTRB(ih - box.bottom, box.left, ih - box.top, box.right);
-        break;
-      case 2: // xoay 180°
-        rw = iw;
-        rh = ih;
-        r = Rect.fromLTRB(
-            iw - box.right, ih - box.bottom, iw - box.left, ih - box.top);
-        break;
-      case 3: // xoay 270°
-        rw = ih;
-        rh = iw;
-        r = Rect.fromLTRB(box.top, iw - box.right, box.bottom, iw - box.left);
-        break;
-      default:
-        rw = iw;
-        rh = ih;
-        r = box;
-    }
+    final scale = math.max(screen.width / iw, screen.height / ih);
+    final dx = (screen.width - iw * scale) / 2;
+    final dy = (screen.height - ih * scale) / 2;
 
-    // Cover fit: phủ kín màn, cắt phần thừa (khớp Transform.scale của preview).
-    final scale = math.max(screen.width / rw, screen.height / rh);
-    final dx = (screen.width - rw * scale) / 2;
-    final dy = (screen.height - rh * scale) / 2;
-    var out = Rect.fromLTRB(
-      r.left * scale + dx,
-      r.top * scale + dy,
-      r.right * scale + dx,
-      r.bottom * scale + dy,
+    return Rect.fromLTRB(
+      box.left * scale + dx,
+      box.top * scale + dy,
+      box.right * scale + dx,
+      box.bottom * scale + dy,
     );
-
-    // Preview camera trước KHÔNG lật gương ngang trên thiết bị này -> không mirror,
-    // nếu mirror sẽ làm khung chạy ngược chiều với mặt.
-    // (Nếu sau này thấy khung lệch trái/phải, bật lại đoạn dưới.)
-    // if (_isFrontCam) {
-    //   out = Rect.fromLTRB(
-    //       screen.width - out.right, out.top, screen.width - out.left, out.bottom);
-    // }
-    return out;
   }
 
   @override
