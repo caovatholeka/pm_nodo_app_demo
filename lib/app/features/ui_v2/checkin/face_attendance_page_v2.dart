@@ -50,6 +50,10 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
 
   bool _scanStarted = false;
 
+  /// Stream nhận diện đã chạy chưa. Detect chạy NGAY khi camera mở (để khung
+  /// target bám mặt + % hiển thị liền); còn việc CHỤP chỉ khi [_scanStarted].
+  bool _streaming = false;
+
   late final FaceDetector _detector;
   bool _isBusy = false;
   bool _initialized = false;
@@ -220,6 +224,8 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
       if (mounted) {
         setState(() => _initialized = true);
       }
+      // Bắt đầu nhận diện ngay để overlay khung target bám mặt (chưa chụp).
+      await _startDetectStream(controller);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -248,11 +254,13 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
     _cameraSession++;
 
     _scanStarted = false;
+    _streaming = false;
     _initialized = false;
     _isCapturing = false;
     _isBusy = false;
     _stableCount = 0;
     _canManualCapture = false;
+    _faceBoxImg = null;
 
     if (mounted) {
       setState(() {});
@@ -265,22 +273,25 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
     } catch (_) {}
   }
 
+  /// Mở stream nhận diện (chỉ để vẽ overlay). Gọi 1 lần khi camera sẵn sàng.
+  Future<void> _startDetectStream(CameraController controller) async {
+    if (_streaming) return;
+    try {
+      await controller.startImageStream(_processFrame);
+      _streaming = true;
+    } catch (_) {
+      _streaming = false;
+    }
+  }
+
   Future<void> _onTapShutter() async {
     final controller = _cam;
     if (_scanStarted || controller == null || !controller.value.isInitialized) {
       return;
     }
+    // Detect đã chạy sẵn; bấm nút chỉ "arm" cho phép chụp khi mặt ổn định.
     setState(() => _scanStarted = true);
-
-    try {
-      await controller.startImageStream(_processFrame);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${S.of(context).check_in_faceScanFailed}: $e')),
-      );
-      setState(() => _scanStarted = false);
-    }
+    await _startDetectStream(controller); // phòng khi stream chưa mở
   }
 
   Future<void> _processFrame(CameraImage image) async {
@@ -318,7 +329,7 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
 
       _canManualCapture = _stableCount >= _stableNeeded;
 
-      if (_stableCount >= _stableNeeded && !_isCapturing) {
+      if (_scanStarted && _stableCount >= _stableNeeded && !_isCapturing) {
         _isCapturing = true;
         _stableCount = 0;
 
@@ -810,7 +821,7 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
             // Overlay HUD kiểu facial-scan (thuần trang trí, không đụng logic).
             if (camReady)
               FaceScanHudV2(
-                scanning: _scanStarted,
+                scanning: camReady, // quét chạy ngay khi camera mở
                 faceOk: _canManualCapture,
                 faceRect: _mapFaceToScreen(MediaQuery.of(context).size),
               ),
