@@ -756,11 +756,13 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
       r.bottom * scale + dy,
     );
 
-    // Camera trước hiển thị lật gương ngang.
-    if (_isFrontCam) {
-      out = Rect.fromLTRB(
-          screen.width - out.right, out.top, screen.width - out.left, out.bottom);
-    }
+    // Preview camera trước KHÔNG lật gương ngang trên thiết bị này -> không mirror,
+    // nếu mirror sẽ làm khung chạy ngược chiều với mặt.
+    // (Nếu sau này thấy khung lệch trái/phải, bật lại đoạn dưới.)
+    // if (_isFrontCam) {
+    //   out = Rect.fromLTRB(
+    //       screen.width - out.right, out.top, screen.width - out.left, out.bottom);
+    // }
     return out;
   }
 
