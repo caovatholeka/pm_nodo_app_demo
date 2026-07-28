@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:camera/camera.dart';
 // import 'package:face_anti_spoofing_detector/face_anti_spoofing_detector.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,13 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
   static const double _pitchMax = 12; // gật (X)
   static const double _rollMax = 12; // nghiêng (Z)
   bool _canManualCapture = false;
+
+  // ===== Khung target bám mặt (chỉ để VẼ overlay, không ảnh hưởng logic) =====
+  /// Bounding box khuôn mặt theo toạ độ ảnh camera (chưa xoay). null = không có mặt.
+  Rect? _faceBoxImg;
+  int _frameImgW = 0;
+  int _frameImgH = 0;
+  bool _isFrontCam = true;
 
   // final Rect _guideRect = Rect.zero;
 
@@ -186,6 +194,7 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
         (c) => c.lensDirection == CameraLensDirection.front,
         orElse: () => cams.first,
       );
+      _isFrontCam = front.lensDirection == CameraLensDirection.front;
 
       final controller = CameraController(
         front,
@@ -290,8 +299,13 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
       if (faces.length == 1) {
         face = faces.first;
         validNow = _checkFaceOk(face, image.width, image.height);
+        // Lưu lại vị trí mặt để overlay vẽ khung target bám theo.
+        _faceBoxImg = face.boundingBox;
+        _frameImgW = image.width;
+        _frameImgH = image.height;
       } else {
         validNow = false;
+        _faceBoxImg = null;
       }
 
       _cubit.updateFaceValid(validNow);
@@ -678,6 +692,67 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
     return okCenter;
   }
 
+  /// Quy đổi bounding box mặt (toạ độ ảnh camera) sang toạ độ màn hình, khớp
+  /// cách [CameraCoverPreview] hiển thị (cover) + xoay theo cảm biến + lật gương
+  /// cho camera trước. THUẦN để vẽ overlay — không ảnh hưởng logic nhận diện.
+  Rect? _mapFaceToScreen(Size screen) {
+    final box = _faceBoxImg;
+    if (box == null || _frameImgW == 0 || _frameImgH == 0) return null;
+
+    final q = switch (_inputImageRotation()) {
+      InputImageRotation.rotation90deg => 1,
+      InputImageRotation.rotation180deg => 2,
+      InputImageRotation.rotation270deg => 3,
+      _ => 0,
+    };
+
+    final iw = _frameImgW.toDouble();
+    final ih = _frameImgH.toDouble();
+
+    Rect r;
+    double rw, rh;
+    switch (q) {
+      case 1: // xoay 90°
+        rw = ih;
+        rh = iw;
+        r = Rect.fromLTRB(ih - box.bottom, box.left, ih - box.top, box.right);
+        break;
+      case 2: // xoay 180°
+        rw = iw;
+        rh = ih;
+        r = Rect.fromLTRB(
+            iw - box.right, ih - box.bottom, iw - box.left, ih - box.top);
+        break;
+      case 3: // xoay 270°
+        rw = ih;
+        rh = iw;
+        r = Rect.fromLTRB(box.top, iw - box.right, box.bottom, iw - box.left);
+        break;
+      default:
+        rw = iw;
+        rh = ih;
+        r = box;
+    }
+
+    // Cover fit: phủ kín màn, cắt phần thừa (khớp Transform.scale của preview).
+    final scale = math.max(screen.width / rw, screen.height / rh);
+    final dx = (screen.width - rw * scale) / 2;
+    final dy = (screen.height - rh * scale) / 2;
+    var out = Rect.fromLTRB(
+      r.left * scale + dx,
+      r.top * scale + dy,
+      r.right * scale + dx,
+      r.bottom * scale + dy,
+    );
+
+    // Camera trước hiển thị lật gương ngang.
+    if (_isFrontCam) {
+      out = Rect.fromLTRB(
+          screen.width - out.right, out.top, screen.width - out.left, out.bottom);
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -737,6 +812,7 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
               FaceScanHudV2(
                 scanning: _scanStarted,
                 faceOk: _canManualCapture,
+                faceRect: _mapFaceToScreen(MediaQuery.of(context).size),
               ),
 
             SafeArea(

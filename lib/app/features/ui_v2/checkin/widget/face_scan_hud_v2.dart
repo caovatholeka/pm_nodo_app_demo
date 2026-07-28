@@ -15,7 +15,16 @@ class FaceScanHudV2 extends StatefulWidget {
   /// Khuôn mặt đã ổn định/căn giữa -> chuyển tông xanh lá cho cảm giác "matched".
   final bool faceOk;
 
-  const FaceScanHudV2({super.key, this.scanning = true, this.faceOk = false});
+  /// Vị trí khuôn mặt trên màn (đã quy đổi). null = chưa thấy mặt -> dùng khung
+  /// mặc định ở giữa. Nếu có, khung target sẽ bám theo mặt.
+  final Rect? faceRect;
+
+  const FaceScanHudV2({
+    super.key,
+    this.scanning = true,
+    this.faceOk = false,
+    this.faceRect,
+  });
 
   @override
   State<FaceScanHudV2> createState() => _FaceScanHudV2State();
@@ -39,38 +48,50 @@ class _FaceScanHudV2State extends State<FaceScanHudV2>
     final reduce = MediaQuery.of(context).disableAnimations;
     final accent = widget.faceOk ? AppTokensV2.success : AppTokensV2.accent;
     final size = MediaQuery.of(context).size;
-    // Khung quét vuông, ~78% bề ngang, căn giữa hơi lệch lên.
+    // Khung mặc định (chưa thấy mặt): vuông ~78% bề ngang, lệch lên. Panel HUD
+    // luôn neo theo khung mặc định này (không nhảy theo mặt).
     final frame = size.width * 0.78;
     final top = size.height * 0.16;
     final left = (size.width - frame) / 2;
     final rect = Rect.fromLTWH(left, top, frame, frame);
 
+    // Khung target: bám mặt nếu có (nới nhẹ cho thoáng), ngược lại = khung mặc định.
+    final target = widget.faceRect == null
+        ? rect
+        : widget.faceRect!.inflate(widget.faceRect!.shortestSide * 0.18);
+
     return IgnorePointer(
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Lưới + khung góc: tĩnh, không vẽ lại mỗi frame.
-          RepaintBoundary(
-            child: CustomPaint(
-              painter: _FrameGridPainter(rect: rect, color: accent),
-              size: Size.infinite,
-            ),
-          ),
-
-          // Đường quét chạy lên xuống trong khung.
-          if (widget.scanning && !reduce)
-            AnimatedBuilder(
-              animation: _c,
-              builder: (_, __) {
-                // 0->1->0 để quét xuống rồi lên.
-                final t = (math.sin(_c.value * 2 * math.pi) + 1) / 2;
-                final y = rect.top + t * rect.height;
-                return CustomPaint(
-                  painter: _ScanLinePainter(rect: rect, y: y, color: accent),
+          // Khung góc + lưới + đường quét — BÁM theo mặt, glide mượt khi mặt di chuyển.
+          TweenAnimationBuilder<Rect?>(
+            tween: RectTween(end: target),
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            builder: (_, r, __) {
+              final tr = r ?? target;
+              return Stack(fit: StackFit.expand, children: [
+                CustomPaint(
+                  painter: _FrameGridPainter(rect: tr, color: accent),
                   size: Size.infinite,
-                );
-              },
-            ),
+                ),
+                if (widget.scanning && !reduce)
+                  AnimatedBuilder(
+                    animation: _c,
+                    builder: (_, __) {
+                      final t = (math.sin(_c.value * 2 * math.pi) + 1) / 2;
+                      final y = tr.top + t * tr.height;
+                      return CustomPaint(
+                        painter:
+                            _ScanLinePainter(rect: tr, y: y, color: accent),
+                        size: Size.infinite,
+                      );
+                    },
+                  ),
+              ]);
+            },
+          ),
 
           // Panel trạng thái trên cùng.
           Positioned(
