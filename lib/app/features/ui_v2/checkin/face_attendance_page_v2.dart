@@ -78,6 +78,20 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
   int _frameImgH = 0;
   bool _isFrontCam = true;
 
+  /// DEBUG TẠM: bật để hiện số thô giúp hiệu chỉnh mapping khung target.
+  static const bool _debugFace = true;
+
+  String _debugFaceInfo(Size screen) {
+    final b = _faceBoxImg;
+    final rot = _inputImageRotation().name;
+    if (b == null) return 'rot=$rot img=${_frameImgW}x$_frameImgH  (no face)';
+    final m = _mapFaceToScreen(screen);
+    return 'rot=$rot img=${_frameImgW}x$_frameImgH front=$_isFrontCam\n'
+        'box L${b.left.toInt()} T${b.top.toInt()} R${b.right.toInt()} B${b.bottom.toInt()}\n'
+        'screen ${screen.width.toInt()}x${screen.height.toInt()}  '
+        'map ${m == null ? "null" : "L${m.left.toInt()} T${m.top.toInt()} R${m.right.toInt()} B${m.bottom.toInt()}"}';
+  }
+
   // final Rect _guideRect = Rect.zero;
 
   // ===== Anti-spoofing =====
@@ -826,6 +840,24 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
                 scanning: camReady, // quét chạy ngay khi camera mở
                 faceOk: _canManualCapture,
                 faceRect: _mapFaceToScreen(MediaQuery.of(context).size),
+              ),
+
+            // DEBUG TẠM: hiện số thô để hiệu chỉnh mapping. Xoá sau khi khớp.
+            if (_debugFace && camReady)
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: 200,
+                child: IgnorePointer(
+                  child: Text(
+                    _debugFaceInfo(MediaQuery.of(context).size),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        color: Colors.yellowAccent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700),
+                  ),
+                ),
               ),
 
             SafeArea(

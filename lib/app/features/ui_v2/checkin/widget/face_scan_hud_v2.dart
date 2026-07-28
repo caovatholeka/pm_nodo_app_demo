@@ -58,7 +58,7 @@ class _FaceScanHudV2State extends State<FaceScanHudV2>
     // Khung target: bám mặt nếu có (nới nhẹ cho thoáng), ngược lại = khung mặc định.
     final target = widget.faceRect == null
         ? rect
-        : widget.faceRect!.inflate(widget.faceRect!.shortestSide * 0.18);
+        : widget.faceRect!.inflate(widget.faceRect!.shortestSide * 0.05);
 
     return IgnorePointer(
       child: Stack(
