@@ -12,13 +12,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/app/features/ui_v2/checkin/widget/face_scan_hud_v2.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/face_scan_cubit.dart';
 import 'package:pm_app/app/features/ui/checkin/widget/camera_cover_preview.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
-import 'widget/face_mask_with_wave_v2.dart';
 
 /// Bản v2 (dark) của [FaceAttendancePage] gốc
 /// (lib/app/features/ui/checkin/face_attendance_page.dart).
@@ -732,7 +732,12 @@ class _FaceAttendancePageV2State extends State<FaceAttendancePageV2>
             //       size: Size.infinite,
             //     ),
             //   ),
-            if (camReady && _scanStarted) const FaceMaskWithWaveV2(),
+            // Overlay HUD kiểu facial-scan (thuần trang trí, không đụng logic).
+            if (camReady)
+              FaceScanHudV2(
+                scanning: _scanStarted,
+                faceOk: _canManualCapture,
+              ),
 
             SafeArea(
               child: Align(
