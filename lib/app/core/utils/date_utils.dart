@@ -103,6 +103,18 @@ class AppDateUtils {
     }
   }
 
+  /// "2026-10-15 14:20:01" -> "14:20" (giờ 24h, không kèm am/pm).
+  String formatTimeHm(String input) {
+    try {
+      final dt = _parseLocal(input);
+      final hh = dt.hour.toString().padLeft(2, '0');
+      final mm = dt.minute.toString().padLeft(2, '0');
+      return '$hh:$mm';
+    } catch (_) {
+      return "";
+    }
+  }
+
   DateTime _parseLocal(String s) {
     return DateTime.parse(s.replaceFirst(' ', 'T'));
   }

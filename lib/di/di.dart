@@ -157,7 +157,7 @@ Future<void> init() async {
   sl.registerFactory<PersonalCubit>(() => PersonalCubit(userRepository: sl()));
 
   sl.registerLazySingleton<FaceScanCubit>(
-    () => FaceScanCubit(faceIdRepository: sl()),
+    () => FaceScanCubit(faceIdRepository: sl(), checkInRepository: sl()),
   );
 
   sl.registerLazySingleton<HomeCubit>(

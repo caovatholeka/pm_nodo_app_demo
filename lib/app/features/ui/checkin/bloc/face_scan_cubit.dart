@@ -6,6 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/face_search_result_entity.dart';
+import 'package:pm_app/app/core/helper/response_mapper.dart';
+import 'package:pm_app/app/core/utils/face_image_utils.dart';
+import 'package:pm_app/app/core/utils/perf_log.dart';
+import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
+import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/face_id_repository.dart';
 
 import '../../../../data/models/entities/face_search_response_entity.dart';
@@ -15,27 +20,42 @@ part 'face_scan_state.dart';
 
 class FaceScanCubit extends Cubit<FaceScanState> {
   FaceIdRepository faceIdRepository;
+  CheckInRepository checkInRepository;
 
-  FaceScanCubit({required this.faceIdRepository}) : super(FaceScanState());
+  FaceScanCubit({
+    required this.faceIdRepository,
+    required this.checkInRepository,
+  }) : super(FaceScanState());
 
   void onResetStatus() {
-    emit(state.copyWith(scanStatus: LoadStatus.INITIAL, scanMsg: ""));
+    emit(FaceScanState());
   }
 
-  void searchFace(File file) async {
+  /// Xác thực khuôn mặt rồi chấm công ngay trong cùng một luồng (một loading duy nhất).
+  /// Trước đây màn camera đóng sau bước xác thực, màn chấm công mới upload lại ảnh.
+  Future<void> verifyAndCheckIn(
+    File file, {
+    required int locationId,
+    required double latitude,
+    required double longitude,
+  }) async {
     final currentEmployeeId = GlobalData.instance.userProfile?.employeeId;
     if (currentEmployeeId == null) {
       _emitScanFailure(
         "Thông tin người dùng chưa sẵn sàng. Vui lòng đợi tải hồ sơ rồi thử lại.",
       );
+      await deleteQuietly(file.path);
       return;
     }
 
     emit(state.copyWith(scanStatus: LoadStatus.LOADING));
+    final stopwatch = Stopwatch()..start();
 
     try {
+      // 1. Xác thực khuôn mặt
       final FaceSearchResponseEntity res = await faceIdRepository
           .searchEmployeeFace(file);
+      perfLog('face search ${stopwatch.elapsedMilliseconds} ms');
       final results = res.searchData?.searchResults ?? [];
 
       if (results.isEmpty) {
@@ -46,17 +66,38 @@ class FaceScanCubit extends Cubit<FaceScanState> {
       }
 
       final matchedFace = results.first;
-      if (currentEmployeeId == matchedFace.employeeId) {
-        emit(
-          state.copyWith(
-            scanStatus: LoadStatus.SUCCESS,
-            faceResult: matchedFace,
-          ),
+      if (currentEmployeeId != matchedFace.employeeId) {
+        _emitScanFailure("Sai nhận diện người dùng.");
+        return;
+      }
+
+      // 2. Chấm công
+      final checkInRes = await checkInRepository.userCheckInOut(
+        file.path,
+        locationId,
+        latitude,
+        longitude,
+      );
+      perfLog('face search + check in ${stopwatch.elapsedMilliseconds} ms');
+      final check = checkInRes.data != null
+          ? mapObject(checkInRes.data, CheckInOutEntity.fromJson)
+          : null;
+
+      if (check?.employeeId == null) {
+        _emitScanFailure(
+          _nonEmpty(checkInRes.message) ??
+              "Chấm công thất bại. Vui lòng thử lại.",
         );
         return;
       }
 
-      _emitScanFailure("Sai nhận diện người dùng.");
+      emit(
+        state.copyWith(
+          scanStatus: LoadStatus.SUCCESS,
+          faceResult: matchedFace,
+          checkInResult: check,
+        ),
+      );
     } on DioException catch (e, s) {
       logger.d(e);
       logger.d(s);
@@ -67,8 +108,13 @@ class FaceScanCubit extends Cubit<FaceScanState> {
       _emitScanFailure(
         "Không thể xác thực khuôn mặt lúc này. Vui lòng thử lại.",
       );
+    } finally {
+      await deleteQuietly(file.path);
     }
   }
+
+  String? _nonEmpty(String? value) =>
+      (value == null || value.trim().isEmpty) ? null : value.trim();
 
   void _emitScanFailure(String message) {
     emit(
@@ -85,15 +131,29 @@ class FaceScanCubit extends Cubit<FaceScanState> {
         error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout) {
-      return "Không thể kết nối tới máy chủ nhận diện khuôn mặt. Vui lòng kiểm tra mạng và thử lại.";
+      return "Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng và thử lại.";
     }
 
     final statusCode = error.response?.statusCode ?? 0;
     if (statusCode >= 500) {
-      return "Máy chủ nhận diện khuôn mặt đang bận. Vui lòng thử lại sau.";
+      return "Máy chủ đang bận. Vui lòng thử lại sau.";
     }
 
-    return "Không thể xác thực khuôn mặt lúc này. Vui lòng thử lại.";
+    // Lỗi 4xx: ưu tiên thông báo server trả về ({"message": ...} hoặc FastAPI {"detail": ...})
+    return _serverMessage(error.response?.data) ??
+        "Không thể chấm công lúc này. Vui lòng thử lại.";
+  }
+
+  String? _serverMessage(dynamic data) {
+    if (data is! Map) return null;
+    final message = data['message'];
+    if (message is String) return _nonEmpty(message);
+    final detail = data['detail'];
+    if (detail is String) return _nonEmpty(detail);
+    if (detail is Map && detail['message'] is String) {
+      return _nonEmpty(detail['message'] as String);
+    }
+    return null;
   }
 
   void updateFaceValid(bool valid) {

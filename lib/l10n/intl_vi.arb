@@ -212,6 +212,15 @@
   "check_inFailed2":"Không tìm thấy thông tin người dùng!",
   "check_in_scanSuscess":"Nhận diện khuôn mặt thành công!",
   "check_in_scanInprogess":"Đang nhận diện khuôn mặt...",
+  "check_in_retry": "Thử lại",
+  "check_in_locating": "Đang định vị…",
+  "check_in_weakGps": "Tín hiệu GPS yếu (±{accuracy} m)",
+  "check_in_inRange": "Trong phạm vi · cách {distance}",
+  "check_in_outOfRange": "Ngoài phạm vi · cách {distance}",
+  "check_in_buttonIn": "Chấm công vào",
+  "check_in_buttonOut": "Chấm công ra",
+  "check_in_checkedInAt": "Đã chấm vào lúc {time}",
+  "check_in_checkedOutAt": "ra lúc {time}",
 
 
   "day_off_title": "Quản lý nghỉ phép",

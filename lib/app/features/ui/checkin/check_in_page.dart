@@ -13,6 +13,9 @@ import 'package:pm_app/app/data/models/entities/check_in_info_entity.dart';
 import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
 import 'package:pm_app/app/features/ui/checkin/face_attendance_page.dart';
 import 'package:pm_app/app/features/ui/checkin/widget/my_map_marker.dart';
+import 'package:pm_app/app/features/ui/checkin/widget/live_clock.dart';
+import 'package:pm_app/app/features/ui/checkin/widget/location_status_chip.dart';
+import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/widgets/my_app_bar.dart';
@@ -46,6 +49,8 @@ class CheckInPage extends StatefulWidget {
 class _CheckInPageState extends State<CheckInPage> {
   final _cubit = GetIt.I.get<CheckInCubit>();
   final _appCubit = GetIt.I.get<AppCubit>();
+  // Dữ liệu chấm công hôm nay (giờ vào/ra) — dùng cho nhãn nút và dòng tóm tắt
+  final _homeCubit = GetIt.I.get<HomeCubit>();
   CheckInOutEntity? _pendingAttendanceResult;
 
   String actionCheckIn = "";
@@ -64,20 +69,10 @@ class _CheckInPageState extends State<CheckInPage> {
   void _onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
     logger.d("_onMapCreated ::: load map thanh cong!!!!");
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _moveCameraToCurrentPlace();
-    // });
-    await _mapController!.moveCamera(
-      CameraUpdate.newLatLngZoom(_defaultLng, 13),
-    );
-
-    final p = _cubit.state.position;
-    if (p != null && !_movedToGpsOnce) {
-      _movedToGpsOnce = true;
-      await _mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(LatLng(p.latitude, p.longitude), 15),
-      );
-    }
+    // Bản đồ đã mở ở vị trí hiện tại (initialCameraPosition); nếu đã có dữ liệu thì đưa
+    // ngay về điểm chấm công. Trước đây luôn nhảy về Hà Nội rồi mới bay về vị trí thật.
+    if (_cubit.state.position != null) _movedToGpsOnce = true;
+    await _moveCameraToCurrentPlace();
   }
 
   void _initMapRenderer() {
@@ -88,7 +83,8 @@ class _CheckInPageState extends State<CheckInPage> {
     // }
   }
 
-  Future<void> _requestLocationPermission() async {
+  /// Xin quyền vị trí (nhanh, không chờ GPS). Trả true nếu đã có quyền để lấy vị trí.
+  Future<bool> _requestLocationPermission() async {
     final s = S.of(context);
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -99,7 +95,7 @@ class _CheckInPageState extends State<CheckInPage> {
         ),
       );
       await Geolocator.openLocationSettings();
-      return;
+      return false;
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -113,7 +109,7 @@ class _CheckInPageState extends State<CheckInPage> {
             backgroundColor: Colors.redAccent,
           ),
         );
-        return;
+        return false;
       }
     }
 
@@ -127,7 +123,7 @@ class _CheckInPageState extends State<CheckInPage> {
       // );
       // await openAppSettings();
       showLocationSettingPopup();
-      return;
+      return false;
     }
 
     if (Platform.isIOS) {
@@ -138,17 +134,26 @@ class _CheckInPageState extends State<CheckInPage> {
         );
       }
     }
+    return true;
+  }
 
+  /// Lấy vị trí chạy nền (không chặn màn hình): nghe stream + vị trí gần nhất hệ điều hành
+  /// đã biết (có ngay) + 1 lần định vị chính xác (tối đa 10 giây).
+  Future<void> _startLocation() async {
+    _listenLocation();
+    try {
+      final last = await Geolocator.getLastKnownPosition();
+      if (last != null && mounted) _cubit.onChangeAddress(last);
+    } catch (_) {}
     try {
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 10),
       );
-      _cubit.onChangeAddress(pos);
+      if (mounted) _cubit.onChangeAddress(pos);
     } catch (_) {
       // nếu timeout thì vẫn nghe stream
     }
-    _listenLocation();
   }
 
   @override
@@ -167,17 +172,23 @@ class _CheckInPageState extends State<CheckInPage> {
   }
 
   Future<void> _onInit() async {
+    // Xoá vị trí / trạng thái cũ của lần mở trước (cubit dùng chung)
+    _cubit.onOpenPage();
+    _homeCubit.getListAttendanceToday();
     await _ensureUserProfileReady(showLoading: false);
-    await _requestLocationPermission();
+    final granted = await _requestLocationPermission();
     _initMapRenderer();
     _movedToGpsOnce = false;
+    // Tải điểm chấm công và lấy GPS song song (trước đây chờ GPS tới 10 giây rồi mới tải)
     _cubit.getListCheckInInfo();
+    if (granted) _startLocation();
   }
 
   Future<void> _onRefresh() async {
     await _ensureUserProfileReady(showLoading: false);
-    await _requestLocationPermission();
+    final granted = await _requestLocationPermission();
     _cubit.getListCheckInInfo();
+    if (granted) _startLocation();
   }
 
   Future<bool> _ensureUserProfileReady({bool showLoading = true}) async {
@@ -341,6 +352,28 @@ class _CheckInPageState extends State<CheckInPage> {
     final zoom = _zoomForRadius(radius);
 
     try {
+      final position = state.position;
+      if (position != null &&
+          _distanceToPoint(position, e) > radius + _radiusTolerance) {
+        // Đứng ngoài phạm vi: thu khung để thấy cả vị trí của mình lẫn điểm chấm công
+        final me = LatLng(position.latitude, position.longitude);
+        await _mapController!.animateCamera(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(
+              southwest: LatLng(
+                math.min(me.latitude, target.latitude),
+                math.min(me.longitude, target.longitude),
+              ),
+              northeast: LatLng(
+                math.max(me.latitude, target.latitude),
+                math.max(me.longitude, target.longitude),
+              ),
+            ),
+            60,
+          ),
+        );
+        return;
+      }
       await _mapController!.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(target: target, zoom: zoom),
@@ -349,6 +382,19 @@ class _CheckInPageState extends State<CheckInPage> {
     } catch (err, st) {
       logger.e("moveCamera error: $err\n$st");
     }
+  }
+
+  // App cho chấm công trong bán kính điểm + sai số này (mét); dùng chung cho kiểm tra
+  // khi bấm nút, thẻ trạng thái vị trí và khung bản đồ.
+  static const double _radiusTolerance = 100;
+
+  double _distanceToPoint(Position position, CheckInInfoEntity point) {
+    return Utils().calcDistanceMetersGeolocator(
+      position.latitude,
+      position.longitude,
+      point.latitude ?? 0.0,
+      point.longitude ?? 0.0,
+    );
   }
 
   double _zoomForRadius(double radiusMeters) {
@@ -363,7 +409,20 @@ class _CheckInPageState extends State<CheckInPage> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    return BlocConsumer<CheckInCubit, CheckInState>(
+    // Điểm chấm công gần nhất có thể xác định SAU khi tải xong danh sách (GPS lấy song song,
+    // về muộn hơn) → khi đó mới vẽ marker và đưa bản đồ tới điểm đó.
+    return BlocListener<CheckInCubit, CheckInState>(
+      bloc: _cubit,
+      listenWhen: (prev, cur) =>
+          cur.getCheckInfo == LoadStatus.SUCCESS &&
+          cur.currentCheckInEntity?.id != null &&
+          prev.currentCheckInEntity?.id != cur.currentCheckInEntity?.id &&
+          prev.getCheckInfo == LoadStatus.SUCCESS,
+      listener: (context, state) async {
+        await _initMarkers(state.listCheckInfos ?? []);
+        await _moveCameraToCurrentPlace();
+      },
+      child: BlocConsumer<CheckInCubit, CheckInState>(
       bloc: _cubit,
       buildWhen:
           (prev, cur) =>
@@ -454,22 +513,41 @@ class _CheckInPageState extends State<CheckInPage> {
           },
         );
       },
+    ),
     );
   }
 
   get _mapNormalScreen {
+    final isFromHome = widget.isFromHome ?? false;
     return Scaffold(
       backgroundColor: AppColors.bodyColor,
       appBar: MyAppBar(
         titleAppbar: S.of(context).check_in_title,
-        haveBackButton: (widget.isFromHome ?? false) ? true : false,
+        haveBackButton: isFromHome ? true : false,
         haveActionButton: true,
         iconPathAsset: AppAssets.icNotificationBell,
         actionCallBack: () {},
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 16, right: 16),
-        child: _bodyContent,
+      // Nội dung cao đúng bằng màn hình: bản đồ chiếm phần còn trống, nút chấm công
+      // nằm cuối (dễ bấm một tay). Màn nhỏ thì cuộn được. Kéo xuống để tải lại.
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Mở dạng tab: chừa chỗ cho thanh điều hướng nổi ở đáy màn hình
+            final bottomReserve = isFromHome
+                ? 16.0
+                : 96.0 + MediaQuery.of(context).viewPadding.bottom;
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: bottomReserve),
+              child: SizedBox(
+                height: math.max(constraints.maxHeight - bottomReserve, 520),
+                child: _bodyContent,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -547,153 +625,229 @@ class _CheckInPageState extends State<CheckInPage> {
 
   get _bodyContent {
     final s = S.of(context);
-    return RefreshIndicator(
-      onRefresh: _onRefresh,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 12),
-          Text(
-            DateFormat('H:mm a', 'en').format(DateTime.now()),
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              color: AppColors.colorSuccess500,
-            ),
-            textAlign: TextAlign.center,
-          ).paddingOnly(bottom: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 12),
+        LiveClock(
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
+            color: AppColors.colorSuccess500,
+          ),
+        ).paddingOnly(bottom: 8),
+        Text(
+          "${s.check_in_subtitle} \n "
+          "${s.check_in_subtitle2}",
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: AppColors.neutral400,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+        ).paddingOnly(bottom: 12),
+        Expanded(
+          child: SizedBox(width: double.infinity, child: _mapWidget),
+        ),
+        const SizedBox(height: 12),
+        _locationStatus,
+        const SizedBox(height: 10),
+        _checkInPlaceInfo,
+        const SizedBox(height: 14),
+        _checkInButton,
+        _todaySummary,
+      ],
+    );
+  }
 
-          // Text("Nhận dạng khuôn mặt",
-          //   style: TextStyle(
-          //       fontSize: 22,
-          //       fontWeight: FontWeight.w600,
-          //       color: AppColors.themeBlackDefault
-          //   ),
-          //   textAlign: TextAlign.center,
-          // ).paddingOnly(bottom: 12),
-          Text(
-            "${s.check_in_subtitle} \n "
-            "${s.check_in_subtitle2}",
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: AppColors.neutral400,
+  /// Trạng thái vị trí so với điểm chấm công (cùng quy tắc với kiểm tra khi bấm nút).
+  Widget get _locationStatus {
+    return BlocBuilder<CheckInCubit, CheckInState>(
+      bloc: _cubit,
+      buildWhen: (prev, cur) =>
+          prev.position != cur.position ||
+          prev.currentCheckInEntity != cur.currentCheckInEntity,
+      builder: (context, state) {
+        final position = state.position;
+        final point = state.currentCheckInEntity;
+        if (position == null) {
+          return const LocationStatusChip(status: LocationStatus.locating);
+        }
+        if (point?.id == null) return const SizedBox.shrink();
+        if (position.accuracy > 100) {
+          return LocationStatusChip(
+            status: LocationStatus.weakSignal,
+            accuracyMeters: position.accuracy,
+          );
+        }
+        final distance = _distanceToPoint(position, point!);
+        final inRange = distance.round() <=
+            (point.radius ?? 100.0).round() + _radiusTolerance;
+        return LocationStatusChip(
+          status: inRange ? LocationStatus.inRange : LocationStatus.outOfRange,
+          distanceMeters: distance,
+        );
+      },
+    );
+  }
+
+  Widget get _checkInPlaceInfo {
+    final s = S.of(context);
+    return BlocBuilder<CheckInCubit, CheckInState>(
+      bloc: _cubit,
+      buildWhen: (prev, cur) =>
+          prev.currentCheckInEntity != cur.currentCheckInEntity,
+      builder: (context, state) {
+        final point = state.currentCheckInEntity;
+        final name = point?.name ?? "";
+        final address = point?.address ?? "";
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SvgPicture.asset(
+              AppAssets.icCheckinPlace,
+              width: 18,
+              height: 22,
+              color: AppColors.themePrimaryDefault,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ).paddingOnly(bottom: 16),
-          SizedBox(
-            height: ScreenSize.of(context).height * 0.4,
-            width: double.infinity,
-            child: _mapWidget,
-          ).paddingOnly(bottom: 20),
-          BlocBuilder<CheckInCubit, CheckInState>(
-            bloc: _cubit,
-            buildWhen:
-                (prev, cur) =>
-                    prev.currentCheckInEntity != cur.currentCheckInEntity,
-            builder: (context, state) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SvgPicture.asset(
-                    AppAssets.icCheckinPlace,
-                    width: 18,
-                    height: 22,
-                    color: AppColors.themePrimaryDefault,
-                  ),
-                  const SizedBox(width: 8),
-                  (state.currentCheckInEntity?.address ?? "").isNotEmpty
-                      ? Flexible(
-                        child: Text(
-                          "${state.currentCheckInEntity?.name ?? ""} ,${state.currentCheckInEntity?.address ?? ""}",
-                          // state.currentCheckInEntity?.name ?? "",
-                          style: TextStyle(
+            const SizedBox(width: 8),
+            Expanded(
+              child: address.isNotEmpty
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
-                          maxLines: 3,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          address,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textGray600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    )
+                  : Text(
+                      s.check_in_timekeeping,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget get _checkInButton {
+    final s = S.of(context);
+    return BlocBuilder<CheckInCubit, CheckInState>(
+      bloc: _cubit,
+      buildWhen: (prev, cur) => prev.checkInStatus != cur.checkInStatus,
+      builder: (context, state) {
+        final isLoading = state.checkInStatus == LoadStatus.LOADING;
+        return BlocBuilder<HomeCubit, HomeState>(
+          bloc: _homeCubit,
+          buildWhen: (prev, cur) => prev.checkInToday != cur.checkInToday,
+          builder: (context, homeState) {
+            // Lượt đầu tiên trong ngày là chấm vào, các lượt sau là chấm ra (giống server)
+            final label = homeState.checkInToday == null
+                ? s.check_in_buttonIn
+                : s.check_in_buttonOut;
+            return InkWell(
+              onTap: isLoading
+                  ? () {}
+                  : () {
+                      if ((_cubit.state.position?.latitude ?? 0) != 0) {
+                        doCheckIn();
+                      } else {
+                        AppSnackBar.showError(
+                          title: "Cảnh báo",
+                          message: "Tín hiệu GPS kém",
+                        );
+                      }
+                    },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.themePrimaryDefault,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.whiteColor,
                         ),
                       )
-                      : Flexible(
-                        child: Text(
-                          s.check_in_timekeeping,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            AppAssets.camScan,
+                            width: 24,
+                            height: 24,
                           ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                ],
-              );
-            },
-          ),
-
-          // button checkin
-          const SizedBox(height: 20),
-          BlocBuilder<CheckInCubit, CheckInState>(
-            bloc: _cubit,
-            buildWhen: (prev, cur) => prev.checkInStatus != cur.checkInStatus,
-            builder: (context, state) {
-              final isLoading = state.checkInStatus == LoadStatus.LOADING;
-              return InkWell(
-                onTap:
-                    isLoading
-                        ? () {}
-                        : () {
-                          if ((_cubit.state.position?.latitude ?? 0) != 0) {
-                            doCheckIn();
-                          } else {
-                            AppSnackBar.showError(
-                              title: "Cảnh báo",
-                              message: "Tín hiệu GPS kém",
-                            );
-                          }
-                        },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 7),
-                  decoration: BoxDecoration(
-                    color: AppColors.themePrimaryDefault,
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
-                  ),
-                  child:
-                      isLoading
-                          ? Center(
-                            child: CircularProgressIndicator(
+                          const SizedBox(width: 6),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.whiteColor,
                             ),
-                          )
-                          : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                AppAssets.camScan,
-                                width: 24,
-                                height: 24,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                S.of(context).check_in_button,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.whiteColor,
-                                ),
-                              ),
-                            ],
                           ),
-                ),
-              ).paddingOnly(bottom: 16);
-            },
+                        ],
+                      ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// "Đã chấm vào lúc 14:20 · ra lúc 16:38" — lấy từ dữ liệu hôm nay của Home.
+  Widget get _todaySummary {
+    final s = S.of(context);
+    return BlocBuilder<HomeCubit, HomeState>(
+      bloc: _homeCubit,
+      buildWhen: (prev, cur) =>
+          prev.checkInToday != cur.checkInToday ||
+          prev.checkOutToday != cur.checkOutToday,
+      builder: (context, state) {
+        final checkIn = state.checkInToday;
+        if (checkIn == null) return const SizedBox(height: 8);
+        final parts = [s.check_in_checkedInAt(AppDateUtils().formatTimeHm(checkIn))];
+        final checkOut = state.checkOutToday;
+        if (checkOut != null) {
+          parts.add(s.check_in_checkedOutAt(AppDateUtils().formatTimeHm(checkOut)));
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 4),
+          child: Text(
+            parts.join(" · "),
+            style: TextStyle(fontSize: 12, color: AppColors.textGray500),
+            textAlign: TextAlign.center,
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -744,14 +898,10 @@ class _CheckInPageState extends State<CheckInPage> {
               _mapController != null &&
               !_movedToGpsOnce) {
             _movedToGpsOnce = true;
+            // Có GPS lần đầu: định khung theo điểm chấm công (hoặc cả 2 nếu đang ở xa)
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               if (!mounted || _mapController == null) return;
-              await _mapController!.animateCamera(
-                CameraUpdate.newLatLngZoom(
-                  LatLng(state.position!.latitude, state.position!.longitude),
-                  16,
-                ),
-              );
+              await _moveCameraToCurrentPlace();
             });
           }
 
@@ -1558,8 +1708,8 @@ class _CheckInPageState extends State<CheckInPage> {
 
     if ((_cubit.state.position?.latitude ?? 0) == 0) {
       AppSnackBar.showError(
-        title: "Cáº£nh bÃ¡o",
-        message: "TÃ­n hiá»‡u GPS kÃ©m",
+        title: "Cảnh báo",
+        message: "Tín hiệu GPS kém",
       );
       return;
     }
@@ -1597,21 +1747,27 @@ class _CheckInPageState extends State<CheckInPage> {
         );
         if (distance.round() >
             (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round() +
-                100) {
+                _radiusTolerance) {
           AppSnackBar.showError(
             title: "Cảnh báo",
             message: "Bạn đang không trong vị trí được phép Check-In",
           );
         } else {
-          // validate khuôn mặt
-          final result = await Navigator.push(
+          // Xác thực khuôn mặt + chấm công ngay tại màn camera (1 luồng, 1 loading);
+          // thành công thì nhận về kết quả chấm công.
+          final result = await Navigator.push<CheckInOutEntity>(
             context,
-            MaterialPageRoute(builder: (_) => const FaceAttendancePage()),
+            MaterialPageRoute(
+              builder: (_) => FaceAttendancePage(
+                locationId: _cubit.state.currentCheckInEntity?.id ?? 0,
+                latitude: _cubit.state.position?.latitude ?? 0.0,
+                longitude: _cubit.state.position?.longitude ?? 0.0,
+              ),
+            ),
           );
 
-          if (result != null && result.toString().isNotEmpty) {
-            // call api checking
-            _cubit.doCheckInGps(result);
+          if (result != null) {
+            _cubit.onCheckInCompleted(result);
           }
         }
       }

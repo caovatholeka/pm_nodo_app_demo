@@ -38,6 +38,16 @@ class CheckInCubit extends Cubit<CheckInState> {
         permission == LocationPermission.whileInUse;
   }
 
+  // Danh sách điểm chấm công gần nhất đã tải (để tính lại điểm gần nhất khi có vị trí)
+  List<CheckInInfoEntity> _allLocations = [];
+
+  /// Mở màn chấm công: xoá trạng thái của lần mở trước (cubit dùng chung cả app) — trước đây
+  /// vị trí GPS cũ, cờ muộn/sớm cũ... bị giữ lại và dùng cho lần chấm sau.
+  void onOpenPage() {
+    _allLocations = [];
+    emit(CheckInState());
+  }
+
   // lấy thông tin các điểm check-in / check - out
   void getListCheckInInfo() async{
     emit(state.copyWith(getCheckInfo: LoadStatus.LOADING));
@@ -47,9 +57,14 @@ class CheckInCubit extends Cubit<CheckInState> {
       if (response.data != null) {
         list = mapList(response.data, CheckInInfoEntity.fromJson);
       }
+      _allLocations = list ?? [];
 
-      // hiển thị điểm checkin gần nhất
-      CheckInInfoEntity? check =  await findNearestCheckIn(list ?? []);
+      // Điểm gần nhất tính theo vị trí đã có; chưa có vị trí (GPS đang lấy song song) thì
+      // tính lại ngay khi có vị trí (onChangeAddress → _refreshNearest). Trước đây chờ GPS
+      // ngay tại đây, không giới hạn thời gian → trong nhà có thể kẹt ở màn loading.
+      final check = state.position == null
+          ? null
+          : _nearestTo(_allLocations, state.position!);
 
       if(check != null){
         emit(state.copyWith(getCheckInfo: LoadStatus.SUCCESS,
@@ -85,15 +100,7 @@ class CheckInCubit extends Cubit<CheckInState> {
         check = mapObject(res.data, CheckInOutEntity.fromJson);
       }
       if(check?.employeeId != null){
-        if((check?.shiftFlag?.isLate ?? false) ||
-            (check?.shiftFlag?.isEarly ?? false)){
-          emit(state.copyWith(hasLateOrEarly: true));
-        }
-
-        emit(state.copyWith(checkInStatus: LoadStatus.SUCCESS,checkInOutResponse: check));
-        // lưu hành động check in/out
-        SharedPrefsHelper.setCheckInOutAction(check?.action ?? "");
-        onChangeActionCheck(check?.action ?? "");
+        onCheckInCompleted(check!);
       }else{
         emit(state.copyWith(checkInStatus: LoadStatus.FAILURE,checkInOutResponse: check));
       }
@@ -101,6 +108,20 @@ class CheckInCubit extends Cubit<CheckInState> {
       logger.d(e);
       emit(state.copyWith(checkInStatus: LoadStatus.FAILURE));
     }
+  }
+
+  /// Lượt chấm đã thành công (màn khuôn mặt gọi API chấm công) → cập nhật state để
+  /// màn chấm công hiển thị kết quả / hỏi giải trình như trước.
+  void onCheckInCompleted(CheckInOutEntity check) {
+    // Gán lại mỗi lần (trước đây chỉ bật true, không tắt → sau 1 lần muộn, lần nào cũng hỏi)
+    emit(state.copyWith(
+      hasLateOrEarly: (check.shiftFlag?.isLate ?? false) ||
+          (check.shiftFlag?.isEarly ?? false),
+    ));
+    emit(state.copyWith(checkInStatus: LoadStatus.SUCCESS, checkInOutResponse: check));
+    // lưu hành động check in/out
+    SharedPrefsHelper.setCheckInOutAction(check.action ?? "");
+    onChangeActionCheck(check.action ?? "");
   }
 
   void onChangeCurrentCheckInPlace(CheckInInfoEntity check){
@@ -179,6 +200,7 @@ class CheckInCubit extends Cubit<CheckInState> {
         logger.d("Ignore very old cached position when no state.position yet");
       } else {
         emit(state.copyWith(position: p, address: state.address ?? ''));
+        _refreshNearest();
       }
     }
 
@@ -204,6 +226,7 @@ class CheckInCubit extends Cubit<CheckInState> {
 
     // accept good position
     emit(state.copyWith(position: p, address: ''));
+    _refreshNearest();
 
     try {
       final placeMarks = await placemarkFromCoordinates(p.latitude, p.longitude);
@@ -218,22 +241,18 @@ class CheckInCubit extends Cubit<CheckInState> {
   }
 
 
-  Future<CheckInInfoEntity?> findNearestCheckIn(
-      List<CheckInInfoEntity> list,
-      ) async {
+  /// Đã có danh sách điểm chấm công + vị trí mới → cập nhật điểm gần nhất (danh sách và GPS
+  /// được lấy song song, cái nào về sau thì tính lúc đó).
+  void _refreshNearest() {
+    final position = state.position;
+    if (_allLocations.isEmpty || position == null) return;
+    final nearest = _nearestTo(_allLocations, position);
+    if (nearest == null || nearest.id == state.currentCheckInEntity?.id) return;
+    emit(state.copyWith(listCheckInfos: _allLocations, currentCheckInEntity: nearest));
+  }
+
+  CheckInInfoEntity? _nearestTo(List<CheckInInfoEntity> list, Position position) {
     if (list.isEmpty) return null;
-
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      logger.w('Location permission not granted');
-      return null;
-    }
-
-    final position = state.position ??
-        await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
 
     logger.d(
         "current position :: ${position.latitude} , ${position.longitude}");

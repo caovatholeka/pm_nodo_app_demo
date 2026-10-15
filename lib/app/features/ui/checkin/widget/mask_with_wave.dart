@@ -4,7 +4,10 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 class FaceMaskWithWave extends StatelessWidget {
-  const FaceMaskWithWave({super.key});
+  /// Mặt đã nằm đúng khung, đúng tư thế → khung chuyển xanh
+  final bool faceValid;
+
+  const FaceMaskWithWave({super.key, this.faceValid = false});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,13 @@ class FaceMaskWithWave extends StatelessWidget {
         Positioned.fromRect(
           rect: rect,
           child: IgnorePointer(
-            child: SvgPicture.asset(AppAssets.faceRecog, fit: BoxFit.fill),
+            child: SvgPicture.asset(
+              AppAssets.faceRecog,
+              fit: BoxFit.fill,
+              colorFilter: faceValid
+                  ? const ColorFilter.mode(Color(0xFF34C759), BlendMode.srcIn)
+                  : null,
+            ),
           ),
         ),
         Positioned(

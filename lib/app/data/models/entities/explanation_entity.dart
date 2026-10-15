@@ -27,7 +27,12 @@ class ExplanationEntity {
   @JsonKey(name: "is_early")
   bool? isEarly;
 
+  // Id lượt chấm (biometric.data) — dùng để khớp lượt vừa chấm với lịch sử
+  @JsonKey()
+  int? id;
+
   ExplanationEntity({
+    this.id,
     this.date,
     this.attendanceExplain,
     this.location,
@@ -38,6 +43,7 @@ class ExplanationEntity {
   });
 
   ExplanationEntity copyWith({
+    int? id,
     String? date,
     String? attendanceExplain,
     CheckInInfoEntity? location,
@@ -47,6 +53,7 @@ class ExplanationEntity {
     bool? isEarly
   }) {
     return ExplanationEntity(
+      id: id ?? this.id,
       date: date ?? this.date,
       attendanceExplain: attendanceExplain ?? this.attendanceExplain,
       action: action ?? this.action,

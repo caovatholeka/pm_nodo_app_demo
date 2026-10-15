@@ -59,12 +59,13 @@ class HomeCubit extends Cubit<HomeState> {
 
   Future<void> handleAttendanceSubmitted(CheckInOutEntity attendance) async {
     final action = (attendance.action ?? '').trim().toLowerCase();
-    final submittedAt = attendance.datetime?.trim();
-
-    if (submittedAt == null || submittedAt.isEmpty) {
+    if ((attendance.datetime ?? '').trim().isEmpty) {
       await getListAttendanceToday();
       return;
     }
+    // Hiển thị tạm theo giờ máy: server cũ trả `datetime` theo UTC (lệch 7 tiếng) nên
+    // không dùng trực tiếp; giờ chính thức thay vào ngay khi đồng bộ xong.
+    final submittedAt = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
 
     final optimisticList = List<ExplanationEntity>.from(
       state.listAttendanceToday ?? const <ExplanationEntity>[],
@@ -106,34 +107,29 @@ class HomeCubit extends Cubit<HomeState> {
             _isCheckInAction(action)
                 ? AttendanceAction.checkOut
                 : AttendanceAction.none,
-        attendanceActionStatus: LoadStatus.LOADING,
       ),
     );
 
-    try {
-      var isSynced = false;
-
-      for (var attempt = 0; attempt < 6; attempt++) {
+    // Đồng bộ chạy nền, KHÔNG phủ loading lên Home (trước đây khoá màn hình trong lúc
+    // gọi lại lịch sử tối đa 6 lần). Lượt chấm đã commit trước khi API trả về nên
+    // thường khớp ngay lần đầu; thử lại tối đa 3 lần phòng mạng chập chờn.
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
         final data = await _fetchAttendanceTodayData();
+        if (isClosed) return;
         if (_matchesAttendance(data, attendance)) {
-          _emitAttendanceData(data, attendanceActionStatus: LoadStatus.SUCCESS);
-          isSynced = true;
-          break;
+          _emitAttendanceData(data);
+          return;
         }
-
-        if (attempt < 5) {
-          await Future.delayed(const Duration(milliseconds: 900));
-        }
+      } catch (e, s) {
+        logger.e(e);
+        logger.e(s);
       }
-
-      if (!isSynced) {
-        emit(state.copyWith(attendanceActionStatus: LoadStatus.FAILURE));
+      if (attempt < 2) {
+        await Future.delayed(const Duration(seconds: 1));
       }
-    } catch (e, s) {
-      logger.e(e);
-      logger.e(s);
-      emit(state.copyWith(attendanceActionStatus: LoadStatus.FAILURE));
     }
+    logger.w('Attendance ${attendance.id} not found in today history, keep local time');
   }
 
   void resetAttendanceActionStatus() {
@@ -276,6 +272,13 @@ class HomeCubit extends Cubit<HomeState> {
     _AttendanceTodayData data,
     CheckInOutEntity attendance,
   ) {
+    // Khớp theo id lượt chấm: không phụ thuộc định dạng / múi giờ của `datetime`
+    // (server cũ trả UTC ở API chấm công nhưng giờ địa phương ở API lịch sử).
+    if (attendance.id != null &&
+        data.listAttendanceToday.any((e) => e.id == attendance.id)) {
+      return true;
+    }
+
     final action = (attendance.action ?? '').trim().toLowerCase();
     final submittedAt = attendance.datetime;
 

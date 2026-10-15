@@ -9,7 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pm_app/app/core/logger/logger.dart';
+import 'package:pm_app/app/core/utils/face_image_utils.dart';
+import 'package:pm_app/app/core/utils/perf_log.dart';
 import 'package:path/path.dart' as p;
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/checkin/bloc/face_scan_cubit.dart';
@@ -19,9 +20,21 @@ import 'package:pm_app/generated/l10n.dart';
 import 'widget/camera_cover_preview.dart';
 import 'widget/mask_with_wave.dart';
 
+/// Màn xác thực khuôn mặt + chấm công. Thành công thì pop trả về [CheckInOutEntity].
 class FaceAttendancePage extends StatefulWidget {
   final File? stillImage;
-  const FaceAttendancePage({super.key, this.stillImage});
+  // Điểm chấm công + toạ độ dùng để gọi API chấm công ngay sau khi khớp khuôn mặt
+  final int locationId;
+  final double latitude;
+  final double longitude;
+
+  const FaceAttendancePage({
+    super.key,
+    this.stillImage,
+    required this.locationId,
+    required this.latitude,
+    required this.longitude,
+  });
 
   @override
   State<FaceAttendancePage> createState() => _FaceAttendancePageState();
@@ -37,25 +50,27 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   int _cameraSession = 0;
 
   bool _scanStarted = false;
+  // Lỗi xác thực/chấm công → dừng quét, chờ người dùng bấm "Thử lại" (không tự gửi liên tục)
+  bool _awaitingRetry = false;
+
+  // Camera trước được dò 1 lần cho cả phiên app (availableCameras() chậm mỗi lần mở màn)
+  static CameraDescription? _frontCamera;
 
   late final FaceDetector _detector;
   bool _isBusy = false;
   bool _initialized = false;
 
-  // check user trước khung hình ổn định cần N (3) khung
-  static const int _stableNeeded = 2;
+  // Số khung hình hợp lệ liên tiếp trước khi chụp (2 dễ chụp ảnh nhoè khi đang di chuyển)
+  static const int _stableNeeded = 3;
   int _stableCount = 0;
   bool _isCapturing = false;
-  // static const double _minCoverage = 0.22;
-  // static const double _maxCoverage = 0.85;
-  // static const double _insetPx = 12;
 
-  static const double _yawMax = 12; // quay trái/phải (Y)
-  static const double _pitchMax = 12; // gật (X)
-  static const double _rollMax = 12; // nghiêng (Z)
-  bool _canManualCapture = false;
-
-  // final Rect _guideRect = Rect.zero;
+  // Đo hiệu năng (chỉ in khi build kèm PERF_LOG hoặc bản debug)
+  final Stopwatch _openWatch = Stopwatch()..start();
+  final Stopwatch _scanWatch = Stopwatch();
+  int _frameCount = 0;
+  int _mlKitTotalMs = 0;
+  int? _firstValidMs;
 
   // ===== Anti-spoofing =====
   final bool _livenessReady = false;
@@ -119,12 +134,14 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
+    // Chỉ cần khung mặt + góc nghiêng đầu (có sẵn ở mọi chế độ): tắt landmarks /
+    // classification / tracking không dùng tới để mỗi khung hình xử lý nhanh hơn.
     final options = FaceDetectorOptions(
       performanceMode: FaceDetectorMode.fast,
-      enableClassification: true,
-      enableLandmarks: true,
+      enableClassification: false,
+      enableLandmarks: false,
       enableContours: false,
-      enableTracking: true,
+      enableTracking: false,
       minFaceSize: 0.15,
     );
     _detector = FaceDetector(options: options);
@@ -142,7 +159,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _stopCamera();
+    // Không setState trong dispose (assert ở bản debug làm bỏ qua bước giải phóng camera)
+    _stopCamera(updateUi: false);
     _cubit.onResetStatus();
     _detector.close();
     // comment::: FaceAntiSpoofingDetector
@@ -169,15 +187,12 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
     _isCameraInitializing = true;
     final session = ++_cameraSession;
+    CameraController? controller;
     try {
-      final cams = await availableCameras();
-      final front = cams.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.front,
-        orElse: () => cams.first,
-      );
+      _frontCamera ??= await _findFrontCamera();
 
-      final controller = CameraController(
-        front,
+      controller = CameraController(
+        _frontCamera!,
         ResolutionPreset.medium,
         enableAudio: false,
         imageFormatGroup:
@@ -197,10 +212,17 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       }
 
       _cam = controller;
+      perfLog('camera ready ${_openWatch.elapsedMilliseconds} ms after open');
       if (mounted) {
         setState(() => _initialized = true);
+        // Tự bắt đầu quét khi camera sẵn sàng (trước đây phải bấm nút chụp)
+        _startScan();
       }
     } catch (e) {
+      // Khởi tạo hỏng giữa chừng: giải phóng controller để lần mở sau không bị chiếm camera
+      if (controller != null && !identical(controller, _cam)) {
+        await _disposeController(controller);
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -222,7 +244,15 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } catch (_) {}
   }
 
-  Future<void> _stopCamera() async {
+  Future<CameraDescription> _findFrontCamera() async {
+    final cams = await availableCameras();
+    return cams.firstWhere(
+      (c) => c.lensDirection == CameraLensDirection.front,
+      orElse: () => cams.first,
+    );
+  }
+
+  Future<void> _stopCamera({bool updateUi = true}) async {
     final controller = _cam;
     _cam = null;
     _cameraSession++;
@@ -232,9 +262,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     _isCapturing = false;
     _isBusy = false;
     _stableCount = 0;
-    _canManualCapture = false;
 
-    if (mounted) {
+    if (updateUi && mounted) {
       setState(() {});
     }
 
@@ -245,12 +274,35 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     } catch (_) {}
   }
 
-  Future<void> _onTapShutter() async {
+  /// Sau khi xác thực/chấm công lỗi: giữ camera đang mở, dừng quét và chờ bấm "Thử lại"
+  /// (tự quét lại ngay sẽ gửi request liên tục khi lỗi không tự hết: sai mặt, ngoài phạm vi...).
+  void _resetForRetry() {
+    _cubit.onResetStatus();
+    if (!mounted) return;
+    setState(() {
+      _scanStarted = false;
+      _awaitingRetry = true;
+      _isCapturing = false;
+      _stableCount = 0;
+    });
+  }
+
+  /// Bắt đầu quét khuôn mặt: tự gọi khi camera sẵn sàng, hoặc khi bấm "Thử lại".
+  Future<void> _startScan() async {
     final controller = _cam;
     if (_scanStarted || controller == null || !controller.value.isInitialized) {
       return;
     }
-    setState(() => _scanStarted = true);
+    setState(() {
+      _scanStarted = true;
+      _awaitingRetry = false;
+    });
+    _scanWatch
+      ..reset()
+      ..start();
+    _frameCount = 0;
+    _mlKitTotalMs = 0;
+    _firstValidMs = null;
 
     try {
       await controller.startImageStream(_processFrame);
@@ -259,7 +311,10 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${S.of(context).check_in_faceScanFailed}: $e')),
       );
-      setState(() => _scanStarted = false);
+      setState(() {
+        _scanStarted = false;
+        _awaitingRetry = true;
+      });
     }
   }
 
@@ -271,14 +326,24 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
       final input = _cameraImageToInputImage(image);
       if (input == null) return;
 
+      final frameWatch = Stopwatch()..start();
       final faces = await _detector.processImage(input);
+      _frameCount++;
+      _mlKitTotalMs += frameWatch.elapsedMilliseconds;
 
       bool validNow = false;
       Face? face;
 
       if (faces.length == 1) {
         face = faces.first;
-        validNow = _checkFaceOk(face, image.width, image.height);
+        // Khung mặt ML Kit trả về theo ảnh ĐÃ xoay; frame camera trước xoay 90/270 độ nên
+        // phải đổi chiều rộng/cao (trước đây so nhầm trục → mặt ở giữa vẫn lúc nhận lúc không).
+        final rotation = input.metadata?.rotation;
+        final rotated = rotation == InputImageRotation.rotation90deg ||
+            rotation == InputImageRotation.rotation270deg;
+        validNow = rotated
+            ? _checkFaceOk(face, image.height, image.width)
+            : _checkFaceOk(face, image.width, image.height);
       } else {
         validNow = false;
       }
@@ -287,13 +352,17 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
       if (validNow) {
         _stableCount++;
+        _firstValidMs ??= _scanWatch.elapsedMilliseconds;
       } else {
         _stableCount = 0;
       }
 
-      _canManualCapture = _stableCount >= _stableNeeded;
-
       if (_stableCount >= _stableNeeded && !_isCapturing) {
+        perfLog(
+          'scan -> capture ${_scanWatch.elapsedMilliseconds} ms '
+          '(first valid face at ${_firstValidMs} ms, $_frameCount frames, '
+          'ML Kit avg ${_frameCount == 0 ? 0 : _mlKitTotalMs ~/ _frameCount} ms/frame)',
+        );
         _isCapturing = true;
         _stableCount = 0;
 
@@ -305,21 +374,18 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
         if (!isLive) {
           _isCapturing = false;
-          _canManualCapture = false;
           _cubit.updateFaceValid(false);
           _showSpoofWarningThrottled();
-          if (mounted) setState(() {});
           return;
         }
 
         await _captureOnceAndReturn();
         return;
       }
-
-      if (mounted) setState(() {});
+      // Không setState mỗi khung hình: giao diện không phụ thuộc biến đếm, trước đây dựng
+      // lại cả màn (preview + mask) 10–20 lần/giây làm camera giật.
     } catch (e) {
       _stableCount = 0;
-      _canManualCapture = false;
     } finally {
       _isBusy = false;
     }
@@ -330,38 +396,37 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     if (controller == null) return;
 
     try {
-      await controller.setFlashMode(FlashMode.off);
+      // Flash đã tắt từ lúc khởi tạo camera, không cần đặt lại mỗi lần chụp
       await controller.stopImageStream();
       await Future.delayed(const Duration(milliseconds: 120));
 
+      final shotWatch = Stopwatch()..start();
       final file = await controller.takePicture();
-      final bytes = await File(file.path).readAsBytes();
-      final base64 = base64Encode(bytes);
-      logger.d("base64 image ::: $base64");
+      perfLog('takePicture ${shotWatch.elapsedMilliseconds} ms');
 
+      // Ảnh gốc ~1440x1920 ~700 KB → nén còn ~50 KB trước khi upload (2 lần: nhận diện
+      // + chấm công). Trước đây còn base64 cả ảnh chỉ để ghi log.
       final tmpDir = await getTemporaryDirectory();
       final ts = DateTime.now().millisecondsSinceEpoch;
       final outPath = p.join(tmpDir.path, 'face_$ts.jpg');
-      final outFile = await File(outPath).writeAsBytes(bytes, flush: true);
+      final outFile = await compressFaceImage(file.path, outPath);
+      await deleteQuietly(file.path);
 
-      // call api check face
+      // Xác thực khuôn mặt rồi chấm công luôn tại màn này
       _cubit.onChangeFilePath(outFile.path);
-      _cubit.searchFace(outFile);
-      if (!mounted) return;
-      // Navigator.pop(context, base64);
+      _cubit.verifyAndCheckIn(
+        outFile,
+        locationId: widget.locationId,
+        latitude: widget.latitude,
+        longitude: widget.longitude,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${S.of(context).check_in_cameraFailed}: $e')),
         );
-        try {
-          final restartController = _cam;
-          if (restartController != null && restartController.value.isInitialized) {
-            await restartController.startImageStream(_processFrame);
-          }
-        } catch (_) {}
-        _isCapturing = false;
-        _canManualCapture = false;
+        // Chụp lỗi: chờ bấm "Thử lại" như các lỗi khác
+        _resetForRetry();
       }
     }
   }
@@ -387,38 +452,6 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
           SnackBar(content: Text('${S.of(context).check_inFailed}: $e')),
         );
       }
-    }
-  }
-
-  bool _isPoseOk(Face f) {
-    final x = (f.headEulerAngleX ?? 0).abs(); // pitch
-    final y = (f.headEulerAngleY ?? 0).abs(); // yaw
-    final z = (f.headEulerAngleZ ?? 0).abs(); // roll
-    return x <= _pitchMax && y <= _yawMax && z <= _rollMax;
-  }
-
-  bool _isCentered(Rect faceBox, int imgW, int imgH) {
-    final screen = MediaQuery.of(context).size;
-    final guide = computeGuideRect(screen);
-
-    final cx = faceBox.center.dx * screen.width / imgW;
-    final cy = faceBox.center.dy * screen.height / imgH;
-
-    return guide.contains(Offset(cx, cy));
-  }
-
-  InputImageRotation _rotationFromSensor(int deg) {
-    switch (deg) {
-      case 0:
-        return InputImageRotation.rotation0deg;
-      case 90:
-        return InputImageRotation.rotation90deg;
-      case 180:
-        return InputImageRotation.rotation180deg;
-      case 270:
-        return InputImageRotation.rotation270deg;
-      default:
-        return InputImageRotation.rotation0deg;
     }
   }
 
@@ -553,53 +586,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     return out;
   }
 
-  Uint8List _concatenatePlanes(List<Plane> planes) {
-    final WriteBuffer wb = WriteBuffer();
-    for (final Plane plane in planes) {
-      wb.putUint8List(plane.bytes);
-    }
-    return wb.done().buffer.asUint8List();
-  }
-
-  /// Chuyển YUV420 -> JPEG (cách nhanh, dùng nền tảng iOS/Android encode qua CameraImage)
-  Future<Uint8List> _yuvToJpeg(CameraImage image) async {
-    final file = await _cam!.takePicture();
-    final bytes = await File(file.path).readAsBytes();
-    throw UnimplementedError('Use _captureJpeg() instead');
-  }
-
-  Future<Uint8List> _captureJpeg() async {
-    await _cam?.stopImageStream();
-    final file = await _cam!.takePicture();
-    final bytes = await File(file.path).readAsBytes();
-    return bytes;
-  }
-
   String _encodeBase64(Uint8List bytes) => base64Encode(bytes);
-
-  // Khung hình
-  Rect computeGuideRect(Size screenSize) {
-    final w = screenSize.width * 0.70;
-    final hRaw = w * 1.25;
-    final h = hRaw.clamp(0.0, screenSize.height * 0.82);
-    return Rect.fromCenter(
-      center: Offset(screenSize.width / 2, screenSize.height / 2),
-      width: w,
-      height: h,
-    );
-  }
-
-  // Map từ toạ độ ảnh sang toạ độ màn hình
-  Rect _mapImageRectToScreen(Rect rImg, int imgW, int imgH, Size screen) {
-    final sx = screen.width / imgW;
-    final sy = screen.height / imgH;
-    return Rect.fromLTRB(
-      rImg.left * sx,
-      rImg.top * sy,
-      rImg.right * sx,
-      rImg.bottom * sy,
-    );
-  }
 
   // bool _checkFaceOk(Face f, int imgW, int imgH) {
   //   final x = (f.headEulerAngleX ?? 0).abs();
@@ -682,18 +669,17 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
           LoadingOverlay.show(context);
         } else if (state.scanStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
-          // AppSnackBar.showInfo(
-          //     title: "Thành Công",
-          //     message: "Xác thực khuôn mặt thành công!!");
-          // await Future.delayed(const Duration(seconds: 2));
-          if (mounted) Navigator.pop(context, state.fileImgPath ?? "");
+          // Đã chấm công xong → trả kết quả cho màn chấm công
+          if (mounted) Navigator.pop(context, state.checkInResult);
         } else if (state.scanStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
           AppSnackBar.showError(
             title: S.of(context).failed,
             message: state.scanMsg ?? S.of(context).check_inFailed2,
           );
-          Navigator.pop(context);
+          // Ở lại màn camera để chụp lại ngay (trước đây đóng màn → phải mở lại,
+          // chờ camera khởi động lại từ đầu)
+          _resetForRetry();
         } else {
           LoadingOverlay.hide(context);
         }
@@ -718,7 +704,14 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
             //       size: Size.infinite,
             //     ),
             //   ),
-            if (camReady && _scanStarted) const FaceMaskWithWave(),
+            // Chỉ khung (vẽ lại khi trạng thái mặt hợp lệ đổi, không theo từng khung hình)
+            if (camReady && _scanStarted)
+              BlocBuilder<FaceScanCubit, FaceScanState>(
+                bloc: _cubit,
+                buildWhen: (prev, cur) => prev.isFaceValid != cur.isFaceValid,
+                builder: (context, state) =>
+                    FaceMaskWithWave(faceValid: state.isFaceValid),
+              ),
 
             SafeArea(
               child: Align(
@@ -741,71 +734,28 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
               ),
             ),
 
-            if (!_scanStarted)
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 125 + MediaQuery.of(context).padding.bottom,
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 360),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.32),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        s.check_in_hint,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          height: 1.35,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-            if (camReady && !_scanStarted)
+            // Lỗi xác thực/chấm công: dừng quét, chờ bấm "Thử lại" (camera vẫn mở sẵn)
+            if (camReady && _awaitingRetry)
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: 40,
+                bottom: 40 + MediaQuery.of(context).padding.bottom,
                 child: Center(
-                  child: GestureDetector(
-                    onTap: _onTapShutter,
-                    child: Container(
-                      width: 76,
-                      height: 76,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.transparent,
-                        border: Border.all(color: Colors.white, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            blurRadius: 10,
-                            spreadRadius: 1,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                  child: ElevatedButton.icon(
+                    onPressed: _startScan,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(s.check_in_retry),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black87,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 28,
+                        vertical: 14,
                       ),
-                      child: Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                        ),
+                      shape: const StadiumBorder(),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),

@@ -35,7 +35,8 @@ class CheckInRepositoryImpl extends CheckInRepository {
       'longitude' : longitude
     });
 
-    return await _apiClient.userCheckInOut(formData);
+    // Dio riêng cho request gửi ảnh: có giới hạn thời gian gửi/chờ (xem ApiUtil.uploadDio)
+    return await ApiUtil.instance.createUploadApiClient().userCheckInOut(formData);
   }
   
   @override

@@ -16,7 +16,7 @@ abstract class FaceIdRepository {
 }
 
 class FaceIdRepositoryImpl extends FaceIdRepository {
-  Dio get _dio => ApiUtil.instance.dio;
+  Dio get _dio => ApiUtil.instance.uploadDio;
 
   @override
   Future<FaceSearchResponseEntity> searchEmployeeFace(File file) async {

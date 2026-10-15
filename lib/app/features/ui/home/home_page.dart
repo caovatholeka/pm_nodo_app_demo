@@ -108,8 +108,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _onRefresh() async {
-    _cubit.getListAttendanceToday();
-    _cubit.getListNewTasks();
+    await Future.wait([
+      _cubit.getListAttendanceToday(),
+      _cubit.getListNewTasks(),
+    ]);
   }
 
   Future<void> _openDetailTask(TaskEntity entity) async {
@@ -164,27 +166,30 @@ class _HomePageState extends State<HomePage> {
             ),
 
             SafeArea(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.sw(0.04),
-                      vertical: context.sh(0.015),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _header(context),
-                        SizedBox(height: context.sh(0.02)),
-                        _attendanceCard(context),
-                      ],
-                    ),
-                  ),
-
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      child: SingleChildScrollView(
+              // Kéo xuống để tải lại ở mọi vị trí (cả thẻ chấm công), kể cả khi nội dung
+              // ngắn hơn màn hình (AlwaysScrollableScrollPhysics).
+              child: RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.sw(0.04),
+                          vertical: context.sh(0.015),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _header(context),
+                            SizedBox(height: context.sh(0.02)),
+                            _attendanceCard(context),
+                          ],
+                        ),
+                      ),
+                      Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: context.sw(0.04),
                         ),
@@ -203,9 +208,9 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ],
@@ -226,7 +231,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${s.home_title}${state.userProfile?.name ?? ""}",
+                    "${s.home_title} ${state.userProfile?.name ?? ""}",
                     style: TextStyle(
                       fontSize: context.sw(0.05),
                       color: Colors.white,
@@ -325,7 +330,6 @@ class _HomePageState extends State<HomePage> {
       builder: (context, state) {
         String checkInStatus;
         String checkOutStatus;
-        String checkOutTime = "18:00";
 
         // String formatTime(String datetime) {
         //   try {
@@ -339,7 +343,7 @@ class _HomePageState extends State<HomePage> {
         if (state.checkInToday == null) {
           checkInStatus = s.attendance_cardCheck_in;
         } else {
-          checkInStatus = AppDateUtils().formatTimeAmPm(
+          checkInStatus = AppDateUtils().formatTimeHm(
             state.checkInToday ?? "",
           );
         }
@@ -347,10 +351,9 @@ class _HomePageState extends State<HomePage> {
         if (state.checkOutToday == null) {
           checkOutStatus = s.attendance_cardCheck_in;
         } else {
-          checkOutStatus = AppDateUtils().formatTimeAmPm(
+          checkOutStatus = AppDateUtils().formatTimeHm(
             state.checkOutToday ?? "",
           );
-          checkOutTime = checkOutStatus;
         }
 
         return Center(
@@ -361,7 +364,7 @@ class _HomePageState extends State<HomePage> {
                 Localizations.localeOf(context).languageCode,
               ).format(DateTime.now()),
               checkInTime: "08:30",
-              checkOutTime: checkOutTime,
+              checkOutTime: "18:00",
               checkInStatus: checkInStatus,
               checkOutStatus: checkOutStatus,
               onCheckOutTap: _openCheckIn,

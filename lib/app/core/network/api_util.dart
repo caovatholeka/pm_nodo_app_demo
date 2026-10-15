@@ -13,9 +13,15 @@ class ApiUtil {
 
   late final ApiInterceptors _interceptor = ApiInterceptors();
   late final Dio _dio = _createDio();
+  late final Dio _uploadDio = _createUploadDio();
 
   Dio get dio => _dio;
   ApiInterceptors get interceptor => _interceptor;
+
+  /// Dio cho các request gửi ảnh chấm công (nhận diện khuôn mặt + chấm công). Có giới hạn
+  /// thời gian gửi (Dio chung không có → mạng yếu có thể treo rất lâu) và chờ ngắn hơn.
+  /// Chỉ dùng cho luồng chấm công; các API khác vẫn dùng [dio] như cũ.
+  Dio get uploadDio => _uploadDio;
 
   Dio _createDio() {
     final dio = Dio(BaseOptions(
@@ -41,8 +47,24 @@ class ApiUtil {
     return dio;
   }
 
+  Dio _createUploadDio() {
+    final dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 20),
+      sendTimeout: const Duration(seconds: 30),
+      // Máy chủ nhận diện xử lý tuần tự: giờ cao điểm có thể phải xếp hàng vài chục giây
+      receiveTimeout: const Duration(seconds: 45),
+    ));
+    dio.interceptors.add(_interceptor);
+    return dio;
+  }
+
   ApiClient createApiClient() {
     return ApiClient(_dio, baseUrl: AppConfig.baseUrl);
+  }
+
+  /// ApiClient dùng [uploadDio] — cho API chấm công có gửi ảnh.
+  ApiClient createUploadApiClient() {
+    return ApiClient(_uploadDio, baseUrl: AppConfig.baseUrl);
   }
 
   static Future<TokenEntity?> getNewAccessToken(
