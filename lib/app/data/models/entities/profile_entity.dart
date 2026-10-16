@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pm_app/app/data/models/converters/odoo_value.dart';
 import 'package:pm_app/app/data/models/entities/department_entity.dart';
 
 part 'profile_entity.g.dart';
@@ -17,8 +18,8 @@ class ProfileEntity {
   @JsonKey()
   String? email;
 
-  @JsonKey()
-  bool? phone;
+  @JsonKey(fromJson: odooStringFromJson)
+  String? phone;
 
   @JsonKey(name: "employee_id")
   int? employeeId;
@@ -89,7 +90,7 @@ class ProfileEntity {
     String? name,
     String? login,
     String? email,
-    bool? phone,
+    String? phone,
     int? employeeId,
     String? employeeCode,
     String? birthday,
