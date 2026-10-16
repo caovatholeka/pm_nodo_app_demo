@@ -20,6 +20,7 @@ import 'di/di.dart' as di;
 import 'app/core/service/firebase_messaging_service.dart';
 import 'app/core/service/fire_base_analystic.dart';
 import 'app/core/service/app_bloc_observer.dart';
+import 'app/core/theme_v2/theme_controller_v2.dart';
 
 void main() {
   Bloc.observer = AppBlocObserver();
@@ -98,6 +99,7 @@ void main() {
 
       final appEnv = await SharedPrefsHelper.getAppEnv();
       AppConfig.setEnvironment(appEnv);
+      await ThemeControllerV2.instance.load();
 
       final GoogleMapsFlutterPlatform mapsImplementation = GoogleMapsFlutterPlatform.instance;
       if (mapsImplementation is GoogleMapsFlutterAndroid) {

@@ -86,7 +86,7 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
     }
 
     return Container(
-      decoration: const BoxDecoration(gradient: AppTokensV2.screenGradient),
+      decoration: BoxDecoration(gradient: AppTokensV2.screenGradient),
       child: Stack(children: [
         // Lớp quầng sáng tách riêng: animate ở đây không làm nội dung vẽ lại.
         RepaintBoundary(
@@ -98,7 +98,7 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
                 amount: const Offset(38, 46),
                 scaleAmount: 0.10,
                 reduce: reduce,
-                child: _glow(360, AppTokensV2.accent, 0.30),
+                child: _glow(360, AppTokensV2.accent, 0.30 * AppTokensV2.ambientOpacity),
               ),
             ),
             Positioned(
@@ -108,7 +108,7 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
                 amount: const Offset(-44, 38),
                 scaleAmount: 0.12,
                 reduce: reduce,
-                child: _glow(340, AppTokensV2.accent2, 0.26),
+                child: _glow(340, AppTokensV2.accent2, 0.26 * AppTokensV2.ambientOpacity),
               ),
             ),
             Positioned(
@@ -118,7 +118,7 @@ class _AmbientBackgroundV2State extends State<AmbientBackgroundV2>
                 amount: const Offset(30, -40),
                 scaleAmount: 0.10,
                 reduce: reduce,
-                child: _glow(320, AppTokensV2.accent, 0.20),
+                child: _glow(320, AppTokensV2.accent, 0.20 * AppTokensV2.ambientOpacity),
               ),
             ),
           ]),

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/features/ui_v2/account/account_page_v2.dart';
@@ -26,11 +27,17 @@ class BottomNavigationV2 extends StatelessWidget {
       valueListenable: GlobalData.instance.bottomNavIndex,
       builder: (_, index, __) {
         final safeIndex = (index >= 0 && index < _pages.length) ? index : 0;
-        return Scaffold(
-          backgroundColor: AppTokensV2.bgDeep,
-          extendBody: true,
-          body: _pages[safeIndex],
-          bottomNavigationBar: _GlassBar(current: safeIndex, icons: _icons, labels: _labels),
+        // Icon thanh trạng thái phải tương phản với nền (sáng/tối) của v2.
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: AppTokensV2.isDark
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark,
+          child: Scaffold(
+            backgroundColor: AppTokensV2.bgDeep,
+            extendBody: true,
+            body: _pages[safeIndex],
+            bottomNavigationBar: _GlassBar(current: safeIndex, icons: _icons, labels: _labels),
+          ),
         );
       },
     );
@@ -55,7 +62,7 @@ class _GlassBar extends StatelessWidget {
           child: Container(
             height: 62,
             decoration: BoxDecoration(
-              color: const Color(0x8C14141A),
+              color: AppTokensV2.navBar,
               borderRadius: BorderRadius.circular(22),
               border: Border.all(color: AppTokensV2.border),
             ),

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/app/core/theme_v2/theme_controller_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
@@ -54,6 +55,68 @@ class _AccountPageV2State extends State<AccountPageV2> {
   void _goLanguage() => Navigator.push(
       context, MaterialPageRoute(builder: (_) => const ChangeLanguagePage()));
 
+  static String _themeLabel(ThemeModeV2 m) {
+    switch (m) {
+      case ThemeModeV2.system:
+        return 'Theo hệ thống';
+      case ThemeModeV2.dark:
+        return 'Tối';
+      case ThemeModeV2.light:
+        return 'Sáng';
+    }
+  }
+
+  void _pickTheme() {
+    final ctrl = ThemeControllerV2.instance;
+    const options = [
+      (ThemeModeV2.system, Icons.brightness_auto_outlined),
+      (ThemeModeV2.light, Icons.light_mode_outlined),
+      (ThemeModeV2.dark, Icons.dark_mode_outlined),
+    ];
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+          child: ValueListenableBuilder<ThemeModeV2>(
+            valueListenable: ctrl.mode,
+            builder: (_, current, __) => Container(
+              decoration: BoxDecoration(
+                color: AppTokensV2.bgTop,
+                borderRadius: BorderRadius.circular(AppTokensV2.radius),
+                border: Border.all(color: AppTokensV2.border),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Giao diện', style: AppTokensV2.section),
+                  ),
+                ),
+                for (final (m, icon) in options)
+                  ListTile(
+                    leading: Icon(icon, color: AppTokensV2.accent),
+                    title: Text(_themeLabel(m), style: AppTokensV2.body),
+                    trailing: current == m
+                        ? Icon(Icons.check_rounded, color: AppTokensV2.accent)
+                        : null,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      ctrl.setMode(m);
+                      Navigator.pop(sheetCtx);
+                    },
+                  ),
+              ]),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _logout() {
     if (_cubit.state.logoutStatus == LoadStatus.LOADING) return;
     final s = S.of(context);
@@ -97,6 +160,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
                         name: p?.name ?? '',
                         jobTitle: p?.jobTitle ?? '',
                         code: p?.employeeCode ?? '',
+                        phone: p?.phone ?? '',
                         avatarUrl: p?.avatarUrl,
                         loading: state.loadStatus == LoadStatus.LOADING,
                       ),
@@ -121,6 +185,14 @@ class _AccountPageV2State extends State<AccountPageV2> {
                             icon: Icons.language_rounded,
                             title: s.account_page_util4,
                             onTap: _goLanguage),
+                        _MenuRow(
+                            icon: AppTokensV2.isDark
+                                ? Icons.dark_mode_outlined
+                                : Icons.light_mode_outlined,
+                            title: 'Giao diện',
+                            trailing: _themeLabel(
+                                ThemeControllerV2.instance.mode.value),
+                            onTap: _pickTheme),
                       ]),
                     ),
                     const SizedBox(height: 14),
@@ -149,6 +221,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
     required String name,
     required String jobTitle,
     required String code,
+    required String phone,
     required String? avatarUrl,
     required bool loading,
   }) {
@@ -156,6 +229,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
     final meta = [
       if (jobTitle.isNotEmpty) jobTitle,
       if (code.isNotEmpty) '${s.employee_card_id}: $code',
+      if (phone.isNotEmpty) phone,
     ].join('  •  ');
 
     return GlassCardV2(
@@ -164,7 +238,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
         _avatar(avatarUrl, name),
         const SizedBox(height: 14),
         if (loading && name.isEmpty)
-          const SizedBox(
+          SizedBox(
             height: 18,
             width: 18,
             child: CircularProgressIndicator(
@@ -207,7 +281,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
         width: 88,
         height: 88,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
             gradient: AppTokensV2.accentGradient, shape: BoxShape.circle),
         child: Text(initials,
             style: const TextStyle(
@@ -245,7 +319,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
     for (var i = 0; i < rows.length; i++) {
       children.add(rows[i]);
       if (i != rows.length - 1) {
-        children.add(const Divider(
+        children.add(Divider(
             height: 1, thickness: 1, color: AppTokensV2.border, indent: 58));
       }
     }
@@ -261,17 +335,19 @@ class _MenuRow extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
   final bool danger;
+  final String? trailing;
 
   const _MenuRow({
     required this.icon,
     required this.title,
     required this.onTap,
     this.danger = false,
+    this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
-    const dangerColor = Color(0xFFFF453A);
+    final dangerColor = AppTokensV2.danger;
     final tint = danger ? dangerColor : AppTokensV2.accent;
     return InkWell(
       onTap: () {
@@ -298,7 +374,11 @@ class _MenuRow extends StatelessWidget {
                     color: danger ? dangerColor : AppTokensV2.fg,
                     fontSize: 13.5)),
           ),
-          const Icon(Icons.arrow_forward_ios_rounded,
+          if (trailing != null) ...[
+            Text(trailing!, style: AppTokensV2.caption),
+            const SizedBox(width: 8),
+          ],
+          Icon(Icons.arrow_forward_ios_rounded,
               size: 13, color: AppTokensV2.fgMuted),
         ]),
       ),

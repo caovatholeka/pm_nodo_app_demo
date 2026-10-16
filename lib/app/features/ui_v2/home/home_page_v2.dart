@@ -161,7 +161,7 @@ class _HomePageV2State extends State<HomePageV2> {
                 border: Border.all(color: AppTokensV2.border),
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: const Icon(Icons.notifications_none_rounded,
+              child: Icon(Icons.notifications_none_rounded,
                   color: AppTokensV2.fg, size: 20),
             ),
             if (unread > 0)
@@ -174,7 +174,7 @@ class _HomePageV2State extends State<HomePageV2> {
                   constraints:
                       const BoxConstraints(minWidth: 18, minHeight: 18),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF453A),
+                    color: AppTokensV2.danger,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppTokensV2.bgDeep, width: 2),
                   ),
@@ -205,7 +205,7 @@ class _HomePageV2State extends State<HomePageV2> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
         const SizedBox(height: 1),
-        const TypewriterTextV2('Cố gắng hết mình hôm nay nhé!',
+        TypewriterTextV2('Cố gắng hết mình hôm nay nhé!',
             style: AppTokensV2.caption),
       ])),
       _bell(),
@@ -290,7 +290,7 @@ class _HomePageV2State extends State<HomePageV2> {
                 height: 6,
                 decoration: BoxDecoration(
                   gradient: p.done
-                      ? const LinearGradient(
+                      ? LinearGradient(
                           colors: [AppTokensV2.success, AppTokensV2.success])
                       : AppTokensV2.accentGradient,
                 ),
@@ -330,8 +330,8 @@ class _HomePageV2State extends State<HomePageV2> {
       Text(time, style: AppTokensV2.number),
       Row(children: [
         ok
-            ? const PulseDotV2(color: AppTokensV2.success, size: 8)
-            : const Icon(Icons.schedule, size: 12, color: AppTokensV2.fgSoft),
+            ? PulseDotV2(color: AppTokensV2.success, size: 8)
+            : Icon(Icons.schedule, size: 12, color: AppTokensV2.fgSoft),
         const SizedBox(width: 5),
         Text(status,
             style: TextStyle(
@@ -381,7 +381,7 @@ class _HomePageV2State extends State<HomePageV2> {
       ),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Tiện ích', style: AppTokensV2.section),
+      Text('Tiện ích', style: AppTokensV2.section),
       const SizedBox(height: 12),
       GridView.count(
         crossAxisCount: 3,
@@ -419,7 +419,7 @@ class _HomePageV2State extends State<HomePageV2> {
   Widget _tasks(HomeState state) {
     final tasks = state.listNewTasks ?? const [];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: const [
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('Việc cần làm', style: AppTokensV2.section),
         Text('Xem tất cả',
             style: TextStyle(
@@ -444,7 +444,7 @@ class _HomePageV2State extends State<HomePageV2> {
                 Container(
                     width: 9,
                     height: 9,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                         color: AppTokensV2.accent, shape: BoxShape.circle)),
                 const SizedBox(width: 12),
                 Expanded(
