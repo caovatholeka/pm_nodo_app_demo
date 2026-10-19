@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:pm_app/app/data/models/entities/attendance_entity.dart';
+import 'package:pm_app/app/data/models/entities/checkpoint_entity.dart';
 import 'package:pm_app/app/data/models/entities/discipline_evaluation_detail_entity.dart';
 import 'package:pm_app/app/data/models/entities/discipline_evaluation_entity.dart';
 import 'package:pm_app/app/data/models/entities/employee_entity.dart';
@@ -430,4 +431,43 @@ abstract class ApiClient {
   //HR duyệt hoàn thành
   @POST('/evaluation/evaluation_approve/{id}')
   Future<CommonResponse> approvedEvaluation(@Path("id") int id,);
+
+  //List checkpoint
+  @GET('/checkpoint/checkpoint_list')
+  Future<CommonResponse> getListCP(
+    @Query("date_from") String? dateFrom,
+    @Query("date_to") String? dateTo,
+  );
+
+  //Thêm checkpoint
+  @POST('/checkpoint/checkpoint_create')
+  Future<CheckpointEntity> createCheckpoint(@Body() CheckpointEntity body);
+
+  //Sửa CP
+  @PUT('/checkpoint/checkpoint_update/{id}')
+  Future<CheckpointEntity> updateCheckpoint(
+    @Path("id") int id,
+    @Body() CheckpointEntity body,
+  );
+
+  //Chi tiết CP
+  @GET('/checkpoint/checkpoint_detail/{id}')
+  Future<CheckpointEntity> getDetailCheckpoint(@Path("id") int id);
+
+  //Gửi duyệt CP
+  @POST('/checkpoint/checkpoint_submit/{id}')
+  Future<CheckpointEntity> submitCheckpoint(@Path("id") int id);
+
+  //Gửi duyệt HR
+  @POST('/checkpoint/checkpoint_assess/{id}')
+  Future<CheckpointEntity> assessCheckpoint(
+    @Path("id") int id,
+    @Body() CheckpointEntity body,
+  );
+
+  @POST('/checkpoint/checkpoint_hr_approve/{id}')
+  Future<CheckpointEntity> hrApproveCheckpoint(
+    @Path("id") int id,
+    @Body() CheckpointEntity body
+  );
 }

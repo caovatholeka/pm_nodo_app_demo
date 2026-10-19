@@ -28,7 +28,7 @@ class ProfileEntity {
 
   @JsonKey()
   DepartmentEntity? department;
- 
+
   @JsonKey(name: "remain_leave")
   double? remainLeave;
 
@@ -38,7 +38,7 @@ class ProfileEntity {
   @JsonKey()
   String? state;
 
-  @JsonKey(name:"work_location")
+  @JsonKey(name: "work_location")
   String? workLocation;
 
   @JsonKey()
@@ -59,8 +59,14 @@ class ProfileEntity {
   @JsonKey()
   String? code;
 
-  @JsonKey(name:"avatar")
+  @JsonKey(name: "avatar")
   String? avatarUrl;
+
+  @JsonKey(name: "is_hr_director")
+  bool? isHrDirector;
+
+  @JsonKey(name: "is_director")
+  bool? isDirector;
 
   ProfileEntity({
     this.id,
@@ -81,7 +87,9 @@ class ProfileEntity {
     this.employeeId,
     this.employeeCode,
     this.code,
-    this.avatarUrl
+    this.avatarUrl,
+    this.isHrDirector,
+    this.isDirector,
   });
 
   ProfileEntity copyWith({
@@ -104,34 +112,36 @@ class ProfileEntity {
     String? currentAddress,
     String? workLocation,
     DepartmentEntity? manager,
+    bool? isHrDirector,
+    bool? isDirector,
   }) {
     return ProfileEntity(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        login: login ?? this.login,
-        email: email ?? this.email,
-        phone: phone ?? this.phone,
-        department: department ?? this.department,
-        remainLeave: remainLeave ?? this.remainLeave,
-        birthday: birthday ?? this.birthday,
-        avatarUrl:avatarUrl ?? this.avatarUrl,
-        code: code ?? this.code,
-        employeeCode: employeeCode ?? this.employeeCode,
-        employeeId: employeeId ?? this.employeeId,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      login: login ?? this.login,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      department: department ?? this.department,
+      remainLeave: remainLeave ?? this.remainLeave,
+      birthday: birthday ?? this.birthday,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      code: code ?? this.code,
+      employeeCode: employeeCode ?? this.employeeCode,
+      employeeId: employeeId ?? this.employeeId,
       manager: manager ?? this.manager,
       workLocation: workLocation ?? this.workLocation,
       currentAddress: currentAddress ?? this.currentAddress,
       jobTitle: jobTitle ?? this.jobTitle,
-        contractStatus : contractStatus ?? this.contractStatus,
+      contractStatus: contractStatus ?? this.contractStatus,
       dateJoinCompany: dateJoinCompany ?? this.dateJoinCompany,
       state: state ?? this.state,
-
+      isHrDirector: isHrDirector ?? this.isHrDirector,
+      isDirector: isDirector ?? this.isDirector,
     );
   }
 
-  factory ProfileEntity.fromJson(Map<String, dynamic> json) => _$ProfileEntityFromJson(json);
+  factory ProfileEntity.fromJson(Map<String, dynamic> json) =>
+      _$ProfileEntityFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProfileEntityToJson(this);
-
-
 }

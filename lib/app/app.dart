@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:overlay_support/overlay_support.dart';
+import 'package:pm_app/app/data/repositories/checkpoint_repository.dart';
 import 'package:pm_app/app/data/repositories/dashboard_repository.dart';
 import 'package:pm_app/app/data/repositories/employee_repository.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
@@ -16,6 +17,7 @@ import 'package:pm_app/app/data/repositories/overtime_repository.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/features/ui/appraisal_form/cubit/detail_apprasial_cubit.dart';
+import 'package:pm_app/app/features/ui/checkpoint/cubit/checkpoint_cubit.dart';
 import 'package:pm_app/app/features/ui/dashboard/cubit/dashboard_cubit.dart';
 import 'package:pm_app/app/features/ui/attendance/attendance_data_cubit.dart';
 import 'package:pm_app/app/features/ui/auth/forgot_pass/forgot_cubit.dart';
@@ -192,6 +194,7 @@ class _MyAppState extends State<MyApp> {
       BlocProvider(create: (context) => sl<TaskCubit>()),
       BlocProvider(create: (context) => sl<CreateAppraisalCubit>()),
       BlocProvider(create: (context) => sl<DashboardCubit>()),
+      BlocProvider(create: (context) => sl<CheckpointCubit>()),
     ];
   }
 
@@ -208,6 +211,7 @@ class _MyAppState extends State<MyApp> {
         RepositoryProvider(create: (context) => sl<JutificationRepository>()),
         RepositoryProvider(create: (context) => sl<OvertimeRepository>()),
         RepositoryProvider(create: (context) => sl<DashboardRepository>()),
+        RepositoryProvider(create: (context) => sl<CheckpointRepository>()),
       ],
       child: MultiBlocProvider(
         providers: _buildBlocProviders(),

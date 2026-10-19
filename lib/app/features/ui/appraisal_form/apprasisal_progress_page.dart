@@ -110,14 +110,7 @@ class _ApprasisalProgressPageState extends State<ApprasisalProgressPage> {
 
   bool get _isHrReviewer {
     final profile = GlobalData.instance.userProfile;
-    final jobTitle = profile?.jobTitle?.toLowerCase() ?? '';
-    final departmentName = profile?.department?.name?.toLowerCase() ?? '';
-
-    return jobTitle.contains('hr') ||
-        jobTitle.contains('nhân sự') ||
-        jobTitle.contains('hành chính nhân sự') ||
-        departmentName.contains('nhân sự') ||
-        departmentName.contains('hành chính nhân sự');
+    return profile?.isHrDirector == true;
   }
 
   double _taskAverage(TaskLineIdEntity task, bool isLeaderReview) {

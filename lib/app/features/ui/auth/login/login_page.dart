@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/config/app_env.dart';
@@ -152,10 +153,11 @@ class _LoginPageState extends State<LoginPage> {
 
     return BlocConsumer<LogInCubit, LoginState>(
       bloc: _cubit,
-      listenWhen: (previous, current) =>
-          previous.loginStatus != current.loginStatus &&
-          (current.loginStatus == LoadStatus.SUCCESS ||
-              current.loginStatus == LoadStatus.FAILURE),
+      listenWhen:
+          (previous, current) =>
+              previous.loginStatus != current.loginStatus &&
+              (current.loginStatus == LoadStatus.SUCCESS ||
+                  current.loginStatus == LoadStatus.FAILURE),
       listener: (context, state) {
         if (state.loginStatus == LoadStatus.SUCCESS) {
           final pending = GlobalData.instance.quickActionPending;
@@ -560,15 +562,15 @@ class _LoginPageState extends State<LoginPage> {
               text: S.of(context).smallHint,
               style: const TextStyle(fontSize: 12, color: Color(0xFFB5BBC6)),
               children: [
-                // TextSpan(
-                //   text: AppConfig.nameEnv ?? '',
-                //   style: const TextStyle(
-                //     fontSize: 11,
-                //     color: AppColors.neutral400,
-                //   ),
-                //   recognizer:
-                //       TapGestureRecognizer()..onTap = () => showEnv(context),
-                // ),
+                TextSpan(
+                  text: AppConfig.nameEnv ?? '',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.neutral400,
+                  ),
+                  recognizer:
+                      TapGestureRecognizer()..onTap = () => showEnv(context),
+                ),
               ],
             ),
           ),

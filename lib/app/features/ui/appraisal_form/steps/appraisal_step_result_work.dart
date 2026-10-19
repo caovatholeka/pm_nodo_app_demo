@@ -156,7 +156,8 @@ class AppraisalStepResultWork extends StatelessWidget {
                     ),
                   ),
                   AppraisalHelpTooltip(
-                    message: 'Hãy viết rõ ràng đầu mục công việc của bạn tự đánh giá khối lượng, chất lượng và tiến độ công việc đó như thế nào. Bắt buộc phải có ít nhất 3 đầu việc trong mục này.',
+                    message:
+                        'Hãy viết rõ ràng đầu mục công việc của bạn tự đánh giá khối lượng, chất lượng và tiến độ công việc đó như thế nào. Bắt buộc phải có ít nhất 3 đầu việc trong mục này.',
                     autoShow: autoShowHelp,
                   ),
                 ],
@@ -231,6 +232,7 @@ class AppraisalStepResultWork extends StatelessWidget {
               children:
                   List.generate((listTask ?? []).length, (i) {
                     final task = (listTask ?? [])[i];
+                    final taskNameReadOnly = readOnly || isLeaderReview;
 
                     final itemContent = Column(
                       children: [
@@ -253,7 +255,7 @@ class AppraisalStepResultWork extends StatelessWidget {
                                   title: s.appraisal_task_done,
                                   hintText: s.appraisal_task_done_hint,
                                   controller: _nameController(task, i),
-                                  readOnly: readOnly,
+                                  readOnly: taskNameReadOnly,
                                   onChange: (value) => onNameChanged(i, value),
                                   isRequiredField: true,
                                   fillBgColor: Colors.transparent,
@@ -369,7 +371,7 @@ class AppraisalStepResultWork extends StatelessWidget {
                               painter: DotDividerPainter(
                                 color:
                                     isLeaderReview
-                                        ? const Color(0xFFE5E0F0)
+                                        ? const Color(0xFFBFA8D8)
                                         : const Color(0xFFD1FAE5),
                               ),
                             ),
