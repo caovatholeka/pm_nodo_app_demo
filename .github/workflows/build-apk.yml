@@ -2,7 +2,7 @@ name: Build APK (Dev)
 
 on:
   push:
-    branches: ['*']
+    branches: ['**']
   workflow_dispatch:  # cho phép chạy thủ công từ GitHub UI
 
 jobs:
