@@ -11,6 +11,8 @@ import '../ui/checkin/check_in_page.dart';
 import '../ui/home/home_page.dart';
 import '../../core/commons/global_data.dart';
 import '../../core/utils/quick_navigator.dart';
+import '../../core/commons/app_flags.dart';
+import '../ui_v2/navigation/bottom_navigation_v2.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key});
@@ -53,6 +55,9 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    if (AppFlags.isBetaUiActive()) {
+      return const BottomNavigationV2();
+    }
     final padding = MediaQuery.of(context).viewPadding.bottom;
 
     return ValueListenableBuilder<int>(

@@ -25,6 +25,9 @@ abstract class UserRepository {
     String? dateFrom,
     String? dateTo,
   );
+
+  // lay ca duoc phan trong ngay (YYYY-MM-DD)
+  Future<CommonResponse> getShiftAsDay(String date);
 }
 
 class UserRepositoryImpl extends UserRepository {
@@ -97,6 +100,11 @@ class UserRepositoryImpl extends UserRepository {
     String? dateTo,
   ) async {
     return _apiClient.getListAttendanceHistory(dateFrom, dateTo);
+  }
+
+  @override
+  Future<CommonResponse> getShiftAsDay(String date) {
+    return _apiClient.getShiftAsDay(date);
   }
 
   @override

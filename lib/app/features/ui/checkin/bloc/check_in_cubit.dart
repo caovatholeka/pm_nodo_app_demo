@@ -1,5 +1,6 @@
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:pm_app/app/core/helper/response_mapper.dart';
@@ -195,37 +196,13 @@ class CheckInCubit extends Cubit<CheckInState> {
   
     logger.d("lat=${p.latitude}, lng=${p.longitude}, acc=${acc}m, age=${ageSec}s");
 
-    if (state.position == null) {
-      if (ageSec > 300) {
-        logger.d("Ignore very old cached position when no state.position yet");
-      } else {
-        emit(state.copyWith(position: p, address: state.address ?? ''));
-        _refreshNearest();
-      }
-    }
-
-    const maxAccForCheckin = 100.0;
-    final isAccOk = acc > 0 && acc <= maxAccForCheckin;
-    final isFreshOk = (ageSec == null) ? true : ageSec <= 60;
-
-    if (!isAccOk || !isFreshOk) {
-      logger.d("Skip update for checkin: accOk=$isAccOk freshOk=$isFreshOk");
+    if (!shouldAcceptPosition(current: state.position, next: p, now: now)) {
+      logger.d("Skip position update for checkin");
       return;
     }
 
-    final old = state.position;
-    if (old != null) {
-      final dist = Geolocator.distanceBetween(
-        old.latitude, old.longitude,
-        p.latitude, p.longitude,
-      );
-      final accImprove = old.accuracy - acc; // >0 là tốt hơn
-
-      if (dist < 10 && accImprove < 15) return;
-    }
-
     // accept good position
-    emit(state.copyWith(position: p, address: ''));
+    emit(state.copyWith(position: p, address: state.position == null ? (state.address ?? '') : ''));
     _refreshNearest();
 
     try {
@@ -240,6 +217,46 @@ class CheckInCubit extends Cubit<CheckInState> {
     } catch (_) {}
   }
 
+
+  /// Vị trí "cũ" = lấy cách đây hơn 60 giây (vd vị trí hệ điều hành lưu sẵn, hoặc stream
+  /// im lặng vì đứng yên — stream chỉ báo khi di chuyển ≥ 10 m).
+  static const int freshPositionSeconds = 60;
+
+  /// Có dùng [next] thay cho vị trí hiện tại [current] để chấm công không.
+  ///
+  /// - Chưa có vị trí: nhận cả vị trí lưu sẵn (≤ 5 phút) để có ngay mà hiển thị.
+  /// - Vị trí hiện tại đã cũ: nhận vị trí mới nếu sai số ≤ 300 m hoặc không tệ hơn — trước
+  ///   đây bị bỏ qua khi sai số > 100 m nên người đứng yên bị kẹt với vị trí lưu sẵn từ
+  ///   chỗ khác → báo "ngoài phạm vi" dù đang trong bán kính.
+  /// - Vị trí hiện tại còn mới: chỉ nhận vị trí tốt (≤ 100 m) và có thay đổi đáng kể.
+  @visibleForTesting
+  static bool shouldAcceptPosition({
+    required Position? current,
+    required Position next,
+    required DateTime now,
+  }) {
+    int ageOf(Position p) {
+      final s = now.difference(p.timestamp).inSeconds;
+      return s < 0 ? 0 : s;
+    }
+
+    final age = ageOf(next);
+    if (current == null) return age <= 300;
+    if (age > freshPositionSeconds) return false;
+    if (next.accuracy <= 0) return false;
+
+    if (ageOf(current) > freshPositionSeconds) {
+      return next.accuracy <= 300 || next.accuracy <= current.accuracy;
+    }
+
+    if (next.accuracy > 100) return false;
+    final dist = Geolocator.distanceBetween(
+      current.latitude, current.longitude,
+      next.latitude, next.longitude,
+    );
+    final accImprove = current.accuracy - next.accuracy; // >0 là tốt hơn
+    return !(dist < 10 && accImprove < 15);
+  }
 
   /// Đã có danh sách điểm chấm công + vị trí mới → cập nhật điểm gần nhất (danh sách và GPS
   /// được lấy song song, cái nào về sau thì tính lúc đó).

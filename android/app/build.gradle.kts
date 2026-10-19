@@ -53,7 +53,11 @@ android {
     // debug : develop , release : build abb file
     buildTypes {
         release {
+            applicationIdSuffix = ".dev"
             signingConfig = signingConfigs.getByName("release") // release/debug
+        }
+        debug {
+            applicationIdSuffix = ".dev"
         }
     }
 }

@@ -55,6 +55,7 @@ class _HomePageState extends State<HomePage> {
 
     _cubit.getListAttendanceToday();
     _cubit.getListNewTasks();
+    _cubit.getShiftToday();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<NotiCubit>().countUnreadNoti();
@@ -111,6 +112,7 @@ class _HomePageState extends State<HomePage> {
     await Future.wait([
       _cubit.getListAttendanceToday(),
       _cubit.getListNewTasks(),
+      _cubit.getShiftToday(),
     ]);
   }
 
@@ -356,6 +358,15 @@ class _HomePageState extends State<HomePage> {
           );
         }
 
+        // Giờ vào/ra theo ca được phân hôm nay; chưa có ca → 08:30–18:00 như trước,
+        // ngày nghỉ (CT/L) → --:--.
+        final shift = state.shiftToday;
+        final hm = DateFormat('HH:mm');
+        final shiftIn =
+            shift == null ? "08:30" : (shift.isDayOff ? "--:--" : hm.format(shift.start));
+        final shiftOut =
+            shift == null ? "18:00" : (shift.isDayOff ? "--:--" : hm.format(shift.end));
+
         return Center(
           child: SizedBox(
             width: context.sw(0.92),
@@ -363,8 +374,8 @@ class _HomePageState extends State<HomePage> {
               dateText: DateFormat.yMMMMd(
                 Localizations.localeOf(context).languageCode,
               ).format(DateTime.now()),
-              checkInTime: "08:30",
-              checkOutTime: "18:00",
+              checkInTime: shiftIn,
+              checkOutTime: shiftOut,
               checkInStatus: checkInStatus,
               checkOutStatus: checkOutStatus,
               onCheckOutTap: _openCheckIn,

@@ -19,10 +19,25 @@ class AppConfig {
   static const stagingEnviroment = "https://api-nodo-pm-staging.vn/";
   static const prodEnviroment = "https://api.nodo-pm.vn/";
 
-  static const baseFaceIdUrl = "https://pm.nodo.vn/";
+  /// Local dev server, e.g. `flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8075/`
+  /// Empty in normal builds, so the environment switch below applies unchanged.
+  static const localBaseUrl = String.fromEnvironment('API_BASE_URL');
+
+  /// Local face service (dev mock), e.g. `--dart-define=FACE_BASE_URL=http://192.168.1.55:8076/`
+  static const localFaceBaseUrl = String.fromEnvironment('FACE_BASE_URL');
+
+  static String get baseFaceIdUrl => localFaceBaseUrl.isNotEmpty
+      ? localFaceBaseUrl
+      : (localBaseUrl.isNotEmpty ? localBaseUrl : "https://pm.nodo.vn/");
 
   static void setEnvironment(Environment environment) {
     env = environment;
+
+    if (localBaseUrl.isNotEmpty) {
+      baseUrl = localBaseUrl;
+      nameEnv = 'Môi trường: Local ($localBaseUrl)';
+      return;
+    }
 
     switch (environment) {
       case Environment.dev:

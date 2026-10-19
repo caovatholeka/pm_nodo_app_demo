@@ -115,10 +115,16 @@ class FirebaseMessagingService {
     }
 
     if (refreshToken || token.isEmpty) {
-      final latestToken = await _messaging.getToken();
-      if (latestToken != null && latestToken.trim().isNotEmpty) {
-        token = latestToken.trim();
-        await SharedPrefsHelper.setFcmToken(token);
+      // Không để lỗi lấy FCM token (thiếu Google Play Services, mạng chặn
+      // Firebase, FIS_AUTH_ERROR...) chặn luồng đăng nhập: token push là phụ.
+      try {
+        final latestToken = await _messaging.getToken();
+        if (latestToken != null && latestToken.trim().isNotEmpty) {
+          token = latestToken.trim();
+          await SharedPrefsHelper.setFcmToken(token);
+        }
+      } catch (e) {
+        logger.w("Không lấy được FCM token, tiếp tục không có push: $e");
       }
     }
 

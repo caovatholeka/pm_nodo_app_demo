@@ -141,6 +141,10 @@ abstract class ApiClient {
   @GET("/metadata/workflow_stages")
   Future<CommonResponse> getListWorkFlowStages();
 
+  // ca được phân trong ngày (YYYY-MM-DD) của nhân viên đang đăng nhập
+  @GET("/metadata/shift_as_day")
+  Future<CommonResponse> getShiftAsDay(@Query("date") String date);
+
   @GET("/metadata/workentry_types")
   Future<CommonResponse> getListWorkEntryTypes();
 

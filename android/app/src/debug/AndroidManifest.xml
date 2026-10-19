@@ -5,4 +5,6 @@
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Debug only: allow http:// to a local Odoo (API_BASE_URL dart-define). -->
+    <application android:usesCleartextTraffic="true"/>
 </manifest>

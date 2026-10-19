@@ -13,6 +13,7 @@ import '../../../core/logger/logger.dart';
 import '../../../data/local/shared_prefs_helper.dart';
 import '../../../data/models/entities/explanation_entity.dart';
 import '../../../data/models/entities/profile_entity.dart';
+import '../../../data/models/entities/shift_of_day_entity.dart';
 import '../../../data/models/entities/task_data_entity.dart';
 import '../../../data/repositories/user_repository.dart';
 
@@ -54,6 +55,21 @@ class HomeCubit extends Cubit<HomeState> {
           attendanceAction: AttendanceAction.checkIn,
         ),
       );
+    }
+  }
+
+  /// Ca được phân hôm nay (giờ vào/ra ca ở Home). Lỗi mạng thì giữ giá trị cũ; Home tự
+  /// dùng 08:30–18:00 khi chưa có ca.
+  Future<void> getShiftToday() async {
+    final today = DateTime.now();
+    try {
+      final res = await userRepository.getShiftAsDay(
+        DateFormat("yyyy-MM-dd").format(today),
+      );
+      if (isClosed) return;
+      emit(state.copyWith(shiftToday: ShiftOfDayEntity.fromApiData(res.data, today)));
+    } catch (e) {
+      logger.w('Load shift of day failed: $e');
     }
   }
 

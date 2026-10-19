@@ -290,7 +290,14 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "${profile.jobTitle ?? ''}  •  ${S.of(context).employee_card_id}: ${profile.employeeCode ?? ''}  •  ${profile.phone ?? ''}",
+                          [
+                            if (profile.jobTitle?.isNotEmpty ?? false)
+                              profile.jobTitle!,
+                            if (profile.employeeCode?.isNotEmpty ?? false)
+                              "${S.of(context).employee_card_id}: ${profile.employeeCode}",
+                            if (profile.phone?.isNotEmpty ?? false)
+                              profile.phone!,
+                          ].join("  •  "),
                           style: TextStyle(
                             color: AppColors.colorPrimary50,
                             fontSize: screen.width * 0.028,

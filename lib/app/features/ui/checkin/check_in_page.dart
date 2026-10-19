@@ -442,6 +442,13 @@ class _CheckInPageState extends State<CheckInPage> {
         if (state.checkInStatus == LoadStatus.SUCCESS) {
           LoadingOverlay.hide(context);
           _pendingAttendanceResult = state.checkInOutResponse;
+          // Mở dạng tab (UI v2: nút ở Home chỉ chuyển tab) thì không có Home chờ kết
+          // quả như khi mở từ Home → tự cập nhật HomeCubit để Home + dòng "Đã chấm
+          // vào/ra lúc" hiện giờ ngay, không phải chờ tải lại lịch sử.
+          final submitted = state.checkInOutResponse;
+          if (!(widget.isFromHome ?? false) && submitted != null) {
+            _homeCubit.handleAttendanceSubmitted(submitted);
+          }
 
           AppSnackBar.showInfo(
             title: s.check_in_success,
@@ -771,18 +778,8 @@ class _CheckInPageState extends State<CheckInPage> {
                 ? s.check_in_buttonIn
                 : s.check_in_buttonOut;
             return InkWell(
-              onTap: isLoading
-                  ? () {}
-                  : () {
-                      if ((_cubit.state.position?.latitude ?? 0) != 0) {
-                        doCheckIn();
-                      } else {
-                        AppSnackBar.showError(
-                          title: "Cảnh báo",
-                          message: "Tín hiệu GPS kém",
-                        );
-                      }
-                    },
+              // doCheckIn tự lấy lại vị trí nếu chưa có/đã cũ, rồi mới báo "Tín hiệu GPS kém".
+              onTap: isLoading ? () {} : doCheckIn,
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1701,9 +1698,42 @@ class _CheckInPageState extends State<CheckInPage> {
     );
   }
 
+  /// Chưa có vị trí / vị trí đã cũ / đang ngoài phạm vi → nên lấy lại trước khi kết luận.
+  bool _needsFreshPosition() {
+    final p = _cubit.state.position;
+    if (p == null || p.latitude == 0) return true;
+    if (DateTime.now().difference(p.timestamp).inSeconds > 30) return true;
+    final point = _cubit.state.currentCheckInEntity;
+    if (point == null) return false;
+    return _distanceToPoint(p, point).round() >
+        (point.radius ?? 100.0).round() + _radiusTolerance;
+  }
+
+  /// Lấy 1 vị trí mới ngay lúc bấm (tối đa 8 giây). Người đứng yên không nhận được cập
+  /// nhật từ stream (chỉ báo khi di chuyển ≥ 10 m) nên trước đây bị kẹt với vị trí cũ/sai.
+  Future<void> _refreshPositionNow() async {
+    LoadingOverlay.show(context);
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 8),
+      );
+      _cubit.onChangeAddress(pos);
+    } catch (e) {
+      logger.d("Refresh position before check-in failed: $e");
+    } finally {
+      if (mounted) LoadingOverlay.hide(context);
+    }
+  }
+
   doCheckIn() async {
     if (!await _guardUserProfileReady()) {
       return;
+    }
+
+    if (_needsFreshPosition()) {
+      await _refreshPositionNow();
+      if (!mounted) return;
     }
 
     if ((_cubit.state.position?.latitude ?? 0) == 0) {
