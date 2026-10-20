@@ -35,9 +35,12 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      # 5. Generate localization (required by S.of(context))
+      # 5. Generate localization & models (required by S.of(context) & *.g.dart)
       - name: Generate localization
         run: flutter pub run intl_utils:generate
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build
 
       # 6. Create key.properties with debug keystore for CI
       - name: Setup signing (debug keystore)
