@@ -155,7 +155,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
                     ),
                     child: SvgPicture.asset(
                       AppAssets.icFlag,
-                      colorFilter: const ColorFilter.mode(
+                      colorFilter: ColorFilter.mode(
                         AppTokensV2.fgSoft,
                         BlendMode.srcIn,
                       ),
@@ -170,7 +170,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
                       minWidth: 32,
                       minHeight: 32,
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close_rounded,
                       size: 30,
                       color: AppTokensV2.fgMuted,
@@ -181,7 +181,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
               const SizedBox(height: 14),
               Text(
                 widget.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: AppConfig.fontFamily,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -192,7 +192,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
               const SizedBox(height: 8),
               Text(
                 widget.departmentName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: AppConfig.fontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
@@ -205,7 +205,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
                 controller: _controller,
                 maxLines: 1,
                 textAlignVertical: TextAlignVertical.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: AppConfig.fontFamily,
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
@@ -214,7 +214,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
                 cursorColor: AppTokensV2.accent,
                 decoration: InputDecoration(
                   hintText: widget.hintText,
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                     fontFamily: AppConfig.fontFamily,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,

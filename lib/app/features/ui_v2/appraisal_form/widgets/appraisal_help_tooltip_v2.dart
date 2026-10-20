@@ -78,7 +78,7 @@ class _AppraisalHelpTooltipV2State extends State<AppraisalHelpTooltipV2> {
       positionConfig: const PositionConfiguration(
         preferredDirection: TooltipDirection.down,
       ),
-      style: const TooltipStyle(
+      style: TooltipStyle(
         backgroundColor: AppTokensV2.bgTop,
         borderColor: AppTokensV2.border,
         borderWidth: 1,
@@ -88,7 +88,7 @@ class _AppraisalHelpTooltipV2State extends State<AppraisalHelpTooltipV2> {
         constraints: const BoxConstraints(maxWidth: 220),
         child: Text(
           widget.message,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             height: 1.45,
             color: AppTokensV2.fgSoft,
@@ -98,7 +98,7 @@ class _AppraisalHelpTooltipV2State extends State<AppraisalHelpTooltipV2> {
       child: SvgPicture.asset(
         AppAssets.icQuestion,
         width: 20,
-        colorFilter: const ColorFilter.mode(
+        colorFilter: ColorFilter.mode(
           AppTokensV2.fgMuted,
           BlendMode.srcIn,
         ),

@@ -72,7 +72,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
     return controller;
   }
 
-  static const TextStyle _fieldStyle = TextStyle(
+  static TextStyle _fieldStyle = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppTokensV2.fg,
@@ -151,7 +151,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                     isLeaderReview
                         ? s.appraisal_step_direct_manager_rate
                         : s.appraisal_responsibility_description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppTokensV2.fgSoft,
                       fontStyle: FontStyle.italic,
@@ -171,12 +171,12 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                           children: [
                             RichText(
                               text: TextSpan(
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppTokensV2.fg,
                                   fontSize: 13,
                                 ),
                                 children: [
-                                  const TextSpan(
+                                  TextSpan(
                                     text: '• ',
                                     style: TextStyle(
                                       color: AppTokensV2.accent,
@@ -185,7 +185,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                                   ),
                                   TextSpan(
                                     text: item.code ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: AppTokensV2.accent,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -194,7 +194,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                                   TextSpan(
                                     text:
                                         ' - ${s.appraisal_coefficient} ${_formatCoefficient(_coefficientAt(i))}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: AppTokensV2.accent,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -205,7 +205,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                             const SizedBox(height: 10),
                             Text(
                               s.appraisal_score,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppTokensV2.fg,
                                 fontSize: 13,
                               ),

@@ -291,7 +291,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => Navigator.maybePop(context),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: AppTokensV2.fg,
               size: 20,
@@ -319,7 +319,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
               border: Border.all(color: AppTokensV2.border),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notifications_none_rounded,
               size: 20,
               color: AppTokensV2.fgSoft,
@@ -344,7 +344,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
                 height: 44,
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today_rounded,
                       size: 17,
                       color: AppTokensV2.fgMuted,
@@ -443,7 +443,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
                               return Colors.transparent;
                             }),
                             checkColor: WidgetStateProperty.all(Colors.white),
-                            side: const BorderSide(
+                            side: BorderSide(
                               color: AppTokensV2.fgMuted,
                               width: 1.2,
                             ),
@@ -516,7 +516,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
     return BlocBuilder<OvertimeCubit, OvertimeState>(
       builder: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(
               strokeWidth: 2.2,
               color: AppTokensV2.accent,

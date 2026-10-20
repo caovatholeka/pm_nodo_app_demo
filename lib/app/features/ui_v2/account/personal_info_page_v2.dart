@@ -55,7 +55,7 @@ class _PersonalInfoPageV2State extends State<PersonalInfoPageV2> {
                   bloc: _cubit,
                   builder: (context, state) {
                     if (state.isLoading) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(
                             color: AppTokensV2.accent, strokeWidth: 2.2),
                       );
@@ -162,7 +162,7 @@ class _PersonalInfoPageV2State extends State<PersonalInfoPageV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -195,7 +195,7 @@ class _PersonalInfoPageV2State extends State<PersonalInfoPageV2> {
         width: 88,
         height: 88,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
             gradient: AppTokensV2.accentGradient, shape: BoxShape.circle),
         child: Text(initials,
             style: const TextStyle(

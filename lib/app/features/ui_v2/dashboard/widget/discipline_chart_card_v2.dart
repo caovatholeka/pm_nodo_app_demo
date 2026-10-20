@@ -111,11 +111,11 @@ class _DisciplineChartCardV2State extends State<DisciplineChartCardV2> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today_rounded,
+                        Icon(Icons.calendar_today_rounded,
                             size: 13, color: AppTokensV2.fgMuted),
                         const SizedBox(width: 6),
                         Text(_monthLabel(context), style: AppTokensV2.caption),
-                        const Icon(Icons.keyboard_arrow_down_rounded,
+                        Icon(Icons.keyboard_arrow_down_rounded,
                             size: 18, color: AppTokensV2.fgMuted),
                       ],
                     ),
@@ -125,7 +125,7 @@ class _DisciplineChartCardV2State extends State<DisciplineChartCardV2> {
             ),
             const SizedBox(height: 14),
             if (state.disciplineDetailStatus == LoadStatus.LOADING)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 48),
                 child: Center(
                   child: CircularProgressIndicator(
@@ -161,7 +161,7 @@ class _DisciplineChartCardV2State extends State<DisciplineChartCardV2> {
                       color: AppTokensV2.fgMuted.withValues(alpha: 0.4),
                     ),
                     majorTickLines: const MajorTickLines(size: 0),
-                    labelStyle: const TextStyle(
+                    labelStyle: TextStyle(
                       fontSize: 12,
                       color: AppTokensV2.fgMuted,
                     ),
@@ -178,7 +178,7 @@ class _DisciplineChartCardV2State extends State<DisciplineChartCardV2> {
                       color: AppTokensV2.border,
                     ),
                     labelFormat: '{value}',
-                    labelStyle: const TextStyle(
+                    labelStyle: TextStyle(
                       fontSize: 12,
                       color: AppTokensV2.fgMuted,
                     ),

@@ -141,7 +141,7 @@ class _ExplanationTabV2State extends State<ExplanationTabV2> {
             prev.listWorkEntries != cur.listWorkEntries,
         builder: (context, state) {
           return state.loadStatus == LoadStatus.LOADING
-              ? const Center(
+              ? Center(
                   child: CircularProgressIndicator(
                       color: AppTokensV2.accent, strokeWidth: 2.2),
                 )
@@ -225,13 +225,13 @@ class _ExplanationTabV2State extends State<ExplanationTabV2> {
                 height: 30,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     shape: BoxShape.circle, color: AppTokensV2.surfaceStrong),
                 child: InkWell(
                   onTap: () {
                     _shiftMonth(-1);
                   },
-                  child: const Center(
+                  child: Center(
                       child: Icon(Icons.arrow_back_ios,
                           color: AppTokensV2.fgSoft, size: 16)),
                 ),
@@ -246,13 +246,13 @@ class _ExplanationTabV2State extends State<ExplanationTabV2> {
                 height: 30,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     shape: BoxShape.circle, color: AppTokensV2.surfaceStrong),
                 child: InkWell(
                   onTap: () {
                     _shiftMonth(1);
                   },
-                  child: const Center(
+                  child: Center(
                       child: Icon(Icons.arrow_forward_ios,
                           color: AppTokensV2.fgSoft, size: 16)),
                 ).paddingOnly(right: 4),
@@ -276,7 +276,7 @@ class _ExplanationTabV2State extends State<ExplanationTabV2> {
       context,
       showTitleActions: true,
       locale: LocaleType.vi,
-      theme: const DatePickerTheme(
+      theme: DatePickerTheme(
         backgroundColor: AppTokensV2.bgTop,
         itemStyle: TextStyle(color: AppTokensV2.fg, fontSize: 18),
         doneStyle: TextStyle(color: AppTokensV2.accent, fontSize: 16),

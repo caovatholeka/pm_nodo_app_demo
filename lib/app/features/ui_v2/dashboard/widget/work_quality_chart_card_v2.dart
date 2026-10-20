@@ -85,7 +85,7 @@ class _WorkQualityChartCardV2State extends State<WorkQualityChartCardV2> {
                       },
                       child: Text(
                         s.day_off_donebtn,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppTokensV2.accent,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -173,12 +173,12 @@ class _WorkQualityChartCardV2State extends State<WorkQualityChartCardV2> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.calendar_today_rounded,
+                Icon(Icons.calendar_today_rounded,
                     size: 14, color: AppTokensV2.fgMuted),
                 const SizedBox(width: 8),
                 Text(_monthLabel(context), style: AppTokensV2.body),
                 const Spacer(),
-                const Icon(Icons.keyboard_arrow_down_rounded,
+                Icon(Icons.keyboard_arrow_down_rounded,
                     size: 20, color: AppTokensV2.fgMuted),
               ],
             ),

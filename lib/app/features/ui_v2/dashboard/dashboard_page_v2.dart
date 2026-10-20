@@ -153,7 +153,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),

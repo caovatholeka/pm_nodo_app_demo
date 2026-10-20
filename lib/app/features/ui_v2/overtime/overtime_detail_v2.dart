@@ -305,7 +305,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
               leading: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.maybePop(context),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: AppTokensV2.fg,
                   size: 20,
@@ -327,7 +327,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
                       border: Border.all(color: AppTokensV2.border),
                       borderRadius: BorderRadius.circular(13),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.notifications_none_rounded,
                       size: 20,
                       color: AppTokensV2.fgSoft,
@@ -347,7 +347,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
   Widget _buildBody(OvertimeDetailState state) {
     final s = S.of(context);
     if (state.loadStatus == LoadStatus.LOADING) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
           color: AppTokensV2.accent,
           strokeWidth: 2.2,
@@ -447,7 +447,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
           const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.calendar_today_rounded,
                 size: 15,
                 color: AppTokensV2.fgMuted,
@@ -465,7 +465,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.schedule_rounded,
                   size: 15,
                   color: AppTokensV2.fgMuted,
@@ -698,7 +698,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
         ),
         child:
             loading
-                ? const SizedBox(
+                ? SizedBox(
                   height: 16,
                   width: 16,
                   child: Center(
@@ -738,7 +738,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppTokensV2.danger,
             fontWeight: FontWeight.w800,
             fontSize: 14,

@@ -188,7 +188,7 @@ class _LoginPageV2State extends State<LoginPageV2> {
           width: 84,
           height: 84,
           alignment: Alignment.center,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: AppTokensV2.accentGradient,
             shape: BoxShape.circle,
             boxShadow: [

@@ -169,7 +169,7 @@ class _TimesheetDataDetailV2State extends State<TimesheetDataDetailV2> {
                                 state.timesheet?.items ?? const <ItemsEntity>[];
 
                             if (state.timesheetStatus == LoadStatus.LOADING) {
-                              return const Center(
+                              return Center(
                                 child: CircularProgressIndicator(
                                     color: AppTokensV2.accent,
                                     strokeWidth: 2.2),
@@ -230,7 +230,7 @@ class _TimesheetDataDetailV2State extends State<TimesheetDataDetailV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -254,7 +254,7 @@ class _TimesheetDataDetailV2State extends State<TimesheetDataDetailV2> {
             border: Border.all(color: AppTokensV2.border),
             borderRadius: BorderRadius.circular(14),
           ),
-          child: const Icon(Icons.notifications_none_rounded,
+          child: Icon(Icons.notifications_none_rounded,
               size: 19, color: AppTokensV2.fgSoft),
         ),
       ),
@@ -275,12 +275,12 @@ class _TimesheetDataDetailV2State extends State<TimesheetDataDetailV2> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today_rounded,
+            Icon(Icons.calendar_today_rounded,
                 size: 16, color: AppTokensV2.fgMuted),
             const SizedBox(width: 10),
             Text(_monthLabel(context), style: AppTokensV2.body),
             const Spacer(),
-            const Icon(Icons.keyboard_arrow_down_rounded,
+            Icon(Icons.keyboard_arrow_down_rounded,
                 size: 22, color: AppTokensV2.fgMuted),
           ],
         ),

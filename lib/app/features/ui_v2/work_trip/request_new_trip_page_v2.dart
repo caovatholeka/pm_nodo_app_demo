@@ -332,7 +332,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
             leading: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => Navigator.maybePop(context),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 color: AppTokensV2.fg,
                 size: 20,
@@ -411,7 +411,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
               children: [
                 Text(S.of(context).bt_titleEmployee, style: AppTokensV2.caption),
                 const SizedBox(width: 4),
-                const Text(
+                Text(
                   "*",
                   style: TextStyle(color: AppTokensV2.danger, fontSize: 12),
                 ),
@@ -445,7 +445,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.keyboard_arrow_down_rounded,
                       size: 20,
                       color: AppTokensV2.fgMuted,
@@ -699,7 +699,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
           children: [
             Text(S.of(context).bt_notes, style: AppTokensV2.caption),
             const SizedBox(width: 4),
-            const Text(
+            Text(
               "*",
               style: TextStyle(color: AppTokensV2.danger, fontSize: 12),
             ),
@@ -768,7 +768,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
           children: [
             Text(title, style: AppTokensV2.caption),
             const SizedBox(width: 4),
-            const Text(
+            Text(
               "*",
               style: TextStyle(color: AppTokensV2.danger, fontSize: 12),
             ),
@@ -796,7 +796,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.calendar_today_rounded,
                   size: 16,
                   color: AppTokensV2.fgMuted,
@@ -852,7 +852,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
                     child: Text(
                       S.of(context).bt_btnSave,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppTokensV2.fgMuted,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,

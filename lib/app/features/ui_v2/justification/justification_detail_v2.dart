@@ -271,7 +271,7 @@ class _JustificationDetailV2State extends State<JustificationDetailV2> {
               leading: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.maybePop(context),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: AppTokensV2.fg,
                   size: 20,
@@ -296,7 +296,7 @@ class _JustificationDetailV2State extends State<JustificationDetailV2> {
                       border: Border.all(color: AppTokensV2.border),
                       borderRadius: BorderRadius.circular(13),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.notifications_none_rounded,
                       size: 20,
                       color: AppTokensV2.fgSoft,
@@ -315,7 +315,7 @@ class _JustificationDetailV2State extends State<JustificationDetailV2> {
 
   Widget _buildBody(JustificationDetailState state) {
     if (state.loadStatus == LoadStatus.LOADING) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
           color: AppTokensV2.accent,
           strokeWidth: 2.2,
@@ -407,7 +407,7 @@ class _JustificationDetailV2State extends State<JustificationDetailV2> {
           const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.calendar_today_rounded,
                 size: 15,
                 color: AppTokensV2.fgMuted,
@@ -633,7 +633,7 @@ class _JustificationDetailV2State extends State<JustificationDetailV2> {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppTokensV2.danger,
             fontWeight: FontWeight.w800,
             fontSize: 14,

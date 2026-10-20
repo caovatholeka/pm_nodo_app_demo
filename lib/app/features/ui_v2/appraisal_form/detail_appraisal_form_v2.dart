@@ -314,7 +314,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                   controller: _employeeCodeCtrl,
                                   readOnly: true,
                                   fillBgColor: AppTokensV2.surface,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w400,
                                     color: AppTokensV2.fg,
@@ -328,7 +328,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                   controller: _employeeNameCtrl,
                                   readOnly: true,
                                   fillBgColor: AppTokensV2.surface,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w400,
                                     color: AppTokensV2.fg,
@@ -342,7 +342,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                   controller: _deprtmentCtrl,
                                   readOnly: true,
                                   fillBgColor: AppTokensV2.surface,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w400,
                                     color: AppTokensV2.fg,
@@ -360,7 +360,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                         readOnly: true,
                                         suffixIcon: AppAssets.icCalendar,
                                         fillBgColor: AppTokensV2.surface,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400,
                                           color: AppTokensV2.fg,
@@ -381,7 +381,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                         readOnly: true,
                                         suffixIcon: AppAssets.icCalendar,
                                         fillBgColor: AppTokensV2.surface,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400,
                                           color: AppTokensV2.fg,
@@ -398,7 +398,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                     state.toDate != null &&
                                     !state.isDateRangeValid) ...[
                                   const SizedBox(height: 8),
-                                  const Align(
+                                  Align(
                                     alignment: Alignment.centerLeft,
                                     child: Padding(
                                       padding: EdgeInsets.only(left: 4),
@@ -460,7 +460,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
             HapticFeedback.selectionClick();
             Navigator.maybePop(context);
           },
-          child: const Icon(
+          child: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg,
             size: 20,
@@ -491,7 +491,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
               border: Border.all(color: AppTokensV2.border),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notifications_none_rounded,
               size: 20,
               color: AppTokensV2.fgSoft,

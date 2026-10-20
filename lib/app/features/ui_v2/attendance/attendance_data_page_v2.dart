@@ -110,7 +110,7 @@ class _AttendanceDataPageV2State extends State<AttendanceDataPageV2>
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -132,7 +132,7 @@ class _AttendanceDataPageV2State extends State<AttendanceDataPageV2>
             border: Border.all(color: AppTokensV2.border),
             borderRadius: BorderRadius.circular(13),
           ),
-          child: const Icon(Icons.notifications_none_rounded,
+          child: Icon(Icons.notifications_none_rounded,
               size: 20, color: AppTokensV2.fgSoft),
         ),
       ),

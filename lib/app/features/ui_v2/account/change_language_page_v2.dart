@@ -73,7 +73,7 @@ class _ChangeLanguagePageV2State extends State<ChangeLanguagePageV2> {
                               selected: selectedLang == "vi",
                               onTap: () => _changeLanguage("vi"),
                             ),
-                            const Divider(
+                            Divider(
                                 height: 1,
                                 thickness: 1,
                                 color: AppTokensV2.border,
@@ -102,7 +102,7 @@ class _ChangeLanguagePageV2State extends State<ChangeLanguagePageV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -138,7 +138,7 @@ class _ChangeLanguagePageV2State extends State<ChangeLanguagePageV2> {
               ),
             ),
             if (selected)
-              const Icon(Icons.check_circle_rounded,
+              Icon(Icons.check_circle_rounded,
                   color: AppTokensV2.accent, size: 20)
             else
               Container(

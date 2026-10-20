@@ -167,7 +167,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                         ),
                         child: SvgPicture.asset(
                           AppAssets.icFlag,
-                          colorFilter: const ColorFilter.mode(
+                          colorFilter: ColorFilter.mode(
                             AppTokensV2.fgSoft,
                             BlendMode.srcIn,
                           ),
@@ -182,7 +182,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                           minWidth: 32,
                           minHeight: 32,
                         ),
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
                           size: 30,
                           color: AppTokensV2.fgMuted,
@@ -191,7 +191,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     AppraisalDialogV2.fixedTitle,
                     style: TextStyle(
                       fontFamily: AppConfig.fontFamily,
@@ -202,7 +202,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     AppraisalDialogV2.fixedDepartmentName,
                     style: TextStyle(
                       fontFamily: AppConfig.fontFamily,
@@ -217,7 +217,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                     controller: _controller,
                     maxLines: 3,
                     textAlignVertical: TextAlignVertical.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppConfig.fontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
@@ -226,7 +226,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                     cursorColor: AppTokensV2.accent,
                     decoration: InputDecoration(
                       hintText: AppraisalDialogV2.fixedHintText,
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                         fontFamily: AppConfig.fontFamily,
                         fontSize: 16,
                         fontWeight: FontWeight.w400,

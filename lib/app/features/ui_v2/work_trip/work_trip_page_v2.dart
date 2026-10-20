@@ -320,7 +320,7 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => Navigator.maybePop(context),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: AppTokensV2.fg,
               size: 20,
@@ -396,7 +396,7 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
                     height: 44,
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_today_rounded,
                           size: 17,
                           color: AppTokensV2.fgMuted,
@@ -481,7 +481,7 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
                           return Colors.transparent;
                         }),
                         checkColor: WidgetStateProperty.all(Colors.white),
-                        side: const BorderSide(
+                        side: BorderSide(
                           color: AppTokensV2.fgMuted,
                           width: 1.2,
                         ),
@@ -553,7 +553,7 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
       bloc: _cubit,
       builder: (context, state) {
         if (state.loadDataStatus == LoadStatus.LOADING) {
-          return const Padding(
+          return Padding(
             padding: EdgeInsets.only(top: 40),
             child: Center(
               child: CircularProgressIndicator(

@@ -330,7 +330,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => Navigator.maybePop(context),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: AppTokensV2.fg,
               size: 20,
@@ -358,7 +358,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
               border: Border.all(color: AppTokensV2.border),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notifications_none_rounded,
               size: 20,
               color: AppTokensV2.fgSoft,
@@ -383,7 +383,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
                 height: 44,
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.calendar_today_rounded,
                       size: 17,
                       color: AppTokensV2.fgMuted,
@@ -447,7 +447,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
               p.listEvaluations != c.listEvaluations,
       builder: (context, state) {
         if (state.loadDataStatus == LoadStatus.LOADING) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(
               strokeWidth: 2.2,
               color: AppTokensV2.accent,

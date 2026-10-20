@@ -74,7 +74,7 @@ class _ProjectsDetailV2State extends State<ProjectsDetailV2> {
                                 ),
                                 const SizedBox(height: 16),
                                 if (state.projectStatus == LoadStatus.LOADING)
-                                  const Padding(
+                                  Padding(
                                     padding: EdgeInsets.symmetric(vertical: 28),
                                     child: Center(
                                       child: CircularProgressIndicator(
@@ -120,7 +120,7 @@ class _ProjectsDetailV2State extends State<ProjectsDetailV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -141,7 +141,7 @@ class _ProjectsDetailV2State extends State<ProjectsDetailV2> {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.folder_off_outlined,
+            Icon(Icons.folder_off_outlined,
                 size: 36, color: AppTokensV2.fgMuted),
             const SizedBox(height: 10),
             Text(message, style: AppTokensV2.captionStrong),

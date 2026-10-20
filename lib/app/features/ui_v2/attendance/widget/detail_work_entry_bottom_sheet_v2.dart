@@ -41,7 +41,7 @@ class _DetailWorkEntryBottomSheetV2State
     }
   }
 
-  static const _fieldStyle = TextStyle(
+  static TextStyle get _fieldStyle => TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppTokensV2.fg,
@@ -70,7 +70,7 @@ class _DetailWorkEntryBottomSheetV2State
       height: ScreenSize.of(context).height * 0.9,
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppTokensV2.bgTop,
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(16),
@@ -89,7 +89,7 @@ class _DetailWorkEntryBottomSheetV2State
                   children: [
                     Text(
                       s.work_data_dtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppTokensV2.fg,

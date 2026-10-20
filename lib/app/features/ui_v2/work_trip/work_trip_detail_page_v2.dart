@@ -353,7 +353,7 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
             leading: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => Navigator.maybePop(context),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 color: AppTokensV2.fg,
                 size: 20,
@@ -366,7 +366,7 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
             child: SafeArea(
               child:
                   (state.detailStatus == LoadStatus.LOADING)
-                      ? const Center(
+                      ? Center(
                         child: CircularProgressIndicator(
                           color: AppTokensV2.accent,
                           strokeWidth: 2.2,
@@ -465,7 +465,7 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
           const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.calendar_today_rounded,
                 size: 15,
                 color: AppTokensV2.fgMuted,
@@ -682,7 +682,7 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppTokensV2.danger,
             fontWeight: FontWeight.w800,
             fontSize: 14,

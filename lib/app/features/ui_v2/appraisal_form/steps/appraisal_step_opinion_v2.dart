@@ -115,7 +115,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppTokensV2.surface,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
@@ -185,7 +185,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                             isRequiredField: false,
                             readOnly: readOnly,
                             fillBgColor: AppTokensV2.surface,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w400,
                               color: AppTokensV2.fg,
@@ -207,7 +207,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                               enable: false,
                               isRequiredField: false,
                               fillBgColor: AppTokensV2.surface,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
                                 color: AppTokensV2.fg,
@@ -222,7 +222,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                               enable: false,
                               isRequiredField: false,
                               fillBgColor: AppTokensV2.surface,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
                                 color: AppTokensV2.fg,

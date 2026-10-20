@@ -175,7 +175,7 @@ class _AdvancedFilterSheetV2State extends State<AdvancedFilterSheetV2> {
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close,
+                    child: Icon(Icons.close,
                         size: 22, color: AppTokensV2.fgSoft),
                   ),
                   Expanded(
@@ -191,7 +191,7 @@ class _AdvancedFilterSheetV2State extends State<AdvancedFilterSheetV2> {
                     onTap: _clearFilters,
                     child: Text(
                       s.employee_advanced_delete,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppTokensV2.danger,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -400,7 +400,7 @@ class _SelectInputV2 extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(Icons.keyboard_arrow_down_rounded,
+            Icon(Icons.keyboard_arrow_down_rounded,
                 size: 20, color: AppTokensV2.fgMuted),
           ],
         ),
@@ -465,7 +465,7 @@ class _PickerSheetV2 extends StatelessWidget {
                     ),
                   ),
                   trailing: isSelected
-                      ? const Icon(Icons.check_rounded,
+                      ? Icon(Icons.check_rounded,
                           color: AppTokensV2.accent, size: 20)
                       : null,
                   onTap: () {

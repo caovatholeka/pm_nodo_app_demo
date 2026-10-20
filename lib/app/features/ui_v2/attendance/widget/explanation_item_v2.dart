@@ -59,7 +59,7 @@ class ExplanationItemV2 extends StatelessWidget {
                         Expanded(
                           child: Text(
                             workEntryEntity.workEntryLabel ?? "",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 15.5,
                               color: AppTokensV2.fg,
@@ -104,7 +104,7 @@ class ExplanationItemV2 extends StatelessWidget {
                           TextSpan(
                             text: AppDateUtils.changeIso8601StringToDateTimeString(
                                 workEntryEntity.date),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppTokensV2.fgSoft,
                               fontWeight: FontWeight.w500,
                             ),

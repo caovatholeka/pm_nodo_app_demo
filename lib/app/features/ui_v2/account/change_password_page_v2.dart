@@ -183,7 +183,7 @@ class _ChangePasswordViewV2State extends State<_ChangePasswordViewV2> {
                               RichText(
                                 text: TextSpan(
                                   children: [
-                                    const TextSpan(
+                                    TextSpan(
                                       text: "* ",
                                       style: TextStyle(
                                         color: AppTokensV2.danger,
@@ -262,7 +262,7 @@ class _ChangePasswordViewV2State extends State<_ChangePasswordViewV2> {
           }
           Navigator.maybePop(context);
         },
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -294,7 +294,7 @@ class _ChangePasswordViewV2State extends State<_ChangePasswordViewV2> {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: [
-          const Icon(Icons.lock_outline_rounded,
+          Icon(Icons.lock_outline_rounded,
               size: 18, color: AppTokensV2.fgMuted),
           const SizedBox(width: 10),
           Expanded(

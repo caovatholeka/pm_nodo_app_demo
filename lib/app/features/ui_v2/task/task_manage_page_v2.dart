@@ -202,7 +202,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.maybePop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded,
+          child: Icon(Icons.arrow_back_ios_new_rounded,
               color: AppTokensV2.fg, size: 20),
         ),
         const SizedBox(width: 12),
@@ -225,7 +225,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
             border: Border.all(color: AppTokensV2.border),
             borderRadius: BorderRadius.circular(13),
           ),
-          child: const Icon(Icons.notifications_none_rounded,
+          child: Icon(Icons.notifications_none_rounded,
               size: 20, color: AppTokensV2.fgSoft),
         ),
       ),
@@ -249,7 +249,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
                     _dismissKeyboard();
                     _cubit.getListTasks();
                   },
-                  child: const Icon(Icons.search_rounded,
+                  child: Icon(Icons.search_rounded,
                       size: 19, color: AppTokensV2.fgMuted),
                 ),
                 const SizedBox(width: 9),
@@ -276,7 +276,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
                       _cubit.onChangeQuery("");
                       _cubit.getListTasks();
                     },
-                    child: const Icon(Icons.close_rounded,
+                    child: Icon(Icons.close_rounded,
                         size: 17, color: AppTokensV2.fgMuted),
                   ),
               ]),
@@ -377,7 +377,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
           prev.loadStatus != cur.loadStatus || prev.listTasks != cur.listTasks,
       builder: (context, state) {
         if (state.loadStatus == LoadStatus.LOADING) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(
                 strokeWidth: 2.2, color: AppTokensV2.accent),
           );
@@ -389,7 +389,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
             child: Padding(
               padding: const EdgeInsets.all(28),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.checklist_rounded,
+                Icon(Icons.checklist_rounded,
                     size: 44, color: AppTokensV2.fgMuted),
                 const SizedBox(height: 10),
                 Text('Không có dữ liệu', style: AppTokensV2.captionStrong),

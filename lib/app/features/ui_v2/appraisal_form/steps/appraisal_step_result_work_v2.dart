@@ -134,7 +134,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
     return controller;
   }
 
-  static const TextStyle _fieldStyle = TextStyle(
+  static TextStyle _fieldStyle = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppTokensV2.fg,
@@ -174,7 +174,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppTokensV2.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
@@ -209,7 +209,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                   isLeaderReview
                       ? Text(
                         s.appraisal_step_direct_manager_rate,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTokensV2.fgSoft,
                           fontStyle: FontStyle.italic,
@@ -217,7 +217,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                       )
                       : Text(
                         s.appraisal_rating_note,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTokensV2.accent,
                           fontStyle: FontStyle.italic,
@@ -234,7 +234,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                     final itemContent = Column(
                       children: [
                         Container(
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: AppTokensV2.surface,
                             borderRadius: BorderRadius.vertical(
                               bottom: Radius.circular(16),
@@ -399,7 +399,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(14),
                       onTap: onAddCriteria,
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 14),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -434,7 +434,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w500,
             color: AppTokensV2.fg,
           ),

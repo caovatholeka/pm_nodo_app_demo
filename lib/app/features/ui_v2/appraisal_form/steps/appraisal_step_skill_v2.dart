@@ -71,7 +71,7 @@ class AppraisalStepSkillV2 extends StatelessWidget {
     return controller;
   }
 
-  static const TextStyle _fieldStyle = TextStyle(
+  static TextStyle _fieldStyle = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppTokensV2.fg,
@@ -111,7 +111,7 @@ class AppraisalStepSkillV2 extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppTokensV2.surface,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
@@ -157,7 +157,7 @@ class AppraisalStepSkillV2 extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               s.appraisal_skill_description,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: AppTokensV2.fgSoft,
                                 fontStyle: FontStyle.italic,
@@ -183,7 +183,7 @@ class AppraisalStepSkillV2 extends StatelessWidget {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   '•  ',
                                   style: TextStyle(color: AppTokensV2.accent),
                                 ),
@@ -194,21 +194,21 @@ class AppraisalStepSkillV2 extends StatelessWidget {
                                       children: [
                                         TextSpan(
                                           text: '${skill.code ?? ''} - ',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: AppTokensV2.accent,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                         TextSpan(
                                           text: skill.name ?? '',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: AppTokensV2.accent,
                                           ),
                                         ),
                                         TextSpan(
                                           text:
                                               ' - ${s.appraisal_coefficient} ${_formatCoefficient(_coefficientAt(i))}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: AppTokensV2.accent,
                                           ),
                                         ),
@@ -221,13 +221,13 @@ class AppraisalStepSkillV2 extends StatelessWidget {
                             const SizedBox(height: 10),
                             Row(
                               children: [
-                                const Text(
+                                Text(
                                   '* ',
                                   style: TextStyle(color: AppTokensV2.danger),
                                 ),
                                 Text(
                                   s.appraisal_score,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppTokensV2.fg,
                                     fontWeight: FontWeight.w600,
                                   ),

@@ -1741,7 +1741,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
                   readOnly: true,
                   isRequiredField: false,
                   fillBgColor: AppTokensV2.surfaceStrong,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
                     color: AppTokensV2.fg,
@@ -1752,7 +1752,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
                   height: 16,
                   child:
                       _showCoefError
-                          ? const Padding(
+                          ? Padding(
                             padding: EdgeInsets.only(left: 4),
                             child: Text(
                               'Tổng hệ số phải bằng 100%',
@@ -1767,7 +1767,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
                 ),
                 if (_showLegacyCoefError && _showCoefError) ...[
                   const SizedBox(height: 6),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.only(left: 4),
                     child: Text(
                       'Tổng hệ số phải bằng 100%',
@@ -1792,7 +1792,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
               readOnly: true,
               isRequiredField: false,
               fillBgColor: AppTokensV2.surfaceStrong,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
                 color: AppTokensV2.fg,
@@ -1814,7 +1814,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
         readOnly: true,
         isRequiredField: false,
         fillBgColor: AppTokensV2.surfaceStrong,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: AppTokensV2.fg,
@@ -2182,7 +2182,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
             HapticFeedback.selectionClick();
             Navigator.maybePop(context);
           },
-          child: const Icon(
+          child: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg,
             size: 20,

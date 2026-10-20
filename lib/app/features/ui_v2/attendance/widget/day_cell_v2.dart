@@ -76,7 +76,7 @@ class DayCellV2 extends StatelessWidget {
             shape: BoxShape.circle,
           )
         : (isToday
-            ? const BoxDecoration(
+            ? BoxDecoration(
                 color: AppTokensV2.accent,
                 shape: BoxShape.circle,
               )

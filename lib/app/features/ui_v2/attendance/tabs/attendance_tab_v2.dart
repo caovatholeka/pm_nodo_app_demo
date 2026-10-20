@@ -211,7 +211,7 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
                 onTap: () {
                   _shiftMonth(-1);
                 },
-                child: const Icon(Icons.arrow_back_ios,
+                child: Icon(Icons.arrow_back_ios,
                     color: AppTokensV2.fgSoft, size: 20),
               ).paddingOnly(right: 8),
             ),
@@ -222,7 +222,7 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
                 onTap: () {
                   _shiftMonth(1);
                 },
-                child: const Icon(Icons.arrow_forward_ios,
+                child: Icon(Icons.arrow_forward_ios,
                     color: AppTokensV2.fgSoft, size: 20),
               ).paddingOnly(right: 4),
             )
@@ -260,14 +260,14 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(s.work_data_checkInStatus,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: AppTokensV2.accent)),
                         state.isLegendExpand
-                            ? const Icon(Icons.expand_less,
+                            ? Icon(Icons.expand_less,
                                 color: AppTokensV2.accent)
-                            : const Icon(Icons.expand_more,
+                            : Icon(Icons.expand_more,
                                 color: AppTokensV2.accent)
                       ],
                     ),
@@ -357,7 +357,7 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
             prev.historyStatus != cur.historyStatus,
         builder: (context, state) {
           return state.historyStatus == LoadStatus.LOADING
-              ? const Center(
+              ? Center(
                   child: CircularProgressIndicator(
                       color: AppTokensV2.accent, strokeWidth: 2.2))
               : ((state.listAttendanceHistory ?? []).isNotEmpty)
@@ -418,7 +418,7 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
       context,
       showTitleActions: true,
       locale: LocaleType.vi,
-      theme: const DatePickerTheme(
+      theme: DatePickerTheme(
         backgroundColor: AppTokensV2.bgTop,
         itemStyle: TextStyle(color: AppTokensV2.fg, fontSize: 18),
         doneStyle: TextStyle(color: AppTokensV2.accent, fontSize: 16),

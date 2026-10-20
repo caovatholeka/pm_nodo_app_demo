@@ -97,7 +97,7 @@ class _BirthdayListDetailV2State extends State<BirthdayListDetailV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -126,13 +126,13 @@ class _BirthdayListDetailV2State extends State<BirthdayListDetailV2> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today_rounded,
+            Icon(Icons.calendar_today_rounded,
                 size: 15, color: AppTokensV2.fgMuted),
             const SizedBox(width: 8),
             Expanded(
               child: Text(_monthLabel(s), style: AppTokensV2.body),
             ),
-            const Icon(Icons.keyboard_arrow_down_rounded,
+            Icon(Icons.keyboard_arrow_down_rounded,
                 size: 20, color: AppTokensV2.fgMuted),
           ],
         ),
@@ -148,7 +148,7 @@ class _BirthdayListDetailV2State extends State<BirthdayListDetailV2> {
       builder: (context, state) {
         if (state.birthdayStatus == LoadStatus.LOADING &&
             state.birthdays.isEmpty) {
-          return const Padding(
+          return Padding(
             padding: EdgeInsets.symmetric(vertical: 48),
             child: Center(
               child: CircularProgressIndicator(
@@ -170,7 +170,7 @@ class _BirthdayListDetailV2State extends State<BirthdayListDetailV2> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: state.birthdays.length,
-          separatorBuilder: (_, __) => const Padding(
+          separatorBuilder: (_, __) => Padding(
             padding: EdgeInsets.symmetric(vertical: 7),
             child: Divider(height: 1, color: AppTokensV2.border),
           ),
@@ -188,7 +188,7 @@ class _BirthdayListDetailV2State extends State<BirthdayListDetailV2> {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.cake_outlined,
+            Icon(Icons.cake_outlined,
                 size: 40, color: AppTokensV2.fgMuted),
             const SizedBox(height: 10),
             Text(message, style: AppTokensV2.captionStrong),

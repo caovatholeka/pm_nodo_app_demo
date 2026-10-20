@@ -275,7 +275,7 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
             leading: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () => Navigator.maybePop(context),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 color: AppTokensV2.fg,
                 size: 20,
@@ -368,7 +368,7 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
           const SizedBox(height: 14),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.calendar_today_rounded,
                 size: 15,
                 color: AppTokensV2.fgMuted,
@@ -387,7 +387,7 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.event_note_rounded,
                   size: 15,
                   color: AppTokensV2.fgMuted,
@@ -622,7 +622,7 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppTokensV2.danger,
             fontWeight: FontWeight.w800,
             fontSize: 14,

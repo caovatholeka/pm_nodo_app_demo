@@ -148,7 +148,7 @@ class _WorkQualityDetailV2State extends State<WorkQualityDetailV2> {
                               const SizedBox(height: 12),
                               if (state.workQualityStatus ==
                                   LoadStatus.LOADING)
-                                const Padding(
+                                Padding(
                                   padding: EdgeInsets.symmetric(vertical: 32),
                                   child: Center(
                                     child: CircularProgressIndicator(
@@ -189,7 +189,7 @@ class _WorkQualityDetailV2State extends State<WorkQualityDetailV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -210,7 +210,7 @@ class _WorkQualityDetailV2State extends State<WorkQualityDetailV2> {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.rate_review_outlined,
+            Icon(Icons.rate_review_outlined,
                 size: 36, color: AppTokensV2.fgMuted),
             const SizedBox(height: 10),
             Text(message, style: AppTokensV2.captionStrong),

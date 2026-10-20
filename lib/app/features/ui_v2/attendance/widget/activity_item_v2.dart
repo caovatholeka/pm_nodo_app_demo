@@ -46,7 +46,7 @@ class ActivityItemV2 extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppTokensV2.fg,
@@ -55,7 +55,7 @@ class ActivityItemV2 extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     color: AppTokensV2.fgMuted,
                   ),
@@ -63,7 +63,7 @@ class ActivityItemV2 extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   "${S.of(context).work_data_location}: ${place ?? ""}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     color: AppTokensV2.fgMuted,
                   ),
@@ -76,7 +76,7 @@ class ActivityItemV2 extends StatelessWidget {
             children: [
               Text(
                 time,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppTokensV2.fg,
                 ),
@@ -84,7 +84,7 @@ class ActivityItemV2 extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 status,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppTokensV2.fgMuted,

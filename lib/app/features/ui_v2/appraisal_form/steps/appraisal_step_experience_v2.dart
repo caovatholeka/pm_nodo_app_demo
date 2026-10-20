@@ -79,7 +79,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
   Color get _accent =>
       isLeaderReview ? AppTokensV2.accent2 : AppTokensV2.success;
 
-  static const TextStyle _fieldStyle = TextStyle(
+  static TextStyle _fieldStyle = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppTokensV2.fg,
@@ -162,7 +162,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'IV. Kinh nghiệm làm việc',
                     style: AppTokensV2.body,
                   ),
@@ -177,7 +177,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppTokensV2.surface,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
@@ -205,7 +205,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(14),
                       onTap: onAddCriteria,
-                      child: const Padding(
+                      child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 14),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -308,7 +308,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
               if (!readOnly && onRemoveItem != null && experiences.length > 1)
                 IconButton(
                   onPressed: () => onRemoveItem!(index),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.delete_outline,
                     size: 20,
                     color: AppTokensV2.danger,

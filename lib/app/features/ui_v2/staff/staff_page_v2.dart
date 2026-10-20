@@ -177,7 +177,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.maybePop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded,
+          child: Icon(Icons.arrow_back_ios_new_rounded,
               color: AppTokensV2.fg, size: 20),
         ),
         const SizedBox(width: 12),
@@ -199,7 +199,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           radius: 15,
           child: Row(children: [
-            const Icon(Icons.search_rounded,
+            Icon(Icons.search_rounded,
                 size: 19, color: AppTokensV2.fgMuted),
             const SizedBox(width: 9),
             Expanded(
@@ -224,7 +224,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
                   _search.clear();
                   FocusScope.of(context).unfocus();
                 },
-                child: const Icon(Icons.close_rounded,
+                child: Icon(Icons.close_rounded,
                     size: 17, color: AppTokensV2.fgMuted),
               ),
           ]),
@@ -320,7 +320,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
     final list = state.listEmployees ?? const <EmployeeEntity>[];
 
     if (state.loadStatus == LoadStatus.LOADING && list.isEmpty) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(
             strokeWidth: 2.2, color: AppTokensV2.accent),
       );
@@ -330,7 +330,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
         child: Padding(
           padding: const EdgeInsets.all(28),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.people_outline_rounded,
+            Icon(Icons.people_outline_rounded,
                 size: 44, color: AppTokensV2.fgMuted),
             const SizedBox(height: 10),
             Text('Không có nhân viên', style: AppTokensV2.captionStrong),
@@ -439,7 +439,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
         width: 62,
         height: 62,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
             gradient: AppTokensV2.accentGradient, shape: BoxShape.circle),
         child: Text(initials,
             style: const TextStyle(

@@ -56,14 +56,14 @@ class ProjectPickerV2 extends StatelessWidget {
               ),
             ),
             if (isLoading)
-              const SizedBox(
+              SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
                     strokeWidth: 2.2, color: AppTokensV2.accent),
               )
             else
-              const Icon(Icons.keyboard_arrow_down_rounded,
+              Icon(Icons.keyboard_arrow_down_rounded,
                   size: 20, color: AppTokensV2.fgMuted),
           ],
         ),
@@ -167,7 +167,7 @@ class _ProjectSheetTileV2 extends StatelessWidget {
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle_rounded,
+              Icon(Icons.check_circle_rounded,
                   size: 20, color: AppTokensV2.accent),
           ],
         ),
@@ -209,7 +209,7 @@ class ProjectTaskCardV2 extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.star_rounded,
+              Icon(Icons.star_rounded,
                   color: AppTokensV2.warn, size: 20),
               const SizedBox(width: 10),
               Expanded(

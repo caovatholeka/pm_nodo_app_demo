@@ -12,7 +12,7 @@ class WeekCellV2 extends StatelessWidget {
       child: Center(
         child: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
             color: AppTokensV2.fgSoft,
           ),

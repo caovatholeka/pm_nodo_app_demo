@@ -31,7 +31,7 @@ class LeaveBalanceCardV2 extends StatelessWidget {
           ),
           Text(
             remainingDays,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: AppTokensV2.fg,

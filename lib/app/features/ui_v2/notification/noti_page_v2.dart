@@ -218,7 +218,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.maybePop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded,
+          child: Icon(Icons.arrow_back_ios_new_rounded,
               color: AppTokensV2.fg, size: 20),
         ),
         const SizedBox(width: 12),
@@ -238,7 +238,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
               border: Border.all(color: AppTokensV2.border),
               borderRadius: BorderRadius.circular(13),
             ),
-            child: const Icon(Icons.done_all_rounded,
+            child: Icon(Icons.done_all_rounded,
                 size: 20, color: AppTokensV2.fgSoft),
           ),
         ),
@@ -248,7 +248,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
 
   Widget _buildBody(S s, NotiState state) {
     if (state.status == LoadStatus.LOADING) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.only(top: 40),
           child: CircularProgressIndicator(
@@ -269,7 +269,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.notifications_off_outlined,
+              Icon(Icons.notifications_off_outlined,
                   size: 44, color: AppTokensV2.fgMuted),
               const SizedBox(height: 12),
               Text(s.notification_no_data, style: AppTokensV2.captionStrong),
@@ -410,7 +410,7 @@ class _NotificationPageV2State extends State<NotificationPageV2> {
                               width: 7,
                               height: 7,
                               margin: const EdgeInsets.only(top: 5, right: 6),
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 color: AppTokensV2.accent,
                                 shape: BoxShape.circle,
                               ),

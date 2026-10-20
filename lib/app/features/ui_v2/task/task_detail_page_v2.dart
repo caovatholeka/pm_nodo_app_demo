@@ -130,7 +130,7 @@ class _TaskDetailPageV2State extends State<TaskDetailPageV2> {
                           prev.detailTask != cur.detailTask,
                       builder: (context, state) {
                         if (state.loadDetailStatus == LoadStatus.LOADING) {
-                          return const Center(
+                          return Center(
                             child: CircularProgressIndicator(
                               color: AppTokensV2.accent,
                               strokeWidth: 2.2,
@@ -167,7 +167,7 @@ class _TaskDetailPageV2State extends State<TaskDetailPageV2> {
       GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => Navigator.maybePop(context),
-        child: const Icon(Icons.arrow_back_ios_new_rounded,
+        child: Icon(Icons.arrow_back_ios_new_rounded,
             color: AppTokensV2.fg, size: 20),
       ),
       const SizedBox(width: 12),
@@ -191,7 +191,7 @@ class _TaskDetailPageV2State extends State<TaskDetailPageV2> {
             border: Border.all(color: AppTokensV2.border),
             borderRadius: BorderRadius.circular(13),
           ),
-          child: const Icon(Icons.notifications_none_rounded,
+          child: Icon(Icons.notifications_none_rounded,
               size: 20, color: AppTokensV2.fgSoft),
         ),
       ),
@@ -377,7 +377,7 @@ class _TaskDetailPageV2State extends State<TaskDetailPageV2> {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppTokensV2.danger,
             fontWeight: FontWeight.w800,
             fontSize: 14,

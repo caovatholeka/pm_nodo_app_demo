@@ -205,7 +205,7 @@ class _DayTypePickerSheetV2 extends StatelessWidget {
               ),
               trailing:
                   isSelected
-                      ? const Icon(
+                      ? Icon(
                         Icons.check_rounded,
                         color: AppTokensV2.accent,
                         size: 20,

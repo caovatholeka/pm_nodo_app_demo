@@ -144,7 +144,7 @@ class WorkTripListItemV2 extends StatelessWidget {
                                     checkColor: WidgetStateProperty.all(
                                       Colors.white,
                                     ),
-                                    side: const BorderSide(
+                                    side: BorderSide(
                                       color: AppTokensV2.fgMuted,
                                       width: 1.2,
                                     ),

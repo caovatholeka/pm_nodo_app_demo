@@ -186,7 +186,7 @@ class _CreateJustificationPageV2State
               leading: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.maybePop(context),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: AppTokensV2.fg,
                   size: 20,
@@ -213,7 +213,7 @@ class _CreateJustificationPageV2State
                       border: Border.all(color: AppTokensV2.border),
                       borderRadius: BorderRadius.circular(13),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.notifications_none_rounded,
                       size: 20,
                       color: AppTokensV2.fgSoft,
@@ -274,7 +274,7 @@ class _CreateJustificationPageV2State
         Text(title, style: AppTokensV2.caption),
         if (required) ...[
           const SizedBox(width: 4),
-          const Text(
+          Text(
             '*',
             style: TextStyle(color: AppTokensV2.danger, fontSize: 12),
           ),
@@ -317,7 +317,7 @@ class _CreateJustificationPageV2State
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 20,
                   color: AppTokensV2.fgMuted,
@@ -366,7 +366,7 @@ class _CreateJustificationPageV2State
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.calendar_today_rounded,
                   size: 16,
                   color: AppTokensV2.fgMuted,
@@ -595,7 +595,7 @@ class _CreateJustificationPageV2State
                   child: Text(
                     S.of(context).justification_create_savebtn,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppTokensV2.fgMuted,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -651,7 +651,7 @@ class _ReasonTypePickerSheetV2 extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => Navigator.pop(context),
-                  child: const Icon(
+                  child: Icon(
                     Icons.close,
                     size: 22,
                     color: AppTokensV2.fgSoft,
@@ -685,7 +685,7 @@ class _ReasonTypePickerSheetV2 extends StatelessWidget {
                   ),
                 ),
                 trailing: isSelected
-                    ? const Icon(
+                    ? Icon(
                         Icons.check_rounded,
                         color: AppTokensV2.accent,
                         size: 20,
