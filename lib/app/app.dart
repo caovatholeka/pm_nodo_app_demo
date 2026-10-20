@@ -50,6 +50,7 @@ import 'features/ui/auth/login/login_cubit.dart';
 import 'features/ui/checkin/bloc/face_scan_cubit.dart';
 import 'features/ui/splash/splash_cubit.dart';
 import 'features/ui/account/account_cubit.dart';
+import 'core/theme_v2/theme_controller_v2.dart';
 
 class MyApp extends StatefulWidget {
   MyApp({super.key}) {
@@ -257,7 +258,11 @@ class _MyAppState extends State<MyApp> {
           buildWhen: (pre, cur) => pre.locale != cur.locale,
 
           builder: (context, state) {
-            return OverlaySupport(child: materialApp(state.locale ?? _locale));
+            return ValueListenableBuilder<ThemeModeV2>(
+              valueListenable: ThemeControllerV2.instance.mode,
+              builder: (_, __, ___) =>
+                  OverlaySupport(child: materialApp(state.locale ?? _locale)),
+            );
           },
         ),
       ),
