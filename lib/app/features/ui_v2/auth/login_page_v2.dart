@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/config/app_config.dart';
+import 'package:pm_app/app/config/app_env.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
@@ -383,18 +385,194 @@ class _LoginPageV2State extends State<LoginPageV2> {
   }
 
   Widget _buildFooter(S s) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.info_outline, size: 16, color: AppTokensV2.fgMuted),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            s.smallHint,
-            style: AppTokensV2.caption,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline, size: 16, color: AppTokensV2.fgMuted),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                s.smallHint,
+                style: AppTokensV2.caption,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _showEnvBottomSheet(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            decoration: BoxDecoration(
+              color: AppTokensV2.surfaceStrong,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTokensV2.border),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.dns_outlined, size: 14, color: AppTokensV2.accent),
+                const SizedBox(width: 6),
+                Text(
+                  AppConfig.nameEnv ?? 'Môi trường: Prod',
+                  style: AppTokensV2.captionStrong.copyWith(
+                    color: AppTokensV2.fgPrimary,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(Icons.arrow_drop_down, size: 16, color: AppTokensV2.fgMuted),
+              ],
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  void _showEnvBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      elevation: 0,
+      barrierColor: Colors.black.withOpacity(0.6),
+      useRootNavigator: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppTokensV2.bgElevated,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppTokensV2.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Chọn môi trường máy chủ',
+                  style: AppTokensV2.title.copyWith(fontSize: 16),
+                ),
+                const SizedBox(height: 16),
+                _envOptionItem(
+                  title: 'Production (Chính thức)',
+                  subtitle: 'https://pm.nodo.vn/',
+                  selected: AppConfig.env == Environment.prod,
+                  onTap: () {
+                    AppConfig.setEnvironment(Environment.prod);
+                    if (mounted) setState(() {});
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+                const SizedBox(height: 8),
+                _envOptionItem(
+                  title: 'Demo HRM',
+                  subtitle: 'https://demo-hrm.nodo.vn/',
+                  selected: AppConfig.env == Environment.demo,
+                  onTap: () {
+                    AppConfig.setEnvironment(Environment.demo);
+                    if (mounted) setState(() {});
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+                const SizedBox(height: 8),
+                _envOptionItem(
+                  title: 'Develop',
+                  subtitle: 'https://pm.nodo.vn/',
+                  selected: AppConfig.env == Environment.dev,
+                  onTap: () {
+                    AppConfig.setEnvironment(Environment.dev);
+                    if (mounted) setState(() {});
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+                const SizedBox(height: 8),
+                _envOptionItem(
+                  title: 'Test',
+                  subtitle: 'https://test-pm.nodo.vn/',
+                  selected: AppConfig.env == Environment.test,
+                  onTap: () {
+                    AppConfig.setEnvironment(Environment.test);
+                    if (mounted) setState(() {});
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _envOptionItem({
+    required String title,
+    required String subtitle,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppTokensV2.accent.withOpacity(0.12)
+              : AppTokensV2.surfaceStrong,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? AppTokensV2.accent : AppTokensV2.border,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTokensV2.body.copyWith(
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                      color: selected
+                          ? AppTokensV2.accent
+                          : AppTokensV2.fgPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: AppTokensV2.caption.copyWith(fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+            if (selected)
+              const Icon(
+                Icons.check_circle_rounded,
+                color: AppTokensV2.accent,
+                size: 20,
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

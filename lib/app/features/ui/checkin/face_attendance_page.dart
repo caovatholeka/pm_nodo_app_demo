@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:permission_handler/permission_handler.dart';
 // import 'package:face_anti_spoofing_detector/face_anti_spoofing_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -47,6 +48,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
 
   CameraController? _cam;
   bool _isCameraInitializing = false;
+  bool _needsReInit = false;
   int _cameraSession = 0;
 
   bool _scanStarted = false;
@@ -182,56 +184,89 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   }
 
   Future<void> _initCamera() async {
-    if (_isCameraInitializing) return;
-    if (_cam != null) return;
+    if (!mounted) return;
+    if (_cam != null && _cam!.value.isInitialized) return;
+    if (_isCameraInitializing) {
+      _needsReInit = true;
+      return;
+    }
 
     _isCameraInitializing = true;
-    final session = ++_cameraSession;
-    CameraController? controller;
     try {
-      _frontCamera ??= await _findFrontCamera();
+      // Đảm bảo quyền Camera đã được cấp trước khi khởi tạo CameraController.
+      // Tránh dialog quyền của hệ thống làm gián đoạn vòng đời Activity dẫn đến quay tròn load mãi.
+      var status = await Permission.camera.status;
+      if (!status.isGranted) {
+        status = await Permission.camera.request();
+      }
 
-      controller = CameraController(
-        _frontCamera!,
-        ResolutionPreset.medium,
-        enableAudio: false,
-        imageFormatGroup:
-            Platform.isAndroid
-                ? ImageFormatGroup.nv21
-                : ImageFormatGroup.bgra8888,
-      );
-
-      await controller.initialize();
-      await controller.setZoomLevel(1.0);
-      await controller.setFlashMode(FlashMode.off);
-      await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-
-      if (!mounted || session != _cameraSession) {
-        await _disposeController(controller);
+      if (!status.isGranted) {
+        if (mounted) {
+          AppSnackBar.showError(
+            title: "Quyền Camera",
+            message: "Vui lòng cấp quyền Camera để thực hiện chấm công.",
+          );
+        }
         return;
       }
 
-      _cam = controller;
-      perfLog('camera ready ${_openWatch.elapsedMilliseconds} ms after open');
-      if (mounted) {
-        setState(() => _initialized = true);
-        // Tự bắt đầu quét khi camera sẵn sàng (trước đây phải bấm nút chụp)
-        _startScan();
-      }
-    } catch (e) {
-      // Khởi tạo hỏng giữa chừng: giải phóng controller để lần mở sau không bị chiếm camera
-      if (controller != null && !identical(controller, _cam)) {
-        await _disposeController(controller);
-      }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${S.of(context).check_in_cannotOpenCamera}: $e'),
-          ),
+      if (!mounted) return;
+
+      final session = ++_cameraSession;
+      CameraController? controller;
+      try {
+        _frontCamera ??= await _findFrontCamera();
+
+        controller = CameraController(
+          _frontCamera!,
+          ResolutionPreset.medium,
+          enableAudio: false,
+          imageFormatGroup:
+              Platform.isAndroid
+                  ? ImageFormatGroup.nv21
+                  : ImageFormatGroup.bgra8888,
         );
+
+        await controller.initialize();
+        await controller.setZoomLevel(1.0);
+        await controller.setFlashMode(FlashMode.off);
+        await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+
+        if (!mounted || session != _cameraSession) {
+          await _disposeController(controller);
+          return;
+        }
+
+        _cam = controller;
+        perfLog('camera ready ${_openWatch.elapsedMilliseconds} ms after open');
+        if (mounted) {
+          setState(() => _initialized = true);
+          // Tự bắt đầu quét khi camera sẵn sàng (trước đây phải bấm nút chụp)
+          _startScan();
+        }
+      } catch (e) {
+        // Khởi tạo hỏng giữa chừng: giải phóng controller để lần mở sau không bị chiếm camera
+        if (controller != null && !identical(controller, _cam)) {
+          await _disposeController(controller);
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${S.of(context).check_in_cannotOpenCamera}: $e'),
+            ),
+          );
+        }
       }
     } finally {
       _isCameraInitializing = false;
+      if (_needsReInit && mounted && (_cam == null || !_cam!.value.isInitialized)) {
+        _needsReInit = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && (_cam == null || !_cam!.value.isInitialized)) {
+            _initCamera();
+          }
+        });
+      }
     }
   }
 
@@ -256,6 +291,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     final controller = _cam;
     _cam = null;
     _cameraSession++;
+    _isCameraInitializing = false;
 
     _scanStarted = false;
     _initialized = false;
@@ -692,8 +728,27 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
             if (camReady)
               CameraCoverPreview(controller: _cam!)
             else
-              const Center(
-                child: CircularProgressIndicator(color: Colors.white),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(color: Colors.white),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Đang khởi động camera...',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: () => _initCamera(),
+                      icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
+                      label: const Text(
+                        'Thử lại',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
             // nếu muốn, có thể bật lại guide ở giữa:
