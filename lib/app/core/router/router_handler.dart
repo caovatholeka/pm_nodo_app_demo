@@ -21,9 +21,14 @@ Handler splashHandler = Handler(
       SplashPage(),
 );
 
+/// Màn đăng nhập đang dùng. Mọi chỗ điều hướng về đăng nhập (splash, đăng xuất,
+/// quick action, đổi mật khẩu...) đều dùng hàm này để luôn ra cùng một giao diện.
+Widget buildLoginPage() =>
+    AppFlags.isBetaUiActive() ? const LoginPageV2() : const LoginPage();
+
 Handler loginHandler = Handler(
   handlerFunc: (BuildContext? context, Map<String, List<String>> params) =>
-      AppFlags.isBetaUiActive() ? const LoginPageV2() : LoginPage(),
+      buildLoginPage(),
 );
 
 Handler bottomNavHandler = Handler(

@@ -16,7 +16,7 @@ import 'package:pm_app/app/features/ui_v2/account/change_language_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/account/change_password_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/account/personal_info_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/notification/noti_page_v2.dart';
-import 'package:pm_app/app/features/ui_v2/auth/login_page_v2.dart';
+import 'package:pm_app/app/core/router/router_handler.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -58,7 +58,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
       _cubit.onResetStatus();
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LoginPageV2()),
+        MaterialPageRoute(builder: (_) => buildLoginPage()),
         (_) => false,
       );
     } else if (state.logoutStatus == LoadStatus.FAILURE) {

@@ -26,9 +26,11 @@ class AppConfig {
   /// Local face service (dev mock), e.g. `--dart-define=FACE_BASE_URL=http://192.168.1.55:8076/`
   static const localFaceBaseUrl = String.fromEnvironment('FACE_BASE_URL');
 
+  /// Nhận diện khuôn mặt đi theo môi trường đang chọn: mỗi môi trường có dữ liệu khuôn mặt
+  /// và employee_id riêng (mặt đăng ký ở Demo không có trên Prod).
   static String get baseFaceIdUrl => localFaceBaseUrl.isNotEmpty
       ? localFaceBaseUrl
-      : (localBaseUrl.isNotEmpty ? localBaseUrl : "https://pm.nodo.vn/");
+      : (localBaseUrl.isNotEmpty ? localBaseUrl : baseUrl);
 
   static void setEnvironment(Environment environment) {
     env = environment;

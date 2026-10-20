@@ -8,7 +8,7 @@ import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/generated/l10n.dart';
 import 'otp_verify_cubit.dart';
-import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
+import 'package:pm_app/app/core/router/router_handler.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/services.dart';
 
@@ -187,7 +187,7 @@ class _OtpVerifyPageState extends State<OtpVerifyPage> {
           Future.delayed(const Duration(milliseconds: 1200), () {
             if (!mounted) return;
             navigator.pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+              MaterialPageRoute(builder: (_) => buildLoginPage()),
               (route) => false,
             );
           });

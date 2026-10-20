@@ -139,9 +139,13 @@ class FaceScanCubit extends Cubit<FaceScanState> {
       return "Máy chủ đang bận. Vui lòng thử lại sau.";
     }
 
-    // Lỗi 4xx: ưu tiên thông báo server trả về ({"message": ...} hoặc FastAPI {"detail": ...})
+    // Lỗi 4xx: ưu tiên thông báo server trả về ({"message": ...} hoặc FastAPI {"detail": ...}).
+    // Kèm mã lỗi + API để phân biệt lỗi nhận diện khuôn mặt hay lỗi chấm công khi báo lỗi.
+    final api = error.requestOptions.path.contains('search-face')
+        ? 'nhận diện'
+        : 'chấm công';
     return _serverMessage(error.response?.data) ??
-        "Không thể chấm công lúc này. Vui lòng thử lại.";
+        "Không thể chấm công lúc này ($api - mã $statusCode). Vui lòng thử lại.";
   }
 
   String? _serverMessage(dynamic data) {
@@ -152,6 +156,11 @@ class FaceScanCubit extends Cubit<FaceScanState> {
     if (detail is String) return _nonEmpty(detail);
     if (detail is Map && detail['message'] is String) {
       return _nonEmpty(detail['message'] as String);
+    }
+    // FastAPI lỗi validate: {"detail": [{"msg": ...}, ...]}
+    if (detail is List && detail.isNotEmpty && detail.first is Map) {
+      final msg = (detail.first as Map)['msg'];
+      if (msg is String) return _nonEmpty(msg);
     }
     return null;
   }

@@ -12,7 +12,7 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/service/local_notification_service.dart';
 import 'package:pm_app/app/core/utils/quick_navigator.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
-import 'package:pm_app/app/features/ui/auth/login/login_page.dart';
+import 'package:pm_app/app/core/router/router_handler.dart';
 import 'package:quick_actions/quick_actions.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'firebase_options.dart';
@@ -65,7 +65,7 @@ void main() {
         if (token == null) {
           GlobalData.instance.isFromQuickAction = false;
           GlobalData.instance.navigatorKey.currentState?.pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const LoginPage()),
+            MaterialPageRoute(builder: (_) => buildLoginPage()),
             (route) => false,
           );
           return;

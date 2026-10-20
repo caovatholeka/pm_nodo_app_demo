@@ -14,7 +14,7 @@ import '../../../data/models/enums/load_status.dart';
 
 import '../../widgets/custom_dialog.dart';
 import '../../widgets/loading_overlay.dart';
-import '../auth/login/login_page.dart';
+import 'package:pm_app/app/core/router/router_handler.dart';
 import '../account/change_languge/change_languge_page.dart';
 import '../account/personal_info/personal_info_page.dart';
 import '../account/changepassword/change_password_page.dart';
@@ -132,7 +132,7 @@ class _AccountPageState extends State<AccountPage> {
             _cubit.onResetStatus();
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+              MaterialPageRoute(builder: (_) => buildLoginPage()),
               (_) => false,
             );
           }

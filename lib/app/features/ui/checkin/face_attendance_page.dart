@@ -50,6 +50,10 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   bool _isCameraInitializing = false;
   bool _needsReInit = false;
   int _cameraSession = 0;
+  // Lỗi mở camera (vd. bị từ chối quyền) → hiện thông báo + nút thay cho vòng quay
+  String? _cameraError;
+  bool _cameraPermissionDenied = false;
+  bool _openedAppSettings = false;
 
   bool _scanStarted = false;
   // Lỗi xác thực/chấm công → dừng quét, chờ người dùng bấm "Thử lại" (không tự gửi liên tục)
@@ -174,11 +178,20 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (widget.stillImage != null) return;
 
-    if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused ||
+    if (state == AppLifecycleState.inactive) {
+      // Hộp thoại xin quyền camera của hệ thống (lần đầu mở) cũng làm app "inactive".
+      // Nếu đang khởi tạo mà huỷ ở đây thì lúc người dùng bấm "Cho phép" camera bị bỏ
+      // → quay tròn mãi. Chỉ đóng camera khi nó đã mở thật.
+      if (_cam != null) await _stopCamera();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden ||
         state == AppLifecycleState.detached) {
       await _stopCamera();
     } else if (state == AppLifecycleState.resumed && mounted) {
+      // Vừa từ chối quyền thì không tự mở lại (sẽ hỏi quyền lặp lại); chỉ thử lại khi
+      // người dùng quay về từ Cài đặt hoặc bấm "Thử lại".
+      if (_cameraError != null && !_openedAppSettings) return;
+      _openedAppSettings = false;
       await _initCamera();
     }
   }
@@ -187,88 +200,87 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     if (!mounted) return;
     if (_cam != null && _cam!.value.isInitialized) return;
     if (_isCameraInitializing) {
+      // Đang có lần khởi tạo dở (vd. vừa quay lại từ hộp thoại quyền): chạy lại sau khi
+      // lần đó xong, nếu nó bị huỷ giữa chừng.
       _needsReInit = true;
       return;
     }
 
     _isCameraInitializing = true;
-    try {
-      // Đảm bảo quyền Camera đã được cấp trước khi khởi tạo CameraController.
-      // Tránh dialog quyền của hệ thống làm gián đoạn vòng đời Activity dẫn đến quay tròn load mãi.
-      var status = await Permission.camera.status;
-      if (!status.isGranted) {
-        status = await Permission.camera.request();
-      }
+    _needsReInit = false;
+    if (_cameraError != null) {
+      setState(() {
+        _cameraError = null;
+        _cameraPermissionDenied = false;
+      });
+    }
 
-      if (!status.isGranted) {
-        if (mounted) {
-          AppSnackBar.showError(
-            title: "Quyền Camera",
-            message: "Vui lòng cấp quyền Camera để thực hiện chấm công.",
-          );
-        }
+    final session = ++_cameraSession;
+    CameraController? controller;
+    try {
+      _frontCamera ??= await _findFrontCamera();
+
+      controller = CameraController(
+        _frontCamera!,
+        ResolutionPreset.medium,
+        enableAudio: false,
+        imageFormatGroup:
+            Platform.isAndroid
+                ? ImageFormatGroup.nv21
+                : ImageFormatGroup.bgra8888,
+      );
+
+      // Plugin camera tự xin quyền ở bước này (lần đầu sẽ hiện hộp thoại hệ thống)
+      await controller.initialize();
+      await controller.setZoomLevel(1.0);
+      await controller.setFlashMode(FlashMode.off);
+      await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
+
+      if (!mounted || session != _cameraSession) {
+        await _disposeController(controller);
         return;
       }
 
-      if (!mounted) return;
-
-      final session = ++_cameraSession;
-      CameraController? controller;
-      try {
-        _frontCamera ??= await _findFrontCamera();
-
-        controller = CameraController(
-          _frontCamera!,
-          ResolutionPreset.medium,
-          enableAudio: false,
-          imageFormatGroup:
-              Platform.isAndroid
-                  ? ImageFormatGroup.nv21
-                  : ImageFormatGroup.bgra8888,
-        );
-
-        await controller.initialize();
-        await controller.setZoomLevel(1.0);
-        await controller.setFlashMode(FlashMode.off);
-        await controller.lockCaptureOrientation(DeviceOrientation.portraitUp);
-
-        if (!mounted || session != _cameraSession) {
-          await _disposeController(controller);
-          return;
-        }
-
-        _cam = controller;
-        perfLog('camera ready ${_openWatch.elapsedMilliseconds} ms after open');
-        if (mounted) {
-          setState(() => _initialized = true);
-          // Tự bắt đầu quét khi camera sẵn sàng (trước đây phải bấm nút chụp)
-          _startScan();
-        }
-      } catch (e) {
-        // Khởi tạo hỏng giữa chừng: giải phóng controller để lần mở sau không bị chiếm camera
-        if (controller != null && !identical(controller, _cam)) {
-          await _disposeController(controller);
-        }
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${S.of(context).check_in_cannotOpenCamera}: $e'),
-            ),
-          );
-        }
+      _cam = controller;
+      perfLog('camera ready ${_openWatch.elapsedMilliseconds} ms after open');
+      if (mounted) {
+        setState(() => _initialized = true);
+        // Tự bắt đầu quét khi camera sẵn sàng (trước đây phải bấm nút chụp)
+        _startScan();
+      }
+    } catch (e) {
+      // Khởi tạo hỏng giữa chừng: giải phóng controller để lần mở sau không bị chiếm camera
+      if (controller != null && !identical(controller, _cam)) {
+        await _disposeController(controller);
+      }
+      // Lỗi của một lần khởi tạo đã bị huỷ (app ra nền...) thì bỏ qua, lần sau sẽ mở lại
+      if (mounted && session == _cameraSession) {
+        final denied = e is CameraException && _isPermissionError(e.code);
+        setState(() {
+          _cameraPermissionDenied = denied;
+          _cameraError = denied
+              ? 'Ứng dụng chưa được cấp quyền Camera. Vui lòng cho phép trong Cài đặt để chấm công.'
+              : '${S.of(context).check_in_cannotOpenCamera}: ${e is CameraException ? (e.description ?? e.code) : e}';
+        });
       }
     } finally {
       _isCameraInitializing = false;
-      if (_needsReInit && mounted && (_cam == null || !_cam!.value.isInitialized)) {
-        _needsReInit = false;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && (_cam == null || !_cam!.value.isInitialized)) {
-            _initCamera();
-          }
-        });
+      final retry = _needsReInit;
+      _needsReInit = false;
+      if (retry &&
+          mounted &&
+          _cam == null &&
+          _cameraError == null &&
+          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _initCamera());
       }
     }
   }
+
+  static bool _isPermissionError(String code) =>
+      code == 'CameraAccessDenied' ||
+      code == 'CameraAccessDeniedWithoutPrompt' ||
+      code == 'CameraAccessRestricted';
 
   Future<void> _disposeController(CameraController controller) async {
     try {
@@ -290,8 +302,9 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
   Future<void> _stopCamera({bool updateUi = true}) async {
     final controller = _cam;
     _cam = null;
+    // Huỷ lần khởi tạo đang chạy (nếu có): nó sẽ tự giải phóng controller khi xong.
+    // Không reset _isCameraInitializing ở đây, tránh 2 lần khởi tạo chạy song song.
     _cameraSession++;
-    _isCameraInitializing = false;
 
     _scanStarted = false;
     _initialized = false;
@@ -729,25 +742,54 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
               CameraCoverPreview(controller: _cam!)
             else
               Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(color: Colors.white),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Đang khởi động camera...',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton.icon(
-                      onPressed: () => _initCamera(),
-                      icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
-                      label: const Text(
-                        'Thử lại',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_cameraError == null) ...[
+                        const CircularProgressIndicator(color: Colors.white),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Đang khởi động camera...',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
+                      ] else ...[
+                        const Icon(Icons.no_photography_outlined,
+                            color: Colors.white70, size: 40),
+                        const SizedBox(height: 16),
+                        Text(
+                          _cameraError!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
+                        if (_cameraPermissionDenied) ...[
+                          const SizedBox(height: 12),
+                          TextButton.icon(
+                            onPressed: () {
+                              _openedAppSettings = true;
+                              openAppSettings();
+                            },
+                            icon: const Icon(Icons.settings_outlined,
+                                color: Colors.white70, size: 18),
+                            label: const Text(
+                              'Mở Cài đặt',
+                              style: TextStyle(color: Colors.white70, fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ],
+                      const SizedBox(height: 12),
+                      TextButton.icon(
+                        onPressed: () => _initCamera(),
+                        icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
+                        label: const Text(
+                          'Thử lại',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
