@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'global_data.dart';
 
 /// Cờ bật tính năng theo tài khoản. TẠM cho giai đoạn thử nghiệm UI mới.
@@ -30,8 +28,7 @@ class AppFlags {
     return cachedLoginEmail;
   }
 
-  /// Tài khoản hiện tại có bật UI mới không. Dùng được cả trước khi đăng nhập
-  /// (dựa trên email đã lưu) lẫn sau khi đã có profile.
-  static bool isBetaUiActive() =>
-      kDebugMode || isBetaUiEmail(currentEmail);
+  /// Tài khoản hiện tại có bật UI mới không.
+  /// Mở toàn bộ cho tất cả tài khoản và thiết bị (ai cài cũng thấy giao diện mới).
+  static bool isBetaUiActive() => true;
 }
