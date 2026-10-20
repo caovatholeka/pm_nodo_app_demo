@@ -5,12 +5,12 @@ import 'app_env.dart';
 class AppConfig {
 
   static const appName = "Nodo PM App";
-  static Environment env = Environment.demo;
+  static Environment env = Environment.prod;
 
   ///API Env
-  static String? nameEnv = 'Môi trường: Demo';
+  static String? nameEnv = 'Môi trường: Prod';
   static String? version = '1.1.6';
-  static String baseUrl = "https://demo-hrm.nodo.vn/";
+  static String baseUrl = "https://pm.nodo.vn/";
   static String get envName => env.envName;
   static const baseImgUrl = "";
 

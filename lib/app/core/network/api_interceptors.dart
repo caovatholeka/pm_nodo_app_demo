@@ -26,6 +26,7 @@ class ApiInterceptors extends InterceptorsWrapper {
     final accessToken = token?.accessToken;
     if (accessToken != null && accessToken.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $accessToken';
+      options.headers['access-token'] = accessToken;
       options.headers['access_token'] = accessToken;
     }
 

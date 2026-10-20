@@ -41,6 +41,7 @@ class FaceIdRepositoryImpl extends FaceIdRepository {
     final headers = <String, dynamic>{};
     if (accessToken != null && accessToken.isNotEmpty) {
       headers['Authorization'] = 'Bearer $accessToken';
+      headers['access-token'] = accessToken;
       headers['access_token'] = accessToken;
     }
 

@@ -168,7 +168,7 @@ static Future<void> saveToken(TokenEntity? token) async {
 
   static Future<Environment> getAppEnv() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String env = prefs.getString(_env) ?? 'DEMO';
+    String env = prefs.getString(_env) ?? 'PROD';
     return EnvironmentExt.fromName(env);
   }
 
