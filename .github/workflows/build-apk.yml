@@ -35,7 +35,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      # 5. Create key.properties with debug keystore for CI
+      # 5. Generate localization (required by S.of(context))
+      - name: Generate localization
+        run: flutter pub run intl_utils:generate
+
+      # 6. Create key.properties with debug keystore for CI
       - name: Setup signing (debug keystore)
         run: |
           mkdir -p $HOME/.android

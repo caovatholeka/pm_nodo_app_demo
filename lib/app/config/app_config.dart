@@ -28,7 +28,7 @@ class AppConfig {
 
   static String get baseFaceIdUrl => localFaceBaseUrl.isNotEmpty
       ? localFaceBaseUrl
-      : (localBaseUrl.isNotEmpty ? localBaseUrl : "https://pm.nodo.vn/");
+      : (localBaseUrl.isNotEmpty ? localBaseUrl : baseUrl);
 
   static void setEnvironment(Environment environment) {
     env = environment;
