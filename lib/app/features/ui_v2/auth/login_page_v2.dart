@@ -420,7 +420,7 @@ class _LoginPageV2State extends State<LoginPageV2> {
                 Text(
                   AppConfig.nameEnv ?? 'Môi trường: Prod',
                   style: AppTokensV2.captionStrong.copyWith(
-                    color: AppTokensV2.fgPrimary,
+                    color: AppTokensV2.fg,
                     fontSize: 12,
                   ),
                 ),
@@ -444,8 +444,8 @@ class _LoginPageV2State extends State<LoginPageV2> {
       backgroundColor: Colors.transparent,
       builder: (BuildContext ctx) {
         return Container(
-          decoration: const BoxDecoration(
-            color: AppTokensV2.bgElevated,
+          decoration: BoxDecoration(
+            color: AppTokensV2.bgTop,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -553,7 +553,7 @@ class _LoginPageV2State extends State<LoginPageV2> {
                       fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                       color: selected
                           ? AppTokensV2.accent
-                          : AppTokensV2.fgPrimary,
+                          : AppTokensV2.fg,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -565,7 +565,7 @@ class _LoginPageV2State extends State<LoginPageV2> {
               ),
             ),
             if (selected)
-              const Icon(
+              Icon(
                 Icons.check_circle_rounded,
                 color: AppTokensV2.accent,
                 size: 20,
