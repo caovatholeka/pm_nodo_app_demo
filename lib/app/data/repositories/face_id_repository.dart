@@ -5,8 +5,10 @@ import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
 
 import '../../config/app_config.dart';
+import '../../core/commons/global_data.dart';
 import '../../core/logger/logger.dart';
 import '../../core/network/api_util.dart';
+import '../local/shared_prefs_helper.dart';
 import '../models/entities/face_search_data_entity.dart';
 import '../models/entities/face_search_response_entity.dart';
 import '../models/entities/face_search_result_entity.dart';
@@ -29,10 +31,26 @@ class FaceIdRepositoryImpl extends FaceIdRepository {
       'similarity_threshold': 0.4,
     });
 
+    final base = AppConfig.baseFaceIdUrl.endsWith('/')
+        ? AppConfig.baseFaceIdUrl
+        : '${AppConfig.baseFaceIdUrl}/';
+    final url = '${base}api/v1/faces/search-face';
+
+    final token = GlobalData.instance.token ?? await SharedPrefsHelper.getToken();
+    final accessToken = token?.accessToken;
+    final headers = <String, dynamic>{};
+    if (accessToken != null && accessToken.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $accessToken';
+      headers['access_token'] = accessToken;
+    }
+
     final response = await _dio.post<dynamic>(
-      '${AppConfig.baseFaceIdUrl}api/v1/faces/search-face',
+      url,
       data: formData,
-      options: Options(responseType: ResponseType.json),
+      options: Options(
+        responseType: ResponseType.json,
+        headers: headers,
+      ),
     );
 
     logger.d('Face search response type: ${response.data.runtimeType}');

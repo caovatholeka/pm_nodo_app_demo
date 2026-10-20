@@ -33,15 +33,16 @@ extension EnvironmentExt on Environment {
   }
 
   String get baseUrl {
-    return 'https://pm.nodo.vn/';
-    // switch (this) {
-    //   case Environment.dev:
-    //     return 'https://api-nodo-pm-dev.com/';
-    //   case Environment.staging:
-    //     return 'https://api-nodo-pm-staging.vn/';
-    //   case Environment.prod:
-    //     return 'https://api.nodo-pm.vn/';
-    // }
+    switch (this) {
+      case Environment.dev:
+        return 'https://pm.nodo.vn/';
+      case Environment.demo:
+        return 'https://demo-hrm.nodo.vn/';
+      case Environment.test:
+        return 'https://test-pm.nodo.vn/';
+      case Environment.prod:
+        return 'https://pm.nodo.vn/';
+    }
   }
 
   String get logId {

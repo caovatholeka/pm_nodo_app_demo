@@ -23,8 +23,10 @@ class ApiInterceptors extends InterceptorsWrapper {
       token = GlobalData.instance.token;
     }
 
-    if (token != null) {
-      options.headers['Authorization'] = 'Bearer ${token.accessToken}';
+    final accessToken = token?.accessToken;
+    if (accessToken != null && accessToken.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $accessToken';
+      options.headers['access_token'] = accessToken;
     }
 
     if (method == 'GET') {
