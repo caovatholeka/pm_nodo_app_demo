@@ -35,42 +35,27 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      # 5. Generate localization & models
-      - name: Generate localization
-        run: flutter pub run intl_utils:generate
-
-      - name: Run build_runner
-        run: flutter pub run build_runner build --delete-conflicting-outputs
-
-      # 6. Create key.properties with debug keystore for CI
+      # 5. Create key.properties with debug keystore for CI
       - name: Setup signing (debug keystore)
         run: |
-          # Tạo debug keystore nếu chưa có
           mkdir -p $HOME/.android
           keytool -genkeypair \
             -alias androiddebugkey \
             -keypass android \
             -keystore $HOME/.android/debug.keystore \
             -storepass android \
+            -storetype JKS \
             -dname "CN=Android Debug,O=Android,C=US" \
             -keyalg RSA \
-            -storetype JKS \
             -validity 10000 \
             -noprompt 2>/dev/null || true
+          printf 'storeFile=%s/.android/debug.keystore\nstorePassword=android\nkeyAlias=androiddebugkey\nkeyPassword=android\n' "$HOME" > android/key.properties
 
-          # Tạo key.properties
-          cat > android/key.properties << EOF
-          storeFile=$HOME/.android/debug.keystore
-          storePassword=android
-          keyAlias=androiddebugkey
-          keyPassword=android
-          EOF
-
-      # 7. Build APK split-per-abi
+      # 6. Build APK split-per-abi
       - name: Build APK (release, split-per-abi)
         run: flutter build apk --release --split-per-abi
 
-      # 8. Upload APK artifacts
+      # 7. Upload APK artifacts
       - name: Upload APK arm64-v8a
         uses: actions/upload-artifact@v4
         with:
