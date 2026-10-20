@@ -6,25 +6,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
+import 'package:pm_app/app/core/service/local_notification_service.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
-import 'package:pm_app/app/features/ui/notification/noti_page.dart';
+import 'package:pm_app/app/features/ui_v2/notification/noti_page_v2.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_fx_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
-import 'package:pm_app/app/features/ui/application/application_page.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
-import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
-import 'package:pm_app/app/features/ui/staff/staff_page.dart';
+import 'package:pm_app/app/features/ui_v2/application/application_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/attendance/attendance_data_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/home/work_time_v2.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/entities/shift_of_day_entity.dart';
 import 'package:pm_app/app/features/ui/task/task_detail_page.dart';
-import 'package:pm_app/app/features/ui/task/task_manage_page.dart';
-import 'package:pm_app/app/features/ui/attendance/attendance_data_page.dart';
+import 'package:pm_app/app/features/ui_v2/staff/staff_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/task/task_manage_page_v2.dart';
 
 class HomePageV2 extends StatefulWidget {
   const HomePageV2({super.key});
@@ -78,6 +79,34 @@ class _HomePageV2State extends State<HomePageV2> {
     if (result == true) _onRefresh();
   }
 
+  /// Thời điểm đang hẹn nhắc, để không đặt lại lịch trùng lặp mỗi lần state đổi.
+  DateTime? _scheduledReminderAt;
+
+  /// Đặt hoặc huỷ lịch nhắc chấm công ra theo trạng thái chấm công hôm nay.
+  Future<void> _syncCheckOutReminder(HomeState state) async {
+    final at = checkOutReminderAtV2(
+      checkIn: AppDateUtils.parseFlexibleDate(state.checkInToday),
+      checkOut: AppDateUtils.parseFlexibleDate(state.checkOutToday),
+      now: DateTime.now(),
+    );
+
+    if (at == null) {
+      if (_scheduledReminderAt != null) {
+        _scheduledReminderAt = null;
+        await LocalNotificationService.cancelCheckOutReminder();
+      }
+      return;
+    }
+
+    if (_scheduledReminderAt == at) return; // đã hẹn đúng giờ này rồi
+    _scheduledReminderAt = at;
+    await LocalNotificationService.scheduleCheckOutReminder(
+      at: at,
+      title: 'Đã đủ 8 tiếng làm việc',
+      body: 'Bấm để mở app và chấm công ra.',
+    );
+  }
+
   /// "2026-07-24 08:02:15" -> "08:02"; không parse được -> "--:--"
   String _fmtTime(String? raw) {
     final d = AppDateUtils.parseFlexibleDate(raw);
@@ -110,7 +139,11 @@ class _HomePageV2State extends State<HomePageV2> {
         body: AmbientBackgroundV2(
           child: SafeArea(
             bottom: false,
-            child: BlocBuilder<HomeCubit, HomeState>(
+            child: BlocConsumer<HomeCubit, HomeState>(
+              listenWhen: (p, c) =>
+                  p.checkInToday != c.checkInToday ||
+                  p.checkOutToday != c.checkOutToday,
+              listener: (_, state) => _syncCheckOutReminder(state),
               builder: (context, state) {
                 // Kéo xuống để tải lại (như Home v1), kể cả khi nội dung ngắn.
                 return RefreshIndicator(
@@ -185,7 +218,7 @@ class _HomePageV2State extends State<HomePageV2> {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.push(context,
-              MaterialPageRoute(builder: (_) => const NotificationPage())),
+              MaterialPageRoute(builder: (_) => const NotificationPageV2())),
           child: Stack(clipBehavior: Clip.none, children: [
             Container(
               width: 40,
@@ -488,19 +521,19 @@ class _HomePageV2State extends State<HomePageV2> {
         Icons.people_alt_outlined,
         'Nhân viên',
         () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => StaffPage(isFromHome: true))),
+            MaterialPageRoute(builder: (_) => const StaffPageV2(isFromHome: true))),
       ),
       (
         Icons.description_outlined,
         'Dữ liệu công',
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (_) => AttendanceDataPage())),
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const AttendanceDataPageV2())),
       ),
       (
         Icons.event_available_outlined,
         'Nghỉ phép',
         () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => OnLeavePage(isFromHome: true))),
+            MaterialPageRoute(builder: (_) => const OnLeavePageV2(isFromHome: true))),
       ),
       (
         Icons.fingerprint,
@@ -510,14 +543,14 @@ class _HomePageV2State extends State<HomePageV2> {
       (
         Icons.checklist_rounded,
         'Việc cần làm',
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (_) => TaskManagePage())),
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const TaskManagePageV2())),
       ),
       (
         Icons.assignment_outlined,
         'Đơn từ',
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (_) => ApplicationPage())),
+        () => Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const ApplicationPageV2())),
       ),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

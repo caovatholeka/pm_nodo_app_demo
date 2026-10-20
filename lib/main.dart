@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:pm_app/app/core/commons/app_flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -35,11 +36,13 @@ void main() {
 
       await FirebaseAnalysticService.initialize();
       await LocalNotificationService.initialize();
-      try {
-        await FirebaseMessagingService.initializeFCM();
-      } catch (_) {
-        logger.d("initilize fcm");
-      }
+      // FCM không cần xong trước khi hiện UI: lấy APNs/FCM token là việc qua
+      // mạng, có thể mất vài giây. Chạy nền để không chặn màn hình đầu tiên.
+      unawaited(
+        FirebaseMessagingService.initializeFCM().catchError((Object e) {
+          logger.d("initilize fcm: $e");
+        }),
+      );
   
       await di.init();
 
@@ -100,6 +103,11 @@ void main() {
       final appEnv = await SharedPrefsHelper.getAppEnv();
       AppConfig.setEnvironment(appEnv);
       await ThemeControllerV2.instance.load();
+
+      // Nạp tài khoản đăng nhập gần nhất để splash/login biết ngay nên hiện
+      // giao diện nào (lúc này chưa có profile từ server).
+      final lastEmail = await SharedPrefsHelper.getLastLoginEmail();
+      AppFlags.cachedLoginEmail = lastEmail.isEmpty ? null : lastEmail;
 
       final GoogleMapsFlutterPlatform mapsImplementation = GoogleMapsFlutterPlatform.instance;
       if (mapsImplementation is GoogleMapsFlutterAndroid) {

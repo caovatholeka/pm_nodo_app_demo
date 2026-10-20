@@ -17,7 +17,21 @@ class AppFlags {
     return betaUiEmails.contains(email.trim().toLowerCase());
   }
 
-  /// Tài khoản đang đăng nhập có bật UI mới không.
+  /// Email của tài khoản đăng nhập gần nhất, đọc từ SharedPreferences lúc khởi
+  /// động app (xem `main.dart`). Cần vì ở màn splash/login, profile chưa được
+  /// tải từ server nên [GlobalData.userProfile] còn null.
+  static String? cachedLoginEmail;
+
+  /// Email dùng để quyết định giao diện: ưu tiên profile đang có (chính xác
+  /// nhất), nếu chưa có thì dùng email đã lưu lúc đăng nhập lần trước.
+  static String? get currentEmail {
+    final live = GlobalData.instance.userProfile?.email;
+    if (live != null && live.trim().isNotEmpty) return live;
+    return cachedLoginEmail;
+  }
+
+  /// Tài khoản hiện tại có bật UI mới không. Dùng được cả trước khi đăng nhập
+  /// (dựa trên email đã lưu) lẫn sau khi đã có profile.
   static bool isBetaUiActive() =>
-      kDebugMode || isBetaUiEmail(GlobalData.instance.userProfile?.email);
+      kDebugMode || isBetaUiEmail(currentEmail);
 }

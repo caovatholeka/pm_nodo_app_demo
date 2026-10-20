@@ -21,6 +21,11 @@ class SharedPrefsHelper {
   static const String _loginUsername = 'login_username';
   static const String _env = 'app_env';
 
+  /// Tài khoản đăng nhập gần nhất. Khác [_loginUsername] ("nhớ tài khoản", chỉ
+  /// lưu khi user bật) — key này LUÔN lưu khi đăng nhập thành công, để lúc khởi
+  /// động app (chưa có profile từ server) vẫn biết nên hiện giao diện nào.
+  static const String _lastLoginEmail = 'last_login_email';
+
   static Future<bool> setIsLoginApp(bool isCheck) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setBool(_isLoginApp, isCheck);
@@ -176,5 +181,16 @@ static Future<void> saveToken(TokenEntity? token) async {
   static Future<String> getUsername() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_loginUsername) ?? "";
+  }
+
+  /// Tài khoản đăng nhập gần nhất (luôn lưu, không phụ thuộc "nhớ tài khoản").
+  static Future<void> setLastLoginEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastLoginEmail, email.trim().toLowerCase());
+  }
+
+  static Future<String> getLastLoginEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_lastLoginEmail) ?? "";
   }
 }

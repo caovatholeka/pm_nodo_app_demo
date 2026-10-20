@@ -5,15 +5,15 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/features/ui_v2/account/account_page_v2.dart';
 import 'package:pm_app/app/features/ui/checkin/check_in_page.dart';
-import 'package:pm_app/app/features/ui/on_leave/on_leave_page.dart';
-import 'package:pm_app/app/features/ui/staff/staff_page.dart';
+import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
+import 'package:pm_app/app/features/ui_v2/staff/staff_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/home/home_page_v2.dart';
 
 class BottomNavigationV2 extends StatelessWidget {
   const BottomNavigationV2({super.key});
 
   static const _pages = <Widget>[
-    HomePageV2(), StaffPage(), CheckInPage(), OnLeavePage(), AccountPageV2(),
+    HomePageV2(), StaffPageV2(), CheckInPage(), OnLeavePageV2(), AccountPageV2(),
   ];
   static const _icons = <IconData>[
     Icons.home_rounded, Icons.people_alt_rounded, Icons.fingerprint,

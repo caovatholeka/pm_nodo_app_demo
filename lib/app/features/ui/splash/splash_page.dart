@@ -1,12 +1,11 @@
 import 'dart:async';
+import 'package:pm_app/app/core/commons/app_flags.dart';
+import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../../core/commons/global_data.dart';
-import '../../../core/logger/logger.dart';
 import '../../../core/router/application.dart';
 import '../../../core/router/routers.dart';
 import 'splash_cubit.dart';
@@ -27,17 +26,17 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     _initData();
     _navigationSubscription = _cubit.navigatorController.stream.listen((event) {
-      Future.delayed(const Duration(seconds: 1), () {
-        FlutterNativeSplash.remove();
-        switch (event) {
-          case SplashNavigator.OPEN_HOME:
-            showHome();
-            break;
-          case SplashNavigator.OPEN_LOG_IN:
-            showLogIn();
-            break;
-        }
-      });
+      // Trước đây chờ cứng 1 giây ở đây — chỉ làm app vào chậm thêm 1s mà không
+      // đem lại gì. Điều hướng ngay khi biết trạng thái đăng nhập.
+      FlutterNativeSplash.remove();
+      switch (event) {
+        case SplashNavigator.OPEN_HOME:
+          showHome();
+          break;
+        case SplashNavigator.OPEN_LOG_IN:
+          showLogIn();
+          break;
+      }
     });
   }
 
@@ -66,32 +65,13 @@ class _SplashPageState extends State<SplashPage> {
     Application.router.navigateTo(context, Routes.home, clearStack: true);
   }
 
-  getUserLocation() async {
-    try {
-      Position currentLocation = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      GlobalData.instance.currentLocation = currentLocation;
-      logger.d("currentLocation $currentLocation");
-    } catch (e) {
-      logger.e("location $e");
-      GlobalData.instance.currentLocation =  Position(
-        longitude: 0.0,
-        latitude: 0.0,
-        timestamp: DateTime.timestamp(),
-        accuracy: 0,
-        altitude: 0,
-        altitudeAccuracy: 0,
-        heading: 0,
-        headingAccuracy: 0,
-        speed: 0,
-        speedAccuracy: 0,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    // Tài khoản đang dùng giao diện mới thì splash cũng nền tối, tránh chớp
+    // trắng giữa native splash và màn kế tiếp. Tài khoản khác giữ nguyên như cũ.
+    final dark = AppFlags.isBetaUiActive();
     return Scaffold(
+      backgroundColor: dark ? AppTokensV2.bgDeep : null,
       body: SizedBox(
         width: double.infinity,
         height: double.infinity,

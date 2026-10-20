@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pm_app/app/core/commons/app_flags.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/core/service/firebase_messaging_service.dart';
 import '../../../../core/commons/global_data.dart';
@@ -104,6 +105,11 @@ class LogInCubit extends Cubit<LoginState> {
         } else {
           await SharedPrefsHelper.setUsername("");
         }
+
+        // Luôn ghi lại tài khoản vừa đăng nhập (độc lập với "nhớ tài khoản"),
+        // để lần khởi động sau app biết nên hiện giao diện nào ngay từ splash.
+        await SharedPrefsHelper.setLastLoginEmail(username);
+        AppFlags.cachedLoginEmail = username.trim().toLowerCase();
 
         final appCubit = GetIt.I<AppCubit>();
         await appCubit.getProfile(forceRefresh: true);

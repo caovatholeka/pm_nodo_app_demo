@@ -13,4 +13,25 @@ void main() {
       expect(AppFlags.isBetaUiEmail(''), isFalse);
     });
   });
+
+  group('AppFlags.currentEmail / isBetaUiActive', () {
+    tearDown(() => AppFlags.cachedLoginEmail = null);
+
+    test('chưa đăng nhập, chưa có cache -> không bật UI mới', () {
+      AppFlags.cachedLoginEmail = null;
+      expect(AppFlags.currentEmail, isNull);
+      expect(AppFlags.isBetaUiActive(), isFalse);
+    });
+
+    test('dùng email đã lưu khi chưa có profile (lúc splash/login)', () {
+      AppFlags.cachedLoginEmail = 'anhpt@nodo.vn';
+      expect(AppFlags.currentEmail, 'anhpt@nodo.vn');
+      expect(AppFlags.isBetaUiActive(), isTrue);
+    });
+
+    test('email đã lưu không thuộc danh sách beta -> không bật', () {
+      AppFlags.cachedLoginEmail = 'someone@nodo.vn';
+      expect(AppFlags.isBetaUiActive(), isFalse);
+    });
+  });
 }
