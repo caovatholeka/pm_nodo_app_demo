@@ -597,7 +597,7 @@ class _HomePageV2State extends State<HomePageV2> {
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (_) => TaskManagePage())),
+              context, MaterialPageRoute(builder: (_) => const TaskManagePageV2())),
           child: Text('Xem tất cả',
               style: TextStyle(
                   color: AppTokensV2.accent,

@@ -1,7 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:pm_app/app/core/theme_v2/theme_controller_v2.dart';
 
-/// Bảng màu của một chế độ (tối / sáng) cho giao diện v2.
+/// Bảng màu cho giao diện v2.
 class PaletteV2 {
   final Brightness brightness;
   final Color bgDeep;
@@ -41,21 +41,20 @@ class PaletteV2 {
     required this.ambientOpacity,
   });
 
-  // Nền tối (tránh #000 thuần để đỡ lem OLED)
   static const dark = PaletteV2(
     brightness: Brightness.dark,
     bgDeep: Color(0xFF020203),
     bgTop: Color(0xFF0D0D14),
-    surface: Color(0x0DFFFFFF), // rgba(255,255,255,.05)
-    surfaceStrong: Color(0x17FFFFFF), // ~9%
-    border: Color(0x17FFFFFF), // rgba(255,255,255,.09)
+    surface: Color(0x0DFFFFFF),
+    surfaceStrong: Color(0x17FFFFFF),
+    border: Color(0x17FFFFFF),
     navBar: Color(0x8C14141A),
     fg: Color(0xFFEDEDEF),
     fgMuted: Color(0xFF8A8F98),
     fgSoft: Color(0xFFCDD3E0),
     accent: Color(0xFF0A84FF),
     accent2: Color(0xFF5E6AD2),
-    glow: Color(0x590A84FF), // rgba(10,132,255,.35)
+    glow: Color(0x590A84FF),
     success: Color(0xFF30D158),
     warn: Color(0xFFFFD60A),
     danger: Color(0xFFFF453A),
@@ -66,9 +65,9 @@ class PaletteV2 {
     brightness: Brightness.light,
     bgDeep: Color(0xFFF2F3F7),
     bgTop: Color(0xFFFFFFFF),
-    surface: Color(0x99FFFFFF), // ~60%
-    surfaceStrong: Color(0xCCFFFFFF), // ~80%
-    border: Color(0x14000000), // rgba(0,0,0,.08)
+    surface: Color(0x99FFFFFF),
+    surfaceStrong: Color(0xCCFFFFFF),
+    border: Color(0x14000000),
     navBar: Color(0xD9FFFFFF),
     fg: Color(0xFF111318),
     fgMuted: Color(0xFF6B7280),
@@ -76,51 +75,45 @@ class PaletteV2 {
     accent: Color(0xFF007AFF),
     accent2: Color(0xFF5E6AD2),
     glow: Color(0x33007AFF),
-    success: Color(0xFF248A3D), // xanh đậm hơn để đọc rõ trên nền trắng
+    success: Color(0xFF248A3D),
     warn: Color(0xFFC77700),
     danger: Color(0xFFFF3B30),
     ambientOpacity: 0.45,
   );
 }
 
-/// Design tokens cho giao diện v2. Widget v2 CHỈ lấy màu/kích thước từ đây.
-///
-/// Màu là getter đọc theo chế độ hiện tại ([ThemeControllerV2]); khi đổi chế độ,
-/// controller sẽ ép toàn bộ cây widget build lại nên không cần truyền context.
-/// Vì vậy KHÔNG dùng màu token trong biểu thức `const`.
+/// Design tokens cho giao diện v2 (dark premium). Widget v2 CHỈ lấy màu/kích thước từ đây.
 class AppTokensV2 {
   AppTokensV2._();
 
-  static PaletteV2 get _p => ThemeControllerV2.instance.palette;
+  static const Brightness brightness = Brightness.dark;
+  static const bool isDark = true;
 
-  static Brightness get brightness => _p.brightness;
-  static bool get isDark => _p.brightness == Brightness.dark;
-
-  // Nền
-  static Color get bgDeep => _p.bgDeep;
-  static Color get bgTop => _p.bgTop;
-  static Color get surface => _p.surface;
-
+  // Nền (tránh #000 thuần để đỡ lem OLED)
+  static const Color bgDeep = Color(0xFF020203);
+  static const Color bgTop = Color(0xFF0D0D14);
+  static const Color surface = Color(0x0DFFFFFF); // rgba(255,255,255,.05)
   /// Nền thẻ khi KHÔNG dùng BackdropFilter (đục hơn chút để vẫn đọc rõ).
-  static Color get surfaceStrong => _p.surfaceStrong;
-  static Color get border => _p.border;
-  static Color get navBar => _p.navBar;
+  static const Color surfaceStrong = Color(0x17FFFFFF); // ~9%
+  static const Color border = Color(0x17FFFFFF); // rgba(255,255,255,.09)
+  static const Color navBar = Color(0x8C14141A);
 
   // Chữ
-  static Color get fg => _p.fg;
-  static Color get fgMuted => _p.fgMuted;
-  static Color get fgSoft => _p.fgSoft;
+  static const Color fg = Color(0xFFEDEDEF);
+  static const Color fgMuted = Color(0xFF8A8F98);
+  static const Color fgSoft = Color(0xFFCDD3E0);
 
   // Accent
-  static Color get accent => _p.accent;
-  static Color get accent2 => _p.accent2;
-  static Color get glow => _p.glow;
-  static Color get success => _p.success;
-  static Color get warn => _p.warn;
-  static Color get danger => _p.danger;
+  static const Color accent = Color(0xFF0A84FF);
+  static const Color accent2 = Color(0xFF5E6AD2);
+  static const Color glow = Color(0x590A84FF); // rgba(10,132,255,.35)
+  static const Color success = Color(0xFF30D158);
+  /// Màu cảnh báo/nguy hiểm (huỷ, đăng xuất, badge chưa đọc).
+  static const Color danger = Color(0xFFFF453A);
+  static const Color warn = Color(0xFFFFD60A);
 
-  /// Hệ số độ đậm quầng sáng nền (nền sáng cần nhạt hơn).
-  static double get ambientOpacity => _p.ambientOpacity;
+  /// Hệ số độ đậm quầng sáng nền.
+  static const double ambientOpacity = 1.0;
 
   static const double radius = 20;
   static const double radiusSm = 14;
@@ -133,35 +126,35 @@ class AppTokensV2 {
   // Apple-like ease-out (Expo.out ~ cubic-bezier(.16,1,.3,1))
   static const Curve easeExpo = Cubic(0.16, 1, 0.3, 1);
 
-  static LinearGradient get accentGradient => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [accent, accent2],
-      );
+  static const LinearGradient accentGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [accent, accent2],
+  );
 
-  static LinearGradient get screenGradient => LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [bgTop, bgDeep],
-        stops: const [0.0, 0.55],
-      );
+  static const LinearGradient screenGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [bgTop, bgDeep],
+    stops: [0.0, 0.55],
+  );
 
-  static TextStyle get title => TextStyle(
+  static const TextStyle title = TextStyle(
       color: fg, fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.3);
-  static TextStyle get section =>
+  static const TextStyle section =
       TextStyle(color: fg, fontSize: 15, fontWeight: FontWeight.w800);
-  static TextStyle get body =>
+  static const TextStyle body =
       TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w600);
-  static TextStyle get caption =>
+  static const TextStyle caption =
       TextStyle(color: fgMuted, fontSize: 11.5, fontWeight: FontWeight.w500);
 
-  /// Chữ phụ trên nền kính — đậm/sáng hơn [caption] để dễ đọc.
-  static TextStyle get captionStrong =>
+  /// Chữ phụ trên nền kính/tối — sáng hơn [caption] để dễ đọc.
+  static const TextStyle captionStrong =
       TextStyle(color: fgSoft, fontSize: 11.5, fontWeight: FontWeight.w600);
-  static TextStyle get number => TextStyle(
+  static const TextStyle number = TextStyle(
       color: fg,
       fontSize: 23,
       fontWeight: FontWeight.w800,
       letterSpacing: -0.5,
-      fontFeatures: const [FontFeature.tabularFigures()]);
+      fontFeatures: [FontFeature.tabularFigures()]);
 }
