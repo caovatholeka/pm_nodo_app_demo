@@ -370,6 +370,46 @@ abstract class ApiClient {
   // thống kê đơn từ
   @GET('/dashboard/request_summary')
   Future<CommonResponse> getRequestSumaries();
+
+  // ── Dashboard v2: đồng bộ với Dashboard web (số liệu từ chính các hàm của web) ──
+  // Đơn từ cá nhân trong tháng
+  @GET('/dashboard/request_summary')
+  Future<dynamic> getDashboardRequests(
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
+
+  // Đơn cần duyệt cho nhân sự trong tháng
+  @GET('/dashboard/pending_summary')
+  Future<dynamic> getDashboardPending(
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
+
+  // Nề nếp chấm công
+  @GET('/dashboard/discipline_evaluation')
+  Future<dynamic> getDashboardBehaviour(
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
+
+  // Cảnh báo chuyên cần trong tháng
+  @GET('/dashboard/timesheet_data')
+  Future<dynamic> getDashboardAlerts(
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
+
+  // Sinh nhật trong tháng
+  @GET('/dashboard/birthdays_this_month')
+  Future<dynamic> getDashboardBirthdays(
+    @Query("month") int? month,
+    @Query("year") int? year,
+  );
+
+  // Tổng quan nhân sự
+  @GET('/dashboard/headcount')
+  Future<dynamic> getDashboardHeadcount();
   // thống kê chất lượng công việc
   @GET('/dashboard/work_quality')
   Future<WorkQualityEntity> getWorkQuality(

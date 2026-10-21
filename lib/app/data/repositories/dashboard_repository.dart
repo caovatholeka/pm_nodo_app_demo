@@ -18,10 +18,41 @@ abstract class DashboardRepository {
   Future<dynamic> getProjectTasks(int projectId);
   Future<dynamic> getProjects();
   Future<CommonResponse> submitImprovemnt(SendSuggestionParam body);
+
+  // Dashboard v2 (giống Dashboard web) — trả JSON thô, đọc ở dashboard_v2_models.dart
+  Future<dynamic> getDashboardRequests(int month, int year);
+  Future<dynamic> getDashboardPending(int month, int year);
+  Future<dynamic> getDashboardBehaviour(int month, int year);
+  Future<dynamic> getDashboardAlerts(int month, int year);
+  Future<dynamic> getDashboardBirthdays(int month, int year);
+  Future<dynamic> getDashboardHeadcount();
 }
 
 class DashboardRepositoryImpl implements DashboardRepository {
   ApiClient get _apiClient => ApiUtil.instance.createApiClient();
+
+  @override
+  Future<dynamic> getDashboardRequests(int month, int year) =>
+      _apiClient.getDashboardRequests(month, year);
+
+  @override
+  Future<dynamic> getDashboardPending(int month, int year) =>
+      _apiClient.getDashboardPending(month, year);
+
+  @override
+  Future<dynamic> getDashboardBehaviour(int month, int year) =>
+      _apiClient.getDashboardBehaviour(month, year);
+
+  @override
+  Future<dynamic> getDashboardAlerts(int month, int year) =>
+      _apiClient.getDashboardAlerts(month, year);
+
+  @override
+  Future<dynamic> getDashboardBirthdays(int month, int year) =>
+      _apiClient.getDashboardBirthdays(month, year);
+
+  @override
+  Future<dynamic> getDashboardHeadcount() => _apiClient.getDashboardHeadcount();
 
   //Thống kê đơn từ
   @override
