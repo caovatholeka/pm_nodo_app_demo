@@ -30,8 +30,14 @@ class TaskEntity {
   @JsonKey(name: "user_ids")
   List<UserEntity>? userIds;
 
-  @JsonKey(name: "task_type")
+  // Backend cũ trả "normal"; bản mới trả {code, name} → lấy code (vd. "normal").
+  @JsonKey(name: "task_type", fromJson: _taskTypeFromJson)
   String? taskType;
+
+  static String? _taskTypeFromJson(dynamic value) {
+    if (value is Map) return value['code']?.toString();
+    return value?.toString();
+  }
 
   @JsonKey(name: "created_date")
   String? createdDate;

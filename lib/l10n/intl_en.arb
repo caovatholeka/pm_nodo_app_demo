@@ -263,6 +263,7 @@
   "day_off_edit_title":"Edit Day Off Request",
   "day_off_confirm_dialog_edit":"Are you sure you want to edit this day off request?",
   "day_off_confirm_dialog_delete":"Are you sure you want to delete this day off request?",
+  "confirm_delete_request":"Are you sure you want to delete this request?",
   "day_off_status1":"Draft",
   "day_off_status2":"Head of approval",
   "day_off_status3":"Completed",

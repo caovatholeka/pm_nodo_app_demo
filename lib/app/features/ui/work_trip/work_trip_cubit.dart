@@ -1,9 +1,9 @@
 
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/helper/response_mapper.dart';
+import 'package:pm_app/app/core/utils/error_utils.dart';
 import 'package:pm_app/app/data/models/entities/schedule_entity.dart';
 import 'package:pm_app/app/data/models/entities/work_trip_entity.dart';
 import 'package:pm_app/app/data/models/param/approve_ob_param.dart';
@@ -82,6 +82,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
   }
 
   void createNewWorkTrip() async {
+    if (state.createStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(createStatus: LoadStatus.LOADING));
     List<int> userIds = [];
     for(UserEntity user in (state.currentUsers ?? [])){
@@ -106,16 +107,16 @@ class WorkTripCubit extends Cubit<WorkTripState> {
         emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: res.message));
       }
 
-    }on DioException catch(e,s){
+    }catch(e,s){
       logger.d(e);
       logger.d(s);
-      final res = e.response!.data as Map<String, dynamic>;
-      String err = res["message"] ?? "Lỗi hệ thống: vui lòng thử lại sau!!";
+      String err = ErrorUtils.serverMessage(e) ?? "Lỗi hệ thống: vui lòng thử lại sau!!";
       emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: err));
     }
   }
 
   void updateWorkTrip(int id) async {
+    if (state.updateStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(updateStatus: LoadStatus.LOADING));
     List<int> userIds = [];
     for(UserEntity user in (state.currentUsers ?? [])){
@@ -140,11 +141,10 @@ class WorkTripCubit extends Cubit<WorkTripState> {
         emit(state.copyWith(updateStatus: LoadStatus.FAILURE,errMsg: res.message));
       }
 
-    }on DioException catch(e,s){
+    }catch(e,s){
       logger.d(e);
       logger.d(s);
-      final res = e.response!.data as Map<String, dynamic>;
-      String err = res["message"] ?? "Lỗi hệ thống: vui lòng thử lại sau!!";
+      String err = ErrorUtils.serverMessage(e) ?? "Lỗi hệ thống: vui lòng thử lại sau!!";
       emit(state.copyWith(updateStatus: LoadStatus.FAILURE,errMsg: err));
     }
   }
@@ -164,6 +164,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
 
   // gửi duyệt
   void onSubmitWorkTrip(int id) async {
+    if (state.submitStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(submitStatus: LoadStatus.LOADING));
     try{
       List<int> userIds = [];
@@ -187,6 +188,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
   }
   // xoá
   void onDeleteWorkTrip(int id) async {
+    if (state.deleteStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
     try{
       await tripRepository.deleteWorkTrip(id);
@@ -377,6 +379,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
 
 
   void onApproveWorkTrip(ApproveObParam param) async {
+    if (state.approveStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(approveStatus: LoadStatus.LOADING));
     try{
       await tripRepository.approveWorkTrip(param);
@@ -390,6 +393,7 @@ class WorkTripCubit extends Cubit<WorkTripState> {
 
 
   void onRejectWorkTrip(int id, CancelObParam param) async {
+    if (state.cancelStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(cancelStatus: LoadStatus.LOADING));
     try{
       await tripRepository.cancelWorkTrip(param, id);

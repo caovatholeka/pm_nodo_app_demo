@@ -129,6 +129,7 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
   }
 
   void sendforConfirm(int id) async {
+    if (state.loadSubmitStatus == LoadStatus.LOADING) return; // chống bấm 2 lần
     emit(state.copyWith(loadSubmitStatus: LoadStatus.LOADING));
     try {
       await repository.submitEvaluation(id);
@@ -141,6 +142,7 @@ class ApprasialFormCubit extends Cubit<ApprasialFormState> {
   }
 
   void approveEvaluation(int id) async {
+    if (state.loadSubmitStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(loadSubmitStatus: LoadStatus.LOADING));
     try {
       await repository.approvedEvaluation(id);

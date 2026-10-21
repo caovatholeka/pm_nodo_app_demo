@@ -64,16 +64,8 @@ class TaskCubit extends Cubit<TaskState> {
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try {
       final res = await repository.getListTask(state.query,state.currentTabItem?.id,page,limit);
-      TaskDataEntity? taskData;
-      if(res.data != null){
-        taskData = mapObject(res.data, TaskDataEntity.fromJson);
-      }
-
-      if((taskData?.items ?? []).isNotEmpty){
-        emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listTasks: taskData?.items));
-      }else{
-        emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listTasks: []));
-      }
+      final items = TaskDataEntity.itemsFrom(res.data);
+      emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listTasks: items));
     }catch(e,s){
       logger.d(e);
       logger.d(s);
@@ -82,6 +74,7 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   void updateTaskStage(String taskId, int stageId) async{
+    if (state.updateStageStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(updateStageStatus: LoadStatus.LOADING));
     try{
       final param = {
@@ -159,6 +152,7 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   createNewTask() async {
+    if (state.createStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(createStatus: LoadStatus.LOADING));
     try{
       List<int> userIds = [];
@@ -207,6 +201,7 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   deleteTask(int taskId) async {
+    if (state.deleteStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
     try{
       final body = {
@@ -221,6 +216,7 @@ class TaskCubit extends Cubit<TaskState> {
   }
 
   updateTask(String taskId) async{
+    if (state.updateStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(updateStatus: LoadStatus.LOADING));
     List<int> userIds = [];
     for(UserEntity user in (state.currentUsers ?? [])){

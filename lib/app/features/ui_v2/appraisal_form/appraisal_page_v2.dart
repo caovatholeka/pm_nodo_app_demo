@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -258,6 +259,13 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
           (previous, current) =>
               previous.loadSubmitStatus != current.loadSubmitStatus,
       listener: (context, state) {
+        // Đang gửi / duyệt hoàn thành → hộp loading chặn bấm thêm (trước đây không có).
+        if (state.loadSubmitStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+          return;
+        }
+        LoadingOverlay.hide(context);
+
         if (state.loadSubmitStatus == LoadStatus.SUCCESS) {
           Flushbar(
             message:

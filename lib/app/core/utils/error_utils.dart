@@ -4,6 +4,19 @@ import '../../data/models/entities/general_error_entity.dart';
 
 class ErrorUtils {
 
+  /// Thông báo lỗi server trả về trong body ({"message": ...} hoặc {"detail": ...}),
+  /// ví dụ "Chỉ có thể xóa đơn ở trạng thái Nháp."; null nếu không có.
+  static String? serverMessage(Object? e) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map) {
+        final msg = data['message'] ?? data['detail'];
+        if (msg is String && msg.trim().isNotEmpty) return msg;
+      }
+    }
+    return null;
+  }
+
   static String messageFromError(DioException? e){
     String text = "";
     try {

@@ -79,6 +79,13 @@ class _HomePageV2State extends State<HomePageV2> {
     if (result == true) _onRefresh();
   }
 
+  /// Mở danh sách việc; quay về thì tải lại "Việc cần làm" (việc vừa tạo/đổi trạng thái).
+  Future<void> _openTaskManage() async {
+    await Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const TaskManagePageV2()));
+    if (mounted) _cubit.getListNewTasks();
+  }
+
   /// Thời điểm đang hẹn nhắc, để không đặt lại lịch trùng lặp mỗi lần state đổi.
   DateTime? _scheduledReminderAt;
 
@@ -312,10 +319,10 @@ class _HomePageV2State extends State<HomePageV2> {
               offset: const Offset(0, 14)),
         ],
       ),
+      // Thẻ đứng yên: đã bỏ dải sáng quét ngang (ShimmerSweepV2) chạy liên tục phía trên.
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppTokensV2.radius),
-        child: Stack(children: [
-          GlassCardV2(
+        child: GlassCardV2(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -350,8 +357,6 @@ class _HomePageV2State extends State<HomePageV2> {
               ),
             ]),
           ),
-          const Positioned.fill(child: ShimmerSweepV2()),
-        ]),
       ),
     );
   }
@@ -543,8 +548,7 @@ class _HomePageV2State extends State<HomePageV2> {
       (
         Icons.checklist_rounded,
         'Việc cần làm',
-        () => Navigator.push(context,
-            MaterialPageRoute(builder: (_) => const TaskManagePageV2())),
+        _openTaskManage,
       ),
       (
         Icons.assignment_outlined,
@@ -596,8 +600,7 @@ class _HomePageV2State extends State<HomePageV2> {
         Text('Việc cần làm', style: AppTokensV2.section),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const TaskManagePageV2())),
+          onTap: _openTaskManage,
           child: Text('Xem tất cả',
               style: TextStyle(
                   color: AppTokensV2.accent,

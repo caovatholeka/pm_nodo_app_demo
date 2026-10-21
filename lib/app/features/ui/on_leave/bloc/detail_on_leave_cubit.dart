@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
@@ -45,24 +44,28 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
     }
   }
 
+  // Các thao tác dưới đây bỏ qua nếu thao tác đó đang chạy (chống bấm nhiều lần), và bắt
+  // MỌI lỗi (không chỉ DioException) để trạng thái không kẹt ở LOADING.
   void confirmHrLeave(int id) async {
+    if (state.confirmStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(confirmStatus: LoadStatus.LOADING));
     try {
       final param = {"leave_id": id};
       await repository.confirmHrLeave(param);
       emit(state.copyWith(confirmStatus: LoadStatus.SUCCESS));
-    } on DioException catch (e) {
+    } catch (e) {
       logger.d(e);
       emit(state.copyWith(confirmStatus: LoadStatus.FAILURE));
     }
   }
 
   void deleteOnLeave(int id) async {
+    if (state.deleteStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
     try {
       await repository.deleteDetailOnLeave(id);
       emit(state.copyWith(deleteStatus: LoadStatus.SUCCESS));
-    } on DioException catch (e) {
+    } catch (e) {
       logger.d(e);
       // final res = e.response as Map<String, dynamic>;
       // logger.d("resss :: $res");
@@ -71,6 +74,7 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
   }
 
   void approveLeave(int id) async {
+    if (state.approveStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(approveStatus: LoadStatus.LOADING));
 
     try {
@@ -84,6 +88,7 @@ class DetailOnLeaveCubit extends Cubit<DetailOnLeaveState> {
   }
 
 void rejectLeave(int id, String reason) async {
+  if (state.rejectStatus == LoadStatus.LOADING) return;
   emit(state.copyWith(rejectStatus: LoadStatus.LOADING));
 
   try {

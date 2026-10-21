@@ -568,7 +568,10 @@ class _CreateJustificationPageV2State
                 gradient: AppTokensV2.accentGradient,
                 borderRadius: BorderRadius.circular(15),
               ),
+              // heightFactor: 1 — nút nằm trong bottomSheet (chiều cao tối đa = cả màn hình);
+              // Center không có nó sẽ giãn hết cỡ → khối xanh che kín màn hình khi đang lưu.
               child: const Center(
+                heightFactor: 1,
                 child: SizedBox(
                   width: 18,
                   height: 18,

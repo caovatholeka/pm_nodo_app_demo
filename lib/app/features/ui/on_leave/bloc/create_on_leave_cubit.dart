@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -52,6 +51,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   }
 
   void createLeaveDay() async{
+    if (state.createStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(createStatus: LoadStatus.LOADING));
     try{
       final UpdateOnLeaveParam param = UpdateOnLeaveParam(
@@ -69,16 +69,17 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
       }else{
         emit(state.copyWith(createStatus: LoadStatus.FAILURE, errMsg: res.message));
       }
-    }on DioException catch(e){
+    }catch(e){
+      // Bắt mọi lỗi (e.response có thể null khi mất mạng/timeout → trước đây văng lỗi,
+      // trạng thái kẹt LOADING, hộp loading không tắt).
       logger.d(e);
-      final res = e.response!.data as Map<String, dynamic>;
-      logger.d("errror ::: ${res["message"]} ${res["status"]}");
       String err = "Lỗi hệ thống: vui lòng thử lại sau!!";
       emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: err));
     }
   }
 
   void updateLeaveDay(int id) async{
+    if (state.updateStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(updateStatus: LoadStatus.LOADING));
     try{
       final UpdateOnLeaveParam param = UpdateOnLeaveParam(
@@ -97,10 +98,8 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
       }else{
         emit(state.copyWith(updateStatus: LoadStatus.FAILURE));
       }
-    }on DioException catch(e){
+    }catch(e){
       logger.d(e);
-      final res = e.response!.data as Map<String, dynamic>;
-      logger.d("errror ::: ${res["message"]} ${res["status"]}");
       emit(state.copyWith(updateStatus: LoadStatus.FAILURE));
     }
   }

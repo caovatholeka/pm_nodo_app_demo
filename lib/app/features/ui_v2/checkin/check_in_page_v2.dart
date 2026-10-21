@@ -94,24 +94,18 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
   void _onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
     logger.d("_onMapCreated ::: load map thanh cong!!!!");
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   _moveCameraToCurrentPlace();
-    // });
-    await _mapController!.moveCamera(
-      CameraUpdate.newLatLngZoom(_defaultLng, 13),
-    );
-
-    final p = _cubit.state.position;
-    if (p != null && !_movedToGpsOnce) {
-      _movedToGpsOnce = true;
-      await _mapController!.animateCamera(
-        CameraUpdate.newLatLngZoom(LatLng(p.latitude, p.longitude), 15),
-      );
-    }
-
-    // Chỉ đổi trình bày: áp style bản đồ tối, không đổi logic camera/markers.
-    unawaited(_mapController!.setMapStyle(_kDarkMapStyle));
+    // Bản đồ được tạo sẵn ở vị trí hiện tại / điểm chấm công (initialCameraPosition, xem
+    // _mapWidget) nên chỉ căn lại khung, không animate. Trước đây luôn nhảy về Hà Nội rồi
+    // mới bay về vị trí thật → giật trên máy yếu.
+    if (_cubit.state.position != null) _movedToGpsOnce = true;
+    await _moveCameraToCurrentPlace(animate: false);
   }
+
+  // Chỉ tạo bản đồ khi đã biết nên mở ở đâu (vị trí hiện tại hoặc điểm chấm công). Quá
+  // thời gian này vẫn chưa có (mất GPS, chưa cấp quyền...) thì mở ở Hà Nội như cũ.
+  static const Duration _mapWaitLimit = Duration(seconds: 3);
+  bool _mapWaitTimedOut = false;
+  Timer? _mapWaitTimer;
 
   void _initMapRenderer() {
     // final GoogleMapsFlutterPlatform mapsImplementation =
@@ -121,7 +115,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     // }
   }
 
-  Future<void> _requestLocationPermission() async {
+  /// Xin quyền vị trí (nhanh, không chờ GPS). Trả true nếu đã có quyền để lấy vị trí.
+  Future<bool> _requestLocationPermission() async {
     final s = S.of(context);
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -132,7 +127,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
         ),
       );
       await Geolocator.openLocationSettings();
-      return;
+      return false;
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -146,7 +141,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
             backgroundColor: Colors.redAccent,
           ),
         );
-        return;
+        return false;
       }
     }
 
@@ -160,7 +155,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
       // );
       // await openAppSettings();
       showLocationSettingPopup();
-      return;
+      return false;
     }
 
     if (Platform.isIOS) {
@@ -172,21 +167,34 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
       }
     }
 
+    return true;
+  }
+
+  /// Lấy vị trí chạy nền (không chặn màn hình): nghe stream + vị trí gần nhất hệ điều hành
+  /// đã biết (có ngay) + 1 lần định vị chính xác (tối đa 10 giây).
+  Future<void> _startLocation() async {
+    _listenLocation();
+    try {
+      final last = await Geolocator.getLastKnownPosition();
+      if (last != null && mounted) _cubit.onChangeAddress(last);
+    } catch (_) {}
     try {
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 10),
       );
-      _cubit.onChangeAddress(pos);
+      if (mounted) _cubit.onChangeAddress(pos);
     } catch (_) {
       // nếu timeout thì vẫn nghe stream
     }
-    _listenLocation();
   }
 
   @override
   void initState() {
     super.initState();
+    _mapWaitTimer = Timer(_mapWaitLimit, () {
+      if (mounted) setState(() => _mapWaitTimedOut = true);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _onInit();
     });
@@ -194,23 +202,29 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
 
   @override
   void dispose() {
+    _mapWaitTimer?.cancel();
     _locationSubscription?.cancel();
     _mapController?.dispose();
     super.dispose();
   }
 
   Future<void> _onInit() async {
+    // Xoá vị trí / trạng thái cũ của lần mở trước (cubit dùng chung)
+    _cubit.onOpenPage();
     await _ensureUserProfileReady(showLoading: false);
-    await _requestLocationPermission();
+    final granted = await _requestLocationPermission();
     _initMapRenderer();
     _movedToGpsOnce = false;
+    // Tải điểm chấm công và lấy GPS song song (trước đây chờ GPS tới 10 giây rồi mới tải)
     _cubit.getListCheckInInfo();
+    if (granted) _startLocation();
   }
 
   Future<void> _onRefresh() async {
     await _ensureUserProfileReady(showLoading: false);
-    await _requestLocationPermission();
+    final granted = await _requestLocationPermission();
     _cubit.getListCheckInInfo();
+    if (granted) _startLocation();
   }
 
   Future<bool> _ensureUserProfileReady({bool showLoading = true}) async {
@@ -343,9 +357,17 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     return '$prefix, $dateStr';
   }
 
-  Future<void> _moveCameraToCurrentPlace() async {
+  /// Đưa bản đồ tới điểm chấm công (đứng ngoài phạm vi thì thu khung thấy cả mình lẫn
+  /// điểm); chưa có điểm thì tới vị trí hiện tại. [animate] = false: nhảy thẳng, không
+  /// tải ô bản đồ ở các mức zoom trung gian (nhẹ hơn trên máy yếu).
+  Future<void> _moveCameraToCurrentPlace({bool animate = true}) async {
     if (!mounted) return;
     if (_mapController == null) return;
+
+    final controller = _mapController!;
+    Future<void> go(CameraUpdate update) => animate
+        ? controller.animateCamera(update)
+        : controller.moveCamera(update);
 
     final state = _cubit.state;
 
@@ -355,30 +377,52 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
             ? state.listCheckInfos!.first
             : null);
 
-    if (e == null) {
-      if (state.position != null) {
-        await _mapController!.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: LatLng(
-                state.position!.latitude,
-                state.position!.longitude,
+    try {
+      if (e == null) {
+        if (state.position != null) {
+          await go(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: LatLng(
+                  state.position!.latitude,
+                  state.position!.longitude,
+                ),
+                zoom: 16,
               ),
-              zoom: 16,
             ),
+          );
+        }
+        return;
+      }
+
+      final target = LatLng(e.latitude ?? 0.0, e.longitude ?? 0.0);
+      final radius = (e.radius ?? 100.0);
+
+      final zoom = _zoomForRadius(radius);
+
+      final position = state.position;
+      if (position != null &&
+          _distanceToPoint(position, e) > radius + _radiusTolerance) {
+        // Đứng ngoài phạm vi: thu khung để thấy cả vị trí của mình lẫn điểm chấm công
+        final me = LatLng(position.latitude, position.longitude);
+        await go(
+          CameraUpdate.newLatLngBounds(
+            LatLngBounds(
+              southwest: LatLng(
+                math.min(me.latitude, target.latitude),
+                math.min(me.longitude, target.longitude),
+              ),
+              northeast: LatLng(
+                math.max(me.latitude, target.latitude),
+                math.max(me.longitude, target.longitude),
+              ),
+            ),
+            60,
           ),
         );
+        return;
       }
-      return;
-    }
-
-    final target = LatLng(e.latitude ?? 0.0, e.longitude ?? 0.0);
-    final radius = (e.radius ?? 100.0);
-
-    final zoom = _zoomForRadius(radius);
-
-    try {
-      await _mapController!.animateCamera(
+      await go(
         CameraUpdate.newCameraPosition(
           CameraPosition(target: target, zoom: zoom),
         ),
@@ -386,6 +430,19 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     } catch (err, st) {
       logger.e("moveCamera error: $err\n$st");
     }
+  }
+
+  // App cho chấm công trong bán kính điểm + sai số này (mét); dùng chung cho kiểm tra
+  // khi bấm nút và khung bản đồ.
+  static const double _radiusTolerance = 100;
+
+  double _distanceToPoint(Position position, CheckInInfoEntity point) {
+    return Utils().calcDistanceMetersGeolocator(
+      position.latitude,
+      position.longitude,
+      point.latitude ?? 0.0,
+      point.longitude ?? 0.0,
+    );
   }
 
   double _zoomForRadius(double radiusMeters) {
@@ -400,7 +457,20 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    return BlocConsumer<CheckInCubit, CheckInState>(
+    // Điểm chấm công gần nhất có thể xác định SAU khi tải xong danh sách (GPS lấy song song,
+    // về muộn hơn) → khi đó mới vẽ marker và đưa bản đồ tới điểm đó.
+    return BlocListener<CheckInCubit, CheckInState>(
+      bloc: _cubit,
+      listenWhen: (prev, cur) =>
+          cur.getCheckInfo == LoadStatus.SUCCESS &&
+          cur.currentCheckInEntity?.id != null &&
+          prev.currentCheckInEntity?.id != cur.currentCheckInEntity?.id &&
+          prev.getCheckInfo == LoadStatus.SUCCESS,
+      listener: (context, state) async {
+        await _initMarkers(state.listCheckInfos ?? []);
+        await _moveCameraToCurrentPlace();
+      },
+      child: BlocConsumer<CheckInCubit, CheckInState>(
       bloc: _cubit,
       buildWhen:
           (prev, cur) =>
@@ -491,6 +561,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
           },
         );
       },
+      ),
     );
   }
 
@@ -727,19 +798,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
             builder: (context, state) {
               final isLoading = state.checkInStatus == LoadStatus.LOADING;
               return InkWell(
-                onTap:
-                    isLoading
-                        ? () {}
-                        : () {
-                          if ((_cubit.state.position?.latitude ?? 0) != 0) {
-                            doCheckIn();
-                          } else {
-                            AppSnackBar.showError(
-                              title: "Cảnh báo",
-                              message: "Tín hiệu GPS kém",
-                            );
-                          }
-                        },
+                // doCheckIn tự lấy lại vị trí nếu chưa có/đã cũ, rồi mới báo "Tín hiệu GPS kém".
+                onTap: isLoading ? () {} : doCheckIn,
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -798,23 +858,55 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
         buildWhen:
             (prev, cur) =>
                 prev.position != cur.position ||
+                prev.currentCheckInEntity != cur.currentCheckInEntity ||
                 prev.isMapExpanded != cur.isMapExpanded,
         builder: (context, state) {
           final isExpanded = state.isMapExpanded ?? false;
+          final point = state.currentCheckInEntity;
 
-          final LatLng center =
-              state.position != null
-                  ? LatLng(state.position!.latitude, state.position!.longitude)
-                  : _defaultLng;
+          // Chưa biết mở bản đồ ở đâu → chờ (tối đa _mapWaitLimit), không tạo bản đồ ở Hà
+          // Nội rồi mới bay về. Bản đồ đã tạo rồi thì giữ nguyên.
+          if (state.position == null &&
+              point == null &&
+              !_mapWaitTimedOut &&
+              _mapController == null) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(12.0),
+              child: ColoredBox(
+                color: const Color(0xFF1A1A1F), // = màu nền style bản đồ tối
+                child: Center(
+                  child: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      color: AppTokensV2.accent,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          final LatLng center;
+          final double zoom;
+          if (state.position != null) {
+            center = LatLng(state.position!.latitude, state.position!.longitude);
+            zoom = 16.0;
+          } else if (point != null) {
+            center = LatLng(point.latitude ?? 0.0, point.longitude ?? 0.0);
+            zoom = _zoomForRadius(point.radius ?? 100.0);
+          } else {
+            center = _defaultLng;
+            zoom = 13.0;
+          }
 
           Widget mapChild = GoogleMap(
             key: const ValueKey('checkin_map'),
             mapType: _mapType,
             onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: center,
-              zoom: state.position != null ? 16.0 : 13.0,
-            ),
+            initialCameraPosition: CameraPosition(target: center, zoom: zoom),
+            style: _kDarkMapStyle,
             markers: _markers,
             circles: _circles,
             myLocationButtonEnabled: false,
@@ -836,14 +928,10 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
               _mapController != null &&
               !_movedToGpsOnce) {
             _movedToGpsOnce = true;
+            // Có GPS lần đầu: định khung theo điểm chấm công (hoặc cả 2 nếu đang ở xa)
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               if (!mounted || _mapController == null) return;
-              await _mapController!.animateCamera(
-                CameraUpdate.newLatLngZoom(
-                  LatLng(state.position!.latitude, state.position!.longitude),
-                  16,
-                ),
-              );
+              await _moveCameraToCurrentPlace();
             });
           }
 
@@ -1580,9 +1668,57 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     );
   }
 
-  doCheckIn() async {
+  /// Cần lấy vị trí mới trước khi chấm: chưa có, đã cũ (>30 giây) hoặc đang ngoài phạm vi
+  /// (có thể chỉ là vị trí cũ/sai).
+  bool _needsFreshPosition() {
+    final p = _cubit.state.position;
+    if (p == null || p.latitude == 0) return true;
+    if (DateTime.now().difference(p.timestamp).inSeconds > 30) return true;
+    final point = _cubit.state.currentCheckInEntity;
+    if (point == null) return false;
+    return _distanceToPoint(p, point).round() >
+        (point.radius ?? 100.0).round() + _radiusTolerance;
+  }
+
+  /// Lấy 1 vị trí mới ngay lúc bấm (tối đa 8 giây). Người đứng yên không nhận được cập
+  /// nhật từ stream (chỉ báo khi di chuyển ≥ 10 m) nên trước đây bị kẹt với vị trí cũ/sai.
+  Future<void> _refreshPositionNow() async {
+    LoadingOverlay.show(context);
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 8),
+      );
+      _cubit.onChangeAddress(pos);
+    } catch (e) {
+      logger.d("Refresh position before check-in failed: $e");
+    } finally {
+      if (mounted) LoadingOverlay.hide(context);
+    }
+  }
+
+  bool _checkingIn = false;
+
+  /// Bấm "Chấm công": bỏ qua nếu lượt trước chưa xong (trước đây bấm nhanh 2 lần có thể
+  /// mở 2 màn camera, vì trước khi mở camera còn chờ kiểm tra hồ sơ/quyền vị trí).
+  Future<void> doCheckIn() async {
+    if (_checkingIn) return;
+    _checkingIn = true;
+    try {
+      await _doCheckIn();
+    } finally {
+      _checkingIn = false;
+    }
+  }
+
+  Future<void> _doCheckIn() async {
     if (!await _guardUserProfileReady()) {
       return;
+    }
+
+    if (_needsFreshPosition()) {
+      await _refreshPositionNow();
+      if (!mounted) return;
     }
 
     if ((_cubit.state.position?.latitude ?? 0) == 0) {
@@ -1626,7 +1762,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
         );
         if (distance.round() >
             (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round() +
-                100) {
+                _radiusTolerance) {
           AppSnackBar.showError(
             title: "Cảnh báo",
             message: "Bạn đang không trong vị trí được phép Check-In",

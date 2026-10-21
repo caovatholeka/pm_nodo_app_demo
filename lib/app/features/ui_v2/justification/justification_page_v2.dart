@@ -11,6 +11,7 @@ import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
+import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
@@ -193,7 +194,20 @@ class _JustificationPageV2State extends State<JustificationPageV2> {
         listener: (context, state) async {
           final cubit = _cubit;
 
+          // Đang duyệt / gửi duyệt → hộp loading chặn bấm thêm (trước đây vuốt "Gửi duyệt"
+          // không có loading nên bấm lặp được).
+          if (state.approveStatus == LoadStatus.LOADING ||
+              state.submitStatus == LoadStatus.LOADING) {
+            LoadingOverlay.show(context);
+            return;
+          }
+          LoadingOverlay.hide(context);
+
           if (state.approveStatus == LoadStatus.SUCCESS) {
+            // Bỏ chọn ngay (trước đây chờ thông báo 2 giây xong mới bỏ → bấm Duyệt lại được).
+            _selectedIds.clear();
+            setState(() {});
+            cubit.resetApproveStatus();
             await Flushbar(
               message: s.justification_submit_success,
               flushbarPosition: FlushbarPosition.TOP,
@@ -202,10 +216,6 @@ class _JustificationPageV2State extends State<JustificationPageV2> {
               margin: const EdgeInsets.all(8),
               borderRadius: BorderRadius.circular(8),
             ).show(context);
-
-            _selectedIds.clear();
-            setState(() {});
-            cubit.resetApproveStatus();
             return;
           }
 

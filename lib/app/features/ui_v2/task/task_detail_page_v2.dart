@@ -86,11 +86,13 @@ class _TaskDetailPageV2State extends State<TaskDetailPageV2> {
     final s = S.of(context);
     return BlocConsumer<TaskCubit, TaskState>(
       bloc: _cubit,
+      // Chỉ nghe trạng thái xóa: trước đây nghe mọi thay đổi nên nhánh `else` cuối ẩn cả
+      // loading của màn Sửa việc mở phía trên, và ẩn ngay loading vừa hiện khi bấm Xóa.
+      listenWhen: (prev, cur) => prev.deleteStatus != cur.deleteStatus,
       listener: (context, state) {
         if (state.deleteStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
-        }
-        if (state.deleteStatus == LoadStatus.SUCCESS) {
+        } else if (state.deleteStatus == LoadStatus.SUCCESS) {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(

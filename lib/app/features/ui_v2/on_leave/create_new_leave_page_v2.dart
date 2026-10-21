@@ -55,6 +55,9 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
   );
 
   final _createCubit = GetIt.I.get<CreateOnLeaveCubit>();
+
+  /// Đã tạo/sửa thành công, đang chờ đóng màn → bỏ qua bấm Lưu thêm.
+  bool _saved = false;
   DateTime? _initFromDate;
   DateTime? _initToDate;
   DateTime? _selectedDate;
@@ -342,6 +345,7 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
           );
 
           _createCubit.resetStatus();
+          _saved = true; // chặn bấm Lưu lần nữa trong lúc chờ đóng màn (300 ms)
           final navigator = Navigator.of(context);
           Future.delayed(const Duration(milliseconds: 300), () {
             if (!mounted) return;
@@ -936,6 +940,7 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
                   ? PrimaryButtonV2(
                     label: S.of(context).save,
                     onTap: () {
+                      if (_saved) return; // đã lưu xong, đang đóng màn
                       (widget.isEdit ?? false) ? _doUpdate() : _doCreate();
                     },
                   )

@@ -280,6 +280,12 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
           previous.deleteStatus != current.deleteStatus ||
           previous.approveStatus != current.approveStatus,
       listener: (context, state) {
+        // Duyệt hàng loạt trước đây không có loading → bấm "Duyệt" lặp được.
+        if (state.approveStatus == LoadStatus.LOADING) {
+          LoadingOverlay.show(context);
+          return;
+        }
+
         if (state.confirmStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
         }
@@ -342,6 +348,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
           _cubit.resetDeleteStatus();
         }
         if (state.approveStatus == LoadStatus.SUCCESS) {
+          LoadingOverlay.hide(context);
           Flushbar(
             message: s.on_leave_success,
             backgroundColor: Colors.green,
@@ -360,6 +367,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
         }
 
         if (state.approveStatus == LoadStatus.FAILURE) {
+          LoadingOverlay.hide(context);
           Flushbar(
             message: s.on_leave_failed,
             backgroundColor: Colors.red,

@@ -44,7 +44,7 @@ class OvertimeCubit extends Cubit<OvertimeState> {
   }
 
   void approveBulkOvertimes(List<int> overtimeIds) async {
-    if (overtimeIds.isEmpty) return;
+    if (overtimeIds.isEmpty || state.approveStatus == LoadStatus.LOADING) return;
 
     emit(state.copyWith(approveStatus: LoadStatus.LOADING));
 
@@ -71,6 +71,7 @@ class OvertimeCubit extends Cubit<OvertimeState> {
   }
 
   Future<void> submitApproval(int id) async {
+    if (state.submitStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(submitStatus: LoadStatus.LOADING));
 
     try {

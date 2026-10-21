@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:pm_app/app/core/helper/response_mapper.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 
 part 'task_data_entity.g.dart';
@@ -45,6 +46,14 @@ class TaskDataEntity {
   }
 
   factory TaskDataEntity.fromJson(Map<String, dynamic> json) => _$TaskDataEntityFromJson(json);
+
+  /// Danh sách task từ `data` của API /tasks/tasks. Backend hiện trả thẳng 1 mảng
+  /// (từ 06/2026); bản cũ trả {total, ..., items: [...]} — nhận cả hai. Trước đây chỉ
+  /// đọc dạng cũ nên danh sách "Việc cần làm" luôn rỗng.
+  static List<TaskEntity> itemsFrom(dynamic data) {
+    if (data is List) return mapList(data, TaskEntity.fromJson);
+    return mapObject(data, TaskDataEntity.fromJson)?.items ?? [];
+  }
 
   Map<String, dynamic> toJson() => _$TaskDataEntityToJson(this);
 }

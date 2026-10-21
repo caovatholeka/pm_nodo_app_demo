@@ -159,17 +159,21 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
       barrierDismissible: false,
       barrierColor: Colors.transparent,
       builder:
-          (_) => CustomDialog(
+          (dialogContext) => CustomDialog(
             iconPath: AppAssets.ic_delete,
             title: s.delete_confirm,
             content: "${s.delete_subtile} \n${s.delete_subtitle1}!",
             success: false,
             confirmText: s.day_off_btn_delete,
-            cancelText: s.day_off_btn_delete,
+            cancelText: s.cancel,
             onConfirm: () {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
+              // Thiếu dòng này nên listener bỏ qua kết quả xóa: không loading, không báo,
+              // không quay về danh sách.
+              _handlingAction = true;
               _cubit.onDeleteWorkTrip(_cubit.state.detailWorkTrip?.id ?? 0);
             },
+            onCancel: () => Navigator.pop(dialogContext),
           ),
     );
   }
@@ -566,7 +570,12 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
     final entity = state.detailWorkTrip;
     if (entity == null) return const SizedBox.shrink();
 
-    bool isDraft = false;
+    // API chi tiết trả mã nhân viên tạo đơn trong `create_uid`.
+    final isOwner = entity.createUid != null &&
+        entity.createUid == GlobalData.instance.userProfile?.employeeId;
+
+    // Nháp: so thêm theo tên phòng khi DB khác (vd. server test) lệch id stage.
+    bool isDraft = entity.stage?.name == 'Nháp';
     if (entity.stage?.id == 25 ||
         entity.stage?.id == 1 ||
         entity.stage?.id == 6 ||
@@ -593,13 +602,15 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: _dangerButton(
-                label: s.bt_detail_delete,
-                onTap: showDeleteConfirmDialog,
+            if (isOwner) ...[
+              Expanded(
+                child: _dangerButton(
+                  label: s.bt_detail_delete,
+                  onTap: showDeleteConfirmDialog,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
+              const SizedBox(width: 12),
+            ],
             Expanded(
               child: PrimaryButtonV2(
                 label: s.bt_detail_update,

@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
+import 'package:pm_app/app/features/ui/checkpoint/checkpoint_page.dart';
 import 'package:pm_app/app/features/ui/notification/noti_cubit.dart';
 import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui_v2/appraisal_form/appraisal_page_v2.dart';
@@ -58,10 +59,16 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
     );
   }
 
-  // ignore: unused_element
   void _openAppraisalForm() {
     HapticFeedback.selectionClick();
     Navigator.push(context, MaterialPageRoute(builder: (_) => AppraisalPageV2()));
+  }
+
+  // Chưa có bản v2 → mở màn v1 như bản đang chạy thật.
+  void _openCheckpoint() {
+    HapticFeedback.selectionClick();
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const CheckpointPage()));
   }
 
   void _openBusinessTrip() {
@@ -139,6 +146,9 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
       (Icons.schedule_rounded, s.app_until1, _openJustifications),
       (Icons.more_time_rounded, s.app_until2, _openOT),
       (Icons.card_travel_rounded, s.app_until3, _openBusinessTrip),
+      // Phiếu đánh giá + Checkpoint: bản v1 (đang chạy thật) có, v2 bị thiếu.
+      (Icons.assignment_turned_in_rounded, s.app_until4, _openAppraisalForm),
+      (Icons.flag_rounded, 'Checkpoint', _openCheckpoint),
       (Icons.dashboard_rounded, 'Dashboard', _openDashboard),
     ];
 

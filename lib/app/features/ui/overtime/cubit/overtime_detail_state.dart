@@ -8,6 +8,9 @@ class OvertimeDetailState extends Equatable {
   final String? error;
   final bool isSubmitting;
   final bool submitSuccess;
+  // Xóa đơn nháp; deleteError = thông báo lỗi từ server (nếu có).
+  final LoadStatus deleteStatus;
+  final String? deleteError;
 
   const OvertimeDetailState({
     this.loadStatus = LoadStatus.INITIAL,
@@ -17,6 +20,8 @@ class OvertimeDetailState extends Equatable {
     this.error,
     this.isSubmitting = false,
     this.submitSuccess = false,
+    this.deleteStatus = LoadStatus.INITIAL,
+    this.deleteError,
   });
 
   OvertimeDetailState copyWith({
@@ -27,6 +32,8 @@ class OvertimeDetailState extends Equatable {
     String? error,
     bool? isSubmitting,
     bool? submitSuccess,
+    LoadStatus? deleteStatus,
+    String? deleteError,
   }) {
     return OvertimeDetailState(
       loadStatus: loadStatus ?? this.loadStatus,
@@ -36,6 +43,8 @@ class OvertimeDetailState extends Equatable {
       error: error ?? this.error,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       submitSuccess: submitSuccess ?? this.submitSuccess,
+      deleteStatus: deleteStatus ?? this.deleteStatus,
+      deleteError: deleteError,
     );
   }
 
@@ -48,5 +57,7 @@ class OvertimeDetailState extends Equatable {
     submitSuccess,
     approveStatus,
     cancelStatus,
+    deleteStatus,
+    deleteError,
   ];
 }

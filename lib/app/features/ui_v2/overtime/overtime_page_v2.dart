@@ -169,18 +169,15 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
                 prev.approveStatus != cur.approveStatus ||
                 prev.submitStatus != cur.submitStatus,
         listener: (context, state) {
-          if (state.loadStatus == LoadStatus.LOADING ||
+          // Hiện loading khi CÓ thao tác đang chạy, ngược lại mới ẩn. Trước đây khi bấm
+          // "Duyệt" loading vừa hiện đã bị ẩn ngay (loadStatus cũ vẫn là SUCCESS) → bấm lặp được.
+          final isLoading =
+              state.loadStatus == LoadStatus.LOADING ||
               state.approveStatus == LoadStatus.LOADING ||
-              state.submitStatus == LoadStatus.LOADING) {
+              state.submitStatus == LoadStatus.LOADING;
+          if (isLoading) {
             LoadingOverlay.show(context);
-          }
-
-          if (state.loadStatus == LoadStatus.SUCCESS ||
-              state.loadStatus == LoadStatus.FAILURE ||
-              state.approveStatus == LoadStatus.SUCCESS ||
-              state.approveStatus == LoadStatus.FAILURE ||
-              state.submitStatus == LoadStatus.SUCCESS ||
-              state.submitStatus == LoadStatus.FAILURE) {
+          } else {
             LoadingOverlay.hide(context);
           }
 

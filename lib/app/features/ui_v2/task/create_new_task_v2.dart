@@ -151,7 +151,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
     return BlocConsumer<TaskCubit, TaskState>(
       bloc: _cubit,
       listenWhen: (prev, cur) =>
-          prev.createStatus != cur.loadStatus ||
+          prev.createStatus != cur.createStatus ||
           prev.updateStatus != cur.updateStatus,
       listener: (context, state) {
         if (state.createStatus == LoadStatus.LOADING ||

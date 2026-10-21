@@ -187,16 +187,13 @@ class HomeCubit extends Cubit<HomeState> {
     int limit = 5;
     try {
       final res = await taskRepository.getListTask(name, stagId, page, limit);
-      TaskDataEntity? taskData;
-      if (res.data != null) {
-        taskData = mapObject(res.data, TaskDataEntity.fromJson);
-      }
+      final items = TaskDataEntity.itemsFrom(res.data);
 
-      if ((taskData?.items ?? []).isNotEmpty) {
+      if (items.isNotEmpty) {
         emit(
           state.copyWith(
             loadDataStatus: LoadStatus.SUCCESS,
-            listNewTasks: taskData?.items ?? [],
+            listNewTasks: items,
           ),
         );
       } else {

@@ -73,6 +73,7 @@ class ExplanationCubit extends Cubit<ExplanationState> {
   }
 
   Future<void> sendInvalidReason(String date) async {
+    if (state.sendInvalidStatus == LoadStatus.LOADING) return; // chống bấm gửi 2 lần
     emit(state.copyWith(sendInvalidStatus: LoadStatus.LOADING));
     try{
       final param = {
@@ -109,10 +110,19 @@ class ExplanationCubit extends Cubit<ExplanationState> {
 
           }
         }
-        logger.d(e);
-        logger.d("err msg :: $errMsg");
-        emit(state.copyWith(sendInvalidStatus: LoadStatus.FAILURE,errorMsg: errMsg));
       }
+      // Ngoài khối if: mất mạng/timeout (response == null) trước đây không emit gì →
+      // kẹt ở LOADING.
+      logger.d(e);
+      logger.d("err msg :: $errMsg");
+      emit(state.copyWith(sendInvalidStatus: LoadStatus.FAILURE,errorMsg: errMsg));
+    } catch (e) {
+      // Lỗi khác DioException: không để trạng thái kẹt ở LOADING.
+      logger.d(e);
+      emit(state.copyWith(
+        sendInvalidStatus: LoadStatus.FAILURE,
+        errorMsg: 'Có lỗi xảy ra, vui lòng thử lại sau',
+      ));
     }
   }
 

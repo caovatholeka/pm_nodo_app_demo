@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
@@ -95,7 +94,7 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
   }
 
   void approveBulkLeaves(List<int> leaveIds) async {
-    if (leaveIds.isEmpty) return;
+    if (leaveIds.isEmpty || state.approveStatus == LoadStatus.LOADING) return;
 
     emit(state.copyWith(approveStatus: LoadStatus.LOADING));
 
@@ -116,6 +115,7 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
   }
 
   void confirmLeave(int id) async {
+    if (state.confirmStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(confirmStatus: LoadStatus.LOADING));
 
     try {
@@ -129,11 +129,12 @@ class OnLeaveCubit extends Cubit<OnLeaveState> {
   }
 
   void deleteOnLeave(int id) async {
+    if (state.deleteStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
     try {
       await repository.deleteDetailOnLeave(id);
       emit(state.copyWith(deleteStatus: LoadStatus.SUCCESS));
-    } on DioException catch (e) {
+    } catch (e) {
       logger.d(e);
       emit(state.copyWith(deleteStatus: LoadStatus.FAILURE));
     }

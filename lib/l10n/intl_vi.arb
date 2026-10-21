@@ -256,6 +256,7 @@
   "day_off_edit_title": "Cập nhật yêu cầu nghỉ phép",
   "day_off_confirm_dialog_edit": "Bạn có chắc chắn muốn chỉnh sửa yêu cầu nghỉ phép này không?",
   "day_off_confirm_dialog_delete": "Bạn có chắc chắn muốn xóa yêu cầu nghỉ phép này không?",
+  "confirm_delete_request": "Bạn có chắc chắn muốn xóa đơn này không?",
   "day_off_status1": "Nháp",
   "day_off_status2": "Trưởng phòng duyệt",
   "day_off_status3": "Hoàn thành",

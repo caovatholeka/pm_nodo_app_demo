@@ -8,6 +8,9 @@ class JustificationDetailState extends Equatable {
   final String? error;
   final bool isSubmitting;
   final bool submitSuccess;
+  // Xóa đơn nháp; deleteError = thông báo lỗi từ server (nếu có).
+  final LoadStatus deleteStatus;
+  final String? deleteError;
 
   const JustificationDetailState({
     this.loadStatus = LoadStatus.INITIAL,
@@ -17,6 +20,8 @@ class JustificationDetailState extends Equatable {
     this.error,
     this.isSubmitting = false,
     this.submitSuccess = false,
+    this.deleteStatus = LoadStatus.INITIAL,
+    this.deleteError,
   });
 
   JustificationDetailState copyWith({
@@ -27,6 +32,8 @@ class JustificationDetailState extends Equatable {
     String? error,
     bool? isSubmitting,
     bool? submitSuccess,
+    LoadStatus? deleteStatus,
+    String? deleteError,
   }) {
     return JustificationDetailState(
       loadStatus: loadStatus ?? this.loadStatus,
@@ -36,6 +43,8 @@ class JustificationDetailState extends Equatable {
       submitSuccess: submitSuccess ?? this.submitSuccess,
       approveStatus: approveStatus ?? this.approveStatus,
       cancelStatus: cancelStatus ?? this.cancelStatus,
+      deleteStatus: deleteStatus ?? this.deleteStatus,
+      deleteError: deleteError,
     );
   }
 
@@ -48,5 +57,7 @@ class JustificationDetailState extends Equatable {
     error,
     isSubmitting,
     submitSuccess,
+    deleteStatus,
+    deleteError,
   ];
 }

@@ -45,7 +45,7 @@ class JustificationCubit extends Cubit<JustificationState> {
   }
 
   Future<void> approveByIds(List<int> ids) async {
-    if (ids.isEmpty) return;
+    if (ids.isEmpty || state.approveStatus == LoadStatus.LOADING) return;
 
     emit(state.copyWith(approveStatus: LoadStatus.LOADING, error: null));
 
@@ -80,6 +80,7 @@ class JustificationCubit extends Cubit<JustificationState> {
   }
 
   void onConfirmJustification(int id) async {
+    if (state.submitStatus == LoadStatus.LOADING) return;
     emit(state.copyWith(submitStatus: LoadStatus.LOADING));
     try{
       await _repo.submitJustification(id);
