@@ -113,11 +113,13 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
     DatePicker.showDatePicker(
       context,
       locale: LocaleType.vi,
+      maxTime: _toDate, // "Từ ngày" không được sau "Đến ngày"
       onConfirm: (d) {
         _fromDate = d;
         _fromDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
         _hourControllers.clear();
         _cubit.setFromDate(DateFormat('yyyy-MM-dd').format(d));
+        _syncOvertimeLines();
         setState(() {});
       },
     );
@@ -128,17 +130,26 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
     DatePicker.showDatePicker(
       context,
       locale: LocaleType.vi,
+      minTime: _fromDate, // "Đến ngày" không được trước "Từ ngày"
       onConfirm: (d) {
         _toDate = d;
         _toDateCtrl.text = DateFormat('dd/MM/yyyy').format(d);
         _hourControllers.clear();
         _cubit.setToDate(DateFormat('yyyy-MM-dd').format(d));
-        if (_fromDate != null) {
-          _cubit.initOvertimeLines(_generateDays(_fromDate!, _toDate!));
-        }
+        _syncOvertimeLines();
         setState(() {});
       },
     );
+  }
+
+  /// Đủ cả 2 ngày thì tạo lại danh sách ngày OT trong cubit (dữ liệu gửi đi). Trước đây
+  /// chỉ làm khi chọn "Đến ngày" → chọn "Đến ngày" trước rồi mới chọn "Từ ngày" thì danh
+  /// sách gửi đi rỗng (màn hình vẫn hiện các ngày) → không gửi được; đổi "Từ ngày" sau
+  /// cùng thì danh sách gửi đi lệch với màn hình.
+  void _syncOvertimeLines() {
+    if (_fromDate != null && _toDate != null) {
+      _cubit.initOvertimeLines(_generateDays(_fromDate!, _toDate!));
+    }
   }
 
   void _goNotification() {

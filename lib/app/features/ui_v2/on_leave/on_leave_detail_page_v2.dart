@@ -517,15 +517,9 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
 
   Widget _bottomBar(BuildContext context) {
     final s = S.of(context);
-    final detail = _cubit.state.detailEntity;
-    final stageId = detail?.leaveStage?.id;
-    // Nháp: id 13 trên DB thật; so thêm theo tên phòng khi DB khác (vd. server test) lệch id.
-    final isDraft = stageId == 13 || detail?.leaveStage?.name == 'Nháp';
-    // Chỉ người tạo đơn mới được xóa đơn nháp của mình.
-    final isOwner = detail?.employeeId != null &&
-        detail?.employeeId == GlobalData.instance.userProfile?.employeeId;
+    final stageId = _cubit.state.detailEntity?.leaveStage?.id;
 
-    if (isDraft) {
+    if (stageId == 13) {
       return Container(
         margin: EdgeInsets.only(
           left: 18,
@@ -535,15 +529,13 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
         ),
         child: Row(
           children: [
-            if (isOwner) ...[
-              Expanded(
-                child: _dangerButton(
-                  label: s.day_off_btn_delete,
-                  onTap: showDeleteConfirmDialog,
-                ),
+            Expanded(
+              child: _dangerButton(
+                label: s.day_off_btn_delete,
+                onTap: showDeleteConfirmDialog,
               ),
-              const SizedBox(width: 12),
-            ],
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: _secondaryButton(
                 label: s.day_off_btn_send_approval,

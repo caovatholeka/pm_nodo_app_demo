@@ -570,12 +570,7 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
     final entity = state.detailWorkTrip;
     if (entity == null) return const SizedBox.shrink();
 
-    // API chi tiết trả mã nhân viên tạo đơn trong `create_uid`.
-    final isOwner = entity.createUid != null &&
-        entity.createUid == GlobalData.instance.userProfile?.employeeId;
-
-    // Nháp: so thêm theo tên phòng khi DB khác (vd. server test) lệch id stage.
-    bool isDraft = entity.stage?.name == 'Nháp';
+    bool isDraft = false;
     if (entity.stage?.id == 25 ||
         entity.stage?.id == 1 ||
         entity.stage?.id == 6 ||
@@ -602,15 +597,13 @@ class _WorkTripDetailPageV2State extends State<WorkTripDetailPageV2> {
               ),
             ),
             const SizedBox(width: 12),
-            if (isOwner) ...[
-              Expanded(
-                child: _dangerButton(
-                  label: s.bt_detail_delete,
-                  onTap: showDeleteConfirmDialog,
-                ),
+            Expanded(
+              child: _dangerButton(
+                label: s.bt_detail_delete,
+                onTap: showDeleteConfirmDialog,
               ),
-              const SizedBox(width: 12),
-            ],
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: PrimaryButtonV2(
                 label: s.bt_detail_update,

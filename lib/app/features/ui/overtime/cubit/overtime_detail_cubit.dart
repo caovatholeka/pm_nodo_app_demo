@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
-import 'package:pm_app/app/core/utils/error_utils.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/param/cancel_ot_param.dart';
@@ -97,28 +96,6 @@ class OvertimeDetailCubit extends Cubit<OvertimeDetailState> {
       logger.e("ERR: $e, $s");
       emit(state.copyWith(cancelStatus: LoadStatus.FAILURE));
     }
-  }
-
-  /// Xóa đơn (chỉ đơn Nháp — server kiểm tra lại). Bỏ qua nếu đang xóa (chống bấm 2 lần).
-  Future<void> deleteOT() async {
-    final id = state.detail?.id;
-    if (id == null || state.deleteStatus == LoadStatus.LOADING) return;
-
-    emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
-    try {
-      await _repo.deleteOTRequest(id);
-      emit(state.copyWith(deleteStatus: LoadStatus.SUCCESS));
-    } catch (e, s) {
-      logger.e("Delete OT error: $e, where: $s");
-      emit(state.copyWith(
-        deleteStatus: LoadStatus.FAILURE,
-        deleteError: ErrorUtils.serverMessage(e),
-      ));
-    }
-  }
-
-  void resetDeleteStatus() {
-    emit(state.copyWith(deleteStatus: LoadStatus.INITIAL));
   }
 
   void resetApproveStatus() {

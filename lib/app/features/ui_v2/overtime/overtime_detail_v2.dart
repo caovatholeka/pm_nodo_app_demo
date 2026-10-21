@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
@@ -17,7 +16,6 @@ import 'package:pm_app/app/features/ui/on_leave/widget/reject_reason_dialog.dart
 import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/overtime_detail_cubit.dart';
 import 'package:pm_app/app/features/ui_v2/overtime/create_overtime_v2.dart';
-import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -54,41 +52,11 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
     return state.detail?.stage?.name == 'Nháp';
   }
 
-  /// Đơn của chính người đang xem (chỉ người tạo mới được xóa đơn nháp).
-  bool _isOwner(OvertimeDetailState state) {
-    final owner = state.detail?.employeeId;
-    return owner != null &&
-        owner == GlobalData.instance.userProfile?.employeeId;
-  }
-
-  void _onDelete() {
-    final s = S.of(context);
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (dialogContext) => CustomDialog(
-            iconPath: AppAssets.ic_delete,
-            title: s.confirm_delete,
-            content: s.confirm_delete_request,
-            success: false,
-            confirmText: s.day_off_btn_delete,
-            cancelText: s.cancel,
-            onConfirm: () {
-              Navigator.pop(dialogContext);
-              _cubit.deleteOT();
-            },
-            onCancel: () => Navigator.pop(dialogContext),
-          ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
     _cubit.resetApproveStatus();
     _cubit.resetSubmitState();
-    _cubit.resetDeleteStatus();
     _cubit.getDetailOT(widget.id ?? 0);
   }
 
@@ -199,27 +167,12 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
             state.loadStatus == LoadStatus.LOADING ||
             state.isSubmitting ||
             state.approveStatus == LoadStatus.LOADING ||
-            state.cancelStatus == LoadStatus.LOADING ||
-            state.deleteStatus == LoadStatus.LOADING;
+            state.cancelStatus == LoadStatus.LOADING;
 
         if (isLoading) {
           LoadingOverlay.show(context);
         } else {
           LoadingOverlay.hide(context);
-        }
-
-        if (state.deleteStatus == LoadStatus.SUCCESS) {
-          _cubit.resetDeleteStatus();
-          Navigator.pop(context, true); // danh sách OT tự tải lại khi quay về
-          AppSnackBar.showInfo(title: s.success, message: s.delete_success);
-          return;
-        }
-
-        if (state.deleteStatus == LoadStatus.FAILURE) {
-          final message = state.deleteError ?? s.delete_approval_failed;
-          _cubit.resetDeleteStatus();
-          AppSnackBar.showError(title: s.warning, message: message);
-          return;
         }
 
         if (state.cancelStatus == LoadStatus.LOADING) {
@@ -643,15 +596,6 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
         ),
         child: Row(
           children: [
-            if (_isOwner(state)) ...[
-              Expanded(
-                child: _dangerButton(
-                  label: s.day_off_btn_delete,
-                  onTap: _onDelete,
-                ),
-              ),
-              const SizedBox(width: 12),
-            ],
             Expanded(
               child: _secondaryButton(
                 label: s.ot_detail_send,

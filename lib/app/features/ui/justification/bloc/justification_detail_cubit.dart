@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
-import 'package:pm_app/app/core/utils/error_utils.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/param/justification_approve_param.dart';
@@ -49,27 +48,27 @@ class JustificationDetailCubit extends Cubit<JustificationDetailState> {
     emit(state.copyWith(submitSuccess: false, error: null));
   }
 
-  /// Xóa đơn (chỉ đơn Nháp — server kiểm tra lại). Bỏ qua nếu đang xóa (chống bấm 2 lần).
-  Future<void> deleteJustification() async {
-    final id = state.detail?.id;
-    if (id == null || state.deleteStatus == LoadStatus.LOADING) return;
+  Future<void> deleteJustification(int id) async {
+  if (state.isSubmitting) return;
 
-    emit(state.copyWith(deleteStatus: LoadStatus.LOADING));
-    try {
-      await _repo.deleteJustification(id);
-      emit(state.copyWith(deleteStatus: LoadStatus.SUCCESS));
-    } catch (e, s) {
-      logger.e("DeleteJustification error: $e, Where: $s");
-      emit(state.copyWith(
-        deleteStatus: LoadStatus.FAILURE,
-        deleteError: ErrorUtils.serverMessage(e),
-      ));
-    }
-  }
+  emit(state.copyWith(isSubmitting: true, error: null));
 
-  void resetDeleteStatus() {
-    emit(state.copyWith(deleteStatus: LoadStatus.INITIAL));
+  try {
+    await _repo.deleteJustification(id);
+
+    emit(state.copyWith(
+      isSubmitting: false,
+      submitSuccess: true,
+    ));
+  } catch (e, s) {
+    logger.e("DeleteJustification error: $e, Where: $s");
+
+    emit(state.copyWith(
+      isSubmitting: false,
+      error: e.toString(),
+    ));
   }
+}
 
 Future<void> approveJustification(JustificationApproveParam body) async {
     if (state.approveStatus == LoadStatus.LOADING) return;
