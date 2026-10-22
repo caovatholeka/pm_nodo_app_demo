@@ -107,6 +107,26 @@ WorkProgressV2? computeWorkProgressV2({
   );
 }
 
+/// Giờ vào ca mặc định khi chưa có ca được phân (như thẻ chấm công ở Home: 08:30).
+const int defaultShiftStartMinutesV2 = 8 * 60 + 30;
+
+/// Được vào muộn tối đa bao lâu so với giờ bắt đầu ca mà vẫn hiện thanh "đủ giờ".
+const Duration lateGraceV2 = Duration(minutes: 15);
+
+/// Có hiện thanh tiến độ + dòng "Còn … nữa đủ giờ" không: chỉ khi chấm công vào đúng giờ
+/// (trước hoặc đúng giờ bắt đầu ca được phân) hoặc muộn tối đa [lateGraceV2]. Không có ca
+/// → so với [defaultShiftStartMinutesV2]. So theo phút như giờ hiển thị trên thẻ (08:45:59
+/// vẫn tính là 08:45).
+bool showWorkProgressV2({required DateTime? checkIn, DateTime? shiftStart}) {
+  if (checkIn == null) return false;
+  final start = shiftStart ??
+      DateTime(checkIn.year, checkIn.month, checkIn.day)
+          .add(const Duration(minutes: defaultShiftStartMinutesV2));
+  final inMinute = DateTime(
+      checkIn.year, checkIn.month, checkIn.day, checkIn.hour, checkIn.minute);
+  return !inMinute.isAfter(start.add(lateGraceV2));
+}
+
 /// Thời điểm nên bắn thông báo nhắc chấm công ra; `null` nghĩa là không nhắc.
 ///
 /// Không nhắc khi: chưa chấm vào, đã chấm ra, hoặc thời điểm đủ giờ đã trôi qua

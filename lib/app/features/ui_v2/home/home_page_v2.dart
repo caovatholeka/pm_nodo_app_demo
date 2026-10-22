@@ -425,12 +425,17 @@ class _HomePageV2State extends State<HomePageV2> {
   }
 
   /// Tiến độ giờ làm theo ca được phân hôm nay (không có ca → 8 tiếng): thanh tiến độ +
-  /// "còn bao lâu nữa đủ giờ". Ngày nghỉ (ca CT/L) thì không hiện.
+  /// "còn bao lâu nữa đủ giờ". Ngày nghỉ (ca CT/L) thì không hiện; vào muộn quá 15 phút so
+  /// với giờ bắt đầu ca cũng không hiện ([showWorkProgressV2]).
   Widget _workProgress(HomeState state) {
     final shift = state.shiftToday;
     if (shift != null && shift.isDayOff) return const SizedBox.shrink();
+    final checkIn = AppDateUtils.parseFlexibleDate(state.checkInToday);
+    if (!showWorkProgressV2(checkIn: checkIn, shiftStart: shift?.start)) {
+      return const SizedBox.shrink();
+    }
     final p = computeWorkProgressV2(
-      checkIn: AppDateUtils.parseFlexibleDate(state.checkInToday),
+      checkIn: checkIn,
       checkOut: AppDateUtils.parseFlexibleDate(state.checkOutToday),
       now: DateTime.now(),
       shiftStart: shift?.start,

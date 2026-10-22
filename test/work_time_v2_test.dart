@@ -104,4 +104,32 @@ void main() {
       expect(at, _t(19, 30));
     });
   });
+
+  group('showWorkProgressV2 (chỉ hiện khi vào đúng giờ / muộn tối đa 15 phút)', () {
+    final ca8 = _t(8, 0); // ca bắt đầu 08:00
+
+    test('vào trước giờ ca -> hiện', () {
+      expect(showWorkProgressV2(checkIn: _t(7, 50), shiftStart: ca8), isTrue);
+    });
+    test('vào đúng giờ ca -> hiện', () {
+      expect(showWorkProgressV2(checkIn: _t(8, 0), shiftStart: ca8), isTrue);
+    });
+    test('muộn đúng 15 phút (kể cả giây lẻ) -> hiện', () {
+      expect(showWorkProgressV2(checkIn: _t(8, 15), shiftStart: ca8), isTrue);
+      expect(
+          showWorkProgressV2(
+              checkIn: DateTime(2026, 7, 24, 8, 15, 59), shiftStart: ca8),
+          isTrue);
+    });
+    test('muộn 16 phút -> ẩn', () {
+      expect(showWorkProgressV2(checkIn: _t(8, 16), shiftStart: ca8), isFalse);
+    });
+    test('chưa chấm vào -> ẩn', () {
+      expect(showWorkProgressV2(checkIn: null, shiftStart: ca8), isFalse);
+    });
+    test('không có ca -> so với 08:30', () {
+      expect(showWorkProgressV2(checkIn: _t(8, 45)), isTrue);
+      expect(showWorkProgressV2(checkIn: _t(8, 46)), isFalse);
+    });
+  });
 }
