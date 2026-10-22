@@ -17,6 +17,7 @@ import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui_v2/appraisal_form/apprasisal_progress_page_v2.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
 
 /// Màn hình thông tin chung (shell) của phiếu đánh giá — bản tối (v2). Chỉ
 /// đổi trình bày: cùng cubit [CreateAppraisalCubit], cùng luồng init theo
@@ -262,8 +263,12 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
     _noteCtrl.text = e.note ?? "";
   }
 
+  // Bỏ nền sáng mặc định của khung nút ở đáy (Scaffold.bottomSheet) → chỉ còn nút.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      BottomSheetBarThemeV2(child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     final s = S.of(context);
 
     return BlocProvider.value(

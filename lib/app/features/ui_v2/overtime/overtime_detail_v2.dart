@@ -19,6 +19,7 @@ import 'package:pm_app/app/features/ui_v2/overtime/create_overtime_v2.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
 
 /// Màn Chi tiết tăng ca — phiên bản giao diện tối (v2).
 ///
@@ -157,8 +158,12 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
     );
   }
 
+  // Bỏ nền sáng mặc định của khung nút ở đáy (Scaffold.bottomSheet) → chỉ còn nút.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      BottomSheetBarThemeV2(child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     final s = S.of(context);
     return BlocListener<OvertimeDetailCubit, OvertimeDetailState>(
       bloc: _cubit,

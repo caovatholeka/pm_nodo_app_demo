@@ -25,6 +25,7 @@ import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import 'widget/onleave_day_item_widget_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
 
 /// Màn Tạo/Sửa đơn nghỉ phép — phiên bản giao diện tối (v2).
 ///
@@ -316,8 +317,12 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
     }
   }
 
+  // Bỏ nền sáng mặc định của khung nút ở đáy (Scaffold.bottomSheet) → chỉ còn nút.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      BottomSheetBarThemeV2(child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     final s = S.of(context);
     return BlocConsumer<CreateOnLeaveCubit, CreateOnLeaveState>(
       bloc: _createCubit,

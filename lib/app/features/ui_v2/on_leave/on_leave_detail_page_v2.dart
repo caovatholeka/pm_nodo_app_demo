@@ -21,6 +21,7 @@ import 'package:pm_app/generated/l10n.dart';
 
 import '../../../core/commons/app_assets.dart';
 import '../../../data/models/entities/on_leave_entity.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
 
 /// Màn Chi tiết đơn nghỉ — phiên bản giao diện tối (v2).
 /// Hành vi/nghiệp vụ giữ NGUYÊN bản cũ [OnLeaveDetailPage]: cùng
@@ -162,8 +163,12 @@ class _OnLeaveDetailPageV2State extends State<OnLeaveDetailPageV2> {
     }
   }
 
+  // Bỏ nền sáng mặc định của khung nút ở đáy (Scaffold.bottomSheet) → chỉ còn nút.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      BottomSheetBarThemeV2(child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     final s = S.of(context);
     return BlocConsumer<DetailOnLeaveCubit, DetailOnLeaveState>(
       bloc: _cubit,

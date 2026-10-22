@@ -17,6 +17,7 @@ import 'package:pm_app/app/features/ui/notification/noti_page.dart';
 import 'package:pm_app/app/features/ui/overtime/cubit/create_overtime_cubit.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
 
 /// Màn Tạo/Sửa đơn tăng ca — phiên bản giao diện tối (v2).
 ///
@@ -179,8 +180,12 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
     return days;
   }
 
+  // Bỏ nền sáng mặc định của khung nút ở đáy (Scaffold.bottomSheet) → chỉ còn nút.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      BottomSheetBarThemeV2(child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     final s = S.of(context);
     return BlocProvider.value(
       value: _cubit,

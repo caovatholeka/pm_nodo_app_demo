@@ -22,6 +22,7 @@ import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import 'create_justification_page_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
 
 /// Trạng thái hiển thị (chữ + màu) dùng chung cho badge trạng thái đơn.
 class _StatusUIV2 {
@@ -203,8 +204,12 @@ class _JustificationDetailV2State extends State<JustificationDetailV2> {
     }
   }
 
+  // Bỏ nền sáng mặc định của khung nút ở đáy (Scaffold.bottomSheet) → chỉ còn nút.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      BottomSheetBarThemeV2(child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     final s = S.of(context);
 
     return BlocListener<JustificationDetailCubit, JustificationDetailState>(
