@@ -91,10 +91,14 @@ class _HomePageV2State extends State<HomePageV2> {
 
   /// Đặt hoặc huỷ lịch nhắc chấm công ra theo trạng thái chấm công hôm nay.
   Future<void> _syncCheckOutReminder(HomeState state) async {
+    final checkIn = AppDateUtils.parseFlexibleDate(state.checkInToday);
+    final shift = state.shiftToday;
     final at = checkOutReminderAtV2(
-      checkIn: AppDateUtils.parseFlexibleDate(state.checkInToday),
+      checkIn: checkIn,
       checkOut: AppDateUtils.parseFlexibleDate(state.checkOutToday),
       now: DateTime.now(),
+      shiftStart: _progressShiftStart(shift, checkIn),
+      shiftEnd: shift?.end,
     );
 
     if (at == null) {
@@ -149,7 +153,8 @@ class _HomePageV2State extends State<HomePageV2> {
             child: BlocConsumer<HomeCubit, HomeState>(
               listenWhen: (p, c) =>
                   p.checkInToday != c.checkInToday ||
-                  p.checkOutToday != c.checkOutToday,
+                  p.checkOutToday != c.checkOutToday ||
+                  p.shiftToday != c.shiftToday, // ca tải xong sau → tính lại giờ nhắc
               listener: (_, state) => _syncCheckOutReminder(state),
               builder: (context, state) {
                 // Kéo xuống để tải lại (như Home v1), kể cả khi nội dung ngắn.
@@ -424,6 +429,13 @@ class _HomePageV2State extends State<HomePageV2> {
     );
   }
 
+  /// Mốc bắt đầu tính giờ làm: giờ vào ca được phân; chưa có ca thì 08:30 (giờ mặc định
+  /// hiện trên thẻ). Chấm vào sớm hơn mốc này vẫn tính từ mốc này.
+  DateTime? _progressShiftStart(ShiftOfDayEntity? shift, DateTime? checkIn) {
+    if (shift != null) return shift.start;
+    return checkIn == null ? null : defaultShiftStartV2(checkIn);
+  }
+
   /// Tiến độ giờ làm theo ca được phân hôm nay (không có ca → 8 tiếng): thanh tiến độ +
   /// "còn bao lâu nữa đủ giờ". Ngày nghỉ (ca CT/L) thì không hiện; vào muộn quá 15 phút so
   /// với giờ bắt đầu ca cũng không hiện ([showWorkProgressV2]).
@@ -438,7 +450,7 @@ class _HomePageV2State extends State<HomePageV2> {
       checkIn: checkIn,
       checkOut: AppDateUtils.parseFlexibleDate(state.checkOutToday),
       now: DateTime.now(),
-      shiftStart: shift?.start,
+      shiftStart: _progressShiftStart(shift, checkIn),
       shiftEnd: shift?.end,
     );
     if (p == null || p.required <= Duration.zero) return const SizedBox.shrink();

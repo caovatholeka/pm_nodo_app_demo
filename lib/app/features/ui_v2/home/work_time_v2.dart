@@ -69,6 +69,9 @@ Duration workBetweenV2(DateTime from, DateTime to) {
 /// [shiftStart]/[shiftEnd] ca được phân hôm nay (vd 08:00–17:30): số giờ cần đạt = giờ
 /// ca trừ nghỉ trưa, và không bao giờ gợi ý ra trước giờ kết thúc ca (server đánh "về
 /// sớm" theo giờ kết thúc ca). Không có ca → quy tắc mặc định 8 tiếng như cũ.
+/// Chấm vào TRƯỚC [shiftStart] thì giờ làm vẫn tính từ [shiftStart] (vd vào 07:50, ca
+/// 08:00 → tính từ 08:00). Chỉ truyền [shiftStart] (không có [shiftEnd]) = chỉ áp mốc bắt
+/// đầu này, số giờ cần đạt vẫn 8 tiếng.
 WorkProgressV2? computeWorkProgressV2({
   required DateTime? checkIn,
   required DateTime now,
@@ -83,21 +86,26 @@ WorkProgressV2? computeWorkProgressV2({
   final required =
       hasShift ? workBetweenV2(shiftStart, shiftEnd) : WorkRuleV2.requiredWork;
 
+  // Mốc bắt đầu tính giờ: vào sớm hơn giờ bắt đầu ca thì tính từ giờ bắt đầu ca.
+  final start =
+      (shiftStart != null && checkIn.isBefore(shiftStart)) ? shiftStart : checkIn;
+
   final until = checkOut ?? now;
-  final worked = workBetweenV2(checkIn, until);
+  final worked = workBetweenV2(start, until);
 
   // Thời điểm đủ giờ: cộng phần còn thiếu, đẩy thêm nếu vắt qua nghỉ trưa.
-  var target = checkIn.add(required);
+  var target = start.add(required);
   for (var i = 0; i < 2; i++) {
-    final overlap = lunchOverlapV2(checkIn, target);
-    final adjusted = checkIn.add(required + overlap);
+    final overlap = lunchOverlapV2(start, target);
+    final adjusted = start.add(required + overlap);
     if (adjusted == target) break;
     target = adjusted;
   }
   if (hasShift && target.isBefore(shiftEnd)) target = shiftEnd;
 
-  // Giờ làm còn lại tới lúc được ra (= required - worked khi không bị giờ kết thúc ca giữ lại)
-  final remaining = workBetweenV2(until, target);
+  // Giờ làm còn lại tới lúc được ra (= required - worked khi không bị giờ kết thúc ca giữ
+  // lại). Chưa tới giờ bắt đầu ca thì còn nguyên số giờ cần đạt.
+  final remaining = workBetweenV2(until.isBefore(start) ? start : until, target);
 
   return WorkProgressV2(
     required: required,
@@ -110,6 +118,10 @@ WorkProgressV2? computeWorkProgressV2({
 /// Giờ vào ca mặc định khi chưa có ca được phân (như thẻ chấm công ở Home: 08:30).
 const int defaultShiftStartMinutesV2 = 8 * 60 + 30;
 
+/// Giờ bắt đầu ca mặc định (08:30) của ngày [day].
+DateTime defaultShiftStartV2(DateTime day) => DateTime(day.year, day.month, day.day)
+    .add(const Duration(minutes: defaultShiftStartMinutesV2));
+
 /// Được vào muộn tối đa bao lâu so với giờ bắt đầu ca mà vẫn hiện thanh "đủ giờ".
 const Duration lateGraceV2 = Duration(minutes: 15);
 
@@ -119,9 +131,7 @@ const Duration lateGraceV2 = Duration(minutes: 15);
 /// vẫn tính là 08:45).
 bool showWorkProgressV2({required DateTime? checkIn, DateTime? shiftStart}) {
   if (checkIn == null) return false;
-  final start = shiftStart ??
-      DateTime(checkIn.year, checkIn.month, checkIn.day)
-          .add(const Duration(minutes: defaultShiftStartMinutesV2));
+  final start = shiftStart ?? defaultShiftStartV2(checkIn);
   final inMinute = DateTime(
       checkIn.year, checkIn.month, checkIn.day, checkIn.hour, checkIn.minute);
   return !inMinute.isAfter(start.add(lateGraceV2));
@@ -135,11 +145,15 @@ DateTime? checkOutReminderAtV2({
   required DateTime? checkIn,
   required DateTime? checkOut,
   required DateTime now,
+  DateTime? shiftStart,
+  DateTime? shiftEnd,
 }) {
   if (checkIn == null) return null;
   if (checkOut != null) return null;
 
-  final p = computeWorkProgressV2(checkIn: checkIn, now: now);
+  // Cùng cách tính với thanh tiến độ ở Home → giờ nhắc = giờ "Ra lúc" trên thẻ.
+  final p = computeWorkProgressV2(
+      checkIn: checkIn, now: now, shiftStart: shiftStart, shiftEnd: shiftEnd);
   if (p == null) return null;
   if (!p.earliestOut.isAfter(now)) return null;
   return p.earliestOut;

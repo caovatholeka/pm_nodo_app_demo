@@ -86,6 +86,34 @@ void main() {
           checkIn: _t(8), now: _t(12), shiftStart: _t(8), shiftEnd: _t(12))!;
       expect((p.required, p.earliestOut, p.done), (const Duration(hours: 4), _t(12), true));
     });
+    test('vào sớm 07:50, ca 08:00 → giờ làm tính từ 08:00 (thanh không đầy trước giờ ra)', () {
+      final p = computeWorkProgressV2(
+          checkIn: _t(7, 50), now: _t(10), shiftStart: _t(8), shiftEnd: _t(17, 30))!;
+      expect(p.worked, const Duration(hours: 2)); // 08:00 → 10:00, không phải 2h10
+      expect(p.earliestOut, _t(17, 30));
+      expect(p.remaining, const Duration(hours: 6));
+      // Lúc 17:20: chưa đủ (trước đây thanh đã đầy 100% vì tính từ 07:50)
+      final late = computeWorkProgressV2(
+          checkIn: _t(7, 50), now: _t(17, 20), shiftStart: _t(8), shiftEnd: _t(17, 30))!;
+      expect(late.worked < late.required, isTrue);
+      expect(late.done, isFalse);
+    });
+    test('vào sớm, chưa tới giờ ca → còn nguyên số giờ cần đạt', () {
+      final p = computeWorkProgressV2(
+          checkIn: _t(7, 50), now: _t(7, 55), shiftStart: _t(8), shiftEnd: _t(17, 30))!;
+      expect((p.worked, p.remaining), (Duration.zero, const Duration(hours: 8)));
+    });
+    test('không có ca nhưng có mốc 08:30: vào 08:00 → tính từ 08:30, ra 18:00', () {
+      final p = computeWorkProgressV2(checkIn: _t(8), now: _t(9), shiftStart: _t(8, 30))!;
+      expect((p.required, p.worked, p.earliestOut),
+          (const Duration(hours: 8), const Duration(minutes: 30), _t(18)));
+    });
+    test('giờ nhắc chấm ra = giờ "Ra lúc" theo ca', () {
+      final at = checkOutReminderAtV2(
+          checkIn: _t(7, 50), checkOut: null, now: _t(9),
+          shiftStart: _t(8), shiftEnd: _t(17, 30));
+      expect(at, _t(17, 30));
+    });
     test('không có ca → giữ quy tắc 8 tiếng như cũ', () {
       final p = computeWorkProgressV2(checkIn: _t(8, 30), now: _t(11))!;
       expect((p.required, p.earliestOut, p.remaining),
