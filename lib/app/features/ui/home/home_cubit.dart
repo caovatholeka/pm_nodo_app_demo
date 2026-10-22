@@ -15,6 +15,7 @@ import '../../../data/models/entities/explanation_entity.dart';
 import '../../../data/models/entities/profile_entity.dart';
 import '../../../data/models/entities/shift_of_day_entity.dart';
 import '../../../data/models/entities/task_data_entity.dart';
+import '../../../data/models/entities/task_stage_entity.dart';
 import '../../../data/repositories/user_repository.dart';
 
 part 'home_state.dart';
@@ -183,15 +184,64 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
+  /// Thứ tự tab "Việc cần làm" ở Home: Mới, Đang thực hiện, Hoàn thành, Từ chối.
+  static const List<String> homeTaskStageOrder = ['new', 'in_progress', 'done', 'rejected'];
+
+  /// Dùng khi chưa tải được danh sách trạng thái (id như trên hệ thống).
+  static final List<TaskStageEntity> defaultHomeTaskStages = [
+    TaskStageEntity(id: 1, code: 'new', name: 'Mới'),
+    TaskStageEntity(id: 2, code: 'in_progress', name: 'Đang thực hiện'),
+    TaskStageEntity(id: 3, code: 'done', name: 'Hoàn thành'),
+    TaskStageEntity(id: 4, code: 'rejected', name: 'Từ chối'),
+  ];
+
+  /// Tải các trạng thái việc (tab ở Home), sắp theo [homeTaskStageOrder]; mặc định chọn tab
+  /// "Mới". Lỗi → giữ [defaultHomeTaskStages].
+  Future<void> loadHomeTaskStages() async {
+    try {
+      final res = await taskRepository.getTaskStages();
+      final list = mapList(res.data, TaskStageEntity.fromJson)
+          .where((e) => e.id != null)
+          .toList();
+      if (isClosed || list.isEmpty) return;
+      int rank(TaskStageEntity e) {
+        final i = homeTaskStageOrder.indexOf(e.code ?? '');
+        return i < 0 ? homeTaskStageOrder.length : i;
+      }
+      list.sort((a, b) => rank(a).compareTo(rank(b)));
+
+      final current = state.homeTaskStageId;
+      final selected = list.any((e) => e.id == current)
+          ? current
+          : list
+              .firstWhere((e) => e.code == 'new', orElse: () => list.first)
+              .id!;
+      emit(state.copyWith(homeTaskStages: list, homeTaskStageId: selected));
+      if (selected != current) await getListNewTasks();
+    } catch (e) {
+      logger.w('Load task stages failed: $e');
+    }
+  }
+
+  /// Bấm tab trạng thái ở Home → tải việc của trạng thái đó.
+  Future<void> selectHomeTaskStage(int stageId) async {
+    if (stageId == state.homeTaskStageId) return;
+    emit(state.copyWith(homeTaskStageId: stageId, listNewTasks: const []));
+    await getListNewTasks();
+  }
+
+  /// Việc cần làm ở Home theo tab đang chọn (mặc định "Mới").
   Future<void> getListNewTasks() async {
+    final stageId = state.homeTaskStageId;
     emit(state.copyWith(loadDataStatus: LoadStatus.LOADING));
     String? name;
-    int stagId = 1;
     int page = 1;
     int limit = 5;
     try {
-      final res = await taskRepository.getListTask(name, stagId, page, limit);
+      final res = await taskRepository.getListTask(name, stageId, page, limit);
       final items = TaskDataEntity.itemsFrom(res.data);
+      // Đã bấm sang tab khác trong lúc tải → bỏ kết quả cũ.
+      if (isClosed || stageId != state.homeTaskStageId) return;
 
       if (items.isNotEmpty) {
         emit(
@@ -208,6 +258,7 @@ class HomeCubit extends Cubit<HomeState> {
     } catch (e, s) {
       logger.d(e);
       logger.d(s);
+      if (isClosed || stageId != state.homeTaskStageId) return;
       emit(
         state.copyWith(loadDataStatus: LoadStatus.FAILURE, listNewTasks: []),
       );

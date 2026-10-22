@@ -26,6 +26,11 @@ class HomeState extends Equatable {
   // trạng thái tải ca: SUCCESS + shiftToday null = đã tải xong và CHƯA ĐƯỢC PHÂN CA
   final LoadStatus shiftStatus;
 
+  // Tab "Việc cần làm" ở Home (Mới / Đang thực hiện / Hoàn thành / Từ chối) và tab đang chọn
+  // (id trạng thái; mặc định 1 = Mới). listNewTasks = việc của tab đang chọn.
+  final List<TaskStageEntity> homeTaskStages;
+  final int homeTaskStageId;
+
   const HomeState({
     this.listAttendanceToday,
     this.loadDataStatus = LoadStatus.INITIAL,
@@ -37,6 +42,8 @@ class HomeState extends Equatable {
     this.attendanceActionStatus = LoadStatus.INITIAL,
     this.shiftToday,
     this.shiftStatus = LoadStatus.INITIAL,
+    this.homeTaskStages = const [],
+    this.homeTaskStageId = 1,
   });
 
   HomeState copyWith({
@@ -50,6 +57,8 @@ class HomeState extends Equatable {
     LoadStatus? attendanceActionStatus,
     Object? shiftToday = _homeShiftTodayUnset,
     LoadStatus? shiftStatus,
+    List<TaskStageEntity>? homeTaskStages,
+    int? homeTaskStageId,
   }) {
     return HomeState(
       listAttendanceToday: listAttendanceToday ?? this.listAttendanceToday,
@@ -72,6 +81,8 @@ class HomeState extends Equatable {
               ? this.shiftToday
               : shiftToday as ShiftOfDayEntity?,
       shiftStatus: shiftStatus ?? this.shiftStatus,
+      homeTaskStages: homeTaskStages ?? this.homeTaskStages,
+      homeTaskStageId: homeTaskStageId ?? this.homeTaskStageId,
     );
   }
 
@@ -87,5 +98,7 @@ class HomeState extends Equatable {
     shiftToday,
     shiftStatus,
     attendanceActionStatus,
+    homeTaskStages,
+    homeTaskStageId,
   ];
 }

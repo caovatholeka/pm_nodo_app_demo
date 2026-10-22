@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -42,6 +43,7 @@ class _HomePageV2State extends State<HomePageV2> {
     super.initState();
     _cubit.getListAttendanceToday();
     _cubit.getListNewTasks();
+    _cubit.loadHomeTaskStages(); // tab Mới / Đang thực hiện / Hoàn thành / Từ chối
     _cubit.getShiftToday();
     // Như Home v1: cập nhật số thông báo chưa đọc mỗi lần vào Home.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -622,8 +624,57 @@ class _HomePageV2State extends State<HomePageV2> {
     );
   }
 
+  /// Hàng tab trạng thái việc (chọn tab nào thì hiện việc của trạng thái đó).
+  Widget _taskTabs(HomeState state) {
+    final stages = state.homeTaskStages.isEmpty
+        ? HomeCubit.defaultHomeTaskStages
+        : state.homeTaskStages;
+    return SizedBox(
+      height: 34,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        itemCount: stages.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final stage = stages[i];
+          final selected = stage.id == state.homeTaskStageId;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (stage.id == null || selected) return;
+              HapticFeedback.selectionClick();
+              _cubit.selectHomeTaskStage(stage.id!);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppTokensV2.accent.withValues(alpha: 0.22)
+                    : AppTokensV2.surfaceStrong,
+                border: Border.all(
+                    color: selected ? AppTokensV2.accent : AppTokensV2.border),
+                borderRadius: BorderRadius.circular(17),
+              ),
+              child: Text(
+                stage.name ?? '',
+                style: TextStyle(
+                  color: selected ? AppTokensV2.accent : AppTokensV2.fgSoft,
+                  fontSize: 12,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget _tasks(HomeState state) {
     final tasks = state.listNewTasks ?? const [];
+    final loading = state.loadDataStatus == LoadStatus.LOADING && tasks.isEmpty;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('Việc cần làm', style: AppTokensV2.section),
@@ -637,12 +688,26 @@ class _HomePageV2State extends State<HomePageV2> {
                   fontWeight: FontWeight.w600)),
         ),
       ]),
+      const SizedBox(height: 10),
+      _taskTabs(state),
       const SizedBox(height: 12),
-      if (tasks.isEmpty)
+      if (loading)
         GlassCardV2(
           padding: const EdgeInsets.all(20),
           child: Center(
-              child: Text('Không có việc cần làm', style: AppTokensV2.caption)),
+            child: SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: AppTokensV2.accent),
+            ),
+          ),
+        )
+      else if (tasks.isEmpty)
+        GlassCardV2(
+          padding: const EdgeInsets.all(20),
+          child: Center(
+              child: Text('Không có việc nào', style: AppTokensV2.caption)),
         )
       else
         for (final t in tasks.take(4))
