@@ -23,6 +23,9 @@ class HomeState extends Equatable {
   // ca được phân hôm nay (null = chưa tải / không có ca → Home dùng 08:30–18:00)
   final ShiftOfDayEntity? shiftToday;
 
+  // trạng thái tải ca: SUCCESS + shiftToday null = đã tải xong và CHƯA ĐƯỢC PHÂN CA
+  final LoadStatus shiftStatus;
+
   const HomeState({
     this.listAttendanceToday,
     this.loadDataStatus = LoadStatus.INITIAL,
@@ -33,6 +36,7 @@ class HomeState extends Equatable {
     this.attendanceAction = AttendanceAction.checkIn,
     this.attendanceActionStatus = LoadStatus.INITIAL,
     this.shiftToday,
+    this.shiftStatus = LoadStatus.INITIAL,
   });
 
   HomeState copyWith({
@@ -45,6 +49,7 @@ class HomeState extends Equatable {
     AttendanceAction? attendanceAction,
     LoadStatus? attendanceActionStatus,
     Object? shiftToday = _homeShiftTodayUnset,
+    LoadStatus? shiftStatus,
   }) {
     return HomeState(
       listAttendanceToday: listAttendanceToday ?? this.listAttendanceToday,
@@ -66,6 +71,7 @@ class HomeState extends Equatable {
           identical(shiftToday, _homeShiftTodayUnset)
               ? this.shiftToday
               : shiftToday as ShiftOfDayEntity?,
+      shiftStatus: shiftStatus ?? this.shiftStatus,
     );
   }
 
@@ -79,6 +85,7 @@ class HomeState extends Equatable {
     checkOutToday,
     attendanceAction,
     shiftToday,
+    shiftStatus,
     attendanceActionStatus,
   ];
 }

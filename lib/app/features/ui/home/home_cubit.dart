@@ -67,9 +67,13 @@ class HomeCubit extends Cubit<HomeState> {
         DateFormat("yyyy-MM-dd").format(today),
       );
       if (isClosed) return;
-      emit(state.copyWith(shiftToday: ShiftOfDayEntity.fromApiData(res.data, today)));
+      emit(state.copyWith(
+        shiftToday: ShiftOfDayEntity.fromApiData(res.data, today),
+        shiftStatus: LoadStatus.SUCCESS,
+      ));
     } catch (e) {
       logger.w('Load shift of day failed: $e');
+      if (!isClosed) emit(state.copyWith(shiftStatus: LoadStatus.FAILURE));
     }
   }
 

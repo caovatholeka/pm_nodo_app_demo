@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/keyboard_done_bar_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/data/models/entities/overtime_entity.dart';
@@ -79,7 +80,7 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
         _cubit.setNote(e.note);
 
         final days = _generateDays(_fromDate!, _toDate!);
-        _cubit.initOvertimeLines(days);
+        _cubit.initOvertimeLines(days, defaultFormType: _defaultFormType);
 
         for (var i = 0; i < e.overtimeDetail!.length; i++) {
           final d = e.overtimeDetail![i];
@@ -149,9 +150,14 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
   /// cùng thì danh sách gửi đi lệch với màn hình.
   void _syncOvertimeLines() {
     if (_fromDate != null && _toDate != null) {
-      _cubit.initOvertimeLines(_generateDays(_fromDate!, _toDate!));
+      _cubit.initOvertimeLines(_generateDays(_fromDate!, _toDate!),
+          defaultFormType: _defaultFormType);
     }
   }
+
+  /// Hình thức nhận OT: ẩn ô chọn (Trả tiền / Nghỉ phép), luôn là Trả tiền. Sửa đơn cũ thì
+  /// giữ hình thức đã lưu của từng ngày.
+  static const String _defaultFormType = 'pay';
 
   void _goNotification() {
     HapticFeedback.selectionClick();
@@ -327,7 +333,7 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
                 ),
               ),
             ),
-            bottomSheet: _bottomSheet(state),
+            bottomSheet: KeyboardDoneBarV2(child: _bottomSheet(state)),
           );
         },
       ),
@@ -449,7 +455,7 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
                         OvertimeLineEntity(
                           date: line?.date,
                           overtime: null,
-                          formType: line?.formType,
+                          formType: line?.formType ?? _defaultFormType,
                         ),
                       );
                       return;
@@ -463,24 +469,7 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
                       OvertimeLineEntity(
                         date: line?.date,
                         overtime: h,
-                        formType: line?.formType,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _formTypeField(
-                  title: s.ot_input_recevice,
-                  formType: line?.formType,
-                  onChanged: (v) {
-                    _cubit.updateOvertimeLine(
-                      index,
-                      OvertimeLineEntity(
-                        date: line?.date,
-                        overtime: line?.overtime,
-                        formType: v,
+                        formType: line?.formType ?? _defaultFormType,
                       ),
                     );
                   },
@@ -520,6 +509,7 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
             border: Border.all(color: AppTokensV2.border),
           ),
           child: TextField(
+            scrollPadding: kFormFieldScrollPaddingV2,
             controller: controller,
             style: AppTokensV2.body,
             cursorColor: AppTokensV2.accent,
@@ -547,91 +537,6 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
   /// Bản v2 thay [DropdownInputField] (2 lựa chọn: pay/leave) bằng 2 chip
   /// chọn 1 — cùng data contract (`formType` là 'pay' | 'leave' | null, trả
   /// về qua [onChanged]) như bản cũ.
-  Widget _formTypeField({
-    required String title,
-    required String? formType,
-    required ValueChanged<String> onChanged,
-  }) {
-    final s = S.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(title, style: AppTokensV2.caption),
-            const SizedBox(width: 4),
-            Text(
-              "*",
-              style: TextStyle(color: AppTokensV2.danger, fontSize: 12),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Expanded(
-              child: _formTypeChip(
-                label: s.ot_paid,
-                selected: formType == 'pay',
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  onChanged('pay');
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _formTypeChip(
-                label: s.ot_timeOff,
-                selected: formType == 'leave',
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  onChanged('leave');
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _formTypeChip({
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 46),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        decoration: BoxDecoration(
-          color:
-              selected
-                  ? AppTokensV2.accent.withValues(alpha: 0.2)
-                  : AppTokensV2.surfaceStrong,
-          borderRadius: BorderRadius.circular(AppTokensV2.radiusSm),
-          border: Border.all(
-            color: selected ? AppTokensV2.accent : AppTokensV2.border,
-          ),
-        ),
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: selected ? AppTokensV2.accent : AppTokensV2.fgSoft,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _reasonField(CreateOvertimeState state) {
     final s = S.of(context);
     return Column(
@@ -655,6 +560,7 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
             border: Border.all(color: AppTokensV2.border),
           ),
           child: TextField(
+            scrollPadding: kFormFieldScrollPaddingV2,
             controller: _noteCtrl,
             maxLines: 5,
             style: AppTokensV2.body,

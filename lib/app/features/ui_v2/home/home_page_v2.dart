@@ -13,14 +13,13 @@ import 'package:pm_app/app/features/ui_v2/notification/noti_page_v2.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
-import 'package:pm_app/app/core/theme_v2/widgets/glass_fx_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
-import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/features/ui/home/home_cubit.dart';
 import 'package:pm_app/app/features/ui_v2/application/application_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/attendance/attendance_data_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/home/work_time_v2.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/entities/shift_of_day_entity.dart';
 import 'package:pm_app/app/features/ui/task/task_detail_page.dart';
 import 'package:pm_app/app/features/ui_v2/staff/staff_page_v2.dart';
@@ -165,13 +164,13 @@ class _HomePageV2State extends State<HomePageV2> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(18, 8, 18, 120),
                     children: [
-                      StaggerRevealV2(index: 0, child: _header()),
+                      _header(),
                       const SizedBox(height: 16),
-                      StaggerRevealV2(index: 1, child: _hero(state)),
+                      _hero(state),
                       const SizedBox(height: 22),
-                      StaggerRevealV2(index: 2, child: _utilities()),
+                      _utilities(),
                       const SizedBox(height: 22),
-                      StaggerRevealV2(index: 3, child: _tasks(state)),
+                      _tasks(state),
                     ],
                   ),
                 );
@@ -283,8 +282,12 @@ class _HomePageV2State extends State<HomePageV2> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
         const SizedBox(height: 1),
-        TypewriterTextV2('Cố gắng hết mình hôm nay nhé!',
-            style: AppTokensV2.caption),
+        // Chữ tĩnh (trước là hiệu ứng đánh máy + con trỏ nhấp nháy; ký tự con trỏ làm
+        // dòng chữ cao/thấp theo nhịp nháy → cả thẻ chấm công bên dưới nhảy lên xuống).
+        Text('Cố gắng hết mình hôm nay nhé!',
+            style: AppTokensV2.caption,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
       ])),
       _bell(),
     ]);
@@ -306,8 +309,11 @@ class _HomePageV2State extends State<HomePageV2> {
         : (shift.isDayOff ? "--:--" : hm.format(shift.end));
     final shiftName = shift?.name?.trim();
 
+    // Đã tải xong mà không có ca → "Chưa phân ca" (trước hiện mặc định "Ca HC").
+    // Đang tải / tải lỗi → chưa hiện badge.
+    final noShift = shift == null && state.shiftStatus == LoadStatus.SUCCESS;
     final shiftBadgeText = shift == null
-        ? 'Ca HC · 08:30 - 18:00'
+        ? 'Chưa phân ca'
         : (shift.isDayOff
             ? 'Ngày nghỉ'
             : (shiftName != null && shiftName.isNotEmpty
@@ -334,7 +340,8 @@ class _HomePageV2State extends State<HomePageV2> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text('Hôm nay · ${_todayShort()}', style: AppTokensV2.captionStrong),
-                  _shiftBadge(shift, shiftBadgeText),
+                  if (shift != null || noShift)
+                    _shiftBadge(shift, shiftBadgeText),
                 ],
               ),
               const SizedBox(height: 14),
@@ -371,7 +378,8 @@ class _HomePageV2State extends State<HomePageV2> {
   /// - Chế độ tối: nền app đã pha xanh navy nên dùng màu kính trắng bạc (#FFFFFF)
   ///   để nổi bật rõ ràng, không bị chìm vào nền.
   Widget _shiftBadge(ShiftOfDayEntity? shift, String text) {
-    final isDayOff = shift?.isDayOff ?? false;
+    // Ngày nghỉ / chưa phân ca: badge màu cảnh báo.
+    final isDayOff = shift?.isDayOff ?? true;
     final Color badgeFg;
     final Color badgeBg;
     final Color badgeBorder;
@@ -467,9 +475,7 @@ class _HomePageV2State extends State<HomePageV2> {
           borderRadius: BorderRadius.circular(4),
           child: Stack(children: [
             Container(height: 6, color: AppTokensV2.border),
-            AnimatedFractionallySizedBox(
-              duration: AppTokensV2.dBase,
-              curve: AppTokensV2.easeExpo,
+            FractionallySizedBox(
               widthFactor: ratio,
               child: Container(
                 height: 6,
@@ -520,7 +526,12 @@ class _HomePageV2State extends State<HomePageV2> {
         Row(
           children: [
             ok
-                ? PulseDotV2(color: AppTokensV2.success, size: 8)
+                ? Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                        color: AppTokensV2.success, shape: BoxShape.circle),
+                  )
                 : Icon(Icons.schedule, size: 12, color: AppTokensV2.fgSoft),
             const SizedBox(width: 5),
             Text(

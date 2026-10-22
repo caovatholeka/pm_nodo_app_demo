@@ -8,6 +8,7 @@ import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/keyboard_done_bar_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/primary_button_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
@@ -450,7 +451,7 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
               ),
             ),
           ),
-          bottomSheet: _bottomSheet,
+          bottomSheet: KeyboardDoneBarV2(child: _bottomSheet),
         );
       },
     );
@@ -893,6 +894,7 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
                 border: Border.all(color: AppTokensV2.border),
               ),
               child: TextField(
+                scrollPadding: kFormFieldScrollPaddingV2,
                 controller: reasonController,
                 maxLines: 5,
                 style: AppTokensV2.body,

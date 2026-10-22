@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pm_app/app/data/models/entities/shift_of_day_entity.dart';
+import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/response/common_response.dart';
 import 'package:pm_app/app/data/repositories/task_repository.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
@@ -136,6 +137,22 @@ void main() {
       repo.answer = Exception('offline');
       await cubit.getShiftToday();
       expect(cubit.state.shiftToday?.name, 'HC');
+      await cubit.close();
+    });
+    test('chưa được phân ca → SUCCESS + null (Home hiện "Chưa phân ca")', () async {
+      final repo = _ShiftRepo(CommonResponse(data: const []));
+      final cubit = HomeCubit(userRepository: repo, taskRepository: _NoTasks());
+      expect(cubit.state.shiftStatus, LoadStatus.INITIAL);
+      await cubit.getShiftToday();
+      expect((cubit.state.shiftStatus, cubit.state.shiftToday),
+          (LoadStatus.SUCCESS, null));
+      await cubit.close();
+    });
+    test('lỗi mạng lần đầu → FAILURE (Home không khẳng định "Chưa phân ca")', () async {
+      final repo = _ShiftRepo(Exception('offline'));
+      final cubit = HomeCubit(userRepository: repo, taskRepository: _NoTasks());
+      await cubit.getShiftToday();
+      expect(cubit.state.shiftStatus, LoadStatus.FAILURE);
       await cubit.close();
     });
   });

@@ -31,7 +31,8 @@ class CreateOvertimeCubit extends Cubit<CreateOvertimeState> {
     emit(state.copyWith(id: id));
   }
 
-  void initOvertimeLines(List<DateTime> days) {
+  /// [defaultFormType]: hình thức nhận gán sẵn cho mỗi ngày (app v2 ẩn ô chọn, luôn 'pay').
+  void initOvertimeLines(List<DateTime> days, {String? defaultFormType}) {
     emit(
       state.copyWith(
         overtimeLines:
@@ -40,7 +41,7 @@ class CreateOvertimeCubit extends Cubit<CreateOvertimeState> {
                   (d) => OvertimeLineEntity(
                     date: DateFormat('yyyy-MM-dd').format(d),
                     overtime: null,
-                    formType: null,
+                    formType: defaultFormType,
                   ),
                 )
                 .toList(),
