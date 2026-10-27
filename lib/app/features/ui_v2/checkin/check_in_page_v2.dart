@@ -7,7 +7,7 @@ import 'package:pm_app/app/core/commons/global_data.dart';
 import 'package:pm_app/app/core/commons/screen_size.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
-import 'package:pm_app/app/core/utils/validators.dart';
+
 import 'package:pm_app/app/core/utils/widget_to_marker.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
@@ -297,7 +297,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
           return Circle(
             circleId: CircleId('c_${checkin.id}'),
             center: LatLng(checkin.latitude ?? 0.0, checkin.longitude ?? 0.0),
-            radius: Platform.isIOS ? r + 30 : r,
+            radius: r,
             strokeWidth: 2,
             strokeColor: Color(0xFFCE0000).withOpacity(0.2),
             fillColor: Color(0xFFCE0000).withOpacity(0.2),
@@ -434,7 +434,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
 
   // App cho chấm công trong bán kính điểm + sai số này (mét); dùng chung cho kiểm tra
   // khi bấm nút và khung bản đồ.
-  static const double _radiusTolerance = 100;
+  static const double _radiusTolerance = 0;
 
   double _distanceToPoint(Position position, CheckInInfoEntity point) {
     return Utils().calcDistanceMetersGeolocator(
@@ -501,9 +501,9 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
 
           if (state.hasLateOrEarly) {
             final String? reason = await showLateEarlyDialog(context);
-            if (reason != null) {
+            if (reason != null && reason.trim().isNotEmpty) {
               _cubit.updateExplanation(
-                reason,
+                reason.trim(),
                 state.checkInOutResponse?.id ?? 0,
               );
             } else {
@@ -1482,7 +1482,14 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
         return StatefulBuilder(
           builder: (ctx, setState) {
             return PopScope(
-              canPop: true,
+              canPop: false,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+                AppSnackBar.showError(
+                  title: "Cảnh báo",
+                  message: "Vui lòng nhập giải trình",
+                );
+              },
               child: Dialog(
                 insetPadding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -1535,19 +1542,29 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
                               onChange: (val) {
                                 reasonKey.currentState?.validate();
                               },
-                              validator:
-                                  (val) =>
-                                      Validator.validateEmpty(val, "Lý do"),
+                              validator: (val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return "Vui lòng nhập giải trình";
+                                }
+                                return null;
+                              },
                             ),
                           ),
                           const SizedBox(height: 16),
                           FilledButton(
                             onPressed: () {
+                              final reason = reasonController.text.trim();
+                              if (reason.isEmpty) {
+                                reasonKey.currentState?.validate();
+                                AppSnackBar.showError(
+                                  title: "Cảnh báo",
+                                  message: "Vui lòng nhập giải trình",
+                                );
+                                return;
+                              }
                               final reasonValid =
                                   reasonKey.currentState?.validate() ?? false;
                               if (reasonValid) {
-                                final reason = reasonController.text.trim();
-                                // dùng ctx hiện tại để pop dialog
                                 Navigator.of(ctx).pop(reason);
                               }
                             },
