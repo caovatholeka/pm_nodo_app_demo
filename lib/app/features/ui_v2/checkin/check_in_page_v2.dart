@@ -1,3 +1,4 @@
+import 'package:pm_app/app/core/utils/validators.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:math' as math;
@@ -176,14 +177,20 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     _listenLocation();
     try {
       final last = await Geolocator.getLastKnownPosition();
-      if (last != null && mounted) _cubit.onChangeAddress(last);
+      // Chỉ nhận vị trí từ cache hệ điều hành nếu còn rất mới (<= 30 giây)
+      // Tránh bị kẹt toạ độ cũ ở công ty khi nhân viên đã di chuyển ra ngoài
+      if (last != null &&
+          mounted &&
+          DateTime.now().difference(last.timestamp).inSeconds <= 30) {
+        _cubit.onChangeAddress(last);
+      }
     } catch (_) {}
     try {
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 10),
       );
-      if (mounted) _cubit.onChangeAddress(pos);
+      if (mounted) _cubit.onChangeAddress(pos, force: true);
     } catch (_) {
       // nếu timeout thì vẫn nghe stream
     }
@@ -339,7 +346,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: locationSettings,
     ).listen((Position position) {
-      _cubit.onChangeAddress(position);
+      _cubit.onChangeAddress(position, force: true);
     });
   }
 
@@ -501,9 +508,9 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
 
           if (state.hasLateOrEarly) {
             final String? reason = await showLateEarlyDialog(context);
-            if (reason != null && reason.trim().isNotEmpty) {
+            if (reason != null && !Validator.isBlank(reason)) {
               _cubit.updateExplanation(
-                reason.trim(),
+                Validator.cleanWhitespace(reason),
                 state.checkInOutResponse?.id ?? 0,
               );
             } else {
@@ -1542,19 +1549,14 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
                               onChange: (val) {
                                 reasonKey.currentState?.validate();
                               },
-                              validator: (val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Vui lòng nhập giải trình";
-                                }
-                                return null;
-                              },
+                              validator: (val) => Validator.validateExplanation(val),
                             ),
                           ),
                           const SizedBox(height: 16),
                           FilledButton(
                             onPressed: () {
-                              final reason = reasonController.text.trim();
-                              if (reason.isEmpty) {
+                              final rawReason = reasonController.text;
+                              if (Validator.isBlank(rawReason)) {
                                 reasonKey.currentState?.validate();
                                 AppSnackBar.showError(
                                   title: "Cảnh báo",
@@ -1565,7 +1567,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
                               final reasonValid =
                                   reasonKey.currentState?.validate() ?? false;
                               if (reasonValid) {
-                                Navigator.of(ctx).pop(reason);
+                                final cleanReason = Validator.cleanWhitespace(rawReason);
+                                Navigator.of(ctx).pop(cleanReason);
                               }
                             },
                             style: FilledButton.styleFrom(
@@ -1685,30 +1688,27 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     );
   }
 
-  /// Cần lấy vị trí mới trước khi chấm: chưa có, đã cũ (>30 giây) hoặc đang ngoài phạm vi
-  /// (có thể chỉ là vị trí cũ/sai).
-  bool _needsFreshPosition() {
-    final p = _cubit.state.position;
-    if (p == null || p.latitude == 0) return true;
-    if (DateTime.now().difference(p.timestamp).inSeconds > 30) return true;
-    final point = _cubit.state.currentCheckInEntity;
-    if (point == null) return false;
-    return _distanceToPoint(p, point).round() >
-        (point.radius ?? 100.0).round() + _radiusTolerance;
-  }
-
-  /// Lấy 1 vị trí mới ngay lúc bấm (tối đa 8 giây). Người đứng yên không nhận được cập
-  /// nhật từ stream (chỉ báo khi di chuyển ≥ 10 m) nên trước đây bị kẹt với vị trí cũ/sai.
-  Future<void> _refreshPositionNow() async {
+  /// Lấy vị trí GPS thực tế mới nhất ngay lúc bấm nút (tối đa 10 giây).
+  /// Đảm bảo tính khoảng cách chính xác theo toạ độ tức thời của thiết bị.
+  Future<Position?> _getFreshPosition() async {
     LoadingOverlay.show(context);
     try {
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
-        timeLimit: const Duration(seconds: 8),
+        timeLimit: const Duration(seconds: 10),
       );
-      _cubit.onChangeAddress(pos);
+      _cubit.onChangeAddress(pos, force: true);
+      return pos;
     } catch (e) {
-      logger.d("Refresh position before check-in failed: $e");
+      logger.d("getCurrentPosition failed: $e");
+      final existing = _cubit.state.position;
+      // Chỉ dùng vị trí đã có nếu vị trí đó còn rất mới (<= 15 giây)
+      if (existing != null &&
+          existing.latitude != 0 &&
+          DateTime.now().difference(existing.timestamp).inSeconds <= 15) {
+        return existing;
+      }
+      return null;
     } finally {
       if (mounted) LoadingOverlay.hide(context);
     }
@@ -1733,75 +1733,92 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
       return;
     }
 
-    if (_needsFreshPosition()) {
-      await _refreshPositionNow();
-      if (!mounted) return;
+    // 1. Validate quyền và dịch vụ GPS
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      logger.d("service not enabled");
+      showLocationSettingPopup();
+      return;
     }
 
-    if ((_cubit.state.position?.latitude ?? 0) == 0) {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        showLocationSettingPopup();
+        logger.d("service is denied");
+        return;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      showLocationSettingPopup();
+      logger.d("service is deniedForever");
+      return;
+    }
+
+    if (Platform.isIOS) {
+      final accuracyStatus = await Geolocator.getLocationAccuracy();
+      if (accuracyStatus == LocationAccuracyStatus.reduced) {
+        await Geolocator.requestTemporaryFullAccuracy(
+          purposeKey: "PreciseLocation",
+        );
+      }
+    }
+
+    // 2. Luôn lấy toạ độ GPS thực tế mới nhất của thiết bị
+    final currentPos = await _getFreshPosition();
+    if (!mounted) return;
+
+    if (currentPos == null || currentPos.latitude == 0) {
       AppSnackBar.showError(
         title: "Cảnh báo",
-        message: "Tín hiệu GPS kém",
+        message: "Tín hiệu GPS kém. Vui lòng bật định vị chính xác và thử lại.",
       );
       return;
     }
 
-    // Validate
-    bool serviceEnabled;
-    LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // open popup
-      logger.d("service not enabled");
-      showLocationSettingPopup();
-      // openAppSettings();
-    } else {
-      permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          showLocationSettingPopup();
-          logger.d("service is denied");
-          // openAppSettings();
-        }
-      }
-      if (permission == LocationPermission.deniedForever) {
-        showLocationSettingPopup();
-        logger.d("service is deniedForever");
-        // openAppSettings();
-      } else {
-        // check vị trí
-        double distance = Utils().calcDistanceMetersGeolocator(
-          _cubit.state.position?.latitude ?? 0.0,
-          _cubit.state.position?.longitude ?? 0.0,
-          _cubit.state.currentCheckInEntity?.latitude ?? 0.0,
-          _cubit.state.currentCheckInEntity?.longitude ?? 0.0,
-        );
-        if (distance.round() >
-            (_cubit.state.currentCheckInEntity?.radius ?? 100.0).round() +
-                _radiusTolerance) {
-          AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: "Bạn đang không trong vị trí được phép Check-In",
-          );
-        } else {
-          // validate khuôn mặt
-          final result = await Navigator.push<CheckInOutEntity>(
-            context,
-            MaterialPageRoute(
-              builder: (_) => FaceAttendancePage(
-                locationId: _cubit.state.currentCheckInEntity?.id ?? 0,
-                latitude: _cubit.state.position?.latitude ?? 0.0,
-                longitude: _cubit.state.position?.longitude ?? 0.0,
-              ),
-            ),
-          );
+    // 3. Điểm chấm công mục tiêu (điểm gần nhất theo GPS mới nhất)
+    final target = _cubit.state.currentCheckInEntity;
+    if (target == null || target.latitude == null || target.longitude == null) {
+      AppSnackBar.showError(
+        title: "Cảnh báo",
+        message: "Chưa xác định được điểm chấm công phù hợp",
+      );
+      return;
+    }
 
-          if (result != null) {
-            _cubit.onCheckInCompleted(result);
-          }
-        }
-      }
+    // 4. Tính khoảng cách chính xác từ toạ độ GPS vừa lấy tới điểm chấm công
+    double distance = Utils().calcDistanceMetersGeolocator(
+      currentPos.latitude,
+      currentPos.longitude,
+      target.latitude!,
+      target.longitude!,
+    );
+    final allowedRadius = (target.radius ?? 100.0).toDouble();
+
+    // 5. Chặn nghiêm ngặt nếu vượt quá bán kính vòng đỏ (tolerance = 0, so sánh số thực chính xác)
+    if (distance > allowedRadius + _radiusTolerance) {
+      AppSnackBar.showError(
+        title: "Cảnh báo",
+        message: "Bạn đang không trong vị trí được phép Check-In",
+      );
+      return;
+    }
+
+    // 6. Trong phạm vi -> mở camera chấm công với toạ độ thực tế vừa lấy
+    final result = await Navigator.push<CheckInOutEntity>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FaceAttendancePage(
+          locationId: target.id ?? 0,
+          latitude: currentPos.latitude,
+          longitude: currentPos.longitude,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      _cubit.onCheckInCompleted(result);
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:pm_app/app/core/utils/validators.dart';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -74,6 +75,14 @@ class ExplanationCubit extends Cubit<ExplanationState> {
 
   Future<void> sendInvalidReason(String date) async {
     if (state.sendInvalidStatus == LoadStatus.LOADING) return; // chống bấm gửi 2 lần
+    final cleanReason = Validator.cleanWhitespace(state.reason);
+    if (cleanReason.isEmpty) {
+      emit(state.copyWith(
+        sendInvalidStatus: LoadStatus.FAILURE,
+        errorMsg: "Vui lòng nhập giải trình",
+      ));
+      return;
+    }
     emit(state.copyWith(sendInvalidStatus: LoadStatus.LOADING));
     try{
       final param = {
@@ -81,7 +90,7 @@ class ExplanationCubit extends Cubit<ExplanationState> {
         "date": date,
         "date_start_employee_commit": Utils().stringTimeToFloat(state.startTime) ?? 8.5,
         "date_stop_employee_commit": Utils().stringTimeToFloat(state.endTime) ?? 18.0,
-        "note": state.reason,
+        "note": cleanReason,
       };
       final res = await repository.sendInvalid(param);
       if(res.data != null){

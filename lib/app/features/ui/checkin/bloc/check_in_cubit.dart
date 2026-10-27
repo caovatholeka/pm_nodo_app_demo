@@ -1,3 +1,4 @@
+import 'package:pm_app/app/core/utils/validators.dart';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -163,11 +164,17 @@ class CheckInCubit extends Cubit<CheckInState> {
   }
 
   void updateExplanation(String reason, int id) async{
+    final cleanReason = Validator.cleanWhitespace(reason);
+    if (cleanReason.isEmpty) {
+      logger.d("updateExplanation: reason is empty after cleanWhitespace");
+      emit(state.copyWith(updateExplain: LoadStatus.FAILURE));
+      return;
+    }
     emit(state.copyWith(updateExplain: LoadStatus.LOADING));
     try{
       final param = {
         "biometric_data_id" : id,
-        "attendance_explanation" : reason
+        "attendance_explanation" : cleanReason
       };
       await checkInRepository.updateExplanation(param);
       emit(state.copyWith(updateExplain: LoadStatus.SUCCESS));
@@ -183,7 +190,7 @@ class CheckInCubit extends Cubit<CheckInState> {
   }
 
 
-  void onChangeAddress(Position p) async {
+  void onChangeAddress(Position p, {bool force = false}) async {
     emit(state.copyWith(positionParam: p));
 
     final acc = p.accuracy;
@@ -194,9 +201,9 @@ class CheckInCubit extends Cubit<CheckInState> {
     final diff = now.difference(ts).inSeconds;
     ageSec = diff < 0 ? 0 : diff;
   
-    logger.d("lat=${p.latitude}, lng=${p.longitude}, acc=${acc}m, age=${ageSec}s");
+    logger.d("lat=${p.latitude}, lng=${p.longitude}, acc=${acc}m, age=${ageSec}s, force=$force");
 
-    if (!shouldAcceptPosition(current: state.position, next: p, now: now)) {
+    if (!force && !shouldAcceptPosition(current: state.position, next: p, now: now)) {
       logger.d("Skip position update for checkin");
       return;
     }

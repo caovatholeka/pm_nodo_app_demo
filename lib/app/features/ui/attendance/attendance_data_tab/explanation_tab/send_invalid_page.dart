@@ -1,3 +1,4 @@
+import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -248,6 +249,7 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                         enable: true,
                         controller: controller..text = state.reason ?? "",
                         maxLine: 5,
+                        validator: (val) => Validator.validateExplanation(val),
                         onChange: (value) {
                           _cubit.onChangeReason(value);
                         },
@@ -279,6 +281,13 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
         // }
         return InkWell(
           onTap: () {
+            if (Validator.isBlank(state.reason)) {
+              AppSnackBar.showError(
+                title: "Cảnh báo",
+                message: "Vui lòng nhập giải trình",
+              );
+              return;
+            }
             _cubit.sendInvalidReason(widget.workEntryEntity?.date ?? "");
           }, //: (){},
           child: Container(

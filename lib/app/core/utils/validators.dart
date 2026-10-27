@@ -23,6 +23,29 @@ class Validator {
     return text.isEmpty;
   }
 
+  /// Kiểm tra chuỗi có rỗng hoặc chỉ chứa khoảng trắng hay không (bao gồm cả các ký tự khoảng trắng
+  /// Unicode đặc biệt như non-breaking space \u00A0, zero-width space \u200B, zero-width joiner \u200C/\u200D, BOM \uFEFF).
+  static bool isBlank(String? value) {
+    if (value == null) return true;
+    return value.replaceAll(RegExp(r'[\s\u00A0\u200B-\u200D\uFEFF]'), '').isEmpty;
+  }
+
+  /// Loại bỏ các ký tự khoảng trắng đầu và cuối chuỗi (bao gồm cả ký tự vô hình/Unicode đặc biệt).
+  static String cleanWhitespace(String? value) {
+    if (value == null) return '';
+    return value.replaceAll(
+      RegExp(r'^[\s\u00A0\u200B-\u200D\uFEFF]+|[\s\u00A0\u200B-\u200D\uFEFF]+$'),
+      '',
+    );
+  }
+
+  static String? validateExplanation(String? value) {
+    if (isBlank(value)) {
+      return "Vui lòng nhập giải trình";
+    }
+    return null;
+  }
+
   static String? validateEmpty(String? value, String text) {
     if (value == null || value.isEmpty) {
       // return '$text ${S.current.is_not_empty}';
