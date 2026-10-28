@@ -1,5 +1,7 @@
 import 'package:pm_app/app/core/utils/validators.dart';
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
@@ -248,6 +250,8 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
                         isRequiredField: true,
                         enable: true,
                         controller: controller..text = state.reason ?? "",
+                        maxLength: InputLimits.requestNote,
+                        buildCounter: inputCounterV2(),
                         maxLine: 5,
                         validator: (val) => Validator.validateExplanation(val),
                         onChange: (value) {

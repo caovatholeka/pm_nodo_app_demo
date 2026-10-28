@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
@@ -896,6 +898,8 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
               child: TextField(
                 scrollPadding: kFormFieldScrollPaddingV2,
                 controller: reasonController,
+                maxLength: InputLimits.requestNote,
+                buildCounter: inputCounterV2(),
                 maxLines: 5,
                 style: AppTokensV2.body,
                 cursorColor: AppTokensV2.accent,

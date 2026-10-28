@@ -39,6 +39,9 @@ class InputTextField extends StatefulWidget {
   /// dùng màu AppTokensV2 như các ô nhập khác của v2. Mặc định false = giữ kiểu cũ (v1).
   final bool v2Style;
 
+  /// Bộ đếm ký tự khi có [maxLength] (vd `inputCounterV2()`); null = ẩn bộ đếm như cũ.
+  final InputCounterWidgetBuilder? buildCounter;
+
   const InputTextField({
     super.key,
     this.title,
@@ -68,6 +71,7 @@ class InputTextField extends StatefulWidget {
     this.isPasswordField = false,
     this.fillBgColor,
     this.v2Style = false,
+    this.buildCounter,
   });
 
   @override
@@ -231,6 +235,7 @@ class _InputTextFieldState extends State<InputTextField> {
             cursorColor: v2 ? AppTokensV2.accent : null,
             maxLines: widget.maxLine ?? 1,
             maxLength: widget.maxLength,
+            buildCounter: widget.buildCounter,
             decoration: InputDecoration(
               contentPadding:
                   (widget.maxLine ?? 1) > 1
@@ -245,7 +250,8 @@ class _InputTextFieldState extends State<InputTextField> {
                 fontWeight: FontWeight.w400,
                 color: v2 ? AppTokensV2.fgMuted : const Color(0xFFBDBDBD),
               ),
-              counterText: "",
+              // Có buildCounter thì để nó vẽ bộ đếm; không thì ẩn như cũ.
+              counterText: widget.buildCounter == null ? "" : null,
               filled: true,
               fillColor: widget.fillBgColor ??
                   (v2 ? AppTokensV2.surfaceStrong : fillColor),

@@ -29,6 +29,8 @@ import '../../../core/commons/app_assets.dart';
 import '../../../core/utils/utils.dart';
 import '../../widgets/app_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
@@ -1420,6 +1422,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
                           enable: true,
                           maxLine: 3,
                           controller: reasonController,
+                          maxLength: InputLimits.checkInReason,
+                          buildCounter: inputCounterV2(),
                           onChange: (_) {
                             reasonKey.currentState?.validate();
                           },
@@ -1546,6 +1550,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
                               enable: true,
                               maxLine: 3,
                               controller: reasonController,
+                              maxLength: InputLimits.checkInReason,
+                              buildCounter: inputCounterV2(),
                               onChange: (val) {
                                 reasonKey.currentState?.validate();
                               },

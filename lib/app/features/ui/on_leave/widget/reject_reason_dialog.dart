@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -89,6 +91,8 @@ class _RejectReasonDialogState extends State<RejectReasonDialog> {
                   hintText: widget.hintText,
                   isRequiredField: true,
                   controller: _controller,
+                  maxLength: InputLimits.requestNote,
+                  buildCounter: inputCounterV2(),
                   maxLine: 3,
                 ),
 
