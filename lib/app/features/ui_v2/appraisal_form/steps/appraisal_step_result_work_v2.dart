@@ -246,6 +246,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 InputTextField(
+                                  v2Style: true,
                                   title: s.appraisal_task_done,
                                   hintText: s.appraisal_task_done_hint,
                                   controller: _nameController(task, i),
@@ -257,6 +258,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 12),
                                 InputTextField(
+                                  v2Style: true,
                                   title: s.appraisal_weight_percent,
                                   hintText: s.appraisal_weight_percent_hint,
                                   controller: _rateController(task, i),
@@ -290,6 +292,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                 const SizedBox(height: 12),
                                 isLeaderReview
                                     ? InputTextField(
+                                      v2Style: true,
                                       title: s.appraisal_adjustment_feedback,
                                       hintText: '',
                                       controller: _evidenceController(task, i),
@@ -304,6 +307,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                                   onEvidenceChanged!(i, value),
                                     )
                                     : InputTextField(
+                                      v2Style: true,
                                       title: s.appraisal_evidence,
                                       hintText: s.appraisal_evidence_hint,
                                       controller: _evidenceController(task, i),
@@ -326,6 +330,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 12),
                                   InputTextField(
+                                    v2Style: true,
                                     title: 'Ý kiến HR',
                                     hintText: '',
                                     initialValue: hrNoteText!(i),
@@ -337,6 +342,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 12),
                                   InputTextField(
+                                    v2Style: true,
                                     title: 'Trạng thái',
                                     hintText: '',
                                     initialValue: hrStatusText!(i),

@@ -241,6 +241,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             InputTextField(
+                              v2Style: true,
                               title:
                                   isLeaderReview
                                       ? 'Góp ý điều chỉnh với các điểm chưa được'
@@ -268,6 +269,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               InputTextField(
+                                v2Style: true,
                                 title: 'Ý kiến HR',
                                 hintText: '',
                                 initialValue: hrNoteText!(i),
@@ -279,6 +281,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                               ),
                               const SizedBox(height: 12),
                               InputTextField(
+                                v2Style: true,
                                 title: 'Trạng thái',
                                 hintText: '',
                                 initialValue: hrStatusText!(i),

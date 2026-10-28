@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../config/app_config.dart';
 import '../../core/commons/app_assets.dart';
 import '../../core/commons/app_colors.dart';
+import '../../core/theme_v2/app_tokens_v2.dart';
 
 class InputTextField extends StatefulWidget {
   final String? title;
@@ -34,6 +35,10 @@ class InputTextField extends StatefulWidget {
   final bool isPasswordField;
   final Color? fillBgColor;
 
+  /// Kiểu giao diện v2 (theo theme sáng/tối): tiêu đề, dấu *, viền, chữ gợi ý và icon
+  /// dùng màu AppTokensV2 như các ô nhập khác của v2. Mặc định false = giữ kiểu cũ (v1).
+  final bool v2Style;
+
   const InputTextField({
     super.key,
     this.title,
@@ -62,6 +67,7 @@ class InputTextField extends StatefulWidget {
     this.onSuffixAction,
     this.isPasswordField = false,
     this.fillBgColor,
+    this.v2Style = false,
   });
 
   @override
@@ -124,13 +130,19 @@ class _InputTextFieldState extends State<InputTextField> {
             ? Colors.white
             : AppColors.lineGray50;
 
+    final v2 = widget.v2Style;
     final baseBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(v2 ? AppTokensV2.radiusSm : 10),
       borderSide: BorderSide(
         width: 1,
-        color: const Color.fromARGB(255, 133, 133, 133).withAlpha(25),
+        color: v2
+            ? AppTokensV2.border
+            : const Color.fromARGB(255, 133, 133, 133).withAlpha(25),
       ),
     );
+    // Icon (lịch, mắt mật khẩu): v2 tô theo màu chữ phụ để nổi trên nền tối.
+    final ColorFilter? iconFilter =
+        v2 ? ColorFilter.mode(AppTokensV2.fgSoft, BlendMode.srcIn) : null;
 
     final errorBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(10),
@@ -154,17 +166,22 @@ class _InputTextFieldState extends State<InputTextField> {
                   padding: const EdgeInsets.only(left: 4),
                   child: Text(
                     widget.title!,
-                    style: const TextStyle(
-                      fontFamily: AppConfig.fontFamily,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.gray,
-                    ),
+                    style: v2
+                        ? AppTokensV2.caption
+                        : const TextStyle(
+                            fontFamily: AppConfig.fontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.gray,
+                          ),
                   ),
                 ),
               ),
               const SizedBox(width: 4),
-              if (widget.isRequiredField)
+              if (widget.isRequiredField && v2)
+                Text('*',
+                    style: TextStyle(color: AppTokensV2.danger, fontSize: 12))
+              else if (widget.isRequiredField)
                 SvgPicture.asset(
                   AppAssets.starRating,
                   colorFilter: const ColorFilter.mode(
@@ -200,11 +217,18 @@ class _InputTextFieldState extends State<InputTextField> {
                     : (widget.isObscured ?? false),
             style:
                 widget.style ??
-                const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                ),
+                (v2
+                    ? TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: AppTokensV2.fg,
+                      )
+                    : const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      )),
+            cursorColor: v2 ? AppTokensV2.accent : null,
             maxLines: widget.maxLine ?? 1,
             maxLength: widget.maxLength,
             decoration: InputDecoration(
@@ -216,14 +240,15 @@ class _InputTextFieldState extends State<InputTextField> {
                         vertical: 16,
                       ),
               hintText: widget.hintText,
-              hintStyle: const TextStyle(
+              hintStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                color: Color(0xFFBDBDBD),
+                color: v2 ? AppTokensV2.fgMuted : const Color(0xFFBDBDBD),
               ),
               counterText: "",
               filled: true,
-              fillColor: widget.fillBgColor ?? fillColor,
+              fillColor: widget.fillBgColor ??
+                  (v2 ? AppTokensV2.surfaceStrong : fillColor),
               prefixIcon: widget.prefixWidget,
               suffixIcon:
                   widget.isPasswordField
@@ -239,6 +264,7 @@ class _InputTextFieldState extends State<InputTextField> {
                                   : AppAssets.icEyeVisible,
                               width: 18,
                               height: 18,
+                              colorFilter: iconFilter,
                             ),
                           ),
                         ),
@@ -254,6 +280,7 @@ class _InputTextFieldState extends State<InputTextField> {
                               widget.suffixIcon!,
                               width: 18,
                               height: 18,
+                              colorFilter: iconFilter,
                             ),
                           ),
                         ),

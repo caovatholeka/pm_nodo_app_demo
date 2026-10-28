@@ -313,6 +313,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                             child: Column(
                               children: [
                                 InputTextField(
+                                  v2Style: true,
                                   title: s.appraisal_employee_code,
                                   hintText: '',
                                   isRequiredField: widget.isDetail != true,
@@ -327,6 +328,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                 ),
                                 const SizedBox(height: 16),
                                 InputTextField(
+                                  v2Style: true,
                                   title: s.appraisal_employee_name,
                                   hintText: '',
                                   isRequiredField: widget.isDetail != true,
@@ -341,6 +343,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                 ),
                                 const SizedBox(height: 16),
                                 InputTextField(
+                                  v2Style: true,
                                   hintText: s.employee_card_department,
                                   isRequiredField: widget.isDetail != true,
                                   title: s.employee_card_department,
@@ -358,6 +361,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                   children: [
                                     Expanded(
                                       child: InputTextField(
+                                        v2Style: true,
                                         title: s.day_off_from,
                                         hintText: '',
                                         isRequiredField: widget.isDetail != true,
@@ -379,6 +383,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: InputTextField(
+                                        v2Style: true,
                                         title: s.day_off_to,
                                         hintText: '',
                                         isRequiredField: widget.isDetail != true,

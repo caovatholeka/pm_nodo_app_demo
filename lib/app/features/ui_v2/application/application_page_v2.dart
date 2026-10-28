@@ -60,7 +60,8 @@ class _ApplicationPageV2State extends State<ApplicationPageV2> {
 
   void _openAppraisalForm() {
     HapticFeedback.selectionClick();
-    Navigator.push(context, MaterialPageRoute(builder: (_) => AppraisalPageV2()));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (_) => const AppraisalPageV2(isFromHome: true)));
   }
 
   void _openBusinessTrip() {

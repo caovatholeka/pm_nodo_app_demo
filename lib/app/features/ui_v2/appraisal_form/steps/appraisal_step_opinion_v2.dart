@@ -178,6 +178,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           InputTextField(
+                            v2Style: true,
                             title: '',
                             hintText: s.appraisal_suggestion_hint,
                             controller: controller,
@@ -200,6 +201,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                             Container(height: 1, color: AppTokensV2.border),
                             const SizedBox(height: 12),
                             InputTextField(
+                              v2Style: true,
                               title: 'Ý kiến HR',
                               hintText: '',
                               initialValue: hrNoteText!(itemIndex),
@@ -215,6 +217,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             InputTextField(
+                              v2Style: true,
                               title: 'Trạng thái',
                               hintText: '',
                               initialValue: hrStatusText!(itemIndex),

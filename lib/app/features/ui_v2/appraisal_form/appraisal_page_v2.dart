@@ -331,7 +331,8 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
   }
 
   Widget _topBar(S s) {
-    final showBack = widget.isFromHome ?? false;
+    // Mở từ màn khác (Đơn từ…) thì có nút quay lại như các màn v2 khác.
+    final showBack = widget.isFromHome ?? Navigator.of(context).canPop();
     return Row(
       children: [
         if (showBack) ...[

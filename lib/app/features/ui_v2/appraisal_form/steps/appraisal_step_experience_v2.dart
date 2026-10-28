@@ -321,6 +321,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           InputTextField(
+            v2Style: true,
             title: 'Dự án',
             hintText: 'Nhập tên dự án, công việc,...',
             controller: projectController,
@@ -357,6 +358,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             children: [
               Expanded(
                 child: InputTextField(
+                  v2Style: true,
                   title: 'Từ ngày',
                   hintText: 'MM/YYYY',
                   controller: fromDateController,
@@ -380,6 +382,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: InputTextField(
+                  v2Style: true,
                   title: 'Đến ngày',
                   hintText: 'MM/YYYY',
                   controller: toDateController,
@@ -404,6 +407,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           InputTextField(
+            v2Style: true,
             title: 'Công nghệ sử dụng',
             hintText: 'String boot, React,...',
             controller: techniqueController,
@@ -415,6 +419,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           InputTextField(
+            v2Style: true,
             title: 'Quy mô nhân sự',
             hintText: 'Nhập quy mô nhân sự VD: 6 - 10',
             controller: numberPeopleController,
@@ -427,6 +432,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           InputTextField(
+            v2Style: true,
             title: 'Mô tả công việc',
             hintText: 'Nhập mô tả công việc',
             controller: noteController,
@@ -442,6 +448,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             Container(height: 1, color: AppTokensV2.border),
             const SizedBox(height: 12),
             InputTextField(
+              v2Style: true,
               title: 'Ý kiến HR',
               hintText: '',
               initialValue: hrNoteText!(index),
@@ -453,6 +460,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             InputTextField(
+              v2Style: true,
               title: 'Trạng thái',
               hintText: '',
               initialValue: hrStatusText!(index),

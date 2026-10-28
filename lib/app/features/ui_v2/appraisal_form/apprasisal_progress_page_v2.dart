@@ -1735,6 +1735,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 InputTextField(
+                  v2Style: true,
                   title: '',
                   hintText: s.appraisal_coefficient,
                   controller: _coefCtrl,
@@ -1786,6 +1787,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
           const SizedBox(width: 12),
           Expanded(
             child: InputTextField(
+              v2Style: true,
               title: '',
               hintText: s.appraisal_total_score,
               controller: _totalCtrl,
@@ -1808,6 +1810,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: InputTextField(
+        v2Style: true,
         title: '',
         hintText: s.appraisal_total_score,
         controller: _totalCtrl,

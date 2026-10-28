@@ -52,6 +52,7 @@ class _DetailWorkEntryBottomSheetV2State
     required String value,
   }) {
     return InputTextField(
+        v2Style: true,
       title: title,
       hintText: "",
       isRequiredField: false,
