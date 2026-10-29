@@ -103,8 +103,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                 children: [
                   Text(s.appraisal_step_responsibility, style: AppTokensV2.body),
                   AppraisalHelpTooltipV2(
-                    message:
-                        'Tự đánh giá mình theo các đầu mục, ghi rõ những gì được, chưa được',
+                    message: s.v2_appraisal_self_assess_help,
                     autoShow: autoShowHelp,
                   ),
                 ],
@@ -244,12 +243,12 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                               v2Style: true,
                               title:
                                   isLeaderReview
-                                      ? 'Góp ý điều chỉnh với các điểm chưa được'
-                                      : "Ghi rõ những gì được, chưa được",
+                                      ? s.v2_appraisal_adjust_feedback_title
+                                      : s.v2_appraisal_state_pros_cons,
                               hintText:
                                   isLeaderReview
-                                      ? 'Góp ý điều chỉnh đối với các điểm chưa được'
-                                      : "Nhập dẫn chứng",
+                                      ? s.v2_appraisal_adjust_feedback_hint
+                                      : s.v2_appraisal_enter_evidence,
                               controller: _responseEvidence(item, i),
                               maxLine: 3,
                               isRequiredField: true,
@@ -270,7 +269,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                               const SizedBox(height: 12),
                               InputTextField(
                                 v2Style: true,
-                                title: 'Ý kiến HR',
+                                title: s.v2_appraisal_hr_opinion,
                                 hintText: '',
                                 initialValue: hrNoteText!(i),
                                 readOnly: true,
@@ -282,7 +281,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                               const SizedBox(height: 12),
                               InputTextField(
                                 v2Style: true,
-                                title: 'Trạng thái',
+                                title: s.employee_advanced_status,
                                 hintText: '',
                                 initialValue: hrStatusText!(i),
                                 readOnly: true,

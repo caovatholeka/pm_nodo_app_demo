@@ -418,7 +418,7 @@ class _LoginPageV2State extends State<LoginPageV2> {
                 Icon(Icons.dns_outlined, size: 14, color: AppTokensV2.accent),
                 const SizedBox(width: 6),
                 Text(
-                  AppConfig.nameEnv ?? 'Môi trường: Prod',
+                  AppConfig.nameEnv ?? s.v2_main_env_prod,
                   style: AppTokensV2.captionStrong.copyWith(
                     color: AppTokensV2.fg,
                     fontSize: 12,
@@ -464,12 +464,12 @@ class _LoginPageV2State extends State<LoginPageV2> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Chọn môi trường máy chủ',
+                  S.of(ctx).v2_main_select_server_env,
                   style: AppTokensV2.title.copyWith(fontSize: 16),
                 ),
                 const SizedBox(height: 16),
                 _envOptionItem(
-                  title: 'Production (Chính thức)',
+                  title: S.of(ctx).v2_main_env_production,
                   subtitle: 'https://pm.nodo.vn/',
                   selected: AppConfig.env == Environment.prod,
                   onTap: () {

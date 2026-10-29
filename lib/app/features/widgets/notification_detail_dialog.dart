@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/data/models/entities/notification_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class NotificationDetailDialog extends StatelessWidget {
   final NotificationEntity item;
@@ -44,9 +45,9 @@ class NotificationDetailDialog extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  "Đóng",
-                  style: TextStyle(color: Colors.blue, fontSize: 14),
+                child: Text(
+                  S.of(context).close,
+                  style: const TextStyle(color: Colors.blue, fontSize: 14),
                 ),
               ),
             )

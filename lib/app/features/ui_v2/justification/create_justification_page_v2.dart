@@ -90,7 +90,11 @@ class _CreateJustificationPageV2State
   void _showDatePicker(BuildContext context, CreateJustificationCubit cubit) {
     DatePicker.showDatePicker(
       context,
-      locale: LocaleType.vi,
+      // Ngôn ngữ bộ chọn ngày theo ngôn ngữ app (trước đây cố định tiếng Việt).
+      locale:
+          Localizations.localeOf(context).languageCode == 'en'
+              ? LocaleType.en
+              : LocaleType.vi,
       currentTime: DateTime.now(),
       onConfirm: (date) {
         final value = DateFormat('yyyy-MM-dd').format(date);
@@ -134,13 +138,17 @@ class _CreateJustificationPageV2State
   }
 
   String _reasonDisplayText(String? reasonType) {
-    if (reasonType == 'personal') return 'Việc cá nhân';
-    if (reasonType == 'work') return 'Công việc';
+    final s = S.of(context);
+    if (reasonType == 'personal') return s.justification_personal;
+    if (reasonType == 'work') return s.justification_work;
     return '';
   }
 
   String _formTypeLabel(String formType) {
-    return formType == 'late' ? 'Đi muộn' : 'Về sớm';
+    final s = S.of(context);
+    return formType == 'late'
+        ? s.justification_status1
+        : s.justification_status2;
   }
 
   // Bỏ nền sáng mặc định của khung nút ở đáy (Scaffold.bottomSheet) → chỉ còn nút.
@@ -393,9 +401,10 @@ class _CreateJustificationPageV2State
     CreateJustificationCubit cubit,
     CreateJustificationState state,
   ) {
-    const options = [
-      {"value": "late", "label": "Đi muộn"},
-      {"value": "early", "label": "Về sớm"},
+    final s = S.of(context);
+    final options = [
+      {"value": "late", "label": s.justification_status1},
+      {"value": "early", "label": s.justification_status2},
     ];
     final selected = state.selectedFormTypes ?? [];
 

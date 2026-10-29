@@ -189,7 +189,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
           LoadingOverlay.hide(context);
 
           await Flushbar(
-            message: "Từ chối đơn OT thành công!",
+            message: s.v2_request_ot_reject_success,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
@@ -206,7 +206,7 @@ class _OvertimeDetailV2State extends State<OvertimeDetailV2> {
         if (state.cancelStatus == LoadStatus.FAILURE) {
           LoadingOverlay.hide(context);
           await Flushbar(
-            message: "Từ chối đơn OT thất bại",
+            message: s.v2_request_ot_reject_failed,
             flushbarPosition: FlushbarPosition.TOP,
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),

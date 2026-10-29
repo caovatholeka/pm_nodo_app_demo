@@ -211,7 +211,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
             LoadingOverlay.hide(context);
 
             Flushbar(
-              message: "Gửi duyệt thành công",
+              message: s.justification_sendApproval,
               backgroundColor: Colors.green,
               flushbarPosition: FlushbarPosition.TOP,
               duration: const Duration(seconds: 2),
@@ -226,7 +226,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
             LoadingOverlay.hide(context);
 
             Flushbar(
-              message: state.error ?? "Gửi duyệt thất bại",
+              message: state.error ?? s.v2_request_send_approval_failed,
               backgroundColor: Colors.red,
               flushbarPosition: FlushbarPosition.TOP,
               duration: const Duration(seconds: 2),
@@ -598,10 +598,9 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
                           context: context,
                           builder:
                               (_) => CustomDialog(
-                                title: "Xác nhận",
-                                content:
-                                    "Bạn có muốn gửi duyệt đơn OT này không?",
-                                cancelText: "Không",
+                                title: s.confirm,
+                                content: s.v2_request_ot_submit_confirm,
+                                cancelText: s.v2_request_no,
                                 confirmText: "Ok",
                                 onCancel: () => Navigator.pop(context),
                                 onConfirm: () {
@@ -614,7 +613,7 @@ class _OvertimePageV2State extends State<OvertimePageV2> {
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                       icon: Icons.send,
-                      label: "Gửi duyệt",
+                      label: s.ot_detail_send,
                     ),
                   ],
                 ),

@@ -29,14 +29,15 @@ class OnleaveDayItemWidgetV2 extends StatefulWidget {
 
 class _OnleaveDayItemWidgetV2State extends State<OnleaveDayItemWidgetV2> {
   String _labelFromCode(String code) {
+    final s = S.of(context);
     switch (code.toLowerCase()) {
       case 'before':
-        return 'Buổi sáng';
+        return s.v2_request_morning;
       case 'after':
-        return 'Buổi chiều';
+        return s.v2_request_afternoon;
       case 'full':
       default:
-        return 'Cả ngày';
+        return s.allday;
     }
   }
 
@@ -45,15 +46,16 @@ class _OnleaveDayItemWidgetV2State extends State<OnleaveDayItemWidgetV2> {
     final currentCode = (widget.type.isNotEmpty ? widget.type : 'full')
         .toLowerCase();
 
-    final options = const [
-      MasterDataItem(text: 'Cả ngày', code: 'full'),
-      MasterDataItem(text: 'Buổi sáng', code: 'before'),
-      MasterDataItem(text: 'Buổi chiều', code: 'after'),
+    // Chữ hiển thị lấy từ l10n; mã ('full'/'before'/'after') giữ nguyên.
+    final options = [
+      MasterDataItem(text: s.allday, code: 'full'),
+      MasterDataItem(text: s.v2_request_morning, code: 'before'),
+      MasterDataItem(text: s.v2_request_afternoon, code: 'after'),
     ];
 
     final currentItem = options.firstWhere(
       (e) => (e.code ?? '').toLowerCase() == currentCode,
-      orElse: () => const MasterDataItem(text: 'Cả ngày', code: 'full'),
+      orElse: () => options.first,
     );
 
     HapticFeedback.selectionClick();

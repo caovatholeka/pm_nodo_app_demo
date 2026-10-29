@@ -4,6 +4,7 @@ import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/app/data/repositories/jutification_repository.dart';
 import 'package:pm_app/app/data/models/param/create_justification_param.dart';
 import 'package:pm_app/app/data/models/param/exception_line_param.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 part 'create_justification_state.dart';
 
@@ -112,7 +113,7 @@ class CreateJustificationCubit extends Cubit<CreateJustificationState> {
       emit(
         state.copyWith(
           isSubmitting: false,
-          errorMessage: e.response?.data?['message'] ?? 'Có lỗi xảy ra',
+          errorMessage: e.response?.data?['message'] ?? S.current.common_error_occurred,
         ),
       );
     }

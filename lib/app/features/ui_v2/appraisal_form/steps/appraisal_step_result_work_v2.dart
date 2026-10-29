@@ -165,8 +165,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                 children: [
                   Text(s.appraisal_step_result_work, style: AppTokensV2.body),
                   AppraisalHelpTooltipV2(
-                    message:
-                        'Hãy viết rõ ràng đầu mục công việc của bạn tự đánh giá khối lượng, chất lượng và tiến độ công việc đó như thế nào. Bắt buộc phải có ít nhất 3 đầu việc trong mục này.',
+                    message: s.v2_appraisal_result_work_help,
                     autoShow: autoShowHelp,
                   ),
                 ],
@@ -331,7 +330,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                   const SizedBox(height: 12),
                                   InputTextField(
                                     v2Style: true,
-                                    title: 'Ý kiến HR',
+                                    title: s.v2_appraisal_hr_opinion,
                                     hintText: '',
                                     initialValue: hrNoteText!(i),
                                     readOnly: true,
@@ -343,7 +342,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                   const SizedBox(height: 12),
                                   InputTextField(
                                     v2Style: true,
-                                    title: 'Trạng thái',
+                                    title: s.employee_advanced_status,
                                     hintText: '',
                                     initialValue: hrStatusText!(i),
                                     readOnly: true,
@@ -413,7 +412,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                             Icon(Icons.add, color: AppTokensV2.accent, size: 22),
                             SizedBox(width: 8),
                             Text(
-                              'Thêm tiêu chí',
+                              s.v2_appraisal_add_criteria,
                               style: TextStyle(
                                 color: AppTokensV2.accent,
                                 fontSize: 16,

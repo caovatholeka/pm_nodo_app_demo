@@ -287,8 +287,8 @@ class _SendInvalidPageState extends State<SendInvalidPage> {
           onTap: () {
             if (Validator.isBlank(state.reason)) {
               AppSnackBar.showError(
-                title: "Cảnh báo",
-                message: "Vui lòng nhập giải trình",
+                title: S.of(context).warning,
+                message: S.of(context).v2_main_enter_explanation,
               );
               return;
             }

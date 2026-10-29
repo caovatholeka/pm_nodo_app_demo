@@ -63,6 +63,8 @@ class OvertimeListItemV2 extends StatelessWidget {
         return s.bt_status2;
       case 'Hoàn thành':
         return s.bt_status3;
+      case 'Hủy':
+        return s.cancel;
       default:
         return name ?? '';
     }

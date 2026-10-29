@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../ui/appraisal_form/widgets/appraisal_dialog.dart'
     show AppraisalDialogResult;
@@ -14,17 +15,14 @@ import '../../../ui/appraisal_form/widgets/appraisal_dialog.dart'
 /// phải đổi gì khi bản v2 được nối dây ở task khác — chỉ đổi màu/kiểu chữ
 /// sang tông tối.
 class AppraisalDialogV2 extends StatefulWidget {
-  static const String fixedTitle = 'Ý kiến - Đề xuất';
-  static const String fixedDepartmentName = 'Phòng hành chính nhân sự';
-  static const String fixedHintText = 'Ý kiến của phòng hành chính nhân sự';
-  static const String fixedConfirmText = 'Xác nhận';
+  // Tiêu đề / tên phòng / gợi ý / nút xác nhận lấy theo ngôn ngữ (l10n) khi build.
   static const String fixedCancelText = 'Cancel';
 
   final int? suggestId;
-  final String title;
+  final String? title;
   final String departmentName;
-  final String hintText;
-  final String confirmText;
+  final String? hintText;
+  final String? confirmText;
   final String cancelText;
   final String? initialNote;
   final TextEditingController? controller;
@@ -37,9 +35,9 @@ class AppraisalDialogV2 extends StatefulWidget {
     super.key,
     this.suggestId,
     required this.departmentName,
-    this.title = fixedTitle,
-    this.hintText = fixedHintText,
-    this.confirmText = fixedConfirmText,
+    this.title,
+    this.hintText,
+    this.confirmText,
     this.cancelText = fixedCancelText,
     this.initialNote,
     this.controller,
@@ -53,7 +51,7 @@ class AppraisalDialogV2 extends StatefulWidget {
     BuildContext context, {
     int? suggestId,
     required String departmentName,
-    String title = fixedTitle,
+    String? title,
     String? hintText,
     String? confirmText,
     String? cancelText,
@@ -67,9 +65,6 @@ class AppraisalDialogV2 extends StatefulWidget {
           (_) => AppraisalDialogV2(
             suggestId: suggestId,
             departmentName: departmentName,
-            title: fixedTitle,
-            hintText: fixedHintText,
-            confirmText: fixedConfirmText,
             cancelText: fixedCancelText,
             initialNote: initialNote,
           ),
@@ -126,6 +121,8 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
@@ -192,7 +189,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    AppraisalDialogV2.fixedTitle,
+                    s.v2_appraisal_opinion_proposal,
                     style: TextStyle(
                       fontFamily: AppConfig.fontFamily,
                       fontSize: 18,
@@ -203,7 +200,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    AppraisalDialogV2.fixedDepartmentName,
+                    s.v2_appraisal_hr_admin_department,
                     style: TextStyle(
                       fontFamily: AppConfig.fontFamily,
                       fontSize: 14,
@@ -225,7 +222,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                     ),
                     cursorColor: AppTokensV2.accent,
                     decoration: InputDecoration(
-                      hintText: AppraisalDialogV2.fixedHintText,
+                      hintText: s.v2_appraisal_dialog_hr_opinion_hint,
                       hintStyle: TextStyle(
                         fontFamily: AppConfig.fontFamily,
                         fontSize: 16,
@@ -254,7 +251,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                   ),
                   const SizedBox(height: 20),
                   _DialogButtonV2(
-                    label: AppraisalDialogV2.fixedConfirmText,
+                    label: s.confirm,
                     enabled: _canSubmit,
                     isLoading: widget.isLoading,
                     isPrimary: true,

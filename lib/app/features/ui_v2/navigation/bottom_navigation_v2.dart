@@ -8,6 +8,7 @@ import 'package:pm_app/app/features/ui_v2/checkin/check_in_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/staff/staff_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/home/home_page_v2.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class BottomNavigationV2 extends StatelessWidget {
   const BottomNavigationV2({super.key});
@@ -19,10 +20,17 @@ class BottomNavigationV2 extends StatelessWidget {
     Icons.home_rounded, Icons.people_alt_rounded, Icons.fingerprint,
     Icons.event_available_rounded, Icons.person_rounded,
   ];
-  static const _labels = <String>['Trang chủ', 'Nhân viên', 'Chấm công', 'Nghỉ phép', 'Cá nhân'];
+  static List<String> _labels(S s) => <String>[
+        s.v2_main_nav_home,
+        s.utilities_tab1,
+        s.check_in_title,
+        s.utilities_tab3,
+        s.notifications_personal,
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final labels = _labels(S.of(context));
     return ValueListenableBuilder<int>(
       valueListenable: GlobalData.instance.bottomNavIndex,
       builder: (_, index, __) {
@@ -36,7 +44,7 @@ class BottomNavigationV2 extends StatelessWidget {
             backgroundColor: AppTokensV2.bgDeep,
             extendBody: true,
             body: _pages[safeIndex],
-            bottomNavigationBar: _GlassBar(current: safeIndex, icons: _icons, labels: _labels),
+            bottomNavigationBar: _GlassBar(current: safeIndex, icons: _icons, labels: labels),
           ),
         );
       },

@@ -413,7 +413,7 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
                                     child: Padding(
                                       padding: EdgeInsets.only(left: 4),
                                       child: Text(
-                                        'Từ ngày không được lớn hơn đến ngày',
+                                        s.v2_appraisal_from_date_after_to_date,
                                         style: TextStyle(
                                           color: AppTokensV2.danger,
                                           fontSize: 12,
@@ -480,9 +480,9 @@ class _DetailAppraisalFormV2State extends State<DetailAppraisalFormV2> {
         Expanded(
           child: Text(
             widget.isDetail == true
-                ? "Chi tiết phiếu đánh giá"
+                ? s.v2_appraisal_detail_title
                 : (widget.isManagerAssess || widget.isEdit)
-                ? "Cấp trên đánh giá"
+                ? s.v2_appraisal_manager_review_title
                 : s.appraisal_create_title,
             style: AppTokensV2.title,
             maxLines: 1,

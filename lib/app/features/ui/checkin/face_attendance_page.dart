@@ -105,9 +105,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
     _lastSpoofWarnAt = now;
 
     AppSnackBar.showError(
-      title: "Cảnh báo",
-      message:
-          "Phát hiện giả mạo (ảnh/video). Vui lòng đưa khuôn mặt thật vào camera.",
+      title: S.current.warning,
+      message: S.current.v2_main_spoof_detected,
     );
   }
 
@@ -259,7 +258,7 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
         setState(() {
           _cameraPermissionDenied = denied;
           _cameraError = denied
-              ? 'Ứng dụng chưa được cấp quyền Camera. Vui lòng cho phép trong Cài đặt để chấm công.'
+              ? S.of(context).v2_main_camera_permission_denied
               : '${S.of(context).check_in_cannotOpenCamera}: ${e is CameraException ? (e.description ?? e.code) : e}';
         });
       }
@@ -750,8 +749,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                       if (_cameraError == null) ...[
                         const CircularProgressIndicator(color: Colors.white),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Đang khởi động camera...',
+                        Text(
+                          S.of(context).v2_main_camera_starting,
                           style: TextStyle(color: Colors.white70, fontSize: 13),
                         ),
                       ] else ...[
@@ -772,8 +771,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                             },
                             icon: const Icon(Icons.settings_outlined,
                                 color: Colors.white70, size: 18),
-                            label: const Text(
-                              'Mở Cài đặt',
+                            label: Text(
+                              S.of(context).v2_main_open_settings,
                               style: TextStyle(color: Colors.white70, fontSize: 13),
                             ),
                           ),
@@ -783,8 +782,8 @@ class _FaceAttendancePageState extends State<FaceAttendancePage>
                       TextButton.icon(
                         onPressed: () => _initCamera(),
                         icon: const Icon(Icons.refresh, color: Colors.white70, size: 18),
-                        label: const Text(
-                          'Thử lại',
+                        label: Text(
+                          S.of(context).check_in_retry,
                           style: TextStyle(color: Colors.white70, fontSize: 13),
                         ),
                       ),

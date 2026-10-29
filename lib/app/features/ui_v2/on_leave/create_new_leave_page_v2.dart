@@ -276,11 +276,16 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
       showTitleActions: true,
       onConfirm: onConfirm,
       currentTime: defaultValue ?? DateTime.now(),
-      locale: LocaleType.vi,
+      // Ngôn ngữ bộ chọn ngày theo ngôn ngữ app (trước đây cố định tiếng Việt).
+      locale:
+          Localizations.localeOf(context).languageCode == 'en'
+              ? LocaleType.en
+              : LocaleType.vi,
     );
   }
 
   Future<void> _openDateTypeLeaveBottomSheet(List<MasterDataItem> list) async {
+    final s = S.of(context);
     HapticFeedback.selectionClick();
     final MasterDataItem? item = await showModalBottomSheet<MasterDataItem>(
       context: context,
@@ -311,8 +316,8 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
                   .inDays >
               3)) {
         AppSnackBar.showError(
-          title: "Cảnh báo",
-          message: "Nghỉ phép có lương xin phép tối đa trước 3 ngày",
+          title: s.warning,
+          message: s.v2_request_paid_leave_backdate_limit,
         );
       } else {
         _createCubit.onChangeDateTypeLeaves(item);
@@ -612,7 +617,7 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
                     if (DateTime.now().difference(selectedDate).inDays > 3) {
                       AppSnackBar.showError(
                         title: s.warning,
-                        message: "Nghỉ phép có lương xin phép tối đa trước 3 ngày",
+                        message: s.v2_request_paid_leave_backdate_limit,
                       );
                     } else {
                       _createCubit.setFromDate(selectedDate);
@@ -694,7 +699,7 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
                     if (DateTime.now().difference(selectedDate).inDays > 3) {
                       AppSnackBar.showError(
                         title: s.warning,
-                        message: "Nghỉ phép có lương xin phép tối đa trước 3 ngày",
+                        message: s.v2_request_paid_leave_backdate_limit,
                       );
                     } else {
                       _createCubit.setToDate(selectedDate);

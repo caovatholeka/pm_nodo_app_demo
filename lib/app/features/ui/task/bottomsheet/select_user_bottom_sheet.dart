@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/data/models/entities/user_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../core/commons/app_colors.dart';
 import '../../../../core/commons/screen_size.dart';
@@ -99,7 +100,7 @@ class _SelectUserBottomSheetState extends State<SelectUserBottomSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader("Người được phân công"),
+          _buildHeader(S.of(context).to_taskempl),
           const SizedBox(height: 10,),
           _buildContent,
           _buildFooter,
@@ -177,7 +178,7 @@ class _SelectUserBottomSheetState extends State<SelectUserBottomSheet> {
           children: [
             Expanded(
               child: PrimaryButton(
-                mainText: "Xác Nhận",
+                mainText: S.of(context).v2_request_confirm_btn,
                 callback: (){
                   Navigator.pop(context);
                   widget.onUsersSelected!(listUserSelected);
@@ -203,7 +204,7 @@ class _SelectUserBottomSheetState extends State<SelectUserBottomSheet> {
             child: InputTextField(
               title: "",
               disableTitle: true,
-              hintText: "Tìm kiếm thêm",
+              hintText: S.of(context).v2_request_search_more,
               isRequiredField: false,
               bgrColor: true,
               controller: _searchController,

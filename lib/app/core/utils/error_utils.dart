@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../data/models/entities/general_error_entity.dart';
+import '../../../generated/l10n.dart';
 
 class ErrorUtils {
 
@@ -23,7 +24,7 @@ class ErrorUtils {
       GeneralErrorCode error = GeneralErrorCode.fromJson(e?.response?.data);
       text = error.errors?.message ?? '';
     } catch (e){
-      text = "Có lỗi xảy ra!";
+      text = S.current.common_error_occurred_excl;
     }
     return text;
   }
@@ -34,7 +35,7 @@ class ErrorUtils {
         if (e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.receiveTimeout ||
             e.type == DioExceptionType.sendTimeout) {
-          return "Đã xảy ra lỗi kết nối!";
+          return S.current.common_connection_error_excl;
         }
         if (e.response?.data is Map<String, dynamic>) {
           if (e.response?.data['errors'] != null) {
@@ -44,26 +45,26 @@ class ErrorUtils {
           if (e.response?.data['errorType'] == 'error-duplicate-channel-name' ||
               e.response?.data['errorType'] == 'error-duplicate-handle' ||
               e.response?.data['error'] == 'team-name-already-exists') {
-            return 'Tên nhóm đã tồn tại, vui lòng đặt tên khác!';
+            return S.current.common_group_name_exists;
           }
 
           if (e.response?.data['errorType'] == 'error-invalid-room-name') {
-            return 'Tên nhóm không được đặt có dấu!';
+            return S.current.common_group_name_no_diacritics;
           }
         }
         if (e.type == DioExceptionType.unknown && e.error is SocketException) {
-          return 'Không thể kết nối tới máy chủ xin vui lòng thử lại!';
+          return S.current.common_server_unreachable_retry;
         }
         if (e.response != null && (e.response?.statusCode ?? 0) > 500) {
-          return "Đã xảy ra lỗi hệ thống!";
+          return S.current.common_system_error_excl;
         }
 
         if (e.response != null && e.response?.statusCode == 403) {
-          return 'Bạn không có quyền truy cập chức năng này!';
+          return S.current.common_no_permission_feature;
         }
       }
     } catch (e1) {}
-    return "Đã có lỗi xảy ra!";
+    return S.current.common_error_has_occurred_excl;
   }
 
   static String errorToMessage(dynamic e,String key) {
@@ -72,7 +73,7 @@ class ErrorUtils {
         if (e.type == DioExceptionType.connectionTimeout ||
             e.type == DioExceptionType.receiveTimeout ||
             e.type == DioExceptionType.sendTimeout) {
-          return "Kết nối quá hạn";
+          return S.current.common_connection_timeout;
         }
         if (e.response?.data is Map<String, dynamic>) {
           if (e.response?.data['errors'] != null) {
@@ -80,17 +81,17 @@ class ErrorUtils {
           }
         }
         if (e.type == DioExceptionType.unknown && e.error is SocketException) {
-          return "Mất kết nối với máy chủ";
+          return S.current.common_server_connection_lost;
         }
 
         int? statusCode = e.response?.statusCode;
         if (statusCode != null && statusCode > 500) {
-          return "Đã xảy ra lỗi";
+          return S.current.justification_errorHappern;
         }
       }
     } catch (error) {
-      return "Đã xảy ra lỗi";
+      return S.current.justification_errorHappern;
     }
-    return "Đã xảy ra lỗi";
+    return S.current.justification_errorHappern;
   }
 }

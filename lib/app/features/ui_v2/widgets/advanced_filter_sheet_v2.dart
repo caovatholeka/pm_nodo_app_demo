@@ -58,23 +58,25 @@ class _AdvancedFilterSheetV2State extends State<AdvancedFilterSheetV2> {
     super.dispose();
   }
 
+  // Nhãn trạng thái (MasterData.employeeStatuses) theo ngôn ngữ hiện tại ↔ giá trị API.
+  // Vẫn nhận nhãn tiếng Việt cũ (khoá so sánh, không hiển thị) cho tương thích.
   String? _mapUiToApi(String? uiValue) {
-    switch (uiValue) {
-      case "Đang làm việc":
-        return "work";
-      case "Đã nghỉ việc":
-        return "stop";
-      default:
-        return null;
+    if (uiValue == null) return null;
+    if (uiValue == S.current.profile_work || uiValue == "Đang làm việc") {
+      return "work";
     }
+    if (uiValue == S.current.profile_not_work || uiValue == "Đã nghỉ việc") {
+      return "stop";
+    }
+    return null;
   }
 
   String? _mapApiToUi(String? apiValue) {
     switch (apiValue) {
       case "work":
-        return "Đang làm việc";
+        return S.current.profile_work;
       case "stop":
-        return "Đã nghỉ việc";
+        return S.current.profile_not_work;
       default:
         return null;
     }

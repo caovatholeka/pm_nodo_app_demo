@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class DevelopmentAlertDialog {
   static void show(BuildContext context) {
@@ -23,7 +24,7 @@ class DevelopmentAlertDialog {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '⚠️ Cảnh báo!',
+                      S.of(context).common_warning_title_emoji,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -31,9 +32,9 @@ class DevelopmentAlertDialog {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Đang phát triển chức năng này!!!',
-                      style: TextStyle(
+                    Text(
+                      S.of(context).common_feature_in_development,
+                      style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
                       ),
@@ -49,9 +50,9 @@ class DevelopmentAlertDialog {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          'Đóng',
-                          style: TextStyle(color: Colors.white),
+                        child: Text(
+                          S.of(context).close,
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     ),

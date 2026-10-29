@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class CustomDialog extends StatelessWidget {
   final String title;
@@ -154,7 +155,7 @@ class CustomDialog extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        cancelText ?? "Hủy bỏ",
+                        cancelText ?? S.of(context).common_cancel_action,
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,

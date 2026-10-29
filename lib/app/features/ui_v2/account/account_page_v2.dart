@@ -85,14 +85,15 @@ class _AccountPageV2State extends State<AccountPageV2> {
   void _goLanguage() => Navigator.push(context,
       MaterialPageRoute(builder: (_) => const ChangeLanguagePageV2()));
 
-  static String _themeLabel(ThemeModeV2 m) {
+  String _themeLabel(ThemeModeV2 m) {
+    final s = S.of(context);
     switch (m) {
       case ThemeModeV2.system:
-        return 'Theo hệ thống';
+        return s.v2_main_theme_system;
       case ThemeModeV2.dark:
-        return 'Tối';
+        return s.v2_main_theme_dark;
       case ThemeModeV2.light:
-        return 'Sáng';
+        return s.v2_main_theme_light;
     }
   }
 
@@ -123,7 +124,8 @@ class _AccountPageV2State extends State<AccountPageV2> {
                   padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Giao diện', style: AppTokensV2.section),
+                    child: Text(S.of(context).v2_main_appearance,
+                        style: AppTokensV2.section),
                   ),
                 ),
                 for (final (m, icon) in options)
@@ -221,7 +223,7 @@ class _AccountPageV2State extends State<AccountPageV2> {
                             icon: AppTokensV2.isDark
                                 ? Icons.dark_mode_outlined
                                 : Icons.light_mode_outlined,
-                            title: 'Giao diện',
+                            title: s.v2_main_appearance,
                             trailing: _themeLabel(
                                 ThemeControllerV2.instance.mode.value),
                             onTap: _pickTheme),

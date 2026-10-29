@@ -271,11 +271,15 @@ class _ExplanationTabV2State extends State<ExplanationTabV2> {
   }) async {
     final now = DateTime.now();
     final initial = defaultValue ?? DateTime(now.year, now.month, 1);
+    // Nút Xong/Huỷ của picker theo ngôn ngữ đang chọn.
+    final pickerLocale = Localizations.localeOf(context).languageCode == 'en'
+        ? LocaleType.en
+        : LocaleType.vi;
 
     DatePicker.showPicker(
       context,
       showTitleActions: true,
-      locale: LocaleType.vi,
+      locale: pickerLocale,
       theme: DatePickerTheme(
         backgroundColor: AppTokensV2.bgTop,
         itemStyle: TextStyle(color: AppTokensV2.fg, fontSize: 18),
@@ -286,7 +290,7 @@ class _ExplanationTabV2State extends State<ExplanationTabV2> {
         currentTime: initial,
         minTime: DateTime(2015, 1, 1),
         maxTime: DateTime(2035, 12, 31),
-        locale: LocaleType.vi,
+        locale: pickerLocale,
       ),
       onConfirm: (dt) {
         final y = dt.year.toString();

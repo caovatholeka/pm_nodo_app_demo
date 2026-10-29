@@ -364,11 +364,12 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
                   ? Column(
                       children:
                           (state.listAttendanceHistory ?? []).map((his) {
-                        String status = "Đúng giờ";
+                        final s = S.of(context);
+                        String status = s.appraisal_on_time;
                         if (his.isEarly ?? false) {
-                          status = "Về sớm";
+                          status = s.justification_status2;
                         } else if (his.isLate ?? false) {
-                          status = "Đi muộn";
+                          status = s.justification_status1;
                         }
                         return ActivityItemV2(
                           icon: his.action == "check_in"
@@ -413,11 +414,15 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
   }) async {
     final now = DateTime.now();
     final initial = defaultValue ?? DateTime(now.year, now.month, 1);
+    // Nút Xong/Huỷ của picker theo ngôn ngữ đang chọn.
+    final pickerLocale = Localizations.localeOf(context).languageCode == 'en'
+        ? LocaleType.en
+        : LocaleType.vi;
 
     DatePicker.showPicker(
       context,
       showTitleActions: true,
-      locale: LocaleType.vi,
+      locale: pickerLocale,
       theme: DatePickerTheme(
         backgroundColor: AppTokensV2.bgTop,
         itemStyle: TextStyle(color: AppTokensV2.fg, fontSize: 18),
@@ -428,7 +433,7 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
         currentTime: initial,
         minTime: DateTime(2015, 1, 1),
         maxTime: DateTime(2035, 12, 31),
-        locale: LocaleType.vi,
+        locale: pickerLocale,
       ),
       onConfirm: (dt) {
         final y = dt.year.toString();

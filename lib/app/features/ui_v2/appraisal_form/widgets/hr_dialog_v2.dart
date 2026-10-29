@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../ui/appraisal_form/widgets/hr_dialog.dart' show HrDialogResult;
 
@@ -12,17 +13,12 @@ import '../../../ui/appraisal_form/widgets/hr_dialog.dart' show HrDialogResult;
 /// để orchestrator (vẫn gọi `HrDialog.show(...)` cho bản cũ) không cần đổi gì
 /// khi bản v2 được nối dây ở task khác — chỉ đổi màu/kiểu chữ sang tông tối.
 class HrDialogV2 extends StatefulWidget {
-  static const String fixedTitle = 'Ý kiến - Đề xuất';
-  static const String fixedDepartmentName = 'Phòng hành chính nhân sự';
-  static const String fixedHintText = 'Ý kiến của Phòng hành chính nhân sự';
-  static const String fixedConfirmText = 'Đồng ý';
-  static const String fixedCancelText = 'Từ chối';
-
-  final String title;
-  final String departmentName;
-  final String hintText;
-  final String confirmText;
-  final String cancelText;
+  // Để null → dùng chữ mặc định theo ngôn ngữ (l10n) khi build.
+  final String? title;
+  final String? departmentName;
+  final String? hintText;
+  final String? confirmText;
+  final String? cancelText;
   final String? initialNote;
   final TextEditingController? controller;
   final bool isLoading;
@@ -32,11 +28,11 @@ class HrDialogV2 extends StatefulWidget {
 
   const HrDialogV2({
     super.key,
-    this.title = fixedTitle,
-    this.departmentName = fixedDepartmentName,
-    this.hintText = fixedHintText,
-    this.confirmText = fixedConfirmText,
-    this.cancelText = fixedCancelText,
+    this.title,
+    this.departmentName,
+    this.hintText,
+    this.confirmText,
+    this.cancelText,
     this.initialNote,
     this.controller,
     this.isLoading = false,
@@ -47,11 +43,11 @@ class HrDialogV2 extends StatefulWidget {
 
   static Future<HrDialogResult?> show(
     BuildContext context, {
-    String title = fixedTitle,
-    String departmentName = fixedDepartmentName,
-    String hintText = fixedHintText,
-    String confirmText = fixedConfirmText,
-    String cancelText = fixedCancelText,
+    String? title,
+    String? departmentName,
+    String? hintText,
+    String? confirmText,
+    String? cancelText,
     String? initialNote,
     bool barrierDismissible = true,
   }) async {
@@ -117,6 +113,14 @@ class _HrDialogV2State extends State<HrDialogV2> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+    final title = widget.title ?? s.v2_appraisal_opinion_proposal;
+    final departmentName =
+        widget.departmentName ?? s.v2_appraisal_hr_admin_department;
+    final hintText = widget.hintText ?? s.v2_appraisal_hr_admin_opinion_hint;
+    final confirmText = widget.confirmText ?? s.notifications_agree;
+    final cancelText = widget.cancelText ?? s.deny;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
@@ -180,7 +184,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
               ),
               const SizedBox(height: 14),
               Text(
-                widget.title,
+                title,
                 style: TextStyle(
                   fontFamily: AppConfig.fontFamily,
                   fontSize: 18,
@@ -191,7 +195,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
               ),
               const SizedBox(height: 8),
               Text(
-                widget.departmentName,
+                departmentName,
                 style: TextStyle(
                   fontFamily: AppConfig.fontFamily,
                   fontSize: 14,
@@ -213,7 +217,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
                 ),
                 cursorColor: AppTokensV2.accent,
                 decoration: InputDecoration(
-                  hintText: widget.hintText,
+                  hintText: hintText,
                   hintStyle: TextStyle(
                     fontFamily: AppConfig.fontFamily,
                     fontSize: 16,
@@ -242,7 +246,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
               ),
               const SizedBox(height: 28),
               _DialogButtonV2(
-                label: widget.confirmText,
+                label: confirmText,
                 enabled: widget.isLoading == false,
                 isLoading: widget.isLoading,
                 isPrimary: true,
@@ -250,7 +254,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
               ),
               const SizedBox(height: 14),
               _DialogButtonV2(
-                label: widget.cancelText,
+                label: cancelText,
                 enabled: widget.isLoading == false,
                 isLoading: false,
                 isPrimary: false,

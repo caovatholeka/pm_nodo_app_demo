@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../bloc/app_cubit.dart';
 
@@ -116,7 +117,7 @@ class _CalendarWeekSheetState extends State<CalendarWeekSheet> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Hủy'),
+                  child: Text(S.of(context).cancel),
                 ),
                 const Spacer(),
                 FilledButton(
@@ -126,7 +127,7 @@ class _CalendarWeekSheetState extends State<CalendarWeekSheet> {
                       DateTimeRange(start: _rangeStart, end: _rangeEnd),
                     );
                   },
-                  child: const Text('Áp dụng'),
+                  child: Text(S.of(context).employee_advanced_apply),
                 ),
               ],
             ),

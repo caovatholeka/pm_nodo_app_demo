@@ -4,6 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../core/commons/app_colors.dart';
 
@@ -26,6 +27,7 @@ class FileActionBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Container(
       padding: EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -45,7 +47,14 @@ class FileActionBottomSheet extends StatelessWidget {
                   margin: EdgeInsets.all(largeMargin),
                   width: largeMargin * 2,
                   height: largeMargin * 2),
-              Text("Chọn tài liệu cần tải"),
+              Flexible(
+                child: Text(
+                  s.common_select_files_to_upload,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
@@ -95,7 +104,7 @@ class FileActionBottomSheet extends StatelessWidget {
                     },
                     child: _buildItem(
                         icon: AppAssets.icAttachCamera,
-                        title: "Chụp ảnh",
+                        title: s.common_take_photo,
                         color: AppColors.textGray600),
                   ),
                 ),
@@ -143,7 +152,7 @@ class FileActionBottomSheet extends StatelessWidget {
                     },
                     child: _buildItem(
                         icon: AppAssets.icAttachFile,
-                        title: "Thư viện",
+                        title: s.common_photo_library,
                         color: AppColors.themeBlackDefault),
                   ),
                 ),
@@ -169,7 +178,7 @@ class FileActionBottomSheet extends StatelessWidget {
                     },
                     child: _buildItem(
                         icon: AppAssets.icAttachImage,
-                        title: "Tài liệu",
+                        title: s.common_documents,
                         color: AppColors.themePrimaryDefault),
                   ),
                 ),

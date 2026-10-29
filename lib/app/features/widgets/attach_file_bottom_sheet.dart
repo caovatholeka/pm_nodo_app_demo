@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/ui/work_trip/work_trip_cubit.dart';
 import 'package:pm_app/app/features/widgets/file_action_bottom_sheet.dart';
 import 'package:pm_app/app/features/widgets/group_attach_file.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../core/commons/app_colors.dart';
@@ -146,7 +147,7 @@ class _AttachFileBottomSheetState extends State<AttachFileBottomSheet> {
                   ),
                   Align(
                     alignment: Alignment.center,
-                    child: Text("Thêm tài liệu",
+                    child: Text(S.of(context).common_add_documents,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -191,7 +192,7 @@ class _AttachFileBottomSheetState extends State<AttachFileBottomSheet> {
                       Image.asset(AppAssets.icCloud),
                       Container(
                           margin: const EdgeInsets.only(left: 4),
-                          child: const Text("Tải nhập tài liệu", style: TextStyle(
+                          child: Text(S.of(context).common_upload_documents, style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w400,
                               color: AppColors.themeDarkLight
@@ -220,10 +221,10 @@ class _AttachFileBottomSheetState extends State<AttachFileBottomSheet> {
                         color: Colors.black.withAlpha(10)
                     )
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    "ĐỒNG Ý",
-                    style: TextStyle(
+                    S.of(context).common_agree_upper,
+                    style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                         fontStyle: FontStyle.normal,

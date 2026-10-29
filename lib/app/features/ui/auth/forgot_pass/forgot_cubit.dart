@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/core/utils/validators.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 part 'forgot_state.dart';
 
@@ -32,18 +33,17 @@ class ForgotCubit extends Cubit<ForgotState> {
     final emailError = _validator.validateEmail(email);
     if (emailError != null) {
       emit(state.copyWith(
-        validationMessage: "Email không hợp lệ",
+        validationMessage: S.current.common_invalid_email,
         forgotStatus: LoadStatus.FAILURE,
       ));
       return;
     }
 
     final passError =
-        _validator.validatePassword(password, "Mật khẩu");
+        _validator.validatePassword(password, S.current.password);
     if (passError != null) {
       emit(state.copyWith(
-        validationMessage:
-            "Mật khẩu mới phải từ 8–16 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+        validationMessage: S.current.common_new_password_rule,
         forgotStatus: LoadStatus.FAILURE,
       ));
       return;
@@ -78,13 +78,13 @@ class ForgotCubit extends Cubit<ForgotState> {
         emit(state.copyWith(
           forgotStatus: LoadStatus.FAILURE,
           validationMessage:
-              res.message ?? "Gửi yêu cầu thất bại",
+              res.message ?? S.current.common_request_failed,
         ));
       }
     } catch (_) {
       emit(state.copyWith(
         forgotStatus: LoadStatus.FAILURE,
-        validationMessage: "Lỗi kết nối máy chủ",
+        validationMessage: S.current.common_server_connection_error,
       ));
     }
   }

@@ -64,7 +64,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
   String todayFormatted({Locale? locale, DateTime? now}) {
     final DateTime d = now ?? DateTime.now();
     final String lang = (locale?.languageCode ?? 'en').toLowerCase();
-    final String prefix = (lang == 'vi') ? 'Hôm nay' : 'Today';
+    final String prefix = S.of(context).attendance_card1;
 
     final String dateStr = DateFormat('d/M/yyyy', lang == 'vi' ? 'vi' : 'en')
         .format(d);
@@ -360,11 +360,12 @@ class _AttendanceTabState extends State<AttendanceTab> {
         ((state.listAttendanceHistory ??[]).isNotEmpty) ?
           Column(
             children: (state.listAttendanceHistory ?? []).map((his) {
-              String status = "Đúng giờ";
+              final s = S.of(context);
+              String status = s.appraisal_on_time;
               if(his.isEarly ?? false){
-                status = "Về sớm";
+                status = s.justification_status2;
               }else if (his.isLate ?? false){
-                status = "Đi muộn";
+                status = s.justification_status1;
               }
               return ActivityItem(
                 icon: his.action == "check_in" ? AppAssets.icCheckin : AppAssets.icCheckout,
@@ -403,16 +404,20 @@ class _AttendanceTabState extends State<AttendanceTab> {
   }) async {
     final now = DateTime.now();
     final initial = defaultValue ?? DateTime(now.year, now.month, 1);
+    // Nút Xong/Huỷ của picker theo ngôn ngữ đang chọn.
+    final pickerLocale = Localizations.localeOf(context).languageCode == 'en'
+        ? LocaleType.en
+        : LocaleType.vi;
 
     DatePicker.showPicker(
       context,
       showTitleActions: true,
-      locale: LocaleType.vi,
+      locale: pickerLocale,
       pickerModel: YearMonthPicker(
         currentTime: initial,
         minTime: DateTime(2015, 1, 1),
         maxTime: DateTime(2035, 12, 31),
-        locale: LocaleType.vi,
+        locale: pickerLocale,
       ),
       onConfirm: (dt) {
         final y = dt.year.toString();
@@ -456,7 +461,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 4),
-                Text('Tháng',
+                Text(S.of(ctx).month,
                     style: Theme.of(ctx)
                         .textTheme
                         .titleMedium
@@ -486,7 +491,7 @@ class _AttendanceTabState extends State<AttendanceTab> {
                             children: [
                               const Spacer(),
                               Text(
-                                'Tháng $m',
+                                S.of(ctx).v2_main_month_n(m),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
@@ -549,7 +554,7 @@ class YearMonthPicker extends CommonPickerModel {
   String? middleStringAtIndex(int index) {
     if (index < 0 || index > 11) return null;
     final m = index + 1;
-    return 'Tháng $m';
+    return S.current.v2_main_month_n(m);
   }
 
   @override

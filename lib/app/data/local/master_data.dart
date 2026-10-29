@@ -1,15 +1,19 @@
 import 'package:pm_app/app/core/network/api_client.dart';
 import 'package:pm_app/app/data/models/entities/master_data_item.dart';
 import 'package:pm_app/app/data/models/response/common_response.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../core/network/api_util.dart';
 
 class MasterData {
-  static const List<String> employeeStatuses = [
-    'Đang làm việc',
-    'Đã nghỉ việc',
+  /// Nhãn trạng thái nhân viên hiển thị trong bộ lọc — theo ngôn ngữ hiện tại.
+  /// (Getter, không phải hằng: S.current chỉ có sau khi app load ngôn ngữ.)
+  static List<String> get employeeStatuses => [
+    S.current.profile_work,
+    S.current.profile_not_work,
   ];
 
+  /// Khoá so sánh cũ (nhãn tiếng Việt) → giá trị API. Giữ nguyên, không dịch.
   static const Map<String, String> employeeStatusApiMap = {
     'Đang làm việc': 'working',
     'Đã nghỉ việc': 'stop',
@@ -17,6 +21,8 @@ class MasterData {
 
   static String? encodeEmployeeStatus(String? status) {
     if (status == null || status.isEmpty) return null;
+    if (status == S.current.profile_work) return 'working';
+    if (status == S.current.profile_not_work) return 'stop';
     return employeeStatusApiMap[status];
   }
 

@@ -6,6 +6,7 @@ import 'package:pm_app/app/data/repositories/user_repository.dart';
 import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/response/common_response.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 part 'change_password_state.dart';
 
@@ -25,7 +26,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
       emit(
         state.copyWith(
           status: LoadStatus.FAILURE,
-          message: "Mật khẩu xác nhận không trùng khớp",
+          message: S.current.common_confirm_password_mismatch,
         ),
       );
       return;
@@ -41,7 +42,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
         emit(
           state.copyWith(
             status: LoadStatus.FAILURE,
-            message: "Token không hợp lệ hoặc chưa đăng nhập",
+            message: S.current.common_invalid_token,
           ),
         );
         return;
@@ -61,7 +62,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
         emit(
           state.copyWith(
             status: LoadStatus.FAILURE,
-            message: response.message ?? "Đổi mật khẩu thất bại!",
+            message: response.message ?? S.current.common_change_password_failed,
           ),
         );
         return;
@@ -70,14 +71,14 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
       emit(
         state.copyWith(
           status: LoadStatus.SUCCESS,
-          message: response.message ?? "Đổi mật khẩu thành công!",
+          message: response.message ?? S.current.change_password_success,
         ),
       );
     } on DioException catch (e) {
       final msg =
           e.response?.data?["detail"]?["message"] ??
           e.response?.data?["message"] ??
-          "Không thể đổi mật khẩu. Vui lòng thử lại!";
+          S.current.common_change_password_retry;
 
       if (!isClosed) {
         emit(state.copyWith(status: LoadStatus.FAILURE, message: msg));
@@ -88,7 +89,7 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
         emit(
           state.copyWith(
             status: LoadStatus.FAILURE,
-            message: "Lỗi không xác định: $e",
+            message: S.current.common_unknown_error_detail(e),
           ),
         );
       }

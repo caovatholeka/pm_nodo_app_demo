@@ -264,8 +264,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     if (mounted) {
       AppSnackBar.showError(
         title: S.of(context).check_in_failed,
-        message:
-            "Thông tin người dùng chưa sẵn sàng. Vui lòng thử lại sau ít giây.",
+        message: S.of(context).v2_main_profile_not_ready,
       );
     }
     return false;
@@ -356,7 +355,7 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
   String todayFormatted({Locale? locale, DateTime? now}) {
     final DateTime d = now ?? DateTime.now();
     final String lang = (locale?.languageCode ?? 'en').toLowerCase();
-    final String prefix = (lang == 'vi') ? 'Hôm nay' : 'Today';
+    final String prefix = S.of(context).attendance_card1;
 
     final String dateStr = DateFormat(
       'd/M/yyyy',
@@ -1497,8 +1496,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
               onPopInvokedWithResult: (didPop, result) {
                 if (didPop) return;
                 AppSnackBar.showError(
-                  title: "Cảnh báo",
-                  message: "Vui lòng nhập giải trình",
+                  title: S.of(context).warning,
+                  message: S.of(context).v2_main_enter_explanation,
                 );
               },
               child: Dialog(
@@ -1565,8 +1564,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
                               if (Validator.isBlank(rawReason)) {
                                 reasonKey.currentState?.validate();
                                 AppSnackBar.showError(
-                                  title: "Cảnh báo",
-                                  message: "Vui lòng nhập giải trình",
+                                  title: S.of(context).warning,
+                                  message: S.of(context).v2_main_enter_explanation,
                                 );
                                 return;
                               }
@@ -1777,8 +1776,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
 
     if (currentPos == null || currentPos.latitude == 0) {
       AppSnackBar.showError(
-        title: "Cảnh báo",
-        message: "Tín hiệu GPS kém. Vui lòng bật định vị chính xác và thử lại.",
+        title: S.of(context).warning,
+        message: S.of(context).v2_main_weak_gps,
       );
       return;
     }
@@ -1787,8 +1786,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     final target = _cubit.state.currentCheckInEntity;
     if (target == null || target.latitude == null || target.longitude == null) {
       AppSnackBar.showError(
-        title: "Cảnh báo",
-        message: "Chưa xác định được điểm chấm công phù hợp",
+        title: S.of(context).warning,
+        message: S.of(context).v2_main_no_checkin_point,
       );
       return;
     }
@@ -1805,8 +1804,8 @@ class _CheckInPageV2State extends State<CheckInPageV2> {
     // 5. Chặn nghiêm ngặt nếu vượt quá bán kính vòng đỏ (tolerance = 0, so sánh số thực chính xác)
     if (distance > allowedRadius + _radiusTolerance) {
       AppSnackBar.showError(
-        title: "Cảnh báo",
-        message: "Bạn đang không trong vị trí được phép Check-In",
+        title: S.of(context).warning,
+        message: S.of(context).v2_main_not_in_checkin_area,
       );
       return;
     }

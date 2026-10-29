@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import '../../../generated/l10n.dart';
 import '../../config/app_config.dart';
 
 class AppDateUtils {
@@ -121,20 +122,21 @@ class AppDateUtils {
 
   String formatDateTime(String input) {
     final dt = _parseLocal(input);
-    const weekdaysVI = {
-      DateTime.monday: 'thứ hai',
-      DateTime.tuesday: 'thứ ba',
-      DateTime.wednesday: 'thứ tư',
-      DateTime.thursday: 'thứ năm',
-      DateTime.friday: 'thứ sáu',
-      DateTime.saturday: 'thứ bảy',
-      DateTime.sunday: 'chủ nhật',
+    final s = S.current;
+    final weekdays = {
+      DateTime.monday: s.common_weekday_full_mon,
+      DateTime.tuesday: s.common_weekday_full_tue,
+      DateTime.wednesday: s.common_weekday_full_wed,
+      DateTime.thursday: s.common_weekday_full_thu,
+      DateTime.friday: s.common_weekday_full_fri,
+      DateTime.saturday: s.common_weekday_full_sat,
+      DateTime.sunday: s.common_weekday_full_sun,
     };
-    final wd = weekdaysVI[dt.weekday]!;
+    final wd = weekdays[dt.weekday]!;
     final d = dt.day.toString().padLeft(2, '0');
     final m = dt.month.toString().padLeft(2, '0');
     final y = dt.year.toString();
-    return '$wd , $d/$m/$y';
+    return s.common_weekday_date(wd, '$d/$m/$y');
   }
 
   static DateTime convertStringDateToDateTime(String date) {

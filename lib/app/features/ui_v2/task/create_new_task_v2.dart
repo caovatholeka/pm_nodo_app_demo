@@ -132,7 +132,10 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
       showTitleActions: true,
       onConfirm: onConfirm,
       currentTime: defaultValue ?? DateTime.now(),
-      locale: LocaleType.vi,
+      // Ngôn ngữ bộ chọn ngày theo ngôn ngữ app (trước đây cố định tiếng Việt).
+      locale: Localizations.localeOf(context).languageCode == 'en'
+          ? LocaleType.en
+          : LocaleType.vi,
     );
   }
 
@@ -157,6 +160,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
           prev.createStatus != cur.createStatus ||
           prev.updateStatus != cur.updateStatus,
       listener: (context, state) {
+        final s = S.of(context);
         if (state.createStatus == LoadStatus.LOADING ||
             state.updateStatus == LoadStatus.LOADING) {
           LoadingOverlay.show(context);
@@ -165,10 +169,10 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
           _cubit.resetStatus();
           LoadingOverlay.hide(context);
           AppSnackBar.showInfo(
-            title: "Thành công",
+            title: s.success,
             message: (widget.isEdit ?? false)
-                ? "Cập nhật công việc thành công!!!"
-                : "Tạo mới công việc thành công!!!",
+                ? s.v2_request_task_update_success
+                : s.v2_request_task_create_success,
           );
 
           if (widget.isEdit ?? false) {
@@ -182,8 +186,8 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
           LoadingOverlay.hide(context);
           _cubit.resetStatus();
           AppSnackBar.showWarning(
-            title: "Cảnh báo",
-            message: "Có lỗi xảy ra vui lòng thử lại sau!!!",
+            title: s.warning,
+            message: s.v2_request_task_error,
           );
         } else {
           LoadingOverlay.hide(context);
@@ -226,7 +230,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                                   _readOnlyField(
                                     title: s.to_jobtype,
                                     controller: taskTypeController
-                                      ..text = "Thông thường",
+                                      ..text = s.todo_detail_status1,
                                   ),
                                   const SizedBox(height: 16),
                                   _readOnlyField(
@@ -361,7 +365,10 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                     ),
                   ),
                 ),
-                BlankOnlyHintV2(controller: taskNameController, fieldName: 'Tiêu đề'),
+                BlankOnlyHintV2(
+                  controller: taskNameController,
+                  fieldName: s.to_task_title,
+                ),
               ],
             );
           },
@@ -493,7 +500,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                   child: TextFormField(
                     controller: userController,
                     validator: (value) =>
-                        Validator.validateEmpty(value, "Người được phân công "),
+                        Validator.validateEmpty(value, s.to_taskempl),
                   ),
                 ),
               ],
@@ -580,7 +587,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                   child: TextFormField(
                     controller: dateLineController,
                     validator: (value) =>
-                        Validator.validateEmpty(value, "Hạn chót"),
+                        Validator.validateEmpty(value, s.to_do_card_deadline),
                   ),
                 ),
               ],
@@ -645,7 +652,10 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                     ),
                   ),
                 ),
-                BlankOnlyHintV2(controller: descriptionController, fieldName: 'Mô tả'),
+                BlankOnlyHintV2(
+                  controller: descriptionController,
+                  fieldName: s.to_description,
+                ),
               ],
             );
           },
@@ -712,18 +722,18 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
   }
 
   void showUpdateConfirmDialog() {
+    final s = S.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.transparent,
       builder: (_) => CustomDialog(
         iconPath: AppAssets.ic_done,
-        title: "Xác nhận",
-        content:
-            "Thông tin sẽ được thay đổi. Bạn chắc chắn muốn thay đổi thông tin này?",
+        title: s.confirm,
+        content: s.v2_request_confirm_change_info,
         success: true,
-        confirmText: "Cập Nhật",
-        cancelText: "Huỷ bỏ",
+        confirmText: s.v2_request_update_btn,
+        cancelText: s.v2_request_cancel_btn,
         onConfirm: () {
           Navigator.pop(context);
           _cubit.updateTask((widget.detailEntity?.id ?? 0).toString());

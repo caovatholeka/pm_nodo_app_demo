@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class ErrorListWidget extends StatelessWidget {
-  final String text;
+  /// null → "Không thể kết nối tới Server" theo ngôn ngữ hiện tại.
+  final String? text;
   final RefreshCallback onRefresh;
   final double? height;
 
-  const ErrorListWidget({super.key, this.text = 'Không thể kết nối tới Server', required this.onRefresh, this.height});
+  const ErrorListWidget({super.key, this.text, required this.onRefresh, this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class ErrorListWidget extends StatelessWidget {
               width: double.infinity,
               child: Center(
                 child: Text(
-                  text,
+                  text ?? S.of(context).common_cannot_connect_server,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

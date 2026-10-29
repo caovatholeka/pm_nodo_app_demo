@@ -211,7 +211,7 @@ class _ForgotPassPageState extends State<ForgotPassPage> {
                                               (v) =>
                                                   Validator().validatePassword(
                                                     v?.trim(),
-                                                    "Mật khẩu",
+                                                    s.password,
                                                   ),
                                         ),
                                         const SizedBox(height: 16),

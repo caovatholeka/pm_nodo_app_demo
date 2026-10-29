@@ -113,11 +113,17 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
     super.dispose();
   }
 
+  /// Ngôn ngữ của bộ chọn ngày theo ngôn ngữ app (trước đây cố định tiếng Việt).
+  LocaleType get _pickerLocale =>
+      Localizations.localeOf(context).languageCode == 'en'
+          ? LocaleType.en
+          : LocaleType.vi;
+
   void _pickFromDate() {
     HapticFeedback.selectionClick();
     DatePicker.showDatePicker(
       context,
-      locale: LocaleType.vi,
+      locale: _pickerLocale,
       maxTime: _toDate, // "Từ ngày" không được sau "Đến ngày"
       onConfirm: (d) {
         _fromDate = d;
@@ -134,7 +140,7 @@ class _CreateOTPageV2State extends State<CreateOTPageV2> {
     HapticFeedback.selectionClick();
     DatePicker.showDatePicker(
       context,
-      locale: LocaleType.vi,
+      locale: _pickerLocale,
       minTime: _fromDate, // "Đến ngày" không được trước "Từ ngày"
       onConfirm: (d) {
         _toDate = d;

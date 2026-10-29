@@ -1209,7 +1209,10 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
 
   String _hrStatusTextAt(Map<int, bool> values, int index) {
     if (!values.containsKey(index)) return '';
-    return _checkedValueAt(values, index) ? 'Đồng ý' : 'Từ chối';
+    final s = S.of(context);
+    return _checkedValueAt(values, index)
+        ? s.v2_appraisal_hr_status_agreed
+        : s.v2_appraisal_hr_status_rejected;
   }
 
   bool _hasText(String? value) => value?.trim().isNotEmpty == true;
@@ -1488,16 +1491,17 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
 
   void _showSaveDialog(CreateAppraisalState state) {
     final isManagerAssessFlow = state.isManagerAssess == true;
+    final s = S.of(context);
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
           (_) => CustomDialog(
-            title: 'Xác nhận',
-            content: 'Bạn có chắc muốn lưu phiếu đánh giá này không?',
-            confirmText: 'Đồng ý',
-            cancelText: 'Hủy',
+            title: s.confirm,
+            content: s.v2_appraisal_confirm_save_form,
+            confirmText: s.notifications_agree,
+            cancelText: s.cancel,
             onConfirm: () {
               Navigator.pop(context);
               if (isManagerAssessFlow) {
@@ -1756,7 +1760,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
                           ? Padding(
                             padding: EdgeInsets.only(left: 4),
                             child: Text(
-                              'Tổng hệ số phải bằng 100%',
+                              s.v2_appraisal_total_coefficient_must_be_100,
                               style: TextStyle(
                                 color: AppTokensV2.danger,
                                 fontSize: 12,
@@ -1771,7 +1775,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
                   Padding(
                     padding: EdgeInsets.only(left: 4),
                     child: Text(
-                      'Tổng hệ số phải bằng 100%',
+                      s.v2_appraisal_total_coefficient_must_be_100,
                       style: TextStyle(
                         color: AppTokensV2.danger,
                         fontSize: 12,
@@ -2009,7 +2013,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
               message:
                   state.errMsg?.isNotEmpty == true
                       ? state.errMsg
-                      : 'Đánh giá thành công',
+                      : s.v2_appraisal_assess_success,
             );
             context.read<CreateAppraisalCubit>().resetUpdateStatus();
             _isManagerAssessFlow = false;
@@ -2023,7 +2027,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
               message:
                   state.errMsg?.isNotEmpty == true
                       ? state.errMsg
-                      : 'Đánh giá HR thành công',
+                      : s.v2_appraisal_hr_assess_success,
             );
             context.read<CreateAppraisalCubit>().resetUpdateStatus();
             _isHrAssessFlow = false;
@@ -2033,7 +2037,8 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
 
           AppSnackBar.showInfo(
             title: s.success,
-            message: state.errMsg?.isNotEmpty == true ? state.errMsg : s.save,
+            message:
+                state.errMsg?.isNotEmpty == true ? state.errMsg : s.bt_btnSave,
           );
           context.read<CreateAppraisalCubit>().resetUpdateStatus();
           _closeFlow(
@@ -2093,9 +2098,9 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
               _currentStep < _lastStepIndex
                   ? s.appraisal_next
                   : (isManagerAssessFlow || isHrReviewFlow)
-                  ? s.save
+                  ? s.bt_btnSave
                   : state.isEdit == true && !isSelfReviewLocked
-                  ? s.save
+                  ? s.bt_btnSave
                   : s.confirm;
 
           return Scaffold(

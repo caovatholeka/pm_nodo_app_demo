@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pm_app/app/core/commons/app_colors.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class CustomInputDialog extends StatelessWidget {
   final String title;
@@ -12,7 +13,7 @@ class CustomInputDialog extends StatelessWidget {
   final VoidCallback? onCancel;
   final ValueChanged<String>? onOk;
   final String okLabel;
-  final String cancelLabel;
+  final String? cancelLabel;
 
 
   const CustomInputDialog({
@@ -26,14 +27,14 @@ class CustomInputDialog extends StatelessWidget {
     this.onCancel,
     this.onOk,
     this.okLabel = 'OK',
-    this.cancelLabel = 'Huỷ',
+    this.cancelLabel,
   });
 
   static Future<String?> show(
       BuildContext context, {
-        String title = 'Nhập nội dung',
+        String? title,
         String? content,
-        String hintText = 'Nhập ở đây...',
+        String? hintText,
         String? initialValue,
         int maxLines = 3,
         TextInputType keyboardType = TextInputType.text,
@@ -46,9 +47,9 @@ class CustomInputDialog extends StatelessWidget {
       context: context,
       barrierDismissible: barrierDismissible,
       builder: (ctx) => CustomInputDialog(
-        title: title,
+        title: title ?? S.of(ctx).common_enter_content,
         content: content ?? "",
-        hintText: hintText,
+        hintText: hintText ?? S.of(ctx).common_enter_here_hint,
         maxLines: maxLines,
         keyboardType: keyboardType,
         controller: controller,
@@ -144,7 +145,7 @@ class CustomInputDialog extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            "Huỷ",
+                            S.of(context).common_cancel,
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,

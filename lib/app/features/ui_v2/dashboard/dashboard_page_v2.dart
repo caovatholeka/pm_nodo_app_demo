@@ -16,6 +16,7 @@ import 'package:pm_app/app/features/ui_v2/justification/justification_page_v2.da
 import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/overtime/overtime_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/work_trip/work_trip_page_v2.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Dashboard — đồng bộ với Dashboard web (PM): cùng các thẻ, cùng nhãn, và số liệu
 /// lấy từ chính các hàm của web (qua API /dashboard/*) nên giống hệt web:
@@ -162,7 +163,8 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.calendar_month_rounded, size: 16, color: AppTokensV2.accent),
             const SizedBox(width: 6),
-            Text('T${state.month}/${state.year}', style: AppTokensV2.captionStrong),
+            Text(S.of(context).v2_main_month_year_short(state.month, state.year),
+                style: AppTokensV2.captionStrong),
             Icon(Icons.expand_more_rounded, size: 18, color: AppTokensV2.fgSoft),
           ]),
         ),
@@ -175,7 +177,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
   Widget _requestsCard(DashboardV2State state) {
     final data = state.requests;
     return _section(
-      title: _titleOr(data?.title, 'Đơn từ cá nhân trong tháng'),
+      title: _titleOr(data?.title, S.of(context).v2_main_dash_my_requests),
       status: state.requestsStatus,
       hasData: data != null,
       child: () => _countGrid(data!.items, onTap: _openRequestList),
@@ -185,8 +187,8 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
   Widget _pendingCard(DashboardV2State state) {
     final data = state.pending!;
     return _section(
-      title: _titleOr(data.title, 'Đơn cần duyệt cho nhân sự trong tháng'),
-      badge: '${data.total} đơn',
+      title: _titleOr(data.title, S.of(context).v2_main_dash_pending_requests),
+      badge: S.of(context).v2_main_request_count(data.total),
       status: state.pendingStatus,
       hasData: true,
       child: () => _countGrid(data.items),
@@ -196,7 +198,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
   Widget _headcountCard(DashboardV2State state) {
     final data = state.headcount;
     return _section(
-      title: _titleOr(data?.title, 'Tổng quan nhân sự'),
+      title: _titleOr(data?.title, S.of(context).v2_main_dash_headcount),
       status: state.headcountStatus,
       hasData: data != null,
       child: () => _countGrid(data!.items, perRow: 4),
@@ -206,12 +208,12 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
   Widget _behaviourCard(DashboardV2State state) {
     final data = state.behaviour;
     return _section(
-      title: _titleOr(data?.title, 'Nề nếp chấm công'),
+      title: _titleOr(data?.title, S.of(context).v2_main_dash_behaviour),
       status: state.behaviourStatus,
       hasData: data != null,
       child: () {
         final items = data!.items;
-        if (items.isEmpty) return _empty('Không có dữ liệu');
+        if (items.isEmpty) return _empty(S.of(context).justification_emptyData);
         final maxCount = items.fold<int>(0, (m, e) => e.count > m ? e.count : m);
         return Column(children: [
           Row(children: [
@@ -230,14 +232,15 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
   Widget _birthdaysCard(DashboardV2State state) {
     final data = state.birthdays;
     final people = data?.items ?? const <BirthdayPerson>[];
-    final title = _titleOr(data?.title, 'Sinh nhật trong tháng');
+    final title =
+        _titleOr(data?.title, S.of(context).appraisal_birthday_month_title);
     return _section(
       title: title,
       badge: data == null ? null : '${people.length}',
       status: state.birthdaysStatus,
       hasData: data != null,
       child: () {
-        if (people.isEmpty) return _empty('Không có sinh nhật trong tháng');
+        if (people.isEmpty) return _empty(S.of(context).v2_main_dash_no_birthdays);
         final rows = people.map(_birthdayRow).toList();
         return _previewList(rows, () => _openAll(title, rows));
       },
@@ -247,14 +250,14 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
   Widget _alertsCard(DashboardV2State state) {
     final data = state.alerts;
     final alerts = data?.items ?? const <AttendanceAlert>[];
-    final title = _titleOr(data?.title, 'Cảnh báo chuyên cần trong tháng');
+    final title = _titleOr(data?.title, S.of(context).v2_main_dash_alerts);
     return _section(
       title: title,
       badge: data == null ? null : '${alerts.length}',
       status: state.alertsStatus,
       hasData: data != null,
       child: () {
-        if (alerts.isEmpty) return _empty('Không có cảnh báo');
+        if (alerts.isEmpty) return _empty(S.of(context).v2_main_dash_no_alerts);
         final rows = alerts.map(_alertRow).toList();
         return _previewList(rows, () => _openAll(title, rows));
       },
@@ -263,8 +266,36 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
 
   // ───────────────────────── Thành phần ─────────────────────────
 
+  /// Tiêu đề thẻ: server gửi sẵn tiêu đề tiếng Việt (giống web) → chỉ dùng khi app đang ở
+  /// tiếng Việt; ngôn ngữ khác dùng nhãn của app.
   String _titleOr(String? title, String fallback) =>
-      (title == null || title.isEmpty) ? fallback : title;
+      (title == null ||
+              title.isEmpty ||
+              Localizations.localeOf(context).languageCode != 'vi')
+          ? fallback
+          : title;
+
+  /// Nhãn ô / thanh theo mã cố định của API /dashboard/* (nodo_hr_api dashboard_handle):
+  /// tiếng Việt giữ nhãn server (giống web); ngôn ngữ khác dịch theo mã, mã lạ hiện nhãn server.
+  String _keyLabel(String key, String serverLabel, {bool chart = false}) {
+    if (Localizations.localeOf(context).languageCode == 'vi') return serverLabel;
+    final s = S.of(context);
+    return switch (key) {
+      'leave' => s.v2_dash_key_leave,
+      'overtime' => s.v2_dash_key_overtime,
+      'late_early' => s.v2_dash_key_late_early,
+      'muon_som' => chart ? s.v2_dash_key_late_early_chart : s.v2_dash_key_late_early,
+      'business_trip' => s.v2_dash_key_business_trip,
+      'wfh' => s.v2_dash_key_wfh,
+      'total' => s.v2_dash_key_total,
+      'official' => s.v2_dash_key_official,
+      'probation' => s.v2_dash_key_probation,
+      'intern' => s.v2_dash_key_intern,
+      'quen_cham_cong' => s.v2_dash_key_missed_check,
+      'thieu_gio' => s.v2_dash_key_missing_in_out,
+      _ => serverLabel,
+    };
+  }
 
   Widget _section({
     required String title,
@@ -284,7 +315,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
             Icon(Icons.refresh_rounded, size: 18, color: AppTokensV2.fgMuted),
             const SizedBox(width: 8),
             Expanded(
-              child: Text('Không tải được dữ liệu. Chạm để thử lại.',
+              child: Text(S.of(context).v2_main_dash_load_failed,
                   style: AppTokensV2.caption),
             ),
           ]),
@@ -349,7 +380,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
     int perRow = 3,
     void Function(DashboardCount)? onTap,
   }) {
-    if (items.isEmpty) return _empty('Không có dữ liệu');
+    if (items.isEmpty) return _empty(S.of(context).justification_emptyData);
     return LayoutBuilder(builder: (context, c) {
       const gap = 8.0;
       final w = (c.maxWidth - gap * (perRow - 1)) / perRow;
@@ -373,7 +404,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
                   Text(item.count.toString().padLeft(2, '0'),
                       style: AppTokensV2.number.copyWith(fontSize: 22)),
                   const SizedBox(height: 4),
-                  Text(item.label,
+                  Text(_keyLabel(item.key, item.label),
                       style: AppTokensV2.caption,
                       textAlign: TextAlign.center,
                       maxLines: 1,
@@ -399,7 +430,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
         Text('${item.count}',
             style: AppTokensV2.number.copyWith(fontSize: 22, color: color)),
         const SizedBox(height: 2),
-        Text(item.label,
+        Text(_keyLabel(item.key, item.label),
             style: AppTokensV2.caption,
             textAlign: TextAlign.center,
             maxLines: 1,
@@ -417,7 +448,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
       child: Row(children: [
         SizedBox(
           width: 104,
-          child: Text(item.chartLabel,
+          child: Text(_keyLabel(item.key, item.chartLabel, chart: true),
               style: AppTokensV2.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
         ),
         Expanded(
@@ -435,8 +466,13 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
         const SizedBox(width: 8),
         SizedBox(
           width: 44,
-          child: Text('${item.count} lần',
-              style: AppTokensV2.caption, textAlign: TextAlign.right),
+          // Tiếng Anh dài hơn ("12 times") → thu nhỏ chữ cho vừa ô thay vì xuống dòng.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(S.of(context).v2_main_times_count(item.count),
+                style: AppTokensV2.caption, textAlign: TextAlign.right),
+          ),
         ),
       ]),
     );
@@ -452,7 +488,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
           onTap: openAll,
           child: Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: Text('Xem tất cả (${rows.length})',
+            child: Text(S.of(context).v2_main_see_all_count(rows.length),
                 style: TextStyle(
                     color: AppTokensV2.accent, fontSize: 12.5, fontWeight: FontWeight.w600)),
           ),
@@ -479,7 +515,7 @@ class _DashboardPageV2State extends State<DashboardPageV2> {
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text(p.dob, style: AppTokensV2.captionStrong),
           if (p.wished)
-            Text('✓ Đã chúc',
+            Text(S.of(context).v2_main_dash_wished,
                 style: TextStyle(
                     color: AppTokensV2.success, fontSize: 11, fontWeight: FontWeight.w600)),
         ]),

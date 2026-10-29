@@ -14,6 +14,7 @@ import '../../../../data/models/enums/load_status.dart';
 import '../../../../data/repositories/auth_repository.dart';
 import 'package:get_it/get_it.dart';
 import '../../../bloc/app_cubit.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 part 'login_state.dart';
 
@@ -128,7 +129,7 @@ class LogInCubit extends Cubit<LoginState> {
             loginStatus: LoadStatus.FAILURE,
             errMsg: _extractServerMessage(
               raw,
-              fallback: result.message ?? "Không nhận được token từ server",
+              fallback: result.message ?? S.current.common_login_no_token,
             ),
           ),
         );
@@ -140,17 +141,17 @@ class LogInCubit extends Cubit<LoginState> {
       await authRepository.removeToken();
       GlobalData.instance.token = null;
 
-      String message = "Đăng nhập thất bại";
+      String message = S.current.common_login_failed;
       final res = e.response?.data;
 
       final serverMessage = _extractServerMessage(res);
 
       if (e.type == DioExceptionType.connectionError) {
-        message = "Không thể kết nối đến máy chủ, kiểm tra mạng của bạn";
+        message = S.current.common_cannot_connect_check_network;
       } else if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.sendTimeout) {
-        message = "Kết nối quá hạn, vui lòng thử lại";
+        message = S.current.common_connection_timeout_retry;
       } else if (_isLoginCredentialError(
         e.response?.statusCode,
         serverMessage,
@@ -167,7 +168,7 @@ class LogInCubit extends Cubit<LoginState> {
       emit(
         state.copyWith(
           loginStatus: LoadStatus.FAILURE,
-          errMsg: "Lỗi không xác định",
+          errMsg: S.current.common_unknown_error,
         ),
       );
     } finally {
@@ -197,8 +198,7 @@ class LogInCubit extends Cubit<LoginState> {
     return fallback;
   }
 
-  static const String _wrongCredentialsMessage =
-      "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.";
+  static String get _wrongCredentialsMessage => S.current.common_wrong_credentials;
 
   String _normalizeLoginMessage(String message) {
     final text = message.trim();

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/data/models/entities/overtime_line_entity.dart';
 import 'package:pm_app/app/data/models/param/create_overtime_param.dart';
 import 'package:pm_app/app/data/repositories/overtime_repository.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 part 'create_overtime_state.dart';
 
@@ -90,7 +91,7 @@ class CreateOvertimeCubit extends Cubit<CreateOvertimeState> {
           successMessage:
               res is Map && res['message'] is String
                   ? res['message']
-                  : 'Thành công',
+                  : S.current.success,
         ),
       );
     } on DioException catch (e) {
@@ -101,7 +102,7 @@ class CreateOvertimeCubit extends Cubit<CreateOvertimeState> {
         ),
       );
     } catch (_) {
-      emit(state.copyWith(isSubmitting: false, errorMessage: 'Có lỗi xảy ra'));
+      emit(state.copyWith(isSubmitting: false, errorMessage: S.current.common_error_occurred));
     }
   }
 
@@ -121,6 +122,6 @@ class CreateOvertimeCubit extends Cubit<CreateOvertimeState> {
       }
     }
 
-    return 'Dữ liệu không hợp lệ';
+    return S.current.common_invalid_data;
   }
 }

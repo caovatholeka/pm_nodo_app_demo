@@ -209,15 +209,16 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
   }
 
   Future<void> _showSubmitDialog(int id) async {
+    final s = S.of(context);
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder:
           (_) => CustomDialog(
-            title: 'Xác nhận',
-            content: 'Bạn có chắc muốn gửi phiếu đánh giá này không?',
-            confirmText: 'Đồng ý',
-            cancelText: 'Hủy',
+            title: s.confirm,
+            content: s.v2_appraisal_confirm_submit_form,
+            confirmText: s.notifications_agree,
+            cancelText: s.cancel,
             onConfirm: () {
               Navigator.pop(context);
               _isHrApproveAction = false;
@@ -229,16 +230,16 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
   }
 
   Future<void> _showApproveDialog(int id) async {
+    final s = S.of(context);
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
       builder:
           (_) => CustomDialog(
-            title: 'Xác nhận',
-            content:
-                'Bạn có chắc muốn duyệt hoàn thành phiếu đánh giá này không?',
-            confirmText: 'Đồng ý',
-            cancelText: 'Hủy',
+            title: s.confirm,
+            content: s.v2_appraisal_confirm_approve_complete,
+            confirmText: s.notifications_agree,
+            cancelText: s.cancel,
             onConfirm: () {
               Navigator.pop(context);
               _isHrApproveAction = true;
@@ -270,8 +271,8 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
           Flushbar(
             message:
                 _isHrApproveAction
-                    ? 'Duyệt hoàn thành thành công'
-                    : 'Gửi phiếu thành công',
+                    ? s.v2_appraisal_approve_complete_success
+                    : s.v2_appraisal_submit_success,
             duration: const Duration(seconds: 2),
             backgroundColor: AppTokensV2.success,
             flushbarPosition: FlushbarPosition.TOP,
@@ -287,8 +288,8 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
           Flushbar(
             message:
                 _isHrApproveAction
-                    ? 'Duyệt hoàn thành thất bại hoặc bạn không có quyền thực hiện'
-                    : 'Gửi phiếu thất bại hoặc bạn không có quyền thực hiện',
+                    ? s.v2_appraisal_approve_complete_failed
+                    : s.v2_appraisal_submit_failed,
             duration: const Duration(seconds: 2),
             backgroundColor: AppTokensV2.danger,
             flushbarPosition: FlushbarPosition.TOP,
@@ -521,7 +522,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
                           backgroundColor: AppTokensV2.accent,
                           foregroundColor: Colors.white,
                           icon: Icons.edit_rounded,
-                          label: 'Sửa',
+                          label: s.v2_appraisal_edit,
                         ),
                       if (canSlideDraft)
                         SlidableAction(
@@ -529,7 +530,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
                           backgroundColor: AppTokensV2.success,
                           foregroundColor: Colors.white,
                           icon: Icons.send_rounded,
-                          label: 'Gửi',
+                          label: s.appraisal_send,
                         ),
                       if (canSlideManagerAssess)
                         SlidableAction(
@@ -537,7 +538,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
                           backgroundColor: AppTokensV2.accent,
                           foregroundColor: Colors.white,
                           icon: Icons.fact_check_rounded,
-                          label: 'Đánh giá',
+                          label: s.v2_appraisal_assess,
                         ),
                       if (canSlideHrApprove)
                         SlidableAction(
@@ -545,7 +546,7 @@ class _AppraisalPageV2State extends State<AppraisalPageV2> {
                           backgroundColor: AppTokensV2.success,
                           foregroundColor: Colors.white,
                           icon: Icons.verified_rounded,
-                          label: 'Duyệt',
+                          label: s.authorize,
                         ),
                     ],
                   ),

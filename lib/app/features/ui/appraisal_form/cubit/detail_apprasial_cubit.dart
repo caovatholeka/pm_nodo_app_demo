@@ -6,6 +6,7 @@ import 'package:pm_app/app/data/models/entities/job_title_list_entity.dart';
 import 'package:pm_app/app/data/models/entities/job_title_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/evaluation_repository.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../data/models/entities/master_data_item.dart';
 
@@ -236,7 +237,7 @@ class CreateAppraisalCubit extends Cubit<CreateAppraisalState> {
       emit(
         state.copyWith(
           updateStatus: LoadStatus.SUCCESS,
-          errMsg: "Đánh giá HR thành công",
+          errMsg: S.current.common_hr_appraisal_success,
           detailEvaluation: updatedDetail,
         ),
       );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../app_tokens_v2.dart';
 
 /// Khoảng cuộn khi ô nhập được chọn ở màn tạo đơn: chừa chỗ cho thanh nút ở đáy (nút
@@ -40,7 +41,7 @@ class KeyboardDoneBarV2 extends StatelessWidget {
             border: Border.all(color: AppTokensV2.accent.withValues(alpha: 0.5)),
           ),
           child: Text(
-            'Xong',
+            S.of(context).day_off_donebtn,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppTokensV2.accent,

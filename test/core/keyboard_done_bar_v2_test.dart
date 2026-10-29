@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/keyboard_done_bar_v2.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 /// Màn giả lập giống các màn tạo đơn v2: form cuộn (đệm đáy 120) + ô Ghi chú ở cuối +
 /// nút Lưu ở Scaffold.bottomSheet.
 Widget _form(TextEditingController note, FocusNode focus) {
   return MaterialApp(
+    // Nút "Xong" lấy chữ từ l10n (S) → cần delegate + locale vi.
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.delegate.supportedLocales,
+    locale: const Locale('vi'),
     home: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(

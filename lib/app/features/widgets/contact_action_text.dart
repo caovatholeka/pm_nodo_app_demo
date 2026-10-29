@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pm_app/generated/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum ContactType { phone, email }
@@ -39,6 +40,7 @@ class ContactActionText extends StatelessWidget {
       ),
       builder: (ctx) {
         final isPhone = type == ContactType.phone;
+        final s = S.of(ctx);
 
         return SafeArea(
           child: Column(
@@ -60,7 +62,7 @@ class ContactActionText extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    isPhone ? 'Số điện thoại' : 'Email',
+                    isPhone ? s.common_phone_number : 'Email',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -85,7 +87,7 @@ class ContactActionText extends StatelessWidget {
               // Copy
               ListTile(
                 leading: const Icon(Icons.copy),
-                title: Text(isPhone ? 'Copy số điện thoại' : 'Copy email'),
+                title: Text(isPhone ? s.common_copy_phone_number : 'Copy email'),
                 onTap: () async {
                   await Clipboard.setData(ClipboardData(text: value));
                   Navigator.of(ctx).pop();
@@ -93,8 +95,8 @@ class ContactActionText extends StatelessWidget {
                     SnackBar(
                       content: Text(
                         isPhone
-                            ? 'Đã copy số điện thoại'
-                            : 'Đã copy email',
+                            ? s.common_phone_number_copied
+                            : s.common_email_copied,
                       ),
                       duration: const Duration(seconds: 1),
                     ),
@@ -105,7 +107,7 @@ class ContactActionText extends StatelessWidget {
               // Gọi / Gửi email
               ListTile(
                 leading: Icon(isPhone ? Icons.phone : Icons.email),
-                title: Text(isPhone ? 'Gọi theo số này' : 'Gửi email tới địa chỉ này'),
+                title: Text(isPhone ? s.common_call_this_number : s.common_send_email_to_address),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   if (isPhone) {
@@ -126,11 +128,12 @@ class ContactActionText extends StatelessWidget {
 
   Future<void> _callPhone(BuildContext context) async {
     final uri = Uri(scheme: 'tel', path: value);
+    final errorText = S.of(context).common_cannot_make_call;
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể thực hiện cuộc gọi')),
+        SnackBar(content: Text(errorText)),
       );
     }
   }
@@ -141,11 +144,12 @@ class ContactActionText extends StatelessWidget {
       path: value,
       // query: 'subject=Hello&body=Xin chào',
     );
+    final errorText = S.of(context).common_cannot_open_email_app;
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không thể mở ứng dụng email')),
+        SnackBar(content: Text(errorText)),
       );
     }
   }

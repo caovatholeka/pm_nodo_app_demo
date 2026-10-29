@@ -17,6 +17,7 @@ import 'package:pm_app/app/features/ui/task/bloc/task_cubit.dart';
 import 'package:pm_app/app/features/ui_v2/task/create_new_task_v2.dart';
 import 'package:pm_app/app/features/ui_v2/task/task_detail_page_v2.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/app/core/utils/task_stage_label.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 /// Màn Việc cần làm — giao diện tối (v2). Giữ nguyên hành vi bản cũ
@@ -353,7 +354,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
                     borderRadius: BorderRadius.circular(19),
                   ),
                   child: Text(
-                    item.name ?? "",
+                    taskStageLabel(context, item),
                     style: TextStyle(
                       color: selected ? AppTokensV2.accent : AppTokensV2.fgSoft,
                       fontSize: 12,
@@ -391,7 +392,8 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
                 Icon(Icons.checklist_rounded,
                     size: 44, color: AppTokensV2.fgMuted),
                 const SizedBox(height: 10),
-                Text('Không có dữ liệu', style: AppTokensV2.captionStrong),
+                Text(s.justification_emptyData,
+                    style: AppTokensV2.captionStrong),
               ]),
             ),
           );
@@ -464,7 +466,7 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(entity.stage?.name ?? '',
+                  Text(taskStageLabel(context, entity.stage),
                       style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -490,7 +492,9 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
             Expanded(
               child: _labelValue(
                 s.to_jobtype,
-                (entity.taskType ?? '') == 'normal' ? 'Thông thường' : 'Tuyển dụng',
+                (entity.taskType ?? '') == 'normal'
+                    ? s.todo_detail_status1
+                    : s.todo_detail_status2,
               ),
             ),
           ]),
@@ -585,7 +589,7 @@ class _StageBottomSheetV2 extends StatelessWidget {
                       ),
                       child: Row(children: [
                         Expanded(
-                          child: Text(value.name ?? '',
+                          child: Text(taskStageLabel(context, value),
                               style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,

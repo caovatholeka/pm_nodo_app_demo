@@ -534,9 +534,9 @@ String timeAgoV2(String? rawDate, BuildContext context) {
   } else if (diff.inMinutes < 60) {
     return "${diff.inMinutes}${s.notifications_time2}";
   } else if (diff.inHours < 24) {
-    return "${diff.inHours} giờ trước";
+    return "${diff.inHours}${s.notifications_time3}";
   } else if (diff.inDays == 1) {
-    return "1 ngày trước";
+    return s.v2_main_one_day_ago;
   } else {
     return "${diff.inDays}${s.notifications_time4}";
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/generated/l10n.dart';
 import '../../utils/validators.dart';
 import '../app_tokens_v2.dart';
 
@@ -18,7 +19,7 @@ class BlankOnlyHintV2 extends StatelessWidget {
   });
 
   static String message(String fieldName) =>
-      '$fieldName không được chỉ có khoảng trắng';
+      S.current.common_field_blank_only(fieldName);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class BlankOnlyHintV2 extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 6, left: 4),
           child: Text(
-            message(fieldName),
+            S.of(context).common_field_blank_only(fieldName),
             style: TextStyle(
               color: AppTokensV2.danger,
               fontSize: 12,

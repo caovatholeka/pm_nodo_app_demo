@@ -155,13 +155,14 @@ class _JustificationPageV2State extends State<JustificationPageV2> {
   }
 
   void _sendRQJustification(JustificationEntity entity) {
+    final s = S.of(context);
     showDialog(
       context: context,
       builder:
           (_) => CustomDialog(
-            title: "Xác nhận",
-            content: "Bạn có muốn gửi đơn duyệt này không?",
-            cancelText: "Không",
+            title: s.confirm,
+            content: s.v2_request_justification_submit_confirm,
+            cancelText: s.v2_request_no,
             confirmText: "Ok",
             onCancel: () => Navigator.pop(context),
             onConfirm: () {
@@ -617,7 +618,7 @@ class _JustificationPageV2State extends State<JustificationPageV2> {
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                       icon: Icons.send,
-                      label: "Gửi duyệt",
+                      label: S.of(context).justtification_sendApproval,
                     ),
                   ],
                 ),

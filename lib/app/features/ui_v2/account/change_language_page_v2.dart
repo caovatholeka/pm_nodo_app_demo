@@ -5,13 +5,14 @@ import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/ambient_background_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/glass_card_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
-import 'package:pm_app/app/data/local/shared_prefs_helper.dart';
 import 'package:pm_app/app/features/bloc/app_cubit.dart';
 import 'package:pm_app/generated/l10n.dart';
 
-/// Màn Ngôn ngữ — phiên bản giao diện tối (v2). Hành vi giữ nguyên bản cũ
-/// (`change_languge_page.dart`): đọc ngôn ngữ hiện tại từ [SharedPrefsHelper],
-/// đổi ngôn ngữ qua [AppCubit.changeAppLanguage]. Chỉ trình bày đổi.
+/// Màn Ngôn ngữ — phiên bản giao diện tối (v2). Đổi ngôn ngữ qua
+/// [AppCubit.changeAppLanguage]. Mục được chọn lấy theo ngôn ngữ app ĐANG hiển thị
+/// (Localizations), nên luôn khớp với chữ trên màn — kể cả lúc mới mở (trước đây
+/// mặc định "vi" rồi mới đọc SharedPrefs → app đang tiếng Anh vẫn thoáng hiện chọn
+/// Tiếng Việt).
 class ChangeLanguagePageV2 extends StatefulWidget {
   const ChangeLanguagePageV2({super.key});
 
@@ -20,32 +21,24 @@ class ChangeLanguagePageV2 extends StatefulWidget {
 }
 
 class _ChangeLanguagePageV2State extends State<ChangeLanguagePageV2> {
-  String selectedLang = "vi";
+  /// Ngôn ngữ vừa bấm chọn (hiện ngay, trong lúc app đổi locale); null = theo
+  /// ngôn ngữ đang hiển thị.
+  String? _pendingLang;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadCurrentLanguage();
-  }
-
-  Future<void> _loadCurrentLanguage() async {
-    final lang = await SharedPrefsHelper.getAppLanguage();
-    if (!mounted) return;
-    setState(() {
-      selectedLang = lang;
-    });
-  }
+  String get _currentLang =>
+      _pendingLang ?? Localizations.localeOf(context).languageCode;
 
   void _changeLanguage(String code) {
-    if (selectedLang == code) return;
+    if (_currentLang == code) return;
     HapticFeedback.selectionClick();
-    setState(() => selectedLang = code);
+    setState(() => _pendingLang = code);
     context.read<AppCubit>().changeAppLanguage(code);
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final selectedLang = _currentLang;
 
     return Scaffold(
       backgroundColor: AppTokensV2.bgDeep,

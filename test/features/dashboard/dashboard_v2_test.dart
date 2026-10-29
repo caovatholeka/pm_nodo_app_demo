@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pm_app/app/data/models/entities/dashboard_v2_models.dart';
@@ -6,6 +8,32 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/repositories/dashboard_repository.dart';
 import 'package:pm_app/app/features/ui_v2/dashboard/cubit/dashboard_v2_cubit.dart';
 import 'package:pm_app/app/features/ui_v2/dashboard/dashboard_page_v2.dart';
+import 'package:pm_app/generated/l10n.dart';
+
+Widget _app(Locale locale) => MaterialApp(
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      locale: locale,
+      home: const DashboardPageV2(),
+    );
+
+Future<void> _pumpDashboard(WidgetTester tester, Locale locale) async {
+  await GetIt.instance.reset();
+  // Không có ảnh (test không gọi mạng); 7 cảnh báo để có "Xem tất cả".
+  GetIt.instance.registerSingleton<DashboardRepository>(_NoAvatarRepo());
+  tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+  tester.view.devicePixelRatio = 3;
+  addTearDown(tester.view.reset);
+
+  await tester.pumpWidget(_app(locale));
+  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
+}
 
 // JSON đúng như API /dashboard/* trả (lấy từ Odoo local, 2026-10-21).
 final _requests = {
@@ -195,16 +223,7 @@ void main() {
 
   testWidgets('Màn Dashboard dựng đủ các thẻ ở cỡ điện thoại, không lỗi layout',
       (tester) async {
-    await GetIt.instance.reset();
-    // Không có ảnh (test không gọi mạng); 7 cảnh báo để có "Xem tất cả".
-    GetIt.instance.registerSingleton<DashboardRepository>(_NoAvatarRepo());
-    tester.view.physicalSize = const Size(390 * 3, 844 * 3);
-    tester.view.devicePixelRatio = 3;
-    addTearDown(tester.view.reset);
-
-    await tester.pumpWidget(const MaterialApp(home: DashboardPageV2()));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    await _pumpDashboard(tester, const Locale('vi'));
 
     expect(find.text('Đơn từ cá nhân trong tháng'), findsOneWidget);
     expect(find.text('Công tác'), findsWidgets);
@@ -213,6 +232,21 @@ void main() {
 
     await tester.scrollUntilVisible(find.text('Cảnh báo chuyên cần trong tháng'), 300);
     expect(find.text('Xem tất cả (7)'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Tiếng Anh: tiêu đề và nhãn ô theo app (không lấy chữ tiếng Việt của server)',
+      (tester) async {
+    await _pumpDashboard(tester, const Locale('en'));
+
+    expect(find.text('My Requests This Month'), findsOneWidget);
+    expect(find.text('Business Trip'), findsWidgets);
+    expect(find.text('Late Arrival/Early Leave'), findsOneWidget);
+    expect(find.text('Đơn từ cá nhân trong tháng'), findsNothing);
+    expect(find.text('Công tác'), findsNothing);
+
+    await tester.scrollUntilVisible(find.text('Attendance Alerts This Month'), 300);
+    expect(find.text('See All (7)'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

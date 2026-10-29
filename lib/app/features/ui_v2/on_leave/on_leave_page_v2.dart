@@ -225,7 +225,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
       builder:
           (_) => CustomDialog(
             title: s.confirm,
-            content: "Bạn có muốn gửi duyệt đơn này không?",
+            content: s.v2_request_leave_submit_confirm,
             cancelText: s.cancel,
             confirmText: "Ok",
             onCancel: () => Navigator.pop(context),
@@ -245,7 +245,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
       builder:
           (_) => CustomDialog(
             title: s.confirm,
-            content: "Bạn có chắc muốn xóa đơn nghỉ không?",
+            content: s.v2_request_leave_delete_confirm,
             cancelText: s.cancel,
             confirmText: "Ok",
             onCancel: () => Navigator.pop(context),
@@ -796,7 +796,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
                         },
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
-                        label: "Gửi duyệt",
+                        label: S.of(context).day_off_btn_send_approval,
                         icon: Icons.send,
                       ),
                       SlidableAction(
@@ -805,7 +805,7 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
                         },
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
-                        label: "Xóa",
+                        label: S.of(context).day_off_btn_delete,
                         icon: Icons.delete,
                       ),
                     ],
@@ -873,7 +873,8 @@ class _OnLeavePageV2State extends State<OnLeavePageV2> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          "Không có đơn nghỉ ngày này",
+                          S.of(context).v2_request_no_leave_on_day,
+                          textAlign: TextAlign.center,
                           style: AppTokensV2.captionStrong,
                         ),
                       ],

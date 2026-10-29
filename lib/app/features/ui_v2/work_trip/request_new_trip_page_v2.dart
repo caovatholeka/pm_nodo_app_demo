@@ -195,7 +195,11 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
       showTitleActions: true,
       onConfirm: onConfirm,
       currentTime: defaultValue ?? DateTime.now(),
-      locale: LocaleType.vi,
+      // Ngôn ngữ bộ chọn ngày theo ngôn ngữ app (trước đây cố định tiếng Việt).
+      locale:
+          Localizations.localeOf(context).languageCode == 'en'
+              ? LocaleType.en
+              : LocaleType.vi,
     );
   }
 
@@ -281,8 +285,8 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
 
         if (state.createStatus == LoadStatus.SUCCESS) {
           AppSnackBar.showInfo(
-            title: "Thành công",
-            message: state.errMsg ?? "Phiếu công tác được tạo thành công!",
+            title: s.success,
+            message: state.errMsg ?? s.v2_request_trip_create_success,
           );
           _handlingAction = false;
 
@@ -295,8 +299,8 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
 
         if (state.createStatus == LoadStatus.FAILURE) {
           AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
+            title: s.warning,
+            message: state.errMsg ?? s.v2_request_error_try_later,
           );
           _handlingAction = false;
           _cubit.onResetStatus();
@@ -305,7 +309,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
 
         if (state.updateStatus == LoadStatus.SUCCESS) {
           AppSnackBar.showInfo(
-            title: "Thành công",
+            title: s.success,
             message: state.errMsg ?? "",
           );
           _handlingAction = false;
@@ -324,8 +328,8 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
 
         if (state.updateStatus == LoadStatus.FAILURE) {
           AppSnackBar.showError(
-            title: "Cảnh báo",
-            message: state.errMsg ?? "Có lỗi xảy ra, vui lòng thử lại sau",
+            title: s.warning,
+            message: state.errMsg ?? s.v2_request_error_try_later,
           );
           _handlingAction = false;
           _cubit.onResetStatus();
@@ -518,8 +522,8 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
                     selectedDate,
                   )) {
                     AppSnackBar.showError(
-                      title: "Cảnh báo",
-                      message: "Từ ngày không được lớn hơn đến ngày",
+                      title: S.of(context).warning,
+                      message: S.of(context).v2_request_from_after_to,
                     );
                   } else {
                     _cubit.setFromDate(selectedDate);
@@ -545,8 +549,8 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
                 } else {
                   if (_isBeforeToday(selectedDate)) {
                     AppSnackBar.showError(
-                      title: "Cảnh báo",
-                      message: "Từ ngày không được nhỏ hơn hôm nay",
+                      title: S.of(context).warning,
+                      message: S.of(context).v2_request_from_before_today,
                     );
                   } else {
                     _cubit.setFromDate(selectedDate);
@@ -584,8 +588,8 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
                     _cubit.state.fromDateTime!,
                   )) {
                     AppSnackBar.showError(
-                      title: "Cảnh báo",
-                      message: "Từ ngày không được lớn hơn đến ngày",
+                      title: S.of(context).warning,
+                      message: S.of(context).v2_request_from_after_to,
                     );
                   } else {
                     _cubit.setToDate(selectedDate);
@@ -611,8 +615,8 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
                 } else {
                   if (_isBeforeToday(selectedDate)) {
                     AppSnackBar.showError(
-                      title: "Cảnh báo",
-                      message: "Đến ngày không được nhỏ hơn hôm nay",
+                      title: S.of(context).warning,
+                      message: S.of(context).day_off_notToday,
                     );
                   } else {
                     _cubit.setToDate(selectedDate);
@@ -889,9 +893,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
   void _showUpdate() {
     _showDialog(
       title: S.of(context).confirm,
-      message:
-          "Thông tin sẽ được thay đổi. Bạn chắc chắn "
-          "muốn thay đổi thông tin này?",
+      message: S.of(context).v2_request_confirm_change_info,
       success: true,
       onConfirm: () {
         _handlingAction = true;

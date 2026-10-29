@@ -632,10 +632,9 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
                             context: context,
                             builder:
                                 (_) => CustomDialog(
-                                  title: "Xác nhận",
-                                  content:
-                                      "Bạn có muốn gửi duyệt chuyến công tác này không?",
-                                  cancelText: "Không",
+                                  title: s.confirm,
+                                  content: s.v2_request_trip_submit_confirm,
+                                  cancelText: s.v2_request_no,
                                   confirmText: "Ok",
                                   onCancel: () => Navigator.pop(context),
                                   onConfirm: () {
@@ -649,7 +648,7 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
                         icon: Icons.send,
-                        label: "Gửi duyệt",
+                        label: s.bt_detail_sendApproval,
                       ),
                       SlidableAction(
                         onPressed: (_) {
@@ -657,10 +656,9 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
                             context: context,
                             builder:
                                 (_) => CustomDialog(
-                                  title: "Xác nhận",
-                                  content:
-                                      "Bạn có chắc muốn xóa chuyến công tác này?",
-                                  cancelText: "Không",
+                                  title: s.confirm,
+                                  content: s.v2_request_trip_delete_confirm,
+                                  cancelText: s.v2_request_no,
                                   confirmText: "Ok",
                                   onCancel: () => Navigator.pop(context),
                                   onConfirm: () {
@@ -674,7 +672,7 @@ class _WorkTripPageV2State extends State<WorkTripPageV2> {
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                         icon: Icons.delete,
-                        label: "Xóa",
+                        label: s.bt_detail_delete,
                       ),
                     ],
                   ),

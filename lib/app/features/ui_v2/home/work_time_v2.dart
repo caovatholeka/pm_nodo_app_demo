@@ -159,11 +159,14 @@ DateTime? checkOutReminderAtV2({
   return p.earliestOut;
 }
 
-/// "2h15p" / "45p" / "0p"
-String formatDurationShortV2(Duration d) {
+/// "2h15p" / "45p" / "0p". [minuteUnit] là ký hiệu phút theo ngôn ngữ đang chọn
+/// (mặc định "p"; tiếng Anh truyền "m" → "2h15m").
+String formatDurationShortV2(Duration d, {String minuteUnit = 'p'}) {
   final total = d.inMinutes;
   final h = total ~/ 60;
   final m = total % 60;
-  if (h > 0) return m > 0 ? '${h}h${m.toString().padLeft(2, '0')}p' : '${h}h';
-  return '${m}p';
+  if (h > 0) {
+    return m > 0 ? '${h}h${m.toString().padLeft(2, '0')}$minuteUnit' : '${h}h';
+  }
+  return '$m$minuteUnit';
 }

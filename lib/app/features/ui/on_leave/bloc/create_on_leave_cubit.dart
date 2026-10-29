@@ -6,6 +6,7 @@ import 'package:pm_app/app/core/logger/logger.dart';
 import 'package:pm_app/app/data/models/entities/leave_day_entity.dart';
 import 'package:pm_app/app/data/models/entities/leave_type_entity.dart';
 import 'package:pm_app/app/data/models/entities/on_leave_entity.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../config/app_config.dart';
 import '../../../../core/helper/response_mapper.dart';
@@ -73,7 +74,7 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
       // Bắt mọi lỗi (e.response có thể null khi mất mạng/timeout → trước đây văng lỗi,
       // trạng thái kẹt LOADING, hộp loading không tắt).
       logger.d(e);
-      String err = "Lỗi hệ thống: vui lòng thử lại sau!!";
+      String err = S.current.common_system_error_retry_later;
       emit(state.copyWith(createStatus: LoadStatus.FAILURE,errMsg: err));
     }
   }
@@ -141,9 +142,9 @@ class CreateOnLeaveCubit extends Cubit<CreateOnLeaveState> {
   // Loại nghỉ
   void getListTypeLeaves(){
     List<MasterDataItem> list = [
-      MasterDataItem(text: "Cả ngày",code: "full"),
-      MasterDataItem(text: "Sáng",code: "before"),
-      MasterDataItem(text: "Chiều",code: "after"),
+      MasterDataItem(text: S.current.allday,code: "full"),
+      MasterDataItem(text: S.current.morning,code: "before"),
+      MasterDataItem(text: S.current.afternoon,code: "after"),
     ];
 
     emit(state.copyWith(listTypeLeaves: list));

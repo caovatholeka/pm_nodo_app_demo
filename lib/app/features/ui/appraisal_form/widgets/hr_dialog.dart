@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
 import 'package:pm_app/app/features/widgets/primary_button.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class HrDialogResult {
   final String note;
@@ -12,17 +13,12 @@ class HrDialogResult {
 }
 
 class HrDialog extends StatefulWidget {
-  static const String fixedTitle = 'Ý kiến - Đề xuất';
-  static const String fixedDepartmentName = 'Phòng hành chính nhân sự';
-  static const String fixedHintText = 'Ý kiến của Phòng hành chính nhân sự';
-  static const String fixedConfirmText = 'Đồng ý';
-  static const String fixedCancelText = 'Từ chối';
-
-  final String title;
-  final String departmentName;
-  final String hintText;
-  final String confirmText;
-  final String cancelText;
+  // Để null → dùng chữ mặc định theo ngôn ngữ (l10n) khi build.
+  final String? title;
+  final String? departmentName;
+  final String? hintText;
+  final String? confirmText;
+  final String? cancelText;
   final String? initialNote;
   final TextEditingController? controller;
   final bool isLoading;
@@ -32,11 +28,11 @@ class HrDialog extends StatefulWidget {
 
   const HrDialog({
     super.key,
-    this.title = fixedTitle,
-    this.departmentName = fixedDepartmentName,
-    this.hintText = fixedHintText,
-    this.confirmText = fixedConfirmText,
-    this.cancelText = fixedCancelText,
+    this.title,
+    this.departmentName,
+    this.hintText,
+    this.confirmText,
+    this.cancelText,
     this.initialNote,
     this.controller,
     this.isLoading = false,
@@ -47,11 +43,11 @@ class HrDialog extends StatefulWidget {
 
   static Future<HrDialogResult?> show(
     BuildContext context, {
-    String title = fixedTitle,
-    String departmentName = fixedDepartmentName,
-    String hintText = fixedHintText,
-    String confirmText = fixedConfirmText,
-    String cancelText = fixedCancelText,
+    String? title,
+    String? departmentName,
+    String? hintText,
+    String? confirmText,
+    String? cancelText,
     String? initialNote,
     bool barrierDismissible = true,
   }) async {
@@ -117,6 +113,14 @@ class _HrDialogState extends State<HrDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+    final title = widget.title ?? s.v2_appraisal_opinion_proposal;
+    final departmentName =
+        widget.departmentName ?? s.v2_appraisal_hr_admin_department;
+    final hintText = widget.hintText ?? s.v2_appraisal_hr_admin_opinion_hint;
+    final confirmText = widget.confirmText ?? s.notifications_agree;
+    final cancelText = widget.cancelText ?? s.deny;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
@@ -186,7 +190,7 @@ class _HrDialogState extends State<HrDialog> {
               ),
               const SizedBox(height: 14),
               Text(
-                widget.title,
+                title,
                 style: const TextStyle(
                   fontFamily: AppConfig.fontFamily,
                   fontSize: 18,
@@ -197,7 +201,7 @@ class _HrDialogState extends State<HrDialog> {
               ),
               const SizedBox(height: 8),
               Text(
-                widget.departmentName,
+                departmentName,
                 style: const TextStyle(
                   fontFamily: AppConfig.fontFamily,
                   fontSize: 14,
@@ -218,7 +222,7 @@ class _HrDialogState extends State<HrDialog> {
                   color: Color(0xFF1F2937),
                 ),
                 decoration: InputDecoration(
-                  hintText: widget.hintText,
+                  hintText: hintText,
                   hintStyle: const TextStyle(
                     fontFamily: AppConfig.fontFamily,
                     fontSize: 16,
@@ -250,7 +254,7 @@ class _HrDialogState extends State<HrDialog> {
                 height: 50,
                 width: double.infinity,
                 child: PrimaryButton(
-                  mainText: widget.confirmText,
+                  mainText: confirmText,
                   enable: widget.isLoading == false,
                   isLoading: widget.isLoading,
                   borderRadius: 10,
@@ -268,7 +272,7 @@ class _HrDialogState extends State<HrDialog> {
                 height: 50,
                 width: double.infinity,
                 child: PrimaryButton(
-                  mainText: widget.cancelText,
+                  mainText: cancelText,
                   type: PrimaryButtonType.secondary,
                   enable: widget.isLoading == false,
                   borderRadius: 10,

@@ -1,3 +1,4 @@
+import '../../../generated/l10n.dart';
 import '../logger/logger.dart';
 
 class Validator {
@@ -41,7 +42,7 @@ class Validator {
 
   static String? validateExplanation(String? value) {
     if (isBlank(value)) {
-      return "Vui lòng nhập giải trình";
+      return S.current.common_please_enter_explanation;
     }
     return null;
   }
@@ -143,11 +144,11 @@ class Validator {
 
   String? validateConfirmPassword(String? password, String? confirmPassword) {
     if (confirmPassword == null || confirmPassword.isEmpty) {
-      return "Vui lòng nhập lại mật khẩu";
+      return S.current.common_please_reenter_password;
     }
 
     if (password != confirmPassword) {
-      return "Mật khẩu không khớp";
+      return S.current.common_password_mismatch;
     }
 
     return null;

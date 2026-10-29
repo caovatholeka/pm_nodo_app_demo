@@ -9,6 +9,7 @@ import 'package:pm_app/app/data/models/entities/job_title_entity.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/widgets/dropdown_input_field.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../widgets/appraisal_help_tooltip_v2.dart';
 
@@ -146,6 +147,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Container(
@@ -162,13 +165,14 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'IV. Kinh nghiệm làm việc',
-                    style: AppTokensV2.body,
+                  Flexible(
+                    child: Text(
+                      s.v2_appraisal_step_experience_title,
+                      style: AppTokensV2.body,
+                    ),
                   ),
                   AppraisalHelpTooltipV2(
-                    message:
-                        'Hãy liệt kê các dự án, vị trí công việc bạn đã làm, mô tả công việc, công nghệ sử dụng, quy mô nhân sự,...',
+                    message: s.v2_appraisal_experience_help,
                     autoShow: autoShowHelp,
                   ),
                 ],
@@ -213,7 +217,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
                             Icon(Icons.add, color: AppTokensV2.accent, size: 22),
                             SizedBox(width: 8),
                             Text(
-                              'Thêm tiêu chí',
+                              s.v2_appraisal_add_criteria,
                               style: TextStyle(
                                 color: AppTokensV2.accent,
                                 fontSize: 16,
@@ -235,6 +239,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
   }
 
   Widget _buildExperienceCard(BuildContext context, int index) {
+    final s = S.of(context);
     final item = experiences[index];
     final projectController = _controllerAt(projectControllers, index);
     final fromDateController = _controllerAt(fromDateControllers, index);
@@ -297,7 +302,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Các việc đã làm',
+                  s.v2_appraisal_work_done,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -322,8 +327,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           const SizedBox(height: 12),
           InputTextField(
             v2Style: true,
-            title: 'Dự án',
-            hintText: 'Nhập tên dự án, công việc,...',
+            title: s.v2_appraisal_project,
+            hintText: s.v2_appraisal_project_hint,
             controller: projectController,
             readOnly: readOnly,
             isRequiredField: true,
@@ -333,11 +338,11 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           DropdownInputField(
-            title: 'Vị trí công việc',
+            title: s.v2_appraisal_job_position,
             hint:
                 jobTitles.isEmpty
-                    ? 'Đang tải danh sách công việc'
-                    : 'Chọn vị trí công việc',
+                    ? s.v2_appraisal_loading_job_list
+                    : s.v2_appraisal_select_job_position,
             items: jobTitles.map((item) => item.name ?? '').toList(),
             selectedValue: _selectedPositionLabel(item.positionId),
             enable: !readOnly && jobTitles.isNotEmpty,
@@ -359,7 +364,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
               Expanded(
                 child: InputTextField(
                   v2Style: true,
-                  title: 'Từ ngày',
+                  title: s.day_off_from,
                   hintText: 'MM/YYYY',
                   controller: fromDateController,
                   readOnly: true,
@@ -383,7 +388,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
               Expanded(
                 child: InputTextField(
                   v2Style: true,
-                  title: 'Đến ngày',
+                  title: s.day_off_to,
                   hintText: 'MM/YYYY',
                   controller: toDateController,
                   readOnly: true,
@@ -408,7 +413,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           const SizedBox(height: 12),
           InputTextField(
             v2Style: true,
-            title: 'Công nghệ sử dụng',
+            title: s.v2_appraisal_technology_used,
             hintText: 'String boot, React,...',
             controller: techniqueController,
             readOnly: readOnly,
@@ -420,8 +425,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           const SizedBox(height: 12),
           InputTextField(
             v2Style: true,
-            title: 'Quy mô nhân sự',
-            hintText: 'Nhập quy mô nhân sự VD: 6 - 10',
+            title: s.v2_appraisal_team_size,
+            hintText: s.v2_appraisal_team_size_hint,
             controller: numberPeopleController,
             inputType: TextInputType.number,
             readOnly: readOnly,
@@ -433,8 +438,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
           const SizedBox(height: 12),
           InputTextField(
             v2Style: true,
-            title: 'Mô tả công việc',
-            hintText: 'Nhập mô tả công việc',
+            title: s.v2_appraisal_job_description,
+            hintText: s.v2_appraisal_job_description_hint,
             controller: noteController,
             readOnly: readOnly,
             isRequiredField: true,
@@ -449,7 +454,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             const SizedBox(height: 12),
             InputTextField(
               v2Style: true,
-              title: 'Ý kiến HR',
+              title: s.v2_appraisal_hr_opinion,
               hintText: '',
               initialValue: hrNoteText!(index),
               readOnly: true,
@@ -461,7 +466,7 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             const SizedBox(height: 12),
             InputTextField(
               v2Style: true,
-              title: 'Trạng thái',
+              title: s.employee_advanced_status,
               hintText: '',
               initialValue: hrStatusText!(index),
               readOnly: true,

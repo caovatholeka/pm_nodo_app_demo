@@ -26,6 +26,8 @@ import 'package:pm_app/app/features/ui_v2/task/task_detail_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/staff/staff_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/task/task_manage_page_v2.dart';
+import 'package:pm_app/app/core/utils/task_stage_label.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 class HomePageV2 extends StatefulWidget {
   const HomePageV2({super.key});
@@ -114,8 +116,8 @@ class _HomePageV2State extends State<HomePageV2> {
     _scheduledReminderAt = at;
     await LocalNotificationService.scheduleCheckOutReminder(
       at: at,
-      title: 'Đã đủ 8 tiếng làm việc',
-      body: 'Bấm để mở app và chấm công ra.',
+      title: S.of(context).v2_main_reminder_title,
+      body: S.of(context).v2_main_reminder_body,
     );
   }
 
@@ -129,7 +131,16 @@ class _HomePageV2State extends State<HomePageV2> {
   /// Ngày hôm nay dạng gọn: "T5, 24/07"
   String _todayShort() {
     final n = DateTime.now();
-    const wd = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    final s = S.of(context);
+    final wd = [
+      s.weekday_mon,
+      s.weekday_tue,
+      s.weekday_wed,
+      s.weekday_thu,
+      s.weekday_fri,
+      s.weekday_sat,
+      s.weekday_sun,
+    ];
     return '${wd[n.weekday - 1]}, ${DateFormat('dd/MM').format(n)}';
   }
 
@@ -274,19 +285,20 @@ class _HomePageV2State extends State<HomePageV2> {
   }
 
   Widget _header() {
+    final s = S.of(context);
     return Row(children: [
       _avatar(),
       const SizedBox(width: 12),
       Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Xin chào, $_name',
+        Text('${s.home_title} $_name',
             style: AppTokensV2.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
         const SizedBox(height: 1),
         // Chữ tĩnh (trước là hiệu ứng đánh máy + con trỏ nhấp nháy; ký tự con trỏ làm
         // dòng chữ cao/thấp theo nhịp nháy → cả thẻ chấm công bên dưới nhảy lên xuống).
-        Text('Cố gắng hết mình hôm nay nhé!',
+        Text(s.v2_main_home_motto,
             style: AppTokensV2.caption,
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
@@ -296,6 +308,7 @@ class _HomePageV2State extends State<HomePageV2> {
   }
 
   Widget _hero(HomeState state) {
+    final s = S.of(context);
     final checkIn = _fmtTime(state.checkInToday);
     final checkOut = _fmtTime(state.checkOutToday);
     final checkedIn = checkIn != '--:--';
@@ -315,12 +328,12 @@ class _HomePageV2State extends State<HomePageV2> {
     // Đang tải / tải lỗi → chưa hiện badge.
     final noShift = shift == null && state.shiftStatus == LoadStatus.SUCCESS;
     final shiftBadgeText = shift == null
-        ? 'Chưa phân ca'
+        ? s.v2_main_no_shift
         : (shift.isDayOff
-            ? 'Ngày nghỉ'
+            ? s.v2_main_day_off
             : (shiftName != null && shiftName.isNotEmpty
-                ? 'Ca $shiftName · $shiftIn - $shiftOut'
-                : 'Ca $shiftIn - $shiftOut'));
+                ? s.v2_main_shift_named(shiftName, shiftIn, shiftOut)
+                : s.v2_main_shift_time(shiftIn, shiftOut)));
 
     return Container(
       decoration: BoxDecoration(
@@ -341,7 +354,7 @@ class _HomePageV2State extends State<HomePageV2> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Hôm nay · ${_todayShort()}', style: AppTokensV2.captionStrong),
+                  Text('${s.attendance_card1} · ${_todayShort()}', style: AppTokensV2.captionStrong),
                   if (shift != null || noShift)
                     _shiftBadge(shift, shiftBadgeText),
                 ],
@@ -349,23 +362,23 @@ class _HomePageV2State extends State<HomePageV2> {
               const SizedBox(height: 14),
               Row(children: [
                 Expanded(
-                  child: _timeCol('Chấm Công Vào', checkIn,
-                      checkedIn ? 'Đã chấm' : 'Chưa chấm', checkedIn),
+                  child: _timeCol(s.attendance_card_status1, checkIn,
+                      checkedIn ? s.v2_main_checked : s.attendance_cardCheck_in, checkedIn),
                 ),
                 Container(width: 1, height: 44, color: AppTokensV2.border),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _timeCol(
-                      'Chấm Công Ra',
+                      s.attendance_card_status2,
                       checkOut,
-                      checkOut != '--:--' ? 'Đã chấm' : 'Chưa chấm',
+                      checkOut != '--:--' ? s.v2_main_checked : s.attendance_cardCheck_in,
                       checkOut != '--:--'),
                 ),
               ]),
               _workProgress(state),
               const SizedBox(height: 15),
               PrimaryButtonV2(
-                label: checkedIn ? 'Chấm công ra' : 'Chấm công vào',
+                label: checkedIn ? s.check_in_buttonOut : s.check_in_buttonIn,
                 onTap: () =>
                     GlobalData.instance.bottomNavIndex.value = 2, // tab Chấm công
               ),
@@ -470,6 +483,7 @@ class _HomePageV2State extends State<HomePageV2> {
         .clamp(0.0, 1.0)
         .toDouble();
     final outAt = DateFormat('HH:mm').format(p.earliestOut);
+    final s = S.of(context);
 
     return Padding(
       padding: const EdgeInsets.only(top: 14),
@@ -501,8 +515,9 @@ class _HomePageV2State extends State<HomePageV2> {
           Expanded(
             child: Text(
               p.done
-                  ? 'Đã đủ giờ — có thể chấm công ra'
-                  : 'Còn ${formatDurationShortV2(p.remaining)} nữa đủ giờ',
+                  ? s.v2_main_hours_done
+                  : s.v2_main_hours_left(formatDurationShortV2(p.remaining,
+                      minuteUnit: s.v2_main_minute_short)),
               style: TextStyle(
                 color: p.done ? AppTokensV2.success : AppTokensV2.fg,
                 fontSize: 11.5,
@@ -512,7 +527,7 @@ class _HomePageV2State extends State<HomePageV2> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Text('Ra lúc $outAt', style: AppTokensV2.captionStrong),
+          Text(s.v2_main_out_at(outAt), style: AppTokensV2.captionStrong),
         ]),
       ]),
     );
@@ -552,44 +567,45 @@ class _HomePageV2State extends State<HomePageV2> {
   }
 
   Widget _utilities() {
+    final s = S.of(context);
     final items = <(IconData, String, VoidCallback)>[
       (
         Icons.people_alt_outlined,
-        'Nhân viên',
+        s.utilities_tab1,
         () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const StaffPageV2(isFromHome: true))),
       ),
       (
         Icons.description_outlined,
-        'Dữ liệu công',
+        s.utilities_tab2,
         () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const AttendanceDataPageV2())),
       ),
       (
         Icons.event_available_outlined,
-        'Nghỉ phép',
+        s.utilities_tab3,
         () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const OnLeavePageV2(isFromHome: true))),
       ),
       (
         Icons.fingerprint,
-        'Chấm công',
+        s.utilities_tab4,
         () => GlobalData.instance.bottomNavIndex.value = 2,
       ),
       (
         Icons.checklist_rounded,
-        'Việc cần làm',
+        s.utilities_tab5,
         _openTaskManage,
       ),
       (
         Icons.assignment_outlined,
-        'Đơn từ',
+        s.utilities_tab6,
         () => Navigator.push(context,
             MaterialPageRoute(builder: (_) => const ApplicationPageV2())),
       ),
     ];
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('Tiện ích', style: AppTokensV2.section),
+      Text(s.utilities_title, style: AppTokensV2.section),
       const SizedBox(height: 12),
       GridView.count(
         crossAxisCount: 3,
@@ -658,7 +674,7 @@ class _HomePageV2State extends State<HomePageV2> {
                 borderRadius: BorderRadius.circular(17),
               ),
               child: Text(
-                stage.name ?? '',
+                taskStageLabel(context, stage),
                 style: TextStyle(
                   color: selected ? AppTokensV2.accent : AppTokensV2.fgSoft,
                   fontSize: 12,
@@ -675,13 +691,14 @@ class _HomePageV2State extends State<HomePageV2> {
   Widget _tasks(HomeState state) {
     final tasks = state.listNewTasks ?? const [];
     final loading = state.loadDataStatus == LoadStatus.LOADING && tasks.isEmpty;
+    final s = S.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('Việc cần làm', style: AppTokensV2.section),
+        Text(s.utilities_tab5, style: AppTokensV2.section),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: _openTaskManage,
-          child: Text('Xem tất cả',
+          child: Text(s.to_do_all,
               style: TextStyle(
                   color: AppTokensV2.accent,
                   fontSize: 12,
@@ -707,7 +724,7 @@ class _HomePageV2State extends State<HomePageV2> {
         GlassCardV2(
           padding: const EdgeInsets.all(20),
           child: Center(
-              child: Text('Không có việc nào', style: AppTokensV2.caption)),
+              child: Text(s.v2_main_no_tasks, style: AppTokensV2.caption)),
         )
       else
         for (final t in tasks.take(4))

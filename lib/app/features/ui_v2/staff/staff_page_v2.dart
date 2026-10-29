@@ -274,7 +274,7 @@ class _StaffPageV2State extends State<StaffPageV2> {
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           if (i == 0) {
-            return _badge('Tất cả', _selectedDeptId == null,
+            return _badge(S.of(context).notifications_all, _selectedDeptId == null,
                 () => _selectDepartment(null));
           }
           final d = depts[i - 1];
@@ -333,7 +333,8 @@ class _StaffPageV2State extends State<StaffPageV2> {
             Icon(Icons.people_outline_rounded,
                 size: 44, color: AppTokensV2.fgMuted),
             const SizedBox(height: 10),
-            Text('Không có nhân viên', style: AppTokensV2.captionStrong),
+            Text(S.of(context).v2_main_no_employees,
+                style: AppTokensV2.captionStrong),
           ]),
         ),
       );

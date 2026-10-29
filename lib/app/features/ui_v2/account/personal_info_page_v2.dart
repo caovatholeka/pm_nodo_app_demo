@@ -64,7 +64,7 @@ class _PersonalInfoPageV2State extends State<PersonalInfoPageV2> {
                     final user = state.profile;
                     if (user == null) {
                       return Center(
-                        child: Text("Lỗi tải thông tin",
+                        child: Text(s.v2_main_load_info_error,
                             style: AppTokensV2.captionStrong),
                       );
                     }
@@ -125,7 +125,7 @@ class _PersonalInfoPageV2State extends State<PersonalInfoPageV2> {
                             _InfoRowData(
                                 s.profile_address, user.workLocation),
                             _InfoRowData(
-                                "Trạng thái làm việc",
+                                s.v2_main_work_status,
                                 user.state == "work" ? s.profile_work : null),
                           ]),
                         ),
@@ -138,7 +138,7 @@ class _PersonalInfoPageV2State extends State<PersonalInfoPageV2> {
                               user.dateJoinCompany,
                             ),
                             _InfoRowData(
-                              "Hợp đồng",
+                              s.v2_main_contract,
                               user.contractStatus == "signed"
                                   ? s.profile_status1
                                   : s.profile_status2,

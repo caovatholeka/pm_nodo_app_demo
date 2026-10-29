@@ -72,13 +72,13 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
     return List<int>.generate(suggests.length, (index) => index);
   }
 
-  String _itemTitle(SuggestIdEntity item) {
+  String _itemTitle(S s, SuggestIdEntity item) {
     final code = item.code?.trim().toUpperCase();
     if (isHrReview && code == 'DG03') {
-      return 'DG03 - Ý kiến của HR';
+      return s.v2_appraisal_opinion_dg03_title;
     }
     if (isLeaderReview && code == 'DG02') {
-      return 'DG02 - Cấp trên đánh giá';
+      return s.v2_appraisal_opinion_dg02_title;
     }
     return '${item.code ?? ''} - ${item.name ?? ''}';
   }
@@ -106,7 +106,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                 children: [
                   Text(s.appraisal_step_opinion, style: AppTokensV2.body),
                   AppraisalHelpTooltipV2(
-                    message: 'Nhập ý kiến của bạn',
+                    message: s.appraisal_suggestion_hint,
                     autoShow: autoShowHelp,
                   ),
                 ],
@@ -166,7 +166,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  _itemTitle(item),
+                                  _itemTitle(s, item),
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -202,7 +202,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                             const SizedBox(height: 12),
                             InputTextField(
                               v2Style: true,
-                              title: 'Ý kiến HR',
+                              title: s.v2_appraisal_hr_opinion,
                               hintText: '',
                               initialValue: hrNoteText!(itemIndex),
                               readOnly: true,
@@ -218,7 +218,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                             const SizedBox(height: 12),
                             InputTextField(
                               v2Style: true,
-                              title: 'Trạng thái',
+                              title: s.employee_advanced_status,
                               hintText: '',
                               initialValue: hrStatusText!(itemIndex),
                               readOnly: true,

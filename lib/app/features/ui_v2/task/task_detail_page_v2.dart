@@ -19,6 +19,7 @@ import 'package:pm_app/app/features/ui_v2/task/create_new_task_v2.dart';
 import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
+import 'package:pm_app/app/core/utils/task_stage_label.dart';
 import 'package:pm_app/generated/l10n.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
 
@@ -288,7 +289,7 @@ class _TaskDetailPageV2State extends State<TaskDetailPageV2> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      (task?.stage?.name ?? "").toUpperCase(),
+                      taskStageLabel(context, task?.stage).toUpperCase(),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,

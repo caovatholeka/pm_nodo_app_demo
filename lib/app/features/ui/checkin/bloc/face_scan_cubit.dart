@@ -12,6 +12,7 @@ import 'package:pm_app/app/core/utils/perf_log.dart';
 import 'package:pm_app/app/data/models/entities/check_in_out_entity.dart';
 import 'package:pm_app/app/data/repositories/check_in_repository.dart';
 import 'package:pm_app/app/data/repositories/face_id_repository.dart';
+import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../data/models/entities/face_search_response_entity.dart';
 import '../../../../data/models/enums/load_status.dart';
@@ -41,9 +42,7 @@ class FaceScanCubit extends Cubit<FaceScanState> {
   }) async {
     final currentEmployeeId = GlobalData.instance.userProfile?.employeeId;
     if (currentEmployeeId == null) {
-      _emitScanFailure(
-        "Thông tin người dùng chưa sẵn sàng. Vui lòng đợi tải hồ sơ rồi thử lại.",
-      );
+      _emitScanFailure(S.current.common_face_profile_not_ready);
       await deleteQuietly(file.path);
       return;
     }
@@ -59,15 +58,13 @@ class FaceScanCubit extends Cubit<FaceScanState> {
       final results = res.searchData?.searchResults ?? [];
 
       if (results.isEmpty) {
-        _emitScanFailure(
-          "Không tìm thấy khuôn mặt khớp với tài khoản của bạn.",
-        );
+        _emitScanFailure(S.current.common_face_no_match);
         return;
       }
 
       final matchedFace = results.first;
       if (currentEmployeeId != matchedFace.employeeId) {
-        _emitScanFailure("Sai nhận diện người dùng.");
+        _emitScanFailure(S.current.common_face_wrong_user);
         return;
       }
 
@@ -86,7 +83,7 @@ class FaceScanCubit extends Cubit<FaceScanState> {
       if (check?.employeeId == null) {
         _emitScanFailure(
           _nonEmpty(checkInRes.message) ??
-              "Chấm công thất bại. Vui lòng thử lại.",
+              S.current.common_check_in_failed_retry,
         );
         return;
       }
@@ -105,9 +102,7 @@ class FaceScanCubit extends Cubit<FaceScanState> {
     } catch (e, s) {
       logger.d(e);
       logger.d(s);
-      _emitScanFailure(
-        "Không thể xác thực khuôn mặt lúc này. Vui lòng thử lại.",
-      );
+      _emitScanFailure(S.current.common_face_verify_unavailable);
     } finally {
       await deleteQuietly(file.path);
     }
@@ -131,21 +126,21 @@ class FaceScanCubit extends Cubit<FaceScanState> {
         error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout ||
         error.type == DioExceptionType.sendTimeout) {
-      return "Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng và thử lại.";
+      return S.current.common_server_unreachable_check_network;
     }
 
     final statusCode = error.response?.statusCode ?? 0;
     if (statusCode >= 500) {
-      return "Máy chủ đang bận. Vui lòng thử lại sau.";
+      return S.current.common_server_busy_retry_later;
     }
 
     // Lỗi 4xx: ưu tiên thông báo server trả về ({"message": ...} hoặc FastAPI {"detail": ...}).
     // Kèm mã lỗi + API để phân biệt lỗi nhận diện khuôn mặt hay lỗi chấm công khi báo lỗi.
     final api = error.requestOptions.path.contains('search-face')
-        ? 'nhận diện'
-        : 'chấm công';
+        ? S.current.common_face_api_recognition
+        : S.current.common_face_api_check_in;
     return _serverMessage(error.response?.data) ??
-        "Không thể chấm công lúc này ($api - mã $statusCode). Vui lòng thử lại.";
+        S.current.common_check_in_unavailable_code(api, statusCode);
   }
 
   String? _serverMessage(dynamic data) {

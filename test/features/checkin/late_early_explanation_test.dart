@@ -20,6 +20,9 @@ Widget _wrap(Widget child) {
 }
 
 void main() {
+  // Validator dùng S.current (l10n) → nạp ngôn ngữ vi trước khi gọi trực tiếp.
+  setUpAll(() async => S.load(const Locale('vi')));
+
   group('Kiểm tra bán kính chấm công (radius tolerance = 0)', () {
     const double radiusTolerance = 0;
 
