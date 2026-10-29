@@ -5,6 +5,7 @@ import 'package:pm_app/generated/l10n.dart';
 
 import '../../../../core/utils/date_utils.dart';
 import '../../../../data/models/entities/on_leave_entity.dart';
+import 'package:pm_app/app/core/theme_v2/label_v2.dart';
 
 const int kManagerApproveStatusIdV2 = 14;
 
@@ -95,9 +96,10 @@ class OnLeaveListItemV2 extends StatelessWidget {
   }
 
   String _approveOrReasonTitle(BuildContext context) {
+    // "attendance_reason" tiếng Việt có sẵn ":" → trước đây hiện "Lý do::"
     return entity.userApprove != null
-        ? "${S.of(context).day_off_approver}:"
-        : "${S.of(context).attendance_reason}:";
+        ? "${labelV2(S.of(context).day_off_approver)}:"
+        : "${labelV2(S.of(context).attendance_reason)}:";
   }
 
   @override

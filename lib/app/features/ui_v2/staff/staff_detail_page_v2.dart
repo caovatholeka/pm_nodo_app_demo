@@ -11,6 +11,7 @@ import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/features/ui/staff/staff_cubit.dart';
 import 'package:pm_app/app/features/widgets/contact_action_text.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/core/theme_v2/label_v2.dart';
 
 /// Màn Chi tiết nhân viên — giao diện tối (v2).
 ///
@@ -257,7 +258,7 @@ class _StaffDetailPageV2State extends State<StaffDetailPageV2> {
       children: [
         Expanded(
           flex: 2,
-          child: Text(label, style: AppTokensV2.captionStrong),
+          child: Text(labelV2(label), style: AppTokensV2.captionStrong),
         ),
         const SizedBox(width: 12),
         Expanded(

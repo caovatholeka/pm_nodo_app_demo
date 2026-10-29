@@ -378,7 +378,7 @@ class _AttendanceTabV2State extends State<AttendanceTabV2> {
                           title:
                               his.action == "check_in" ? "Check In" : "Check Out",
                           time: AppDateUtils()
-                              .formatTimeAmPm(his.datetime ?? ""),
+                              .formatTimeHm(his.datetime ?? ""),
                           subtitle: AppDateUtils()
                               .formatDateTime(his.datetime ?? ""),
                           place: his.location?.name ?? "",

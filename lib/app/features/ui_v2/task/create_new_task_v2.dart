@@ -26,6 +26,7 @@ import 'package:pm_app/app/features/widgets/app_snackbar.dart';
 import 'package:pm_app/app/features/widgets/custom_dialog.dart';
 import 'package:pm_app/app/features/widgets/loading_overlay.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/core/theme_v2/label_v2.dart';
 
 /// Màn Tạo/Sửa công việc — phiên bản giao diện tối (v2).
 ///
@@ -303,7 +304,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
 
   Widget _fieldLabel(String title, {bool required = false}) {
     return Row(children: [
-      Text(title, style: AppTokensV2.caption),
+      Text(labelV2(title), style: AppTokensV2.caption),
       if (required) ...[
         const SizedBox(width: 4),
         Text("*",

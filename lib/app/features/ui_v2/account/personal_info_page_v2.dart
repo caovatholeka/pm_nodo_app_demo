@@ -9,6 +9,7 @@ import 'package:pm_app/app/core/theme_v2/widgets/stagger_reveal_v2.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_cubit.dart';
 import 'package:pm_app/app/features/ui/account/personal_info/personal_state.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/core/theme_v2/label_v2.dart';
 
 /// Màn Thông tin cá nhân — phiên bản giao diện tối (v2). Hành vi giữ nguyên
 /// bản cũ (`personal_info_page.dart`): tải hồ sơ qua [PersonalCubit.fetchUserInfo],
@@ -259,7 +260,7 @@ class _PersonalInfoPageV2State extends State<PersonalInfoPageV2> {
       children: [
         SizedBox(
           width: 120,
-          child: Text(data.label, style: AppTokensV2.caption),
+          child: Text(labelV2(data.label), style: AppTokensV2.caption),
         ),
         Expanded(
           child: Text(

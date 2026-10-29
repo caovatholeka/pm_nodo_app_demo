@@ -191,6 +191,8 @@ abstract class ApiClient {
     @Query("stage_id") int? stageId,
     @Query("page") int? page,
     @Query("limit") int? limit,
+    // assigned_by_me | both — không gửi thì server trả mọi việc user được phép xem
+    @Query("scope") String? scope,
   );
 
   // lay ds task stage

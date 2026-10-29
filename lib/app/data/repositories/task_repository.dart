@@ -23,9 +23,13 @@ class TaskRepositoryImpl extends TaskRepository {
   // }
   ApiClient get _apiClient => ApiUtil.instance.createApiClient();
 
+  /// Việc của mình + việc mình giao (scope=both). Không gửi scope thì server trả mọi việc
+  /// user được phép xem → tài khoản Quản trị dự án thấy việc của cả công ty.
+  static const String taskListScope = 'both';
+
   @override
   Future<CommonResponse> getListTask(String? name, int? stageId, int? page, int? limit) async {
-    return await _apiClient.getListTask(name, stageId,page,limit);
+    return await _apiClient.getListTask(name, stageId, page, limit, taskListScope);
   }
 
   @override

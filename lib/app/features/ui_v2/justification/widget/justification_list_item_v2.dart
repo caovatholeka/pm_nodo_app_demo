@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
 import 'package:pm_app/app/data/models/entities/justification_entity.dart';
 import 'package:pm_app/generated/l10n.dart';
+import 'package:pm_app/app/core/theme_v2/label_v2.dart';
 
 /// Thẻ đơn muộn/sớm — phiên bản giao diện tối (v2). Nội dung/hành vi giữ
 /// nguyên [JustificationListItem] (bản cũ), chỉ đổi cách trình bày sang hệ
@@ -225,7 +226,7 @@ class JustificationListItemV2 extends StatelessWidget {
         Expanded(
           flex: 4,
           child: Text(
-            title,
+            labelV2(title),
             style: AppTokensV2.caption.copyWith(fontSize: 12.5),
           ),
         ),

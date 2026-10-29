@@ -132,7 +132,7 @@ class _DetailWorkEntryBottomSheetV2State
                             flex: 1,
                             child: _field(
                               title: s.work_data_dcheckIn,
-                              value: AppDateUtils().formatTimeAmPm(
+                              value: AppDateUtils().formatTimeHm(
                                   widget.workEntity?.dateStart ?? ""),
                             ),
                           ),
@@ -141,7 +141,7 @@ class _DetailWorkEntryBottomSheetV2State
                             flex: 1,
                             child: _field(
                               title: s.work_data_dcheckOut,
-                              value: AppDateUtils().formatTimeAmPm(
+                              value: AppDateUtils().formatTimeHm(
                                   widget.workEntity?.dateStop ?? ""),
                             ),
                           )

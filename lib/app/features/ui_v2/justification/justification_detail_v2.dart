@@ -23,6 +23,7 @@ import 'package:pm_app/generated/l10n.dart';
 
 import 'create_justification_page_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/bottom_sheet_bar_theme_v2.dart';
+import 'package:pm_app/app/core/theme_v2/label_v2.dart';
 
 /// Trạng thái hiển thị (chữ + màu) dùng chung cho badge trạng thái đơn.
 class _StatusUIV2 {
@@ -499,7 +500,7 @@ class _JustificationDetailV2State extends State<JustificationDetailV2> {
         Flexible(
           flex: 4,
           child: Text(
-            title,
+            labelV2(title),
             style: AppTokensV2.caption,
             overflow: TextOverflow.ellipsis,
           ),
