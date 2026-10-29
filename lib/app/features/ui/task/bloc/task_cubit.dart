@@ -58,17 +58,24 @@ class TaskCubit extends Cubit<TaskState> {
     ));
   }
 
+  /// Lần gọi danh sách mới nhất — kết quả của lần gọi cũ về sau (đổi tab nhanh, mở màn
+  /// gọi 2 lần) bị bỏ qua, không ghi đè danh sách của tab đang chọn.
+  int _listRequestId = 0;
+
   getListTasks() async {
     int page = 1;
     int limit = 100;
+    final requestId = ++_listRequestId;
     emit(state.copyWith(loadStatus: LoadStatus.LOADING));
     try {
       final res = await repository.getListTask(state.query,state.currentTabItem?.id,page,limit);
+      if (isClosed || requestId != _listRequestId) return;
       final items = TaskDataEntity.itemsFrom(res.data);
       emit(state.copyWith(loadStatus: LoadStatus.SUCCESS,listTasks: items));
     }catch(e,s){
       logger.d(e);
       logger.d(s);
+      if (isClosed || requestId != _listRequestId) return;
       emit(state.copyWith(loadStatus: LoadStatus.FAILURE,listTasks: []));
     }
   }
@@ -244,26 +251,36 @@ class TaskCubit extends Cubit<TaskState> {
     }
   }
 
+  /// Nạp danh sách giai đoạn rồi tải việc của tab đang chọn.
   getListStages() async {
-    emit(state.copyWith(getStageStatus: LoadStatus.LOADING));
-    try{  
+    // loadStatus LOADING ngay: không hiện tạm danh sách cũ của lần mở trước
+    emit(state.copyWith(getStageStatus: LoadStatus.LOADING, loadStatus: LoadStatus.LOADING));
+    try{
       final res = await repository.getTaskStages();
-      List<TaskStageEntity>? list;
-      if(res.data != null){
-        list = mapList(res.data, TaskStageEntity.fromJson);
-        if(list.isNotEmpty){
-          emit(state.copyWith(getStageStatus: LoadStatus.SUCCESS,listTaskStages: list));
-          onChangeCurrentTabItem(list.first);
-          getListTasks();
-        }else{
-          emit(state.copyWith(getStageStatus: LoadStatus.FAILURE, listTaskStages: []));
-        }
-
+      final list = res.data != null
+          ? mapList(res.data, TaskStageEntity.fromJson)
+          : <TaskStageEntity>[];
+      if(list.isNotEmpty){
+        // Cubit dùng chung giữa các lần mở màn → giữ tab đã chọn lần trước, nhưng ô đang
+        // sáng (currentTabIndex) phải khớp giai đoạn đang lọc (currentTabItem). Trước đây
+        // chỉ đặt lại giai đoạn về tab đầu → sáng "Đang thực hiện" mà hiện việc của "Mới".
+        final kept = list.indexWhere((e) => e.id == state.currentTabItem?.id);
+        final index = kept >= 0 ? kept : 0;
+        emit(state.copyWith(
+          getStageStatus: LoadStatus.SUCCESS,
+          listTaskStages: list,
+          currentTabIndex: index,
+          currentTabItem: list[index],
+        ));
+      }else{
+        emit(state.copyWith(getStageStatus: LoadStatus.FAILURE, listTaskStages: []));
       }
     }catch(e){
       logger.d(e);
       emit(state.copyWith(getStageStatus: LoadStatus.FAILURE, listTaskStages: []));
     }
+    // Lỗi tải giai đoạn vẫn tải danh sách (không lọc / tab cũ) thay vì để màn trống
+    getListTasks();
   }
 
 }

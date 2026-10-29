@@ -41,10 +41,9 @@ class _TaskManagePageV2State extends State<TaskManagePageV2> {
   @override
   void initState() {
     super.initState();
+    // getListStages tự tải việc của tab đang chọn sau khi có danh sách giai đoạn. Trước đây
+    // gọi thêm getListTasks ngay khi mở (lúc chưa biết tab) → 2 lần gọi chạy song song.
     _initData();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _cubit.getListTasks();
-    });
   }
 
   @override

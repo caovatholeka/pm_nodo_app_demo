@@ -22,7 +22,7 @@ import 'package:pm_app/app/features/ui_v2/home/work_time_v2.dart';
 import 'package:pm_app/app/data/models/entities/task_entity.dart';
 import 'package:pm_app/app/data/models/enums/load_status.dart';
 import 'package:pm_app/app/data/models/entities/shift_of_day_entity.dart';
-import 'package:pm_app/app/features/ui/task/task_detail_page.dart';
+import 'package:pm_app/app/features/ui_v2/task/task_detail_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/staff/staff_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/on_leave/on_leave_page_v2.dart';
 import 'package:pm_app/app/features/ui_v2/task/task_manage_page_v2.dart';
@@ -74,7 +74,7 @@ class _HomePageV2State extends State<HomePageV2> {
     final bool? result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TaskDetailPage(taskEntity: entity, taskId: entity.id),
+        builder: (_) => TaskDetailPageV2(taskEntity: entity, taskId: entity.id),
       ),
     );
     if (result == true) _onRefresh();
