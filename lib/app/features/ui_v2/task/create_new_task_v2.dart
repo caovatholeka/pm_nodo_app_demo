@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/blank_only_hint_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:flutter/services.dart';
@@ -350,8 +351,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                       _titleKey.currentState!.validate();
                       _cubit.onChangeTaskName(value);
                     },
-                    validator: (value) =>
-                        Validator.validateEmpty(value, "Tiêu đề"),
+                    validator: Validator.validateNotBlank,
                     decoration: const InputDecoration(
                       isDense: true,
                       border: InputBorder.none,
@@ -361,6 +361,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                     ),
                   ),
                 ),
+                BlankOnlyHintV2(controller: taskNameController, fieldName: 'Tiêu đề'),
               ],
             );
           },
@@ -634,8 +635,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                       _descriptionKey.currentState!.validate();
                       _cubit.onChangeDescription(value);
                     },
-                    validator: (value) =>
-                        Validator.validateEmpty(value, "Mô tả"),
+                    validator: Validator.validateNotBlank,
                     decoration: const InputDecoration(
                       isDense: true,
                       border: InputBorder.none,
@@ -645,6 +645,7 @@ class _CreateNewTaskV2State extends State<CreateNewTaskV2> {
                     ),
                   ),
                 ),
+                BlankOnlyHintV2(controller: descriptionController, fieldName: 'Mô tả'),
               ],
             );
           },

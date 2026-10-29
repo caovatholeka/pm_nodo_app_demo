@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:pm_app/app/core/utils/validators.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

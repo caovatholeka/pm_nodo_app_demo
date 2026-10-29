@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/utils/validators.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/blank_only_hint_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:flutter/services.dart';
@@ -916,6 +918,10 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
                 ),
               ),
             ),
+            BlankOnlyHintV2(
+              controller: reasonController,
+              fieldName: S.of(context).day_off_reason,
+            ),
           ],
         );
       },
@@ -933,7 +939,8 @@ class _CreateNewLeavePageV2State extends State<CreateNewLeavePageV2> {
               prev.toDate != cur.toDate,
       builder: (context, state) {
         bool isEnable = false;
-        if ((state.reason ?? "").isNotEmpty &&
+        // Lý do chỉ toàn khoảng trắng tính là chưa nhập (trước đây gửi lên → lỗi SQL).
+        if (!Validator.isBlank(state.reason) &&
             (state.leaveDateType ?? "").isNotEmpty &&
             (state.fromDate ?? "").isNotEmpty &&
             (state.toDate ?? "").isNotEmpty) {

@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/blank_only_hint_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:flutter/services.dart';
@@ -553,6 +554,10 @@ class _CreateJustificationPageV2State
               hintStyle: AppTokensV2.caption,
             ),
           ),
+        ),
+        BlankOnlyHintV2(
+          controller: _noteCtrl,
+          fieldName: S.of(context).justification_create_notes,
         ),
       ],
     );

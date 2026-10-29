@@ -30,6 +30,8 @@ class CreateOvertimeState extends Equatable {
   bool get isFormValid {
     if (fromDate == null || toDate == null) return false;
     if (overtimeLines.isEmpty) return false;
+    // Ghi chú bắt buộc; chỉ toàn khoảng trắng cũng tính là chưa nhập.
+    if (Validator.isBlank(note)) return false;
 
     for (final e in overtimeLines) {
       if (e.overtime == null || e.overtime! <= 0) return false;

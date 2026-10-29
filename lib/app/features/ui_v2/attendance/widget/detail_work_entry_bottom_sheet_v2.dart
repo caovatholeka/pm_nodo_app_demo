@@ -52,7 +52,7 @@ class _DetailWorkEntryBottomSheetV2State
     required String value,
   }) {
     return InputTextField(
-        v2Style: true,
+      v2Style: true,
       title: title,
       hintText: "",
       isRequiredField: false,
@@ -88,14 +88,20 @@ class _DetailWorkEntryBottomSheetV2State
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      s.work_data_dtitle,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppTokensV2.fg,
+                    // Co lại (…) khi thiếu chỗ — cỡ chữ hệ thống lớn từng làm dòng này tràn.
+                    Flexible(
+                      child: Text(
+                        s.work_data_dtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppTokensV2.fg,
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       AppDateUtils.changeIso8601StringToDateTimeString(
                           widget.date ?? ""),

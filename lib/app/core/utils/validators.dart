@@ -46,6 +46,9 @@ class Validator {
     return null;
   }
 
+  /// Như [validateEmpty] nhưng chỉ toàn khoảng trắng / ký tự vô hình cũng tính là trống.
+  static String? validateNotBlank(String? value) => isBlank(value) ? "" : null;
+
   static String? validateEmpty(String? value, String text) {
     if (value == null || value.isEmpty) {
       // return '$text ${S.current.is_not_empty}';

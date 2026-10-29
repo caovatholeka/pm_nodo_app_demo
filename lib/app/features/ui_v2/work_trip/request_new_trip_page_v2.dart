@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/utils/validators.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/blank_only_hint_v2.dart';
 import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:flutter/services.dart';
@@ -744,6 +746,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
             ),
           ),
         ),
+        BlankOnlyHintV2(controller: noteController, fieldName: S.of(context).bt_notes),
       ],
     );
   }
@@ -837,7 +840,7 @@ class _RequestNewTripPageV2State extends State<RequestNewTripPageV2> {
         if ((state.strUsers ?? "").isNotEmpty &&
             (state.fromDate ?? "").isNotEmpty &&
             (state.toDate ?? "").isNotEmpty &&
-            (state.note ?? "").isNotEmpty) {
+            !Validator.isBlank(state.note)) {
           isEnable = true;
         }
         return Container(
