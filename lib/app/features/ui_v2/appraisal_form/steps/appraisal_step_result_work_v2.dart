@@ -283,7 +283,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                   hintText: s.appraisal_task_done_hint,
                                   controller: _nameController(task, i),
                                   readOnly: readOnly,
-                                  maxLength: InputLimits.appraisalTitle,
+                                  maxLength: InputLimits.appraisalText,
                                   buildCounter: inputCounterV2(always: false),
                                   onChange: (value) => onNameChanged(i, value),
                                   isRequiredField: true,
@@ -331,7 +331,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                       hintText: '',
                                       controller: _evidenceController(task, i),
                                       readOnly: readOnly,
-                                      maxLength: InputLimits.appraisalNote,
+                                      maxLength: InputLimits.appraisalText,
                                       buildCounter: inputCounterV2(
                                         always: false,
                                       ),
@@ -350,7 +350,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                       hintText: s.appraisal_evidence_hint,
                                       controller: _evidenceController(task, i),
                                       readOnly: readOnly,
-                                      maxLength: InputLimits.appraisalNote,
+                                      maxLength: InputLimits.appraisalText,
                                       buildCounter: inputCounterV2(
                                         always: false,
                                       ),

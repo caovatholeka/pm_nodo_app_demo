@@ -185,7 +185,7 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                             hintText: s.appraisal_suggestion_hint,
                             controller: controller,
                             maxLine: 4,
-                            maxLength: InputLimits.appraisalNote,
+                            maxLength: InputLimits.appraisalText,
                             buildCounter: inputCounterV2(always: false),
                             isRequiredField: false,
                             readOnly: readOnly,

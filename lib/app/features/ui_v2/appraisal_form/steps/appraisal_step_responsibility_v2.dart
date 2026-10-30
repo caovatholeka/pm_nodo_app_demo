@@ -253,7 +253,7 @@ class AppraisalStepResponsibilityV2 extends StatelessWidget {
                                       : s.v2_appraisal_enter_evidence,
                               controller: _responseEvidence(item, i),
                               maxLine: 3,
-                              maxLength: InputLimits.appraisalNote,
+                              maxLength: InputLimits.appraisalText,
                               buildCounter: inputCounterV2(always: false),
                               isRequiredField: true,
                               readOnly: readOnly,

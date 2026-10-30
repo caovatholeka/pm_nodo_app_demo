@@ -215,7 +215,7 @@ class _AppraisalDialogV2State extends State<AppraisalDialogV2> {
                   TextField(
                     controller: _controller,
                     maxLines: 3,
-                    maxLength: InputLimits.appraisalNote,
+                    maxLength: InputLimits.appraisalText,
                     buildCounter: inputCounterV2(always: false),
                     textAlignVertical: TextAlignVertical.center,
                     style: TextStyle(
