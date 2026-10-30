@@ -210,7 +210,7 @@ class _HrDialogV2State extends State<HrDialogV2> {
               TextField(
                 controller: _controller,
                 maxLines: 1,
-                maxLength: InputLimits.appraisalText,
+                maxLength: InputLimits.appraisalNote,
                 buildCounter: inputCounterV2(always: false),
                 textAlignVertical: TextAlignVertical.center,
                 style: TextStyle(
