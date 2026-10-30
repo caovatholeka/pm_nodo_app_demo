@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/config/app_config.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/generated/l10n.dart';
 
 import '../../../ui/appraisal_form/widgets/hr_dialog.dart' show HrDialogResult;
@@ -208,6 +210,8 @@ class _HrDialogV2State extends State<HrDialogV2> {
               TextField(
                 controller: _controller,
                 maxLines: 1,
+                maxLength: InputLimits.appraisalText,
+                buildCounter: inputCounterV2(always: false),
                 textAlignVertical: TextAlignVertical.center,
                 style: TextStyle(
                   fontFamily: AppConfig.fontFamily,

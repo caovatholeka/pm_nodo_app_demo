@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/features/ui/justification/widgets/dashed_border_box.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -27,6 +29,8 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
   final void Function(int taskIndex, String value) onTaskRateChanged;
   final void Function(int taskIndex, String value)? onEvidenceChanged;
   final VoidCallback? onAddCriteria;
+  // null = không cho xoá (chỉ còn số đầu việc tối thiểu, hoặc chế độ chỉ xem)
+  final void Function(int index)? onRemoveItem;
   final Future<void> Function(int index)? onItemTap;
   final String Function(int index)? hrNoteText;
   final String Function(int index)? hrStatusText;
@@ -46,6 +50,7 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
     required this.onTaskRateChanged,
     this.onEvidenceChanged,
     this.onAddCriteria,
+    this.onRemoveItem,
     this.onItemTap,
     this.hrNoteText,
     this.hrStatusText,
@@ -244,12 +249,42 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Đánh số để khớp với thông báo "Đầu việc N: chưa nhập ..."
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        s.v2_appraisal_task_item(i + 1),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: _accent,
+                                        ),
+                                      ),
+                                    ),
+                                    if (!readOnly && onRemoveItem != null)
+                                      IconButton(
+                                        onPressed: () => onRemoveItem!(i),
+                                        icon: Icon(
+                                          Icons.delete_outline,
+                                          size: 20,
+                                          color: AppTokensV2.danger,
+                                        ),
+                                        splashRadius: 20,
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
                                 InputTextField(
                                   v2Style: true,
                                   title: s.appraisal_task_done,
                                   hintText: s.appraisal_task_done_hint,
                                   controller: _nameController(task, i),
                                   readOnly: readOnly,
+                                  maxLength: InputLimits.appraisalText,
+                                  buildCounter: inputCounterV2(always: false),
                                   onChange: (value) => onNameChanged(i, value),
                                   isRequiredField: true,
                                   fillBgColor: AppTokensV2.surfaceStrong,
@@ -296,6 +331,10 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                       hintText: '',
                                       controller: _evidenceController(task, i),
                                       readOnly: readOnly,
+                                      maxLength: InputLimits.appraisalText,
+                                      buildCounter: inputCounterV2(
+                                        always: false,
+                                      ),
                                       isRequiredField: true,
                                       fillBgColor: AppTokensV2.surfaceStrong,
                                       style: _fieldStyle,
@@ -311,6 +350,10 @@ class AppraisalStepResultWorkV2 extends StatelessWidget {
                                       hintText: s.appraisal_evidence_hint,
                                       controller: _evidenceController(task, i),
                                       readOnly: readOnly,
+                                      maxLength: InputLimits.appraisalText,
+                                      buildCounter: inputCounterV2(
+                                        always: false,
+                                      ),
                                       isRequiredField: true,
                                       fillBgColor: AppTokensV2.surfaceStrong,
                                       style: _fieldStyle,

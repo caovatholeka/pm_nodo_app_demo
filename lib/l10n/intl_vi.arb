@@ -703,6 +703,39 @@
   "v2_appraisal_technology_used": "Công nghệ sử dụng",
   "v2_appraisal_total_coefficient_must_be_100": "Tổng hệ số phải bằng 100%",
   "v2_appraisal_work_done": "Các việc đã làm",
+  "v2_appraisal_task_item": "Đầu việc {index}",
+  "@v2_appraisal_task_item": {
+    "placeholders": {
+      "index": {}
+    }
+  },
+  "v2_appraisal_min_tasks_required": "Cần ít nhất {count} đầu việc",
+  "@v2_appraisal_min_tasks_required": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "v2_appraisal_task_missing_field": "Đầu việc {index}: chưa nhập \"{field}\"",
+  "@v2_appraisal_task_missing_field": {
+    "placeholders": {
+      "index": {},
+      "field": {}
+    }
+  },
+  "v2_appraisal_task_missing_rating": "Đầu việc {index}: chưa chấm sao \"{field}\"",
+  "@v2_appraisal_task_missing_rating": {
+    "placeholders": {
+      "index": {},
+      "field": {}
+    }
+  },
+  "v2_appraisal_task_weight_must_be_positive": "Đầu việc {index}: trọng số phải lớn hơn 0",
+  "@v2_appraisal_task_weight_must_be_positive": {
+    "placeholders": {
+      "index": {}
+    }
+  },
+  "v2_appraisal_fill_required_fields": "Vui lòng nhập đủ các ô bắt buộc (*) và chấm sao cho tất cả tiêu chí",
   "common_add_documents": "Thêm tài liệu",
   "common_agree_upper": "ĐỒNG Ý",
   "common_call_this_number": "Gọi theo số này",

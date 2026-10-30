@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/data/models/entities/suggest_id_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -183,6 +185,8 @@ class AppraisalStepOpinionV2 extends StatelessWidget {
                             hintText: s.appraisal_suggestion_hint,
                             controller: controller,
                             maxLine: 4,
+                            maxLength: InputLimits.appraisalText,
+                            buildCounter: inputCounterV2(),
                             isRequiredField: false,
                             readOnly: readOnly,
                             fillBgColor: AppTokensV2.surface,

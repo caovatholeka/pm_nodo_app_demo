@@ -714,6 +714,39 @@
   "v2_appraisal_technology_used": "Technologies Used",
   "v2_appraisal_total_coefficient_must_be_100": "Total coefficient must equal 100%",
   "v2_appraisal_work_done": "Work Done",
+  "v2_appraisal_task_item": "Task {index}",
+  "@v2_appraisal_task_item": {
+    "placeholders": {
+      "index": {}
+    }
+  },
+  "v2_appraisal_min_tasks_required": "At least {count} tasks are required",
+  "@v2_appraisal_min_tasks_required": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "v2_appraisal_task_missing_field": "Task {index}: \"{field}\" is not filled in",
+  "@v2_appraisal_task_missing_field": {
+    "placeholders": {
+      "index": {},
+      "field": {}
+    }
+  },
+  "v2_appraisal_task_missing_rating": "Task {index}: \"{field}\" has not been rated",
+  "@v2_appraisal_task_missing_rating": {
+    "placeholders": {
+      "index": {},
+      "field": {}
+    }
+  },
+  "v2_appraisal_task_weight_must_be_positive": "Task {index}: weight must be greater than 0",
+  "@v2_appraisal_task_weight_must_be_positive": {
+    "placeholders": {
+      "index": {}
+    }
+  },
+  "v2_appraisal_fill_required_fields": "Please fill in all required fields (*) and rate every criterion",
   "common_add_documents": "Add Documents",
   "common_agree_upper": "OK",
   "common_call_this_number": "Call this number",

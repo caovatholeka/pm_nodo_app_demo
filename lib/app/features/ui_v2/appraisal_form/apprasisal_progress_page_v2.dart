@@ -42,6 +42,8 @@ class ApprasisalProgressPageV2 extends StatefulWidget {
 class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
   static const int _totalSteps = 5;
   static const int _lastStepIndex = _totalSteps - 1;
+  // Bước "Kết quả thực hiện công việc" bắt buộc tối thiểu 3 đầu việc
+  static const int _minTaskItems = 3;
 
   int _currentStep = 0;
   bool _didHydrateDetail = false;
@@ -436,7 +438,8 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
   }
 
   void _initializeCreateDefaults() {
-    _taskItems = [TaskLineIdEntity()];
+    // Mở sẵn đủ số đầu việc tối thiểu (trước đây chỉ 1 dòng, phải tự bấm "Thêm tiêu chí")
+    _taskItems = List.generate(_minTaskItems, (_) => TaskLineIdEntity());
     _experienceItems = [ExperienceIdEntity()];
     _responseItems = [
       ResponsiveIdEntity(
@@ -513,10 +516,11 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
     ];
 
     */
-    _replaceControllers(_taskNameControllers, const ['']);
-    _replaceControllers(_taskRateControllers, const ['']);
-    _replaceControllers(_taskEvidenceControllers, const ['']);
-    _replaceControllers(_leaderTaskEvidenceControllers, const ['']);
+    final emptyTaskTexts = List.filled(_minTaskItems, '');
+    _replaceControllers(_taskNameControllers, emptyTaskTexts);
+    _replaceControllers(_taskRateControllers, emptyTaskTexts);
+    _replaceControllers(_taskEvidenceControllers, emptyTaskTexts);
+    _replaceControllers(_leaderTaskEvidenceControllers, emptyTaskTexts);
     _replaceControllers(
       _responseEvidenceControllers,
       List.filled(_responseItems.length, ''),
@@ -900,6 +904,23 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
       _taskRateControllers.add(TextEditingController());
       _taskEvidenceControllers.add(TextEditingController());
       _leaderTaskEvidenceControllers.add(TextEditingController());
+      _refreshHeaderTotals();
+    });
+  }
+
+  void _removeTaskCriteria(int index) {
+    if (_taskItems.length <= _minTaskItems) return;
+
+    setState(() {
+      _taskItems.removeAt(index);
+      for (final controllers in [
+        _taskNameControllers,
+        _taskRateControllers,
+        _taskEvidenceControllers,
+        _leaderTaskEvidenceControllers,
+      ]) {
+        if (index < controllers.length) controllers.removeAt(index).dispose();
+      }
       _refreshHeaderTotals();
     });
   }
@@ -1317,7 +1338,7 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
 
     switch (_currentStep) {
       case 0:
-        return _taskItems.length >= 3 &&
+        return _taskItems.length >= _minTaskItems &&
             _hasValidTaskRateTotal() &&
             _taskItems.isNotEmpty &&
             List<bool>.generate(
@@ -1355,6 +1376,70 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
       default:
         return true;
     }
+  }
+
+  /// Lý do chưa qua được bước hiện tại, hiện khi bấm nút "Tiếp theo" đang khoá
+  /// (trước đây nút chỉ mờ đi, không biết còn thiếu ô nào). Cùng điều kiện với [_canProceed].
+  String _proceedBlockedMessage({required bool isLeaderReview}) {
+    final s = S.of(context);
+    if (_currentStep != 0) return s.v2_appraisal_fill_required_fields;
+
+    if (_taskItems.length < _minTaskItems) {
+      return s.v2_appraisal_min_tasks_required(_minTaskItems);
+    }
+
+    for (int index = 0; index < _taskItems.length; index++) {
+      final item = _taskItems[index];
+      final no = index + 1;
+
+      if (!_hasText(item.name) &&
+          !_hasText(_textAt(_taskNameControllers, index))) {
+        return s.v2_appraisal_task_missing_field(no, s.appraisal_task_done);
+      }
+      if (item.rate == null) {
+        return s.v2_appraisal_task_missing_field(
+          no,
+          s.appraisal_weight_percent,
+        );
+      }
+      if (item.rate! <= 0) {
+        return s.v2_appraisal_task_weight_must_be_positive(no);
+      }
+
+      final ratings = [
+        MapEntry(
+          s.appraisal_metric_volume,
+          isLeaderReview ? item.parentVolume : item.volume,
+        ),
+        MapEntry(
+          s.appraisal_metric_quality,
+          isLeaderReview ? item.parentQuality : item.quality,
+        ),
+        MapEntry(
+          s.appraisal_metric_progress,
+          isLeaderReview ? item.parentProgress : item.progress,
+        ),
+      ];
+      for (final rating in ratings) {
+        if (_toInt(rating.value) <= 0) {
+          return s.v2_appraisal_task_missing_rating(no, rating.key);
+        }
+      }
+
+      if (!_hasText(_textAt(_taskControllersForTab(isLeaderReview), index))) {
+        return s.v2_appraisal_task_missing_field(
+          no,
+          isLeaderReview
+              ? s.appraisal_adjustment_feedback
+              : s.appraisal_evidence,
+        );
+      }
+    }
+
+    if (!_hasValidTaskRateTotal()) {
+      return s.v2_appraisal_total_coefficient_must_be_100;
+    }
+    return s.v2_appraisal_fill_required_fields;
   }
 
   Future<HrDialogResult?> _showHrItemDialog(String? initialNote) {
@@ -1555,6 +1640,10 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
       setState(() {
         _showCoefError = _currentStep == 0 && !_hasValidTaskRateTotal();
       });
+      AppSnackBar.showError(
+        title: S.of(context).warning,
+        message: _proceedBlockedMessage(isLeaderReview: isLeaderReview),
+      );
       return;
     }
 
@@ -1861,6 +1950,10 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
         evidenceControllers: _taskControllersForTab(isLeaderReview),
         readOnly: readOnly,
         onAddCriteria: (!readOnly && !isLeaderReview) ? _addTaskCriteria : null,
+        onRemoveItem:
+            (!readOnly && !isLeaderReview && _taskItems.length > _minTaskItems)
+                ? _removeTaskCriteria
+                : null,
         onNameChanged: _updateTaskName,
         onTaskRateChanged: _updateTaskRate,
         onEvidenceChanged:
@@ -2164,6 +2257,11 @@ class _ApprasisalProgressPageV2State extends State<ApprasisalProgressPageV2> {
                                       state.updateStatus == LoadStatus.LOADING,
                                   isPrimary: true,
                                   onTap: _next,
+                                  // Nút đang khoá vì thiếu dữ liệu: bấm vẫn báo ô còn thiếu
+                                  onDisabledTap:
+                                      state.updateStatus == LoadStatus.LOADING
+                                          ? null
+                                          : _next,
                                 ),
                               ),
                             ],
@@ -2298,6 +2396,8 @@ class _ActionButtonV2 extends StatelessWidget {
   final bool isLoading;
   final bool isPrimary;
   final VoidCallback onTap;
+  // Gọi khi bấm lúc nút đang khoá (enable = false, không loading)
+  final VoidCallback? onDisabledTap;
 
   const _ActionButtonV2({
     required this.label,
@@ -2305,11 +2405,13 @@ class _ActionButtonV2 extends StatelessWidget {
     required this.isLoading,
     required this.isPrimary,
     required this.onTap,
+    this.onDisabledTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final canPress = enable && !isLoading;
+    final disabledTap = !canPress && !isLoading ? onDisabledTap : null;
 
     return SizedBox(
       height: 48,
@@ -2324,7 +2426,7 @@ class _ActionButtonV2 extends StatelessWidget {
                     HapticFeedback.selectionClick();
                     onTap();
                   }
-                  : null,
+                  : disabledTap,
           child: Container(
             decoration: BoxDecoration(
               gradient: isPrimary && canPress ? AppTokensV2.accentGradient : null,

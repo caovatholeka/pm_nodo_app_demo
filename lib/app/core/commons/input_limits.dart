@@ -18,4 +18,8 @@ class InputLimits {
 
   /// Lý do chấm công sớm/muộn (popup sau khi chấm).
   static const int checkInReason = 500;
+
+  /// Phiếu đánh giá — mọi ô chữ: công việc đã thực hiện, minh chứng/ghi chú, ý kiến điều
+  /// chỉnh, kinh nghiệm, ý kiến đề xuất, ý kiến duyệt (QA 30/10).
+  static const int appraisalText = 500;
 }

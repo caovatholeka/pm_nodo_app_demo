@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/data/models/entities/skill_id_entity.dart';
 import 'package:pm_app/app/features/widgets/input_text_field.dart';
 import 'package:pm_app/generated/l10n.dart';
@@ -275,6 +277,8 @@ class AppraisalStepSkillV2 extends StatelessWidget {
                                       : s.v2_appraisal_enter_evidence,
                               controller: _skillEvidence(skill, i),
                               maxLine: 3,
+                              maxLength: InputLimits.appraisalText,
+                              buildCounter: inputCounterV2(),
                               isRequiredField: true,
                               readOnly: readOnly,
                               fillBgColor: AppTokensV2.surfaceStrong,

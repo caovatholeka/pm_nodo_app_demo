@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:pm_app/app/core/commons/app_assets.dart';
+import 'package:pm_app/app/core/commons/input_limits.dart';
 import 'package:pm_app/app/core/theme_v2/app_tokens_v2.dart';
+import 'package:pm_app/app/core/theme_v2/widgets/input_counter_v2.dart';
 import 'package:pm_app/app/core/utils/date_utils.dart';
 import 'package:pm_app/app/data/models/entities/experience_id_entity.dart';
 import 'package:pm_app/app/data/models/entities/job_title_entity.dart';
@@ -331,6 +333,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             hintText: s.v2_appraisal_project_hint,
             controller: projectController,
             readOnly: readOnly,
+            maxLength: InputLimits.appraisalText,
+            buildCounter: inputCounterV2(always: false),
             isRequiredField: true,
             fillBgColor: AppTokensV2.surfaceStrong,
             style: _fieldStyle,
@@ -417,6 +421,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             hintText: 'String boot, React,...',
             controller: techniqueController,
             readOnly: readOnly,
+            maxLength: InputLimits.appraisalText,
+            buildCounter: inputCounterV2(always: false),
             isRequiredField: false,
             fillBgColor: AppTokensV2.surfaceStrong,
             style: _fieldStyle,
@@ -430,6 +436,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             controller: numberPeopleController,
             inputType: TextInputType.number,
             readOnly: readOnly,
+            maxLength: InputLimits.appraisalText,
+            buildCounter: inputCounterV2(always: false),
             isRequiredField: false,
             fillBgColor: AppTokensV2.surfaceStrong,
             style: _fieldStyle,
@@ -444,6 +452,8 @@ class AppraisalStepExperienceV2 extends StatelessWidget {
             readOnly: readOnly,
             isRequiredField: true,
             maxLine: 4,
+            maxLength: InputLimits.appraisalText,
+            buildCounter: inputCounterV2(),
             fillBgColor: AppTokensV2.surfaceStrong,
             style: _fieldStyle,
             onChange: (value) => onNoteChanged(index, value),
